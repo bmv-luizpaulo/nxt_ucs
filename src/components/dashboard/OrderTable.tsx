@@ -393,7 +393,7 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
                 <div className="w-16 h-16 border-4 border-emerald-100 rounded-full flex items-center justify-center mb-2">
                    <CheckCircle2 className="w-8 h-8 text-emerald-500" />
                 </div>
-                <p className="text-[9px] font-black uppercase text-emerald-600 tracking-tighter italic">Integridade LedgerTrust Verificada</p>
+                <p className="text-[9px] font-black uppercase text-emerald-600 tracking-tighter italic">Integridade Verificada</p>
              </div>
              <div className="text-right space-y-1">
                 <div className="w-56 border-b-2 border-slate-900 ml-auto mb-2"></div>
