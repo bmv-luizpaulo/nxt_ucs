@@ -2,7 +2,7 @@ import { Pedido, OrderStatus, Movimento } from "@/lib/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { StatusBadge } from "./StatusBadge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Trash2, MoreHorizontal, Link as LinkIcon, Save, Database, ShieldCheck } from "lucide-react";
+import { ExternalLink, Trash2, MoreHorizontal, Link as LinkIcon, Save, Database, ShieldCheck, Check, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { MovementList } from "./MovementList";
 import { OrderAuditForm } from "./OrderAuditForm";
@@ -26,48 +26,72 @@ export function OrderTable({ orders, onUpdateOrder, onDeleteOrder, onAddMovement
       <Table>
         <TableHeader>
           <TableRow className="bg-slate-50/50 hover:bg-slate-50/50 border-b border-slate-100">
-            <TableHead className="w-[120px] text-[10px] font-black uppercase tracking-widest text-slate-400 pl-8 h-14">ID Pedido</TableHead>
-            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-14">Data / Hora</TableHead>
-            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-14">Empresa / CNPJ</TableHead>
-            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right h-14">Quantidade</TableHead>
-            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right h-14">Total (R$)</TableHead>
-            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center h-14">NXT Link</TableHead>
-            <TableHead className="w-[100px] text-[10px] font-black uppercase tracking-widest text-slate-400 text-right pr-8 h-14">Ações</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-8 h-14">Pedido</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-14">Data</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-14">Origem</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-14">PARC/PROG</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center h-14">UF</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center h-14">D.O</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right h-14">Qtd</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right h-14">Taxa</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right h-14">Total</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center h-14">Nxt</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center h-14">Status</TableHead>
+            <TableHead className="w-[60px] pr-8 h-14"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {orders.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="h-48 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest">
+              <TableCell colSpan={12} className="h-48 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest">
                 Nenhum pedido registrado nesta categoria
               </TableCell>
             </TableRow>
           ) : (
             orders.map((order) => (
               <TableRow key={order.id} className="group hover:bg-slate-50/80 transition-colors border-b border-slate-50 last:border-0">
-                <TableCell className="font-mono font-bold text-sm text-primary pl-8">{order.id}</TableCell>
-                <TableCell className="text-[11px] text-slate-500">
+                <TableCell className="font-mono font-bold text-xs text-primary pl-8">{order.id}</TableCell>
+                <TableCell className="text-[10px] text-slate-500 whitespace-nowrap">
                   <div className="font-bold text-slate-900">{new Date(order.data).toLocaleDateString('pt-BR')}</div>
-                  <div className="text-[10px]">{new Date(order.data).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
+                  <div className="text-[9px] opacity-70">{new Date(order.data).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col">
-                    <span className="font-bold text-[11px] uppercase truncate max-w-[200px] text-slate-900">{order.empresa}</span>
-                    <span className="text-[10px] text-slate-400 font-mono">{order.cnpj}</span>
+                    <span className="font-bold text-[10px] uppercase truncate max-w-[150px] text-slate-900">{order.empresa}</span>
+                    <span className="text-[9px] text-slate-400 font-mono">{order.cnpj}</span>
                   </div>
                 </TableCell>
-                <TableCell className="text-right font-mono text-xs font-black text-slate-900">{order.quantidade} UCS</TableCell>
-                <TableCell className="text-right font-mono font-black text-sm text-primary">
+                <TableCell className="text-[10px] font-medium text-slate-600 max-w-[120px] truncate">
+                  {order.programa}
+                </TableCell>
+                <TableCell className="text-center font-bold text-[10px] text-slate-500">
+                  {order.uf}
+                </TableCell>
+                <TableCell className="text-center">
+                  {order.do ? (
+                    <Check className="w-3.5 h-3.5 text-emerald-500 mx-auto" />
+                  ) : (
+                    <X className="w-3.5 h-3.5 text-slate-300 mx-auto" />
+                  )}
+                </TableCell>
+                <TableCell className="text-right font-mono text-[10px] font-black text-slate-900 whitespace-nowrap">{order.quantidade} UCS</TableCell>
+                <TableCell className="text-right font-mono text-[10px] text-slate-500">
+                  {order.taxa.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                </TableCell>
+                <TableCell className="text-right font-mono font-black text-[11px] text-primary whitespace-nowrap">
                   {order.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                 </TableCell>
                 <TableCell className="text-center">
                   {order.linkNxt ? (
-                    <a href={order.linkNxt} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-50 text-primary hover:bg-primary hover:text-white transition-all shadow-sm">
-                      <LinkIcon className="w-3.5 h-3.5" />
+                    <a href={order.linkNxt} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-50 text-primary hover:bg-primary hover:text-white transition-all shadow-sm">
+                      <LinkIcon className="w-3 h-3" />
                     </a>
                   ) : (
-                    <Badge variant="outline" className="text-[8px] border-rose-100 bg-rose-50 text-rose-500 uppercase px-1.5 py-0.5 font-bold tracking-tighter">Ausente</Badge>
+                    <Badge variant="outline" className="text-[7px] border-rose-100 bg-rose-50 text-rose-500 uppercase px-1 py-0 font-bold tracking-tighter">OFF</Badge>
                   )}
+                </TableCell>
+                <TableCell className="text-center">
+                  <StatusBadge status={order.status} />
                 </TableCell>
                 <TableCell className="text-right pr-8">
                   <OrderDetailsDialog 
@@ -111,8 +135,8 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-xl">
-          <MoreHorizontal className="w-5 h-5" />
+        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg">
+          <MoreHorizontal className="w-4 h-4" />
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-[2.5rem] border-none shadow-2xl p-8">

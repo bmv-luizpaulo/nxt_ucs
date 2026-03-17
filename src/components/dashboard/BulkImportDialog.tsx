@@ -30,18 +30,24 @@ export function BulkImportDialog({ onImport, category }: BulkImportDialogProps) 
     const lines = raw.split('\n').filter(l => l.trim());
     const parsedOrders: any[] = [];
 
-    lines.forEach(line => {
+    // Skip the header if it looks like one
+    const startIdx = lines[0]?.toLowerCase().includes('pedido') ? 1 : 0;
+
+    for (let i = startIdx; i < lines.length; i++) {
+      const line = lines[i];
       const parts = line.split('\t');
-      if (parts.length < 5) return;
+      if (parts.length < 5) continue;
 
       const id = parts[0].trim();
       const dataStr = parts[1].trim();
       const originRaw = parts[2].replace(/"/g, '').trim();
       const programa = parts[3]?.trim() || "";
       const uf = parts[4]?.trim() || "";
-      const doFlag = parts[5]?.trim().toLowerCase() === 'sim';
+      const doFlag = parts[5]?.trim().toLowerCase() === 'sim' || parts[5]?.trim().toLowerCase() === 's';
       
-      const quantidade = parseInt(parts[6]?.replace(/[^\d]/g, '') || "0");
+      // Quantidade might have " UCS" text
+      const quantidadeStr = parts[6]?.replace(/[^\d]/g, '') || "0";
+      const quantidade = parseInt(quantidadeStr);
       
       const parseBRL = (val: string) => {
         if (!val) return 0;
@@ -51,17 +57,29 @@ export function BulkImportDialog({ onImport, category }: BulkImportDialogProps) 
       const taxa = parseBRL(parts[7]);
       const total = parseBRL(parts[8]);
 
-      const originParts = originRaw.split(/\n/);
-      const empresa = originParts[0]?.trim() || originRaw;
-      const cnpj = originParts.length > 1 ? originParts[originParts.length - 1]?.trim() : "";
+      // Split company and CNPJ from originRaw
+      // Usually format: "NAME NAME\n00.000.000/0001-00"
+      const originLines = originRaw.split(/\n/);
+      const empresa = originLines[0]?.trim() || originRaw;
+      const cnpj = originLines.length > 1 ? originLines[originLines.length - 1]?.trim() : "";
 
       let isoDate = new Date().toISOString();
       try {
-        const parsedDate = parse(dataStr, "dd/MM/yyyy HH:mm:ss", new Date());
-        if (!isNaN(parsedDate.getTime())) {
-          isoDate = parsedDate.toISOString();
+        // Handle format dd/MM/yyyy HH:mm:ss or dd/MM/yyyy
+        const datePart = dataStr.split(' ')[0];
+        const timePart = dataStr.split(' ')[1] || "00:00:00";
+        
+        const [day, month, year] = datePart.split('/').map(Number);
+        const [hour, min, sec] = timePart.split(':').map(Number);
+        
+        if (day && month && year) {
+          const d = new Date(year, month - 1, day, hour, min, sec);
+          if (!isNaN(d.getTime())) {
+            isoDate = d.toISOString();
+          }
         }
       } catch (e) {
+        console.error("Erro ao converter data:", dataStr);
       }
 
       parsedOrders.push({
@@ -82,7 +100,7 @@ export function BulkImportDialog({ onImport, category }: BulkImportDialogProps) 
         categoria: category,
         createdAt: new Date().toISOString()
       });
-    });
+    }
 
     if (parsedOrders.length > 0) {
       await onImport(parsedOrders);
@@ -103,17 +121,20 @@ export function BulkImportDialog({ onImport, category }: BulkImportDialogProps) 
         <DialogHeader>
           <DialogTitle className="text-slate-900 font-black uppercase text-xl tracking-tight flex items-center gap-3">
             <Layers className="w-6 h-6 text-primary" /> 
-            Importação em Lote: {getCategoryName(category).toUpperCase()}
+            Importação: {getCategoryName(category).toUpperCase()}
           </DialogTitle>
         </DialogHeader>
         
         <div className="space-y-6 mt-6">
           <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Instruções:</p>
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">Estrutura Esperada (Colunas TAB):</p>
+            <p className="text-[9px] text-primary font-mono bg-white p-2 rounded-lg border border-slate-200 mb-3">
+              Pedido | Data | Origem (Nome + CNPJ) | PARC/PROG | UF | D.O | Quantidade | Taxa | Total
+            </p>
             <ul className="text-[9px] text-slate-400 space-y-1 font-medium uppercase">
-              <li>• Cole as linhas copiadas diretamente da sua tabela de auditoria.</li>
-              <li>• O sistema espera colunas separadas por TAB (padrão Excel/Sheets).</li>
-              <li>• Pedido, Data, Origem, Programa, UF, D.O, Qtd, Taxa, Total.</li>
+              <li>• Copie as linhas da sua planilha e cole abaixo.</li>
+              <li>• O sistema identifica automaticamente nomes de empresas e CNPJs em campos multilinhas.</li>
+              <li>• Valores em R$ e quantidades com "UCS" são limpos automaticamente.</li>
             </ul>
           </div>
 
@@ -128,7 +149,7 @@ export function BulkImportDialog({ onImport, category }: BulkImportDialogProps) 
             <div className="flex items-center gap-3 text-amber-600 bg-amber-50 px-4 py-3 rounded-xl border border-amber-100 flex-1">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <p className="text-[9px] font-bold uppercase leading-tight">
-                Atenção: Serão criados {raw.split('\n').filter(l => l.trim()).length} novos registros permanentes no sistema.
+                Atenção: Serão processadas {raw.split('\n').filter(l => l.trim()).length} linhas.
               </p>
             </div>
             <Button 
