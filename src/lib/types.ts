@@ -1,5 +1,6 @@
 export type OrderStatus = 'pendente' | 'ok' | 'erro';
 export type MovementType = 'gov' | 'cliente' | 'outro';
+export type OrderCategory = 'selo' | 'certificado_sas' | 'sas_dmv';
 
 export interface Movimento {
   id: string;
@@ -29,6 +30,7 @@ export interface Pedido {
   hashPedido: string;
   auditado: boolean;
   status: OrderStatus;
+  categoria: OrderCategory;
   createdAt: string;
   movimentos?: Movimento[];
 }
