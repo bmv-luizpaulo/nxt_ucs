@@ -216,7 +216,6 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-[2.5rem] border-none shadow-2xl p-8 print:p-0 print:max-h-none print:overflow-visible print:shadow-none print:rounded-none">
         
-        {/* Adicionado para conformidade com Radix UI / Shadcn */}
         <DialogHeader className={variant === 'pdf' ? 'sr-only' : 'border-b border-slate-100 pb-6'}>
           <DialogTitle>
             {variant === 'pdf' ? `Certificado de Rastreabilidade - ${order.id}` : `Auditoria de Pedido - ${order.id}`}
@@ -292,7 +291,7 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
           </div>
         )}
 
-        <div className={`${variant === 'default' ? 'hidden print:block' : 'block'} p-12 font-body text-slate-900 bg-white min-h-screen`}>
+        <div className={`${variant === 'default' ? 'hidden print:block' : 'block'} p-12 font-body text-slate-900 bg-white min-h-screen flex flex-col`}>
           <div className="flex justify-between items-start mb-12 border-b-2 border-slate-900 pb-8">
             <div className="relative w-40 h-20">
               <Image 
@@ -314,10 +313,10 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
             <div className="space-y-4">
               <h3 className="text-[10px] font-black uppercase border-b border-slate-200 pb-1 text-slate-400 tracking-widest">Identificação do Ativo</h3>
               <div className="grid grid-cols-1 gap-2 text-[11px]">
-                <p className="text-base font-black text-slate-900 mb-1">
+                <div className="mb-1">
                   <span className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mr-2">Pedido ID:</span>
-                  <span className="bg-slate-50 px-2 py-1 rounded">#{order.id}</span>
-                </p>
+                  <span className="bg-slate-50 px-3 py-1.5 rounded text-lg font-black text-primary border border-slate-100">#{order.id}</span>
+                </div>
                 <p><strong>Data de Registro:</strong> {new Date(order.data).toLocaleDateString('pt-BR')}</p>
                 <p><strong>Empresa/Origem:</strong> {order.empresa}</p>
                 <p><strong>CNPJ:</strong> <span className="font-mono">{order.cnpj}</span></p>
@@ -327,20 +326,20 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
             <div className="space-y-4">
               <h3 className="text-[10px] font-black uppercase border-b border-slate-200 pb-1 text-slate-400 tracking-widest">Volume e Integridade</h3>
               <div className="grid grid-cols-1 gap-2 text-[11px]">
-                <p><strong>Quantidade Total de UCS APOSENTADAS:</strong> <span className="font-bold">{order.quantidade}</span></p>
-                <p><strong>Valor Auditado:</strong> <span className="font-bold">{order.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span></p>
+                <p><strong>Quantidade Total de UCS APOSENTADAS:</strong> <span className="font-bold text-slate-900">{order.quantidade}</span></p>
+                <p><strong>Valor Auditado:</strong> <span className="font-bold text-slate-900">{order.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span></p>
                 <p><strong>Estado (UF):</strong> {order.uf}</p>
-                <p>
+                <div className="mt-1">
                   <strong>Status Blockchain:</strong>{" "}
-                  <a href={order.linkNxt} target="_blank" rel="noopener noreferrer" className="text-emerald-600 font-black uppercase underline hover:text-emerald-700">
-                    Integridade Confirmada
+                  <a href={order.linkNxt} target="_blank" rel="noopener noreferrer" className="text-emerald-600 font-black uppercase underline hover:text-emerald-700 tracking-tighter text-xs">
+                    INTEGRIDADE CONFIRMADA
                   </a>
-                </p>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="space-y-6 mb-10">
+          <div className="space-y-6 mb-10 flex-1">
             <h3 className="text-[10px] font-black uppercase border-b-2 border-slate-900 pb-1 text-slate-900 tracking-widest">Histórico Detalhado de Movimentações (Rastreio de UCs)</h3>
             <div className="rounded-lg border border-slate-200 overflow-hidden">
               <Table>
@@ -371,7 +370,7 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
             </div>
           </div>
 
-          <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
+          <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4 mb-12">
             <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Validação em Blockchain NXT</h3>
             <div className="space-y-3">
               <div>
@@ -380,31 +379,36 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
               </div>
               <div>
                 <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Link de Auditoria Pública</p>
-                <a href={order.linkNxt} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary underline truncate block hover:text-primary/80">
+                <a href={order.linkNxt} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary underline truncate block font-medium">
                   {order.linkNxt}
                 </a>
               </div>
             </div>
           </div>
 
-          <div className="mt-16 flex justify-between items-end">
+          {/* Carimbo Digital e Rodapé de Assinatura */}
+          <div className="mt-auto pt-10 flex justify-between items-end border-t border-slate-200">
              <div className="text-center flex flex-col items-center justify-center">
                 <div className="w-16 h-16 border-4 border-emerald-100 rounded-full flex items-center justify-center mb-2">
                    <CheckCircle2 className="w-8 h-8 text-emerald-500" />
                 </div>
-                <p className="text-[8px] font-black uppercase text-emerald-600 tracking-tighter italic">Integridade LedgerTrust Verificada</p>
+                <p className="text-[9px] font-black uppercase text-emerald-600 tracking-tighter italic">Integridade LedgerTrust Verificada</p>
              </div>
              <div className="text-right space-y-1">
-                <div className="w-48 border-b-2 border-slate-900 ml-auto"></div>
-                <p className="text-[9px] font-black uppercase text-slate-900 tracking-widest">Auditor de Conformidade BMV</p>
+                <div className="w-56 border-b-2 border-slate-900 ml-auto mb-2"></div>
+                <p className="text-[10px] font-black uppercase text-slate-900 tracking-widest">Auditor de Conformidade BMV</p>
                 <p className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Documento Assinado Digitalmente</p>
              </div>
           </div>
 
+          {/* Botão de Download (Escondido na Impressão) */}
           {variant === "pdf" && (
-            <div className="mt-10 pt-8 border-t border-slate-100 flex justify-end print:hidden">
-              <Button onClick={handlePrint} className="gap-2 font-black uppercase text-[10px] h-12 px-10 rounded-xl shadow-xl shadow-primary/20">
-                <Printer className="w-4 h-4" /> Salvar Certificado como PDF
+            <div className="mt-12 pt-8 flex justify-end print:hidden">
+              <Button 
+                onClick={handlePrint} 
+                className="gap-3 font-black uppercase text-[11px] h-14 px-12 rounded-2xl shadow-2xl shadow-primary/30 bg-primary hover:bg-primary/90 transition-all active:scale-95"
+              >
+                <Printer className="w-5 h-5" /> Salvar Certificado como PDF
               </Button>
             </div>
           )}
