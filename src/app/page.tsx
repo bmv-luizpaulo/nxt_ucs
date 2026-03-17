@@ -6,7 +6,8 @@ import {
   Search, 
   Database,
   FileText,
-  ShieldCheck
+  ShieldCheck,
+  Trash2
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -24,10 +25,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { toast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
   const firestore = useFirestore();
   const [activeTab, setActiveTab] = useState<OrderCategory>("selo");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   
   const pedidosQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -56,6 +59,28 @@ export default function Dashboard() {
     });
 
     await batch.commit();
+    toast({
+      title: "Importação concluída",
+      description: `${bulkOrders.length} registros foram adicionados com sucesso.`
+    });
+  };
+
+  const handleBulkDelete = async () => {
+    if (!firestore || selectedIds.length === 0) return;
+    
+    const batch = writeBatch(firestore);
+    selectedIds.forEach(id => {
+      const docRef = doc(firestore, "pedidos", id);
+      batch.delete(docRef);
+    });
+
+    await batch.commit();
+    setSelectedIds([]);
+    toast({
+      variant: "destructive",
+      title: "Remoção em lote",
+      description: `${selectedIds.length} registros foram excluídos permanentemente.`
+    });
   };
 
   const handleUpdateOrder = async (id: string, updates: Partial<Pedido>) => {
@@ -173,7 +198,7 @@ export default function Dashboard() {
                 <AuditOverview orders={orders} />
 
                 <div className="space-y-6">
-                  <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as OrderCategory)} className="w-full">
+                  <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v as OrderCategory); setSelectedIds([]); }} className="w-full">
                     <div className="flex items-center justify-between mb-6">
                       <TabsList className="bg-slate-100/50 p-1 border rounded-full h-12">
                         <TabsTrigger value="selo" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-8 rounded-full text-[10px] font-bold uppercase tracking-tighter">Selo Tesouro Verde</TabsTrigger>
@@ -181,6 +206,11 @@ export default function Dashboard() {
                         <TabsTrigger value="sas_dmv" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-8 rounded-full text-[10px] font-bold uppercase tracking-tighter">SAS DMV</TabsTrigger>
                       </TabsList>
                       <div className="flex gap-3">
+                         {selectedIds.length > 0 && (
+                           <Button onClick={handleBulkDelete} variant="destructive" size="sm" className="gap-2 text-[10px] font-bold uppercase tracking-widest h-12 px-6 rounded-full animate-in fade-in zoom-in">
+                             <Trash2 className="w-3.5 h-3.5" /> Remover ({selectedIds.length})
+                           </Button>
+                         )}
                          <BulkImportDialog onImport={handleBulkImport} category={activeTab} />
                          <AddOrderDialog onAdd={handleAddOrder} />
                          <Button variant="outline" size="sm" className="gap-2 text-[10px] font-bold uppercase tracking-widest border-slate-200 h-12 px-6 rounded-full hover:bg-slate-50">
@@ -192,6 +222,8 @@ export default function Dashboard() {
                     <TabsContent value="selo" className="mt-0">
                       <OrderTable 
                         orders={orders.filter(o => o.categoria === 'selo')} 
+                        selectedIds={selectedIds}
+                        onSelectionChange={setSelectedIds}
                         onUpdateOrder={handleUpdateOrder}
                         onDeleteOrder={handleDeleteOrder}
                         onAddMovement={handleAddMovement}
@@ -201,6 +233,8 @@ export default function Dashboard() {
                     <TabsContent value="certificado_sas" className="mt-0">
                       <OrderTable 
                         orders={orders.filter(o => o.categoria === 'certificado_sas')} 
+                        selectedIds={selectedIds}
+                        onSelectionChange={setSelectedIds}
                         onUpdateOrder={handleUpdateOrder}
                         onDeleteOrder={handleDeleteOrder}
                         onAddMovement={handleAddMovement}
@@ -210,6 +244,8 @@ export default function Dashboard() {
                     <TabsContent value="sas_dmv" className="mt-0">
                       <OrderTable 
                         orders={orders.filter(o => o.categoria === 'sas_dmv')} 
+                        selectedIds={selectedIds}
+                        onSelectionChange={setSelectedIds}
                         onUpdateOrder={handleUpdateOrder}
                         onDeleteOrder={handleDeleteOrder}
                         onAddMovement={handleAddMovement}

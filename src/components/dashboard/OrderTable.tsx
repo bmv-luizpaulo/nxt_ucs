@@ -8,25 +8,64 @@ import { MovementList } from "./MovementList";
 import { OrderAuditForm } from "./OrderAuditForm";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { collection } from "firebase/firestore";
 
 interface OrderTableProps {
   orders: Pedido[];
+  selectedIds: string[];
+  onSelectionChange: (ids: string[]) => void;
   onUpdateOrder: (id: string, updates: Partial<Pedido>) => void;
   onDeleteOrder: (id: string) => void;
   onAddMovement: (orderId: string, raw: string) => void;
   onDeleteMovement: (orderId: string, moveId: string) => void;
 }
 
-export function OrderTable({ orders, onUpdateOrder, onDeleteOrder, onAddMovement, onDeleteMovement }: OrderTableProps) {
+export function OrderTable({ 
+  orders, 
+  selectedIds, 
+  onSelectionChange, 
+  onUpdateOrder, 
+  onDeleteOrder, 
+  onAddMovement, 
+  onDeleteMovement 
+}: OrderTableProps) {
+  
+  const allIds = orders.map(o => o.id);
+  const isAllSelected = allIds.length > 0 && allIds.every(id => selectedIds.includes(id));
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      onSelectionChange(selectedIds.filter(id => !allIds.includes(id)));
+    } else {
+      const newSelection = Array.from(new Set([...selectedIds, ...allIds]));
+      onSelectionChange(newSelection);
+    }
+  };
+
+  const toggleSelectOne = (id: string) => {
+    if (selectedIds.includes(id)) {
+      onSelectionChange(selectedIds.filter(i => i !== id));
+    } else {
+      onSelectionChange([...selectedIds, id]);
+    }
+  };
+
   return (
     <div className="rounded-[2.5rem] border border-slate-200 bg-white overflow-hidden shadow-sm">
       <Table>
         <TableHeader>
           <TableRow className="bg-slate-50/50 hover:bg-slate-50/50 border-b border-slate-100">
-            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-8 h-14">Pedido</TableHead>
+            <TableHead className="w-[40px] pl-8">
+              <Checkbox 
+                checked={isAllSelected} 
+                onCheckedChange={toggleSelectAll} 
+                className="rounded-md border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+              />
+            </TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-14">Pedido</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-14">Data</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-14">Origem</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-14">PARC/PROG</TableHead>
@@ -43,14 +82,24 @@ export function OrderTable({ orders, onUpdateOrder, onDeleteOrder, onAddMovement
         <TableBody>
           {orders.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={12} className="h-48 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest">
+              <TableCell colSpan={13} className="h-48 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest">
                 Nenhum pedido registrado nesta categoria
               </TableCell>
             </TableRow>
           ) : (
             orders.map((order) => (
-              <TableRow key={order.id} className="group hover:bg-slate-50/80 transition-colors border-b border-slate-50 last:border-0">
-                <TableCell className="font-mono font-bold text-xs text-primary pl-8">{order.id}</TableCell>
+              <TableRow 
+                key={order.id} 
+                className={`group transition-colors border-b border-slate-50 last:border-0 ${selectedIds.includes(order.id) ? 'bg-emerald-50/30' : 'hover:bg-slate-50/80'}`}
+              >
+                <TableCell className="pl-8">
+                  <Checkbox 
+                    checked={selectedIds.includes(order.id)} 
+                    onCheckedChange={() => toggleSelectOne(order.id)}
+                    className="rounded-md border-slate-200"
+                  />
+                </TableCell>
+                <TableCell className="font-mono font-bold text-xs text-primary">{order.id}</TableCell>
                 <TableCell className="text-[10px] text-slate-500 whitespace-nowrap">
                   <div className="font-bold text-slate-900">{new Date(order.data).toLocaleDateString('pt-BR')}</div>
                   <div className="text-[9px] opacity-70">{new Date(order.data).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
