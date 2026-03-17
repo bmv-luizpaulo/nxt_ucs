@@ -13,6 +13,7 @@ import { useState } from "react";
 import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
 import { collection } from "firebase/firestore";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 interface OrderTableProps {
   orders: Pedido[];
@@ -215,9 +216,15 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className={`max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-[2.5rem] border-none shadow-2xl p-8 print:p-0 print:max-h-none print:overflow-visible print:shadow-none print:rounded-none`}>
+      <DialogContent className={cn(
+        "max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-[2.5rem] border-none shadow-2xl p-8 print:p-0 print:max-h-none print:overflow-visible print:shadow-none print:rounded-none",
+        variant === 'pdf' ? "sm:max-w-5xl" : "sm:max-w-4xl"
+      )}>
         
-        <DialogHeader className={variant === 'pdf' ? 'sr-only' : 'border-b border-slate-100 pb-6 print:hidden'}>
+        <DialogHeader className={cn(
+          "border-b border-slate-100 pb-6 print:hidden",
+          variant === 'pdf' ? 'sr-only' : 'block'
+        )}>
           <DialogTitle>
             {variant === 'pdf' ? `Certificado de Rastreabilidade - ${order.id}` : `Auditoria de Pedido - ${order.id}`}
           </DialogTitle>
@@ -292,7 +299,11 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
           </div>
         )}
 
-        <div className={`printable-content ${variant === 'default' ? 'hidden' : 'block'} print:block p-12 font-body text-slate-900 bg-white min-h-screen flex flex-col`}>
+        {/* ÁREA DE IMPRESSÃO - CERTIFICADO */}
+        <div className={cn(
+          "printable-content print:block font-body text-slate-900 bg-white min-h-screen flex flex-col",
+          variant === 'default' ? "hidden" : "block"
+        )}>
           <div className="flex justify-between items-start mb-12 border-b-2 border-slate-900 pb-8">
             <div className="relative w-48 h-24">
               <Image 
