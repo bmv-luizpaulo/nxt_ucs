@@ -21,7 +21,7 @@ import { AddOrderDialog } from "@/components/dashboard/AddOrderDialog";
 import { BulkImportDialog } from "@/components/dashboard/BulkImportDialog";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { collection, doc, updateDoc, deleteDoc, setDoc, writeBatch, query, orderBy } from "firebase/firestore";
-import { Pedido, OrderCategory } from "@/lib/types";
+import { Pedido, OrderCategory, Movimento } from "@/lib/types";
 import {
   Tooltip,
   TooltipContent,
@@ -39,13 +39,11 @@ export default function Dashboard() {
   
   const pedidosQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    // Ordenação decrescente por data (mais recentes primeiro)
     return query(collection(firestore, "pedidos"), orderBy("data", "desc"));
   }, [firestore]);
 
   const { data: pedidos, isLoading } = useCollection<Pedido>(pedidosQuery);
 
-  // Resetar página ao trocar de aba
   useEffect(() => {
     setCurrentPage(1);
     setSelectedIds([]);
@@ -112,27 +110,31 @@ export default function Dashboard() {
     deleteDoc(docRef);
   };
 
-  const handleAddMovement = async (orderId: string, raw: string) => {
+  const handleAddMovement = async (orderId: string, movements: any[]) => {
     if (!firestore) return;
-    const lines = raw.split('\n').filter(l => l.trim());
     const movementsRef = collection(firestore, "pedidos", orderId, "movimentos");
 
-    for (const line of lines) {
+    for (const mov of movements) {
       const newMoveRef = doc(movementsRef);
       setDoc(newMoveRef, {
         id: newMoveRef.id,
         pedidoId: orderId,
-        raw: line,
-        hashMovimento: `NXT-${Math.random().toString(36).substr(2, 12).toUpperCase()}`,
-        tipo: 'outro',
-        origem: 'Importação Manual',
-        destino: 'Rede NXT',
-        quantidade: 0,
+        raw: mov.raw,
+        hashMovimento: mov.hashMovimento,
+        tipo: mov.tipo,
+        origem: mov.origem,
+        destino: mov.destino,
+        quantidade: mov.quantidade,
         duplicado: false,
         validado: true,
         createdAt: new Date().toISOString()
       });
     }
+    
+    toast({
+      title: "Rastreabilidade Atualizada",
+      description: `${movements.length} novos movimentos vinculados ao pedido ${orderId}.`
+    });
   };
 
   const handleDeleteMovement = async (orderId: string, moveId: string) => {
@@ -144,7 +146,6 @@ export default function Dashboard() {
   const orders = pedidos || [];
   const filteredOrders = orders.filter(o => o.categoria === activeTab);
   
-  // Lógica de Paginação
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
   const paginatedOrders = filteredOrders.slice(
     (currentPage - 1) * itemsPerPage,
@@ -257,7 +258,6 @@ export default function Dashboard() {
                         onDeleteMovement={handleDeleteMovement}
                       />
 
-                      {/* Controles de Paginação */}
                       {totalPages > 1 && (
                         <div className="flex items-center justify-between bg-white px-8 py-4 rounded-[2rem] border border-slate-200 shadow-sm">
                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
