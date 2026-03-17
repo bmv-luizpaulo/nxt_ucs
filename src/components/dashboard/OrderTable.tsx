@@ -1,170 +1,77 @@
 import { Pedido, OrderStatus, Movimento } from "@/lib/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { StatusBadge } from "./StatusBadge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, ExternalLink, Trash2, Check, X, AlertCircle, MoreHorizontal } from "lucide-react";
+import { ExternalLink, Trash2, MoreHorizontal, Link as LinkIcon, Save, Database } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { MovementList } from "./MovementList";
 import { OrderAuditForm } from "./OrderAuditForm";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { collection } from "firebase/firestore";
 
 interface OrderTableProps {
   orders: Pedido[];
-  onToggleAudit: (id: string, audited: boolean) => void;
+  onUpdateOrder: (id: string, updates: Partial<Pedido>) => void;
   onDeleteOrder: (id: string) => void;
   onAddMovement: (orderId: string, raw: string) => void;
   onDeleteMovement: (orderId: string, moveId: string) => void;
 }
 
-export function OrderTable({ orders, onToggleAudit, onDeleteOrder, onAddMovement, onDeleteMovement }: OrderTableProps) {
+export function OrderTable({ orders, onUpdateOrder, onDeleteOrder, onAddMovement, onDeleteMovement }: OrderTableProps) {
   return (
-    <div className="rounded-xl border bg-card/50 overflow-hidden shadow-2xl">
+    <div className="rounded-xl border bg-card/50 overflow-hidden shadow-sm">
       <Table>
         <TableHeader>
-          <TableRow className="bg-muted/30 hover:bg-muted/30 border-b border-border/50">
-            <TableHead className="w-[80px] font-headline text-muted-foreground uppercase text-[10px] font-bold tracking-wider">Pedido</TableHead>
-            <TableHead className="font-headline text-muted-foreground uppercase text-[10px] font-bold tracking-wider">Data</TableHead>
-            <TableHead className="font-headline text-muted-foreground uppercase text-[10px] font-bold tracking-wider">Origem</TableHead>
-            <TableHead className="font-headline text-muted-foreground uppercase text-[10px] font-bold tracking-wider">PARC/PROG</TableHead>
-            <TableHead className="font-headline text-center text-muted-foreground uppercase text-[10px] font-bold tracking-wider">UF</TableHead>
-            <TableHead className="font-headline text-center text-muted-foreground uppercase text-[10px] font-bold tracking-wider">D.O</TableHead>
-            <TableHead className="font-headline text-right text-muted-foreground uppercase text-[10px] font-bold tracking-wider">Quantidade</TableHead>
-            <TableHead className="font-headline text-right text-muted-foreground uppercase text-[10px] font-bold tracking-wider">Taxa</TableHead>
-            <TableHead className="font-headline text-right text-muted-foreground uppercase text-[10px] font-bold tracking-wider">Total</TableHead>
-            <TableHead className="font-headline text-center text-muted-foreground uppercase text-[10px] font-bold tracking-wider">Nxt</TableHead>
-            <TableHead className="w-[100px] font-headline text-right text-muted-foreground uppercase text-[10px] font-bold tracking-wider">Ações</TableHead>
+          <TableRow className="bg-muted/30 hover:bg-muted/30 border-b">
+            <TableHead className="w-[100px] text-[10px] font-bold uppercase tracking-wider">ID Pedido</TableHead>
+            <TableHead className="text-[10px] font-bold uppercase tracking-wider">Data / Hora</TableHead>
+            <TableHead className="text-[10px] font-bold uppercase tracking-wider">Empresa / CNPJ</TableHead>
+            <TableHead className="text-[10px] font-bold uppercase tracking-wider text-right">Quantidade</TableHead>
+            <TableHead className="text-[10px] font-bold uppercase tracking-wider text-right">Total (R$)</TableHead>
+            <TableHead className="text-[10px] font-bold uppercase tracking-wider text-center">NXT Link</TableHead>
+            <TableHead className="w-[120px] text-[10px] font-bold uppercase tracking-wider text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {orders.map((order) => (
-            <TableRow key={order.id} className="transition-colors group hover:bg-muted/20 border-b border-border/30">
+            <TableRow key={order.id} className="group hover:bg-muted/20">
               <TableCell className="font-mono font-bold text-sm text-primary">{order.id}</TableCell>
-              <TableCell className="text-[11px] leading-tight text-muted-foreground">
+              <TableCell className="text-[11px] text-muted-foreground">
                 <div className="font-medium text-foreground">{new Date(order.data).toLocaleDateString('pt-BR')}</div>
-                <div>{new Date(order.data).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
+                <div>{new Date(order.data).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
               </TableCell>
               <TableCell>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center flex-shrink-0">
-                    <img src={`https://picsum.photos/seed/${order.id}/40/40`} className="w-8 h-8 rounded-full opacity-80" alt="logo" />
-                  </div>
-                  <div className="flex flex-col overflow-hidden">
-                    <span className="font-bold text-[11px] leading-tight max-w-[200px] truncate uppercase">{order.empresa}</span>
-                    <span className="text-[10px] text-muted-foreground font-mono">{order.cnpj}</span>
-                  </div>
+                <div className="flex flex-col">
+                  <span className="font-bold text-[11px] uppercase truncate max-w-[200px]">{order.empresa}</span>
+                  <span className="text-[10px] text-muted-foreground font-mono">{order.cnpj}</span>
                 </div>
               </TableCell>
-              <TableCell>
-                <span className="text-[11px] font-medium text-muted-foreground">{order.programa}</span>
-              </TableCell>
-              <TableCell className="text-center">
-                <span className="text-[11px] font-bold">{order.uf}</span>
-              </TableCell>
-              <TableCell className="text-center">
-                <span className="text-[11px] font-medium">{order.do ? 'Sim' : 'Não'}</span>
-              </TableCell>
               <TableCell className="text-right font-mono text-xs font-semibold">{order.quantidade} UCS</TableCell>
-              <TableCell className="text-right font-mono text-xs text-muted-foreground">
-                {order.taxa.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-              </TableCell>
               <TableCell className="text-right font-mono font-black text-sm text-accent">
                 {order.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
               </TableCell>
               <TableCell className="text-center">
-                <div className="flex flex-col gap-0.5 items-center">
-                  <div className="w-4 h-4 rounded-sm bg-emerald-500/20 text-emerald-500 border border-emerald-500/30 flex items-center justify-center text-[9px] font-bold">A</div>
-                  <div className="w-4 h-4 rounded-sm bg-emerald-500/20 text-emerald-500 border border-emerald-500/30 flex items-center justify-center text-[9px] font-bold">B</div>
-                </div>
+                {order.linkNxt ? (
+                  <a href={order.linkNxt} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80">
+                    <LinkIcon className="w-4 h-4 mx-auto" />
+                  </a>
+                ) : (
+                  <Badge variant="outline" className="text-[8px] border-rose-200 text-rose-500 uppercase px-1">Ausente</Badge>
+                )}
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex items-center justify-end gap-2">
                   <StatusBadge status={order.status} />
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:bg-muted">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-background/95 backdrop-blur-sm border-primary/20">
-                      <DialogHeader className="border-b pb-4">
-                        <DialogTitle className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <span className="text-primary font-black">DETALHES DO PEDIDO {order.id}</span>
-                            <StatusBadge status={order.status} />
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-mono text-muted-foreground uppercase">Blockchain Hash:</span>
-                            <Badge variant="outline" className="font-mono text-[10px] border-emerald-500/50 text-emerald-500">{order.hashPedido}</Badge>
-                          </div>
-                        </DialogTitle>
-                      </DialogHeader>
-                      
-                      <div className="space-y-8 mt-6">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                          <div className="space-y-1 p-3 bg-muted/20 rounded-lg border">
-                            <label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Empresa Solicitante</label>
-                            <p className="font-bold text-sm uppercase">{order.empresa}</p>
-                            <p className="text-xs text-muted-foreground font-mono">{order.cnpj}</p>
-                          </div>
-                          <div className="space-y-1 p-3 bg-muted/20 rounded-lg border">
-                            <label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Volume Total</label>
-                            <p className="font-black text-lg text-primary">{order.quantidade} UCS</p>
-                          </div>
-                          <div className="space-y-1 p-3 bg-muted/20 rounded-lg border">
-                            <label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Valor Financeiro</label>
-                            <p className="font-black text-lg text-accent">{order.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
-                          </div>
-                        </div>
-
-                        <div className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <h4 className="text-sm font-black flex items-center gap-2 uppercase tracking-tight">
-                              Movimentações de Rastreio (Traceability)
-                              <Badge variant="secondary" className="text-[10px] font-bold">{(order.movimentos?.length || 0)}</Badge>
-                            </h4>
-                          </div>
-                          <MovementList 
-                            movements={order.movimentos || []} 
-                            onDelete={(mid) => onDeleteMovement(order.id, mid)}
-                          />
-                        </div>
-
-                        <div className="bg-card/50 p-6 rounded-xl border border-dashed border-primary/30">
-                          <h4 className="text-xs font-bold uppercase mb-4 text-primary">Inserir Novo Registro de Movimento</h4>
-                          <OrderAuditForm onAdd={(raw) => onAddMovement(order.id, raw)} />
-                        </div>
-                        
-                        <div className="flex justify-between items-center pt-6 border-t">
-                          <Button 
-                            variant="destructive" 
-                            size="sm" 
-                            className="gap-2 font-bold uppercase text-[10px]"
-                            onClick={() => onDeleteOrder(order.id)}
-                          >
-                            <Trash2 className="w-4 h-4" /> Excluir Registro Permanente
-                          </Button>
-                          <div className="flex gap-2">
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="gap-2 border-primary/50 text-primary hover:bg-primary/10 font-bold uppercase text-[10px]"
-                            >
-                              Gerar PDF
-                            </Button>
-                            <Button 
-                              variant="default" 
-                              size="sm" 
-                              className="gap-2 bg-primary hover:bg-primary/90 font-bold uppercase text-[10px]"
-                              disabled={order.status !== 'ok'}
-                            >
-                              <ExternalLink className="w-4 h-4" /> Validar na Rede Blockchain
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                  <OrderDetailsDialog 
+                    order={order} 
+                    onUpdateOrder={onUpdateOrder}
+                    onDeleteOrder={onDeleteOrder}
+                    onAddMovement={onAddMovement}
+                    onDeleteMovement={onDeleteMovement}
+                  />
                 </div>
               </TableCell>
             </TableRow>
@@ -172,5 +79,105 @@ export function OrderTable({ orders, onToggleAudit, onDeleteOrder, onAddMovement
         </TableBody>
       </Table>
     </div>
+  );
+}
+
+function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement, onDeleteMovement }: any) {
+  const [hash, setHash] = useState(order.hashPedido || "");
+  const [link, setLink] = useState(order.linkNxt || "");
+  const firestore = useFirestore();
+  
+  const movimentosQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return collection(firestore, "pedidos", order.id, "movimentos");
+  }, [firestore, order.id]);
+
+  const { data: movimentos } = useCollection<Movimento>(movimentosQuery);
+
+  const handleSaveAudit = () => {
+    onUpdateOrder(order.id, { 
+      hashPedido: hash, 
+      linkNxt: link, 
+      auditado: !!(hash && link),
+      status: (hash && link) ? 'ok' : 'pendente'
+    });
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
+          <MoreHorizontal className="w-4 h-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="border-b pb-4">
+          <DialogTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-primary font-black uppercase tracking-tighter">AUDITORIA DE PEDIDO {order.id}</span>
+              <StatusBadge status={order.status} />
+            </div>
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+          <div className="space-y-6">
+            <div className="bg-muted/30 p-4 rounded-xl space-y-4 border border-dashed border-primary/20">
+              <h4 className="text-[10px] font-black uppercase text-primary flex items-center gap-2">
+                <ShieldCheck className="w-3.5 h-3.5" /> Vincular Blockchain NXT
+              </h4>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-slate-500 uppercase">Hash do Pedido</label>
+                <Input 
+                  value={hash} 
+                  onChange={(e) => setHash(e.target.value)}
+                  placeholder="Ex: 0x885...NXT"
+                  className="font-mono text-xs bg-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-slate-500 uppercase">URL de Auditoria (Link Nxt)</label>
+                <Input 
+                  value={link} 
+                  onChange={(e) => setLink(e.target.value)}
+                  placeholder="https://nxt.explorer/tx/..."
+                  className="font-mono text-xs bg-white"
+                />
+              </div>
+              <Button onClick={handleSaveAudit} size="sm" className="w-full gap-2 font-black uppercase text-[10px]">
+                <Save className="w-3.5 h-3.5" /> Salvar Auditoria de Hash
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              <h4 className="text-[10px] font-black uppercase flex items-center gap-2">
+                <Database className="w-3.5 h-3.5" /> Importar Novos Rastreios
+              </h4>
+              <OrderAuditForm onAdd={(raw) => onAddMovement(order.id, raw)} />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h4 className="text-[10px] font-black uppercase flex items-center gap-2">
+              Movimentações Registradas <Badge variant="secondary">{movimentos?.length || 0}</Badge>
+            </h4>
+            <MovementList 
+              movements={movimentos || []} 
+              onDelete={(mid) => onDeleteMovement(order.id, mid)}
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center pt-6 border-t mt-8">
+          <Button variant="destructive" size="sm" onClick={() => onDeleteOrder(order.id)} className="text-[10px] font-bold uppercase">
+            <Trash2 className="w-3.5 h-3.5 mr-2" /> Remover Permanente
+          </Button>
+          <div className="flex gap-2">
+             <Button variant="outline" size="sm" className="text-[10px] font-bold uppercase">Exportar XML</Button>
+             <Button size="sm" className="text-[10px] font-bold uppercase" disabled={!order.linkNxt}>Gerar Relatório Final</Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
