@@ -5,7 +5,8 @@ service cloud.firestore {
     /**
      * CORE PHILOSOPHY
      * Para este protótipo de auditoria, permitimos que qualquer usuário autenticado
-     * (incluindo logins anônimos automáticos) visualize e gerencie os pedidos e movimentos.
+     * (incluindo logins anônimos automáticos) visualize e gerencie os pedidos, movimentos,
+     * produtores e associações.
      */
 
     // --- Funções Auxiliares Globais ---
@@ -31,6 +32,14 @@ service cloud.firestore {
     }
 
     match /pedidos/{pedidoId}/movimentos/{movimentoId} {
+      allow read, write: if isAuditor();
+    }
+    
+    match /produtores/{produtorId} {
+      allow read, write: if isAuditor();
+    }
+    
+    match /associacoes/{associacaoId} {
       allow read, write: if isAuditor();
     }
 

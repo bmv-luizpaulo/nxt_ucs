@@ -1,13 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react";
-import { Search, FileText, Trash2, ChevronLeft, ChevronRight, Users, Plus, Layers } from "lucide-react";
+import { Search, FileText, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
-import { collection, doc, setDoc, writeBatch, query, orderBy, deleteDoc } from "firebase/firestore";
+import { collection, doc, writeBatch, query, orderBy } from "firebase/firestore";
 import { EntidadeSaldo, EntityStatus } from "@/lib/types";
 import { toast } from "@/hooks/use-toast";
 import { EntityTable } from "@/components/entities/EntityTable";
@@ -60,7 +60,7 @@ export default function ProdutoresPage() {
       <Sidebar />
       <main className="flex-1 flex flex-col">
         <header className="h-20 bg-white/50 backdrop-blur-md px-8 flex items-center justify-between border-b border-slate-200 sticky top-0 z-10 print:hidden">
-          <h1 className="text-xl font-medium text-slate-600">Auditoria de Saldos: <span className="font-bold text-slate-900">Produtores</span></h1>
+          <h1 className="text-xl font-medium text-slate-600">Portal de Auditoria <span className="font-bold text-slate-900">Saldos: Produtores</span></h1>
           <div className="flex items-center gap-6">
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />

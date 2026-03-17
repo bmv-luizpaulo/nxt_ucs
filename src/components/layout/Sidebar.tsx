@@ -1,4 +1,3 @@
-
 "use client"
 
 import { 
@@ -19,19 +18,19 @@ export function Sidebar() {
   const navItems = [
     { 
       icon: LayoutGrid, 
-      label: "Pedidos de Crédito", 
+      label: "PEDIDOS DE CRÉDITO", 
       href: "/", 
       tooltip: "Selos & Certificados" 
     },
     { 
       icon: ShieldCheck, 
-      label: "Produtores", 
+      label: "SALDOS: PRODUTORES", 
       href: "/produtores", 
       tooltip: "Auditoria de Produtores" 
     },
     { 
       icon: Database, 
-      label: "Associações", 
+      label: "SALDOS: ASSOCIAÇÕES", 
       href: "/associacoes", 
       tooltip: "Auditoria de Associações" 
     },
@@ -57,9 +56,9 @@ export function Sidebar() {
               <Link href={item.href}>
                 <div 
                   className={cn(
-                    "w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-sm",
+                    "w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300",
                     isActive 
-                      ? "bg-primary text-white shadow-primary/20" 
+                      ? "bg-primary text-white shadow-xl shadow-primary/30" 
                       : "bg-slate-50 text-slate-300 hover:text-primary hover:bg-emerald-50"
                   )}
                 >
@@ -67,7 +66,7 @@ export function Sidebar() {
                 </div>
               </Link>
 
-              {/* Pill Label Style from Image */}
+              {/* Pill Label Style from Image Reference */}
               <div className={cn(
                 "absolute left-20 px-6 py-2.5 rounded-full bg-[#0F172A] text-white text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all duration-300 z-50 pointer-events-none border border-slate-800",
                 isActive 
