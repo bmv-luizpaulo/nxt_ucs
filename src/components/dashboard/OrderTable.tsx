@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { StatusBadge } from "./StatusBadge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, ExternalLink, Trash2 } from "lucide-react";
+import { ChevronRight, ExternalLink, Trash2, Check, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { MovementList } from "./MovementList";
 import { OrderAuditForm } from "./OrderAuditForm";
@@ -23,40 +23,51 @@ export function OrderTable({ orders, onToggleAudit, onDeleteOrder, onAddMovement
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50 hover:bg-muted/50">
-            <TableHead className="w-[100px] font-headline">ID</TableHead>
-            <TableHead className="font-headline">Data</TableHead>
-            <TableHead className="font-headline">Empresa</TableHead>
-            <TableHead className="font-headline">Programa / UF</TableHead>
+            <TableHead className="w-[80px] font-headline">Pedido</TableHead>
+            <TableHead className="font-headline">Data/Hora</TableHead>
+            <TableHead className="font-headline">Origem (Empresa)</TableHead>
+            <TableHead className="font-headline">PARC/PROG</TableHead>
+            <TableHead className="font-headline text-center">UF</TableHead>
+            <TableHead className="font-headline text-center">D.O</TableHead>
             <TableHead className="font-headline text-right">Qtd (UCS)</TableHead>
-            <TableHead className="font-headline text-right">Valor (R$)</TableHead>
-            <TableHead className="font-headline text-center">Status</TableHead>
+            <TableHead className="font-headline text-right">Taxa</TableHead>
+            <TableHead className="font-headline text-right">Total</TableHead>
+            <TableHead className="font-headline text-center">Nxt</TableHead>
             <TableHead className="font-headline text-center">Auditado</TableHead>
-            <TableHead className="w-[120px] font-headline text-right">Ações</TableHead>
+            <TableHead className="w-[60px] font-headline text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {orders.map((order) => (
             <TableRow key={order.id} className="transition-colors">
               <TableCell className="font-mono font-bold text-xs">{order.id}</TableCell>
-              <TableCell className="text-xs">{new Date(order.data).toLocaleDateString('pt-BR')}</TableCell>
+              <TableCell className="text-[10px] leading-tight">
+                {new Date(order.data).toLocaleString('pt-BR')}
+              </TableCell>
               <TableCell>
                 <div className="flex flex-col">
-                  <span className="font-semibold text-sm">{order.empresa}</span>
-                  <span className="text-[10px] text-muted-foreground font-mono">{order.cnpj}</span>
+                  <span className="font-semibold text-[11px] leading-tight max-w-[150px] truncate">{order.empresa}</span>
+                  <span className="text-[9px] text-muted-foreground font-mono">{order.cnpj}</span>
                 </div>
               </TableCell>
               <TableCell>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs">{order.programa}</span>
-                  <Badge variant="outline" className="text-[10px] py-0 px-1 border-primary/30 text-primary">{order.uf}</Badge>
-                </div>
-              </TableCell>
-              <TableCell className="text-right font-mono font-medium">{order.quantidade.toLocaleString()}</TableCell>
-              <TableCell className="text-right font-mono text-muted-foreground">
-                {order.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                <span className="text-[10px]">{order.programa}</span>
               </TableCell>
               <TableCell className="text-center">
-                <StatusBadge status={order.status} />
+                <Badge variant="outline" className="text-[10px] py-0 px-1 border-primary/30 text-primary">{order.uf}</Badge>
+              </TableCell>
+              <TableCell className="text-center">
+                {order.do ? <Check className="w-3 h-3 text-emerald-500 mx-auto" /> : <X className="w-3 h-3 text-rose-500 mx-auto" />}
+              </TableCell>
+              <TableCell className="text-right font-mono text-xs">{order.quantidade} UCS</TableCell>
+              <TableCell className="text-right font-mono text-xs text-muted-foreground">
+                {order.taxa.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+              </TableCell>
+              <TableCell className="text-right font-mono font-bold text-xs">
+                {order.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+              </TableCell>
+              <TableCell className="text-center">
+                <Badge variant="secondary" className="text-[9px] py-0 font-mono">{order.hashPedido}</Badge>
               </TableCell>
               <TableCell className="text-center">
                 <Checkbox
@@ -88,17 +99,17 @@ export function OrderTable({ orders, onToggleAudit, onDeleteOrder, onAddMovement
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1">
                             <label className="text-[10px] uppercase font-bold text-muted-foreground">Empresa Solicitante</label>
-                            <p className="font-semibold">{order.empresa} ({order.cnpj})</p>
+                            <p className="font-semibold text-sm">{order.empresa} ({order.cnpj})</p>
                           </div>
                           <div className="space-y-1">
-                            <label className="text-[10px] uppercase font-bold text-muted-foreground">Volume de Créditos</label>
-                            <p className="font-semibold">{order.quantidade.toLocaleString()} UCS</p>
+                            <label className="text-[10px] uppercase font-bold text-muted-foreground">Volume e Total</label>
+                            <p className="font-semibold text-sm">{order.quantidade} UCS | {order.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
                           </div>
                         </div>
 
                         <div className="space-y-3">
                           <h4 className="text-sm font-bold flex items-center gap-2">
-                            Movimentos Vinculados
+                            Movimentações de Rastreio
                             <span className="text-xs font-normal text-muted-foreground">({order.movimentos?.length || 0})</span>
                           </h4>
                           <MovementList 
@@ -116,7 +127,7 @@ export function OrderTable({ orders, onToggleAudit, onDeleteOrder, onAddMovement
                             className="gap-2"
                             onClick={() => onDeleteOrder(order.id)}
                           >
-                            <Trash2 className="w-4 h-4" /> Excluir Pedido
+                            <Trash2 className="w-4 h-4" /> Excluir Registro
                           </Button>
                           <Button 
                             variant="outline" 
@@ -124,7 +135,7 @@ export function OrderTable({ orders, onToggleAudit, onDeleteOrder, onAddMovement
                             className="gap-2 border-accent text-accent hover:bg-accent hover:text-accent-foreground"
                             disabled={order.status !== 'ok'}
                           >
-                            <ExternalLink className="w-4 h-4" /> Preparar Migração
+                            <ExternalLink className="w-4 h-4" /> Validar na Rede
                           </Button>
                         </div>
                       </div>

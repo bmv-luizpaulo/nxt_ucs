@@ -22,8 +22,10 @@ export interface Pedido {
   cnpj: string;
   programa: string;
   uf: string;
-  quantidade: number;
-  valor: number;
+  do: boolean; // Dispositivo de Origem
+  quantidade: number; // UCS
+  taxa: number;
+  valorTotal: number;
   hashPedido: string;
   auditado: boolean;
   status: OrderStatus;
