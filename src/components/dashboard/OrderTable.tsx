@@ -152,7 +152,7 @@ export function OrderTable({
                         onDeleteOrder={onDeleteOrder}
                         onAddMovement={onAddMovement}
                         onDeleteMovement={onDeleteMovement}
-                        variant="print"
+                        variant="pdf"
                       />
                     )}
                     <OrderDetailsDialog 
@@ -204,9 +204,9 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
   return (
     <Dialog>
       <DialogTrigger asChild>
-        {variant === "print" ? (
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-primary hover:bg-emerald-50 rounded-lg animate-in fade-in zoom-in">
-            <Printer className="w-4 h-4" />
+        {variant === "pdf" ? (
+          <Button variant="ghost" size="icon" title="Gerar Certificado PDF" className="h-8 w-8 text-primary hover:bg-emerald-50 rounded-lg animate-in fade-in zoom-in">
+            <FileText className="w-4 h-4" />
           </Button>
         ) : (
           <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg">
