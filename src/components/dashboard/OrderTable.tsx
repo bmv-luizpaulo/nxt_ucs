@@ -313,7 +313,10 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
             <div className="space-y-4">
               <h3 className="text-[10px] font-black uppercase border-b border-slate-200 pb-1 text-slate-400 tracking-widest">Identificação do Ativo</h3>
               <div className="grid grid-cols-1 gap-2 text-[11px]">
-                <p><strong>Pedido ID:</strong> <span className="font-mono">{order.id}</span></p>
+                <p className="text-base font-black text-slate-900 mb-1">
+                  <span className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mr-2">Pedido ID:</span>
+                  <span className="bg-slate-50 px-2 py-1 rounded">#{order.id}</span>
+                </p>
                 <p><strong>Data de Registro:</strong> {new Date(order.data).toLocaleDateString('pt-BR')}</p>
                 <p><strong>Empresa/Origem:</strong> {order.empresa}</p>
                 <p><strong>CNPJ:</strong> <span className="font-mono">{order.cnpj}</span></p>
