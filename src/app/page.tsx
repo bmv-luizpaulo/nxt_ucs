@@ -84,48 +84,58 @@ export default function Dashboard() {
   const orders = pedidos || [];
 
   return (
-    <TooltipProvider>
+    <TooltipProvider delayDuration={0}>
       <div className="flex min-h-screen bg-[#F8FAFC]">
-        {/* Sidebar Lateral */}
-        <aside className="w-20 bg-white border-r flex flex-col items-center py-8 gap-8 sticky top-0 h-screen">
-          <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
-            <span className="text-primary font-black text-xs uppercase">bmv</span>
+        {/* Sidebar Lateral Estilizada */}
+        <aside className="w-20 bg-white border-r flex flex-col items-center py-8 gap-10 sticky top-0 h-screen">
+          {/* Logo BMV */}
+          <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center mb-4 shadow-sm border border-emerald-100">
+            <span className="text-primary font-black text-xs">BMV</span>
           </div>
-          <nav className="flex flex-col gap-6">
+
+          <nav className="flex flex-col gap-8">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-xl bg-primary/10 text-primary">
+                <Button variant="ghost" size="icon" className="w-12 h-12 rounded-2xl bg-emerald-50 text-primary shadow-sm border border-emerald-100">
                   <LayoutDashboard className="w-6 h-6" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right"><p>Painel de Auditoria</p></TooltipContent>
+              <TooltipContent side="right">
+                <p className="font-bold text-xs">Painel Geral</p>
+              </TooltipContent>
             </Tooltip>
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-xl text-muted-foreground hover:text-primary">
+                <Button variant="ghost" size="icon" className="w-12 h-12 rounded-2xl text-slate-400 hover:text-primary hover:bg-emerald-50 hover:border-emerald-100 transition-all">
                   <ShieldCheck className="w-6 h-6" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right"><p>Conformidade de Selos</p></TooltipContent>
+              <TooltipContent side="right">
+                <p className="font-bold text-xs">Auditoria de Selos</p>
+              </TooltipContent>
             </Tooltip>
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-xl text-muted-foreground hover:text-primary">
+                <Button variant="ghost" size="icon" className="w-12 h-12 rounded-2xl text-slate-400 hover:text-primary hover:bg-emerald-50 hover:border-emerald-100 transition-all">
                   <Database className="w-6 h-6" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right"><p>Blockchain NXT Ledger</p></TooltipContent>
+              <TooltipContent side="right">
+                <p className="font-bold text-xs">NXT Blockchain</p>
+              </TooltipContent>
             </Tooltip>
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-xl text-muted-foreground hover:text-primary">
+                <Button variant="ghost" size="icon" className="w-12 h-12 rounded-2xl text-slate-400 hover:text-primary hover:bg-emerald-50 hover:border-emerald-100 transition-all">
                   <FileText className="w-6 h-6" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right"><p>Relatórios Finais</p></TooltipContent>
+              <TooltipContent side="right">
+                <p className="font-bold text-xs">Relatórios</p>
+              </TooltipContent>
             </Tooltip>
           </nav>
         </aside>
@@ -141,7 +151,7 @@ export default function Dashboard() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <Input placeholder="Buscar pedido ou hash..." className="pl-10 bg-slate-100 border-none rounded-full h-10 text-sm" />
               </div>
-              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold text-sm">AUD</div>
+              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">AD</div>
             </div>
           </header>
 
@@ -166,7 +176,7 @@ export default function Dashboard() {
                         <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">
                           <TrendingUp className="w-5 h-5" />
                         </div>
-                        <h3 className="font-bold text-slate-700">Cotação UCS (Mercado)</h3>
+                        <h3 className="font-bold text-slate-700 text-sm uppercase tracking-tight">Cotação UCS (Mercado)</h3>
                       </div>
                       <div className="flex items-baseline gap-1">
                         <span className="text-3xl font-black text-slate-900">R$ 177,10</span>
@@ -181,15 +191,15 @@ export default function Dashboard() {
                         <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
                           <LinkIcon className="w-5 h-5" />
                         </div>
-                        <h3 className="font-bold text-slate-700">Auditados na Rede</h3>
+                        <h3 className="font-bold text-slate-700 text-sm uppercase tracking-tight">Cobertura NXT</h3>
                       </div>
                       <div className="flex items-baseline gap-2">
                         <span className="text-3xl font-black text-slate-900">
                           {((orders.filter(o => o.auditado).length / (orders.length || 1)) * 100).toFixed(0)}%
                         </span>
-                        <span className="text-slate-400 text-sm font-bold uppercase tracking-tighter">COBERTURA NXT</span>
+                        <span className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">REGISTROS VÁLIDOS</span>
                       </div>
-                      <div className="mt-4 h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                      <div className="mt-4 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                          <div 
                           className="h-full bg-primary transition-all duration-1000" 
                           style={{ width: `${(orders.filter(o => o.auditado).length / (orders.length || 1)) * 100}%` }}
@@ -204,13 +214,13 @@ export default function Dashboard() {
                         <div className="p-2 bg-rose-100 rounded-lg text-rose-600">
                           <AlertCircle className="w-5 h-5" />
                         </div>
-                        <h3 className="font-bold text-slate-700">Ação Necessária</h3>
+                        <h3 className="font-bold text-slate-700 text-sm uppercase tracking-tight">Ação Necessária</h3>
                       </div>
                       <div className="flex items-baseline gap-2">
                         <span className="text-3xl font-black text-rose-600">
                           {orders.filter(o => !o.auditado).length}
                         </span>
-                        <span className="text-slate-400 text-sm font-bold uppercase tracking-tighter">SEM HASH VINCULADO</span>
+                        <span className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">PEDIDOS PENDENTES</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -221,9 +231,9 @@ export default function Dashboard() {
                   <Tabs defaultValue="selo" className="w-full">
                     <div className="flex items-center justify-between mb-6">
                       <TabsList className="bg-slate-100/50 p-1 border">
-                        <TabsTrigger value="selo" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-6">Selo Tesouro Verde</TabsTrigger>
-                        <TabsTrigger value="certificado_sas" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-6">Certificado SAS</TabsTrigger>
-                        <TabsTrigger value="sas_dmv" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-6">SAS DMV</TabsTrigger>
+                        <TabsTrigger value="selo" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-6 text-xs font-bold uppercase">Selo Tesouro Verde</TabsTrigger>
+                        <TabsTrigger value="certificado_sas" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-6 text-xs font-bold uppercase">Certificado SAS</TabsTrigger>
+                        <TabsTrigger value="sas_dmv" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-6 text-xs font-bold uppercase">SAS DMV</TabsTrigger>
                       </TabsList>
                       <div className="flex gap-3">
                          <Button variant="outline" size="sm" className="gap-2 text-[10px] font-bold uppercase tracking-widest border-slate-200">
