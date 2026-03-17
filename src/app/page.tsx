@@ -1,14 +1,16 @@
 
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   LayoutDashboard, 
   Search, 
   Database,
   FileText,
   ShieldCheck,
-  Trash2
+  Trash2,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,7 +20,7 @@ import { AuditOverview } from "@/components/dashboard/AuditOverview";
 import { AddOrderDialog } from "@/components/dashboard/AddOrderDialog";
 import { BulkImportDialog } from "@/components/dashboard/BulkImportDialog";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
-import { collection, doc, updateDoc, deleteDoc, setDoc, writeBatch } from "firebase/firestore";
+import { collection, doc, updateDoc, deleteDoc, setDoc, writeBatch, query, orderBy } from "firebase/firestore";
 import { Pedido, OrderCategory } from "@/lib/types";
 import {
   Tooltip,
@@ -32,13 +34,22 @@ export default function Dashboard() {
   const firestore = useFirestore();
   const [activeTab, setActiveTab] = useState<OrderCategory>("selo");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
   
   const pedidosQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return collection(firestore, "pedidos");
+    // Ordenação decrescente por data (mais recentes primeiro)
+    return query(collection(firestore, "pedidos"), orderBy("data", "desc"));
   }, [firestore]);
 
   const { data: pedidos, isLoading } = useCollection<Pedido>(pedidosQuery);
+
+  // Resetar página ao trocar de aba
+  useEffect(() => {
+    setCurrentPage(1);
+    setSelectedIds([]);
+  }, [activeTab]);
 
   const handleAddOrder = async (order: Omit<Pedido, 'createdAt'>) => {
     if (!firestore) return;
@@ -59,7 +70,6 @@ export default function Dashboard() {
     const colRef = collection(firestore, "pedidos");
 
     bulkOrders.forEach(order => {
-      // Usamos o ID da planilha como ID do documento para evitar duplicidade e divergência
       const docId = order.id.toString();
       const newDocRef = doc(colRef, docId);
       batch.set(newDocRef, order);
@@ -108,7 +118,6 @@ export default function Dashboard() {
     const movementsRef = collection(firestore, "pedidos", orderId, "movimentos");
 
     for (const line of lines) {
-      // Para movimentos, mantemos ID aleatório pois um pedido tem vários
       const newMoveRef = doc(movementsRef);
       setDoc(newMoveRef, {
         id: newMoveRef.id,
@@ -133,6 +142,14 @@ export default function Dashboard() {
   };
 
   const orders = pedidos || [];
+  const filteredOrders = orders.filter(o => o.categoria === activeTab);
+  
+  // Lógica de Paginação
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+  const paginatedOrders = filteredOrders.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -208,7 +225,7 @@ export default function Dashboard() {
                 <AuditOverview orders={orders} />
 
                 <div className="space-y-6">
-                  <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v as OrderCategory); setSelectedIds([]); }} className="w-full">
+                  <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as OrderCategory)} className="w-full">
                     <div className="flex items-center justify-between mb-6">
                       <TabsList className="bg-slate-100/50 p-1 border rounded-full h-12">
                         <TabsTrigger value="selo" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-8 rounded-full text-[10px] font-bold uppercase tracking-tighter">Selo Tesouro Verde</TabsTrigger>
@@ -229,9 +246,9 @@ export default function Dashboard() {
                       </div>
                     </div>
 
-                    <TabsContent value="selo" className="mt-0">
+                    <div className="space-y-4">
                       <OrderTable 
-                        orders={orders.filter(o => o.categoria === 'selo')} 
+                        orders={paginatedOrders} 
                         selectedIds={selectedIds}
                         onSelectionChange={setSelectedIds}
                         onUpdateOrder={handleUpdateOrder}
@@ -239,29 +256,43 @@ export default function Dashboard() {
                         onAddMovement={handleAddMovement}
                         onDeleteMovement={handleDeleteMovement}
                       />
-                    </TabsContent>
-                    <TabsContent value="Saas_Tesouro_Verde" className="mt-0">
-                      <OrderTable 
-                        orders={orders.filter(o => o.categoria === 'Saas_Tesouro_Verde')} 
-                        selectedIds={selectedIds}
-                        onSelectionChange={setSelectedIds}
-                        onUpdateOrder={handleUpdateOrder}
-                        onDeleteOrder={handleDeleteOrder}
-                        onAddMovement={handleAddMovement}
-                        onDeleteMovement={handleDeleteMovement}
-                      />
-                    </TabsContent>
-                    <TabsContent value="Saas_BMV" className="mt-0">
-                      <OrderTable 
-                        orders={orders.filter(o => o.categoria === 'Saas_BMV')} 
-                        selectedIds={selectedIds}
-                        onSelectionChange={setSelectedIds}
-                        onUpdateOrder={handleUpdateOrder}
-                        onDeleteOrder={handleDeleteOrder}
-                        onAddMovement={handleAddMovement}
-                        onDeleteMovement={handleDeleteMovement}
-                      />
-                    </TabsContent>
+
+                      {/* Controles de Paginação */}
+                      {totalPages > 1 && (
+                        <div className="flex items-center justify-between bg-white px-8 py-4 rounded-[2rem] border border-slate-200 shadow-sm">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            Mostrando {Math.min(filteredOrders.length, itemsPerPage)} de {filteredOrders.length} registros
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="icon" 
+                              className="w-10 h-10 rounded-xl border-slate-200"
+                              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                              disabled={currentPage === 1}
+                            >
+                              <ChevronLeft className="w-4 h-4" />
+                            </Button>
+                            
+                            <div className="flex items-center gap-1 mx-4">
+                              <span className="text-[10px] font-black text-primary">{currentPage}</span>
+                              <span className="text-[10px] font-bold text-slate-300">/</span>
+                              <span className="text-[10px] font-bold text-slate-400">{totalPages}</span>
+                            </div>
+
+                            <Button 
+                              variant="outline" 
+                              size="icon" 
+                              className="w-10 h-10 rounded-xl border-slate-200"
+                              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                              disabled={currentPage === totalPages}
+                            >
+                              <ChevronRight className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </Tabs>
                 </div>
               </>
