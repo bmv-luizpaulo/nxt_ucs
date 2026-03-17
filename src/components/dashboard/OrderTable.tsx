@@ -1,3 +1,4 @@
+
 import { Pedido, OrderStatus, Movimento } from "@/lib/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { StatusBadge } from "./StatusBadge";
@@ -10,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
-import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
 import { collection } from "firebase/firestore";
 import Image from "next/image";
 
@@ -177,11 +178,12 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
   const [hash, setHash] = useState(order.hashPedido || "");
   const [link, setLink] = useState(order.linkNxt || "");
   const firestore = useFirestore();
+  const { user } = useUser();
   
   const movimentosQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
+    if (!firestore || !user) return null;
     return collection(firestore, "pedidos", order.id, "movimentos");
-  }, [firestore, order.id]);
+  }, [firestore, order.id, user]);
 
   const { data: movimentos } = useCollection<Movimento>(movimentosQuery);
 

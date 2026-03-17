@@ -19,7 +19,7 @@ import { OrderTable } from "@/components/dashboard/OrderTable";
 import { AuditOverview } from "@/components/dashboard/AuditOverview";
 import { AddOrderDialog } from "@/components/dashboard/AddOrderDialog";
 import { BulkImportDialog } from "@/components/dashboard/BulkImportDialog";
-import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
 import { collection, doc, updateDoc, deleteDoc, setDoc, writeBatch, query, orderBy } from "firebase/firestore";
 import { Pedido, OrderCategory, Movimento } from "@/lib/types";
 import {
@@ -34,15 +34,16 @@ import { FirestorePermissionError } from "@/firebase/errors";
 
 export default function Dashboard() {
   const firestore = useFirestore();
+  const { user } = useUser();
   const [activeTab, setActiveTab] = useState<OrderCategory>("selo");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15;
   
   const pedidosQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
+    if (!firestore || !user) return null;
     return query(collection(firestore, "pedidos"), orderBy("data", "desc"));
-  }, [firestore]);
+  }, [firestore, user]);
 
   const { data: pedidos, isLoading } = useCollection<Pedido>(pedidosQuery);
 
@@ -257,7 +258,7 @@ export default function Dashboard() {
           </header>
 
           <div className="p-8 space-y-8 overflow-y-auto">
-            {isLoading ? (
+            {isLoading || !user ? (
               <div className="flex items-center justify-center h-64">
                 <div className="text-center space-y-4">
                   <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
