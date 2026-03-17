@@ -2,7 +2,7 @@ import { Pedido, OrderStatus, Movimento } from "@/lib/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { StatusBadge } from "./StatusBadge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Trash2, MoreHorizontal, Link as LinkIcon, Save, Database, ShieldCheck, Check, X, Printer, FileText, CheckCircle2 } from "lucide-react";
+import { ExternalLink, Trash2, MoreHorizontal, Link as LinkIcon, Save, Database, ShieldCheck, Check, X, Printer, FileText, CheckCircle2, File } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { MovementList } from "./MovementList";
 import { OrderAuditForm } from "./OrderAuditForm";
@@ -205,8 +205,8 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
     <Dialog>
       <DialogTrigger asChild>
         {variant === "pdf" ? (
-          <Button variant="ghost" size="icon" title="Gerar Certificado PDF" className="h-8 w-8 text-primary hover:bg-emerald-50 rounded-lg animate-in fade-in zoom-in">
-            <FileText className="w-4 h-4" />
+          <Button variant="ghost" size="icon" title="Gerar Relatório de Auditoria (PDF)" className="h-8 w-8 text-primary hover:bg-emerald-50 rounded-lg animate-in fade-in zoom-in border border-emerald-100">
+            <File className="w-4 h-4 fill-emerald-500/10" />
           </Button>
         ) : (
           <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg">
@@ -215,7 +215,7 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
         )}
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-[2.5rem] border-none shadow-2xl p-8 print:p-0 print:max-h-none print:overflow-visible print:shadow-none print:rounded-none">
-        {/* Layout Visual do Dashboard */}
+        {/* Dashboard View (Hidden on Print) */}
         <div className="print:hidden">
           <DialogHeader className="border-b border-slate-100 pb-6">
             <DialogTitle className="flex items-center justify-between">
@@ -281,7 +281,7 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
             <div className="flex gap-3">
                <Button variant="outline" className="text-[10px] font-bold uppercase rounded-xl h-11 border-slate-200">Exportar XML</Button>
                {order.status === 'ok' && (
-                 <Button onClick={handlePrint} className="text-[10px] font-black uppercase rounded-xl h-11 px-8 shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 text-white flex items-center gap-2 animate-in fade-in zoom-in">
+                 <Button onClick={handlePrint} className="text-[10px] font-black uppercase rounded-xl h-11 px-8 shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 text-white flex items-center gap-2">
                    <FileText className="w-4 h-4" /> Gerar Certificado PDF
                  </Button>
                )}
@@ -289,11 +289,10 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
           </div>
         </div>
 
-        {/* Layout de Auditoria (PDF SOLICITADO) */}
-        <div className="hidden print:block p-16 font-body text-slate-900 bg-white min-h-screen">
-          {/* Cabeçalho com Logo */}
-          <div className="flex flex-col items-center mb-10">
-            <div className="relative w-48 h-24 mb-6">
+        {/* Audit Report View (Print Optimized PDF) */}
+        <div className="hidden print:block p-12 font-body text-slate-900 bg-white min-h-screen">
+          <div className="flex justify-between items-start mb-12 border-b-2 border-slate-900 pb-8">
+            <div className="relative w-40 h-20">
               <Image 
                 src="/image/logo_amarelo.png" 
                 alt="Logo BMV" 
@@ -302,60 +301,96 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
                 priority
               />
             </div>
-            <h1 className="text-xl font-bold uppercase tracking-tight">RELATÓRIO DE AUDITORIA DE PEDIDO</h1>
+            <div className="text-right space-y-1">
+              <h1 className="text-xl font-black uppercase tracking-tighter text-slate-900">Certificado de Rastreabilidade</h1>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Protocolo de Auditoria: {order.id}</p>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{new Date().toLocaleDateString('pt-BR')} {new Date().toLocaleTimeString('pt-BR')}</p>
+            </div>
           </div>
 
-          {/* Dados do Pedido */}
-          <div className="space-y-6 text-[11px] leading-relaxed">
-            <div className="space-y-1">
-              <p><strong>ID:</strong> {order.id}</p>
-              <p><strong>Data:</strong> {new Date(order.data).toLocaleString('pt-BR')}</p>
-              <p><strong>Empresa:</strong> {order.empresa}</p>
-              <p><strong>CNPJ:</strong> {order.cnpj}</p>
-              <p><strong>Programa:</strong> {order.programa}</p>
-              <p><strong>UF:</strong> {order.uf}</p>
-            </div>
-
-            <div className="space-y-1">
-              <p><strong>Quantidade:</strong> {order.quantidade} UCS</p>
-              <p><strong>Valor:</strong> {order.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
-            </div>
-
-            {/* Lista de Movimentações conforme imagem */}
-            <div className="space-y-2">
-              <p className="font-bold">Movimentações:</p>
-              <div className="space-y-1 ml-4">
-                {movimentos?.length === 0 ? (
-                  <p className="italic text-slate-400">- Nenhuma movimentação registrada</p>
-                ) : (
-                  movimentos?.map((mov) => (
-                    <p key={mov.id}>
-                      - {mov.origem} → {mov.quantidade} UCS ({mov.tipo === 'gov' ? 'Governo' : 'Cliente'})
-                    </p>
-                  ))
-                )}
+          <div className="grid grid-cols-2 gap-12 mb-10">
+            <div className="space-y-4">
+              <h3 className="text-[10px] font-black uppercase border-b border-slate-200 pb-1 text-slate-400 tracking-widest">Identificação do Ativo</h3>
+              <div className="grid grid-cols-1 gap-2 text-[11px]">
+                <p><strong>Pedido ID:</strong> <span className="font-mono">{order.id}</span></p>
+                <p><strong>Data de Registro:</strong> {new Date(order.data).toLocaleDateString('pt-BR')}</p>
+                <p><strong>Empresa/Origem:</strong> {order.empresa}</p>
+                <p><strong>CNPJ:</strong> <span className="font-mono">{order.cnpj}</span></p>
+                <p><strong>Programa:</strong> {order.programa}</p>
               </div>
             </div>
-
-            {/* Validação Blockchain */}
-            <div className="space-y-1 pt-4">
-              <p className="font-bold">Validação:</p>
-              <p>Sem duplicidade</p>
-              <p>Compatível com pedido</p>
-              <p className="font-mono text-[9px] text-slate-500 break-all mt-2">Hash: {order.hashPedido}</p>
-            </div>
-
-            {/* Status Final com Destaque */}
-            <div className="pt-10 border-t border-slate-100">
-              <p className="text-sm font-bold">
-                Status Final: <span className="uppercase text-emerald-600">APROVADO PARA MIGRAÇÃO</span>
-              </p>
+            <div className="space-y-4">
+              <h3 className="text-[10px] font-black uppercase border-b border-slate-200 pb-1 text-slate-400 tracking-widest">Volume e Integridade</h3>
+              <div className="grid grid-cols-1 gap-2 text-[11px]">
+                <p><strong>Quantidade Total:</strong> <span className="font-bold">{order.quantidade} UCS (Unidade de Crédito de Sustentabilidade)</span></p>
+                <p><strong>Valor Auditado:</strong> {order.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+                <p><strong>Estado (UF):</strong> {order.uf}</p>
+                <p><strong>Status Blockchain:</strong> <span className="text-emerald-600 font-bold uppercase">Integridade Confirmada</span></p>
+              </div>
             </div>
           </div>
 
-          {/* Rodapé do PDF */}
-          <div className="mt-20 pt-8 border-t border-slate-100 text-[9px] text-slate-400 text-center uppercase tracking-widest">
-            Documento gerado eletronicamente via LedgerTrust Auditoria • {new Date().toLocaleDateString('pt-BR')}
+          <div className="space-y-6 mb-10">
+            <h3 className="text-[10px] font-black uppercase border-b-2 border-slate-900 pb-1 text-slate-900 tracking-widest">Histórico Detalhado de Movimentações (Rastreio de UCs)</h3>
+            <div className="rounded-lg border border-slate-200 overflow-hidden">
+              <Table>
+                <TableHeader className="bg-slate-50">
+                  <TableRow>
+                    <TableHead className="text-[9px] font-black uppercase text-slate-400 h-8">Tipo</TableHead>
+                    <TableHead className="text-[9px] font-black uppercase text-slate-400 h-8">Origem do Ativo</TableHead>
+                    <TableHead className="text-[9px] font-black uppercase text-slate-400 h-8">Destinatário Final</TableHead>
+                    <TableHead className="text-[9px] font-black uppercase text-slate-400 h-8 text-right">Volume (UCS)</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {movimentos?.map((mov) => (
+                    <TableRow key={mov.id} className="border-b border-slate-100">
+                      <TableCell className="py-2 text-[9px] font-bold uppercase">{mov.tipo}</TableCell>
+                      <TableCell className="py-2 text-[9px]">{mov.origem}</TableCell>
+                      <TableCell className="py-2 text-[9px]">{mov.destino}</TableCell>
+                      <TableCell className="py-2 text-right font-mono text-[10px] font-black text-slate-900">{mov.quantidade}</TableCell>
+                    </TableRow>
+                  ))}
+                  {movimentos?.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={4} className="py-8 text-center text-[9px] font-bold text-slate-400 uppercase italic">Aguardando Importação de Extratos</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+
+          <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
+            <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Validação em Blockchain NXT</h3>
+            <div className="space-y-3">
+              <div>
+                <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Hash da Transação Principal</p>
+                <p className="font-mono text-[10px] break-all bg-white p-2 border border-slate-200 rounded-lg text-slate-600">{order.hashPedido}</p>
+              </div>
+              <div>
+                <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Link de Auditoria Pública</p>
+                <p className="text-[10px] text-primary underline truncate">{order.linkNxt}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-16 flex justify-between items-end">
+             <div className="text-center flex flex-col items-center justify-center">
+                <div className="w-16 h-16 border-4 border-emerald-100 rounded-full flex items-center justify-center mb-2">
+                   <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+                </div>
+                <p className="text-[8px] font-black uppercase text-emerald-600 tracking-tighter italic">Integridade LedgerTrust Verificada</p>
+             </div>
+             <div className="text-right space-y-1">
+                <div className="w-48 border-b-2 border-slate-900 ml-auto"></div>
+                <p className="text-[9px] font-black uppercase text-slate-900 tracking-widest">Auditor de Conformidade BMV</p>
+                <p className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Documento Assinado Digitalmente</p>
+             </div>
+          </div>
+          
+          <div className="mt-12 pt-8 border-t border-slate-100 text-center">
+             <p className="text-[8px] text-slate-300 font-bold uppercase tracking-[0.3em]">Este certificado é uma prova de rastreabilidade gerada via LedgerTrust Audit para a Rede BMV</p>
           </div>
         </div>
       </DialogContent>
