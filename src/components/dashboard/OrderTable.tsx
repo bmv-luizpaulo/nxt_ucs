@@ -12,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { collection } from "firebase/firestore";
+import Image from "next/image";
 
 interface OrderTableProps {
   orders: Pedido[];
@@ -278,8 +279,16 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
               <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">NXT Ledger • LedgerTrust Verification</p>
             </div>
             <div className="text-right">
-              <span className="text-primary font-black text-xl">BMV</span>
-              <p className="text-[8px] font-bold text-slate-400 mt-1">EMITIDO EM {new Date().toLocaleDateString('pt-BR')}</p>
+              <div className="relative w-24 h-12 ml-auto mb-1">
+                <Image 
+                  src="/image/logo_amarelo.png" 
+                  alt="Logo BMV" 
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+              <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase">Emitido em {new Date().toLocaleDateString('pt-BR')}</p>
             </div>
           </div>
 
