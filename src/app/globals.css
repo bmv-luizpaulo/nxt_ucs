@@ -39,59 +39,69 @@
 @media print {
   @page {
     margin: 0;
-    size: A4;
+    size: A4 portrait;
   }
 
-  /* Esconde TUDO da aplicação principal */
-  main, aside, header, .dashboard-container, [data-radix-portal] > div:not([role="dialog"]), .print-hidden {
+  /* Esconde tudo o que não é o portal do diálogo */
+  body > *:not([data-radix-portal]),
+  header, aside, main, 
+  .print-hidden, 
+  button, 
+  [role="button"] {
     display: none !important;
   }
 
-  /* Reseta o body para impressão */
-  body, html {
+  /* Reset total de layout para impressão */
+  html, body {
     background: white !important;
+    width: 100% !important;
     height: auto !important;
     margin: 0 !important;
     padding: 0 !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  /* Garante que o Portal do Radix não esconda o conteúdo */
+  /* Garante que o Portal do Radix seja o container principal */
   [data-radix-portal] {
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
     width: 100% !important;
+    display: block !important;
+    overflow: visible !important;
   }
 
-  /* Estiliza o Diálogo especificamente para o PDF */
+  /* Força o Diálogo a ocupar toda a página sem scroll */
   div[role="dialog"] {
     position: static !important;
     transform: none !important;
     width: 100% !important;
     max-width: none !important;
+    height: auto !important;
+    max-height: none !important;
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
     margin: 0 !important;
     background: white !important;
     display: block !important;
-    visibility: visible !important;
+    overflow: visible !important;
   }
 
-  /* Força a exibição do conteúdo imprimível */
+  /* Estilização final do conteúdo do certificado */
   .printable-content {
     display: block !important;
     visibility: visible !important;
-    width: 100% !important;
-    min-height: 100vh !important;
+    width: 210mm !important; /* Largura A4 */
+    min-height: 297mm !important; /* Altura A4 */
     background: white !important;
-    padding: 1.5cm !important;
+    padding: 15mm !important;
+    margin: 0 auto !important;
+    color: black !important;
+    overflow: visible !important;
     position: relative !important;
-  }
-
-  /* Esconde botões e barras de rolagem */
-  button, [role="button"], .sr-only, .scroll-area-scrollbar {
-    display: none !important;
   }
 
   .print-no-break {
