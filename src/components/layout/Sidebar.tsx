@@ -2,14 +2,11 @@
 
 import { 
   LayoutDashboard, 
-  Users, 
-  Building2, 
-  FileText, 
   ShieldCheck, 
   Database, 
+  FileText,
   Settings, 
-  LogOut,
-  Layers
+  LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -25,31 +22,19 @@ export function Sidebar() {
       icon: LayoutDashboard, 
       label: "Pedidos", 
       href: "/", 
-      tooltip: "Auditoria de Pedidos" 
-    },
-    { 
-      icon: Users, 
-      label: "Produtores", 
-      href: "/produtores", 
-      tooltip: "Saldos de Produtores" 
-    },
-    { 
-      icon: Building2, 
-      label: "Associações", 
-      href: "/associacoes", 
-      tooltip: "Saldos de Associações" 
+      tooltip: "Pedidos de Crédito" 
     },
     { 
       icon: ShieldCheck, 
-      label: "Auditoria", 
-      href: "#", 
-      tooltip: "Auditoria de Conformidade" 
+      label: "Produtores", 
+      href: "/produtores", 
+      tooltip: "Saldos: Produtores" 
     },
     { 
       icon: Database, 
-      label: "Blockchain", 
-      href: "#", 
-      tooltip: "NXT Ledger Explorer" 
+      label: "Associações", 
+      href: "/associacoes", 
+      tooltip: "Saldos: Associações" 
     },
     { 
       icon: FileText, 
@@ -61,16 +46,16 @@ export function Sidebar() {
 
   return (
     <TooltipProvider delayDuration={0}>
-      <aside className="w-20 bg-white border-r flex flex-col items-center py-8 sticky top-0 h-screen print:hidden shrink-0 shadow-sm z-20">
-        {/* Logo / Home Brand */}
+      <aside className="w-24 bg-white border-r flex flex-col items-center py-10 sticky top-0 h-screen print:hidden shrink-0 z-20">
+        {/* Logo BMV Style */}
         <Link href="/">
-          <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center mb-10 shadow-lg shadow-primary/20 cursor-pointer transition-transform hover:scale-105 active:scale-95">
-            <span className="text-white font-black text-xs tracking-tighter">NXT</span>
+          <div className="w-14 h-14 bg-[#E6F9F3] rounded-[1.25rem] flex items-center justify-center mb-12 cursor-pointer transition-transform hover:scale-105 active:scale-95 group">
+            <span className="text-primary font-black text-xs tracking-tighter">BMV</span>
           </div>
         </Link>
 
         {/* Navigation Section */}
-        <nav className="flex flex-col gap-6 flex-1">
+        <nav className="flex flex-col gap-8 flex-1">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
@@ -83,10 +68,10 @@ export function Sidebar() {
                       variant="ghost" 
                       size="icon" 
                       className={cn(
-                        "w-12 h-12 rounded-2xl transition-all duration-300",
+                        "w-14 h-14 rounded-2xl transition-all duration-300",
                         isActive 
-                          ? "bg-primary/10 text-primary shadow-inner border border-primary/10" 
-                          : "text-slate-400 hover:text-primary hover:bg-slate-50"
+                          ? "bg-[#E6F9F3] text-primary shadow-sm" 
+                          : "text-slate-300 hover:text-primary hover:bg-slate-50"
                       )}
                     >
                       <Icon className={cn("w-6 h-6", isActive && "stroke-[2.5px]")} />
@@ -105,7 +90,7 @@ export function Sidebar() {
         <div className="flex flex-col gap-4 mt-auto">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="w-12 h-12 rounded-2xl text-slate-300 hover:text-slate-600 hover:bg-slate-100">
+              <Button variant="ghost" size="icon" className="w-14 h-14 rounded-2xl text-slate-200 hover:text-slate-400">
                 <Settings className="w-5 h-5" />
               </Button>
             </TooltipTrigger>
@@ -114,11 +99,11 @@ export function Sidebar() {
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="w-12 h-12 rounded-2xl text-slate-300 hover:text-rose-500 hover:bg-rose-50">
+              <Button variant="ghost" size="icon" className="w-14 h-14 rounded-2xl text-slate-200 hover:text-rose-500">
                 <LogOut className="w-5 h-5" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="right" className="bg-rose-600 text-white font-bold text-[10px] uppercase">Sair do Sistema</TooltipContent>
+            <TooltipContent side="right" className="bg-rose-600 text-white font-bold text-[10px] uppercase">Sair</TooltipContent>
           </Tooltip>
         </div>
       </aside>
