@@ -115,7 +115,7 @@ export function AddOrderDialog({ onAdd }: { onAdd: (order: any) => void }) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="selo">Selo Tesouro Verde</SelectItem>
-                <SelectItem value="certificado_sas">Saas Tesouro Verde</SelectItem>
+                <SelectItem value="certificado_sas">SaaS BMV</SelectItem>
                 <SelectItem value="sas_dmv">SAS DMV</SelectItem>
               </SelectContent>
             </Select>

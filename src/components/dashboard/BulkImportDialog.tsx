@@ -19,7 +19,7 @@ export function BulkImportDialog({ onImport, category }: BulkImportDialogProps) 
   const getCategoryName = (cat: OrderCategory) => {
     switch(cat) {
       case 'selo': return 'Selo Tesouro Verde';
-      case 'certificado_sas': return 'Saas Tesouro Verde';
+      case 'certificado_sas': return 'SaaS BMV';
       case 'sas_dmv': return 'SAS DMV';
       default: return cat;
     }
@@ -31,7 +31,6 @@ export function BulkImportDialog({ onImport, category }: BulkImportDialogProps) 
     const parsedOrders: any[] = [];
 
     lines.forEach(line => {
-      // Divide por tabs (comum em copiar/colar de planilhas)
       const parts = line.split('\t');
       if (parts.length < 5) return;
 
@@ -42,10 +41,8 @@ export function BulkImportDialog({ onImport, category }: BulkImportDialogProps) 
       const uf = parts[4]?.trim() || "";
       const doFlag = parts[5]?.trim().toLowerCase() === 'sim';
       
-      // Quantidade (Remove " UCS" e converte)
       const quantidade = parseInt(parts[6]?.replace(/[^\d]/g, '') || "0");
       
-      // Valores (Converte formato R$ 0,00)
       const parseBRL = (val: string) => {
         if (!val) return 0;
         return parseFloat(val.replace(/[R$\s.]/g, '').replace(',', '.')) || 0;
@@ -54,12 +51,10 @@ export function BulkImportDialog({ onImport, category }: BulkImportDialogProps) 
       const taxa = parseBRL(parts[7]);
       const total = parseBRL(parts[8]);
 
-      // Separa Empresa e CNPJ (Geralmente separados por quebra de linha ou espaço longo)
       const originParts = originRaw.split(/\n/);
       const empresa = originParts[0]?.trim() || originRaw;
       const cnpj = originParts.length > 1 ? originParts[originParts.length - 1]?.trim() : "";
 
-      // Converte Data para ISO
       let isoDate = new Date().toISOString();
       try {
         const parsedDate = parse(dataStr, "dd/MM/yyyy HH:mm:ss", new Date());
@@ -67,7 +62,6 @@ export function BulkImportDialog({ onImport, category }: BulkImportDialogProps) 
           isoDate = parsedDate.toISOString();
         }
       } catch (e) {
-        // Fallback para data atual se falhar
       }
 
       parsedOrders.push({
