@@ -77,7 +77,7 @@ export function OrderTable({
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right h-14">Total</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center h-14">Nxt</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center h-14">Status</TableHead>
-            <TableHead className="w-[60px] pr-8 h-14"></TableHead>
+            <TableHead className="w-[100px] pr-8 h-14"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -144,13 +144,25 @@ export function OrderTable({
                   <StatusBadge status={order.status} />
                 </TableCell>
                 <TableCell className="text-right pr-8">
-                  <OrderDetailsDialog 
-                    order={order} 
-                    onUpdateOrder={onUpdateOrder}
-                    onDeleteOrder={onDeleteOrder}
-                    onAddMovement={onAddMovement}
-                    onDeleteMovement={onDeleteMovement}
-                  />
+                  <div className="flex items-center justify-end gap-1">
+                    {order.status === 'ok' && (
+                      <OrderDetailsDialog 
+                        order={order} 
+                        onUpdateOrder={onUpdateOrder}
+                        onDeleteOrder={onDeleteOrder}
+                        onAddMovement={onAddMovement}
+                        onDeleteMovement={onDeleteMovement}
+                        variant="print"
+                      />
+                    )}
+                    <OrderDetailsDialog 
+                      order={order} 
+                      onUpdateOrder={onUpdateOrder}
+                      onDeleteOrder={onDeleteOrder}
+                      onAddMovement={onAddMovement}
+                      onDeleteMovement={onDeleteMovement}
+                    />
+                  </div>
                 </TableCell>
               </TableRow>
             ))
@@ -161,7 +173,7 @@ export function OrderTable({
   );
 }
 
-function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement, onDeleteMovement }: any) {
+function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement, onDeleteMovement, variant = "default" }: any) {
   const [hash, setHash] = useState(order.hashPedido || "");
   const [link, setLink] = useState(order.linkNxt || "");
   const firestore = useFirestore();
@@ -192,9 +204,15 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg">
-          <MoreHorizontal className="w-4 h-4" />
-        </Button>
+        {variant === "print" ? (
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-primary hover:bg-emerald-50 rounded-lg animate-in fade-in zoom-in">
+            <Printer className="w-4 h-4" />
+          </Button>
+        ) : (
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg">
+            <MoreHorizontal className="w-4 h-4" />
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-[2.5rem] border-none shadow-2xl p-8 print:p-0 print:max-h-none print:overflow-visible print:shadow-none print:rounded-none">
         {/* Layout Visual do Dashboard */}
@@ -262,9 +280,11 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
             </Button>
             <div className="flex gap-3">
                <Button variant="outline" className="text-[10px] font-bold uppercase rounded-xl h-11 border-slate-200">Exportar XML</Button>
-               <Button onClick={handlePrint} className="text-[10px] font-black uppercase rounded-xl h-11 px-8 shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 text-white flex items-center gap-2">
-                 <Printer className="w-4 h-4" /> Gerar Relatório Final
-               </Button>
+               {order.status === 'ok' && (
+                 <Button onClick={handlePrint} className="text-[10px] font-black uppercase rounded-xl h-11 px-8 shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 text-white flex items-center gap-2 animate-in fade-in zoom-in">
+                   <Printer className="w-4 h-4" /> Gerar Relatório Final
+                 </Button>
+               )}
             </div>
           </div>
         </div>
