@@ -177,7 +177,7 @@ export default function Dashboard() {
                     <div className="flex items-center justify-between mb-6">
                       <TabsList className="bg-slate-100/50 p-1 border rounded-full h-12">
                         <TabsTrigger value="selo" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-8 rounded-full text-[10px] font-bold uppercase tracking-tighter">Selo Tesouro Verde</TabsTrigger>
-                        <TabsTrigger value="certificado_sas" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-8 rounded-full text-[10px] font-bold uppercase tracking-tighter">Certificado SAS</TabsTrigger>
+                        <TabsTrigger value="certificado_sas" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-8 rounded-full text-[10px] font-bold uppercase tracking-tighter">Saas Tesouro Verde</TabsTrigger>
                         <TabsTrigger value="sas_dmv" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-8 rounded-full text-[10px] font-bold uppercase tracking-tighter">SAS DMV</TabsTrigger>
                       </TabsList>
                       <div className="flex gap-3">

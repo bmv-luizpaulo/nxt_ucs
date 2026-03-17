@@ -16,6 +16,15 @@ export function BulkImportDialog({ onImport, category }: BulkImportDialogProps) 
   const [raw, setRaw] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const getCategoryName = (cat: OrderCategory) => {
+    switch(cat) {
+      case 'selo': return 'Selo Tesouro Verde';
+      case 'certificado_sas': return 'Saas Tesouro Verde';
+      case 'sas_dmv': return 'SAS DMV';
+      default: return cat;
+    }
+  }
+
   const handleImport = async () => {
     setIsProcessing(true);
     const lines = raw.split('\n').filter(l => l.trim());
@@ -100,7 +109,7 @@ export function BulkImportDialog({ onImport, category }: BulkImportDialogProps) 
         <DialogHeader>
           <DialogTitle className="text-slate-900 font-black uppercase text-xl tracking-tight flex items-center gap-3">
             <Layers className="w-6 h-6 text-primary" /> 
-            Importação em Lote: {category.replace('_', ' ').toUpperCase()}
+            Importação em Lote: {getCategoryName(category).toUpperCase()}
           </DialogTitle>
         </DialogHeader>
         
