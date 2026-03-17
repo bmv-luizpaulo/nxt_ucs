@@ -215,7 +215,7 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-[2.5rem] border-none shadow-2xl p-8 print:p-0 print:max-h-none print:overflow-visible print:shadow-none print:rounded-none">
+      <DialogContent className={`max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-[2.5rem] border-none shadow-2xl p-8 print:p-0 print:max-h-none print:overflow-visible print:shadow-none print:rounded-none`}>
         
         <DialogHeader className={variant === 'pdf' ? 'sr-only' : 'border-b border-slate-100 pb-6 print:hidden'}>
           <DialogTitle>
@@ -295,14 +295,15 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
         <div className={`printable-content ${variant === 'default' ? 'hidden print:block' : 'block'} p-12 font-body text-slate-900 bg-white min-h-screen flex flex-col`}>
           <div className="flex justify-between items-start mb-12 border-b-2 border-slate-900 pb-8">
             <div className="relative w-40 h-20">
-              <Image 
-                src="https://picsum.photos/seed/bmv/600/400" 
-                alt="Logo BMV" 
-                width={160}
-                height={80}
-                className="object-contain"
-                priority
-              />
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center shadow-sm border border-emerald-100">
+                  <span className="text-primary font-black text-xs">BMV</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-lg font-black text-slate-900 leading-none">LedgerTrust</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Auditoria Digital</span>
+                </div>
+              </div>
             </div>
             <div className="text-right space-y-1">
               <h1 className="text-xl font-black uppercase tracking-tighter text-slate-900">Certificado de Rastreabilidade</h1>

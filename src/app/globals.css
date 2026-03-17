@@ -37,26 +37,67 @@
 }
 
 @media print {
-  body * {
-    visibility: hidden;
+  /* Reset absoluto para impressão */
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
-  .printable-content, .printable-content * {
-    visibility: visible;
+
+  /* Esconde TUDO o que não for o certificado */
+  body > * {
+    display: none !important;
   }
+
+  /* Garante que o Portal do Dialog seja o único local visível */
+  [data-radix-portal] {
+    display: block !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    background: white !important;
+  }
+
+  [data-radix-portal] > div {
+    display: none !important; /* Esconde overlays e fundos escuros */
+  }
+
+  /* Exibe especificamente o conteúdo do Certificado */
   .printable-content {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    margin: 0;
-    padding: 0;
+    display: block !important;
     visibility: visible !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 1.5cm !important;
+    background: white !important;
+    box-shadow: none !important;
+    border: none !important;
   }
+
+  /* Força visibilidade de textos e elementos internos */
+  .printable-content, .printable-content * {
+    visibility: visible !important;
+    color: black !important;
+  }
+
+  /* Esconde botões de interface e elementos desnecessários */
+  .print-hidden, button, [role="button"], .sr-only {
+    display: none !important;
+  }
+
+  .print-no-break {
+    break-inside: avoid !important;
+  }
+
   @page {
     margin: 0;
-    size: auto;
-  }
-  .print-no-break {
-    break-inside: avoid;
+    size: A4;
   }
 }
