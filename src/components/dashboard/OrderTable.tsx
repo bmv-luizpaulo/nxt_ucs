@@ -205,92 +205,95 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
     <Dialog>
       <DialogTrigger asChild>
         {variant === "pdf" ? (
-          <Button variant="ghost" size="icon" title="Gerar Relatório de Auditoria (PDF)" className="h-8 w-8 text-primary hover:bg-emerald-50 rounded-lg animate-in fade-in zoom-in border border-emerald-100">
+          <Button variant="ghost" size="icon" title="Gerar Certificado de Rastreabilidade" className="h-8 w-8 text-primary hover:bg-emerald-50 rounded-lg animate-in fade-in zoom-in border border-emerald-100">
             <File className="w-4 h-4 fill-emerald-500/10" />
           </Button>
         ) : (
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg">
+          <Button variant="ghost" size="icon" title="Editar Auditoria" className="h-8 w-8 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg">
             <MoreHorizontal className="w-4 h-4" />
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-[2.5rem] border-none shadow-2xl p-8 print:p-0 print:max-h-none print:overflow-visible print:shadow-none print:rounded-none">
-        {/* Dashboard View (Hidden on Print) */}
-        <div className="print:hidden">
-          <DialogHeader className="border-b border-slate-100 pb-6">
-            <DialogTitle className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <span className="text-slate-900 font-black uppercase text-xl tracking-tight">AUDITORIA DE PEDIDO {order.id}</span>
-                <StatusBadge status={order.status} />
-              </div>
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-8">
-            <div className="space-y-8">
-              <div className="bg-slate-50/50 p-6 rounded-3xl space-y-6 border border-slate-100">
-                <h4 className="text-[10px] font-black uppercase text-primary flex items-center gap-2 tracking-widest">
-                  <ShieldCheck className="w-4 h-4" /> Vincular Blockchain NXT
-                </h4>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Hash do Pedido</label>
-                  <Input 
-                    value={hash} 
-                    onChange={(e) => setHash(e.target.value)}
-                    placeholder="Ex: 0x885...NXT"
-                    className="font-mono text-xs bg-white border-slate-200 rounded-xl h-12"
-                  />
+        
+        {/* VIEW DE AUDITORIA (Painel de Edição) - SÓ APARECE NO MODO DEFAULT */}
+        {variant === "default" && (
+          <div className="print:hidden">
+            <DialogHeader className="border-b border-slate-100 pb-6">
+              <DialogTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <span className="text-slate-900 font-black uppercase text-xl tracking-tight">AUDITORIA DE PEDIDO {order.id}</span>
+                  <StatusBadge status={order.status} />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">URL de Auditoria (Link Nxt)</label>
-                  <Input 
-                    value={link} 
-                    onChange={(e) => setLink(e.target.value)}
-                    placeholder="https://nxt.explorer/tx/..."
-                    className="font-mono text-xs bg-white border-slate-200 rounded-xl h-12"
-                  />
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-8">
+              <div className="space-y-8">
+                <div className="bg-slate-50/50 p-6 rounded-3xl space-y-6 border border-slate-100">
+                  <h4 className="text-[10px] font-black uppercase text-primary flex items-center gap-2 tracking-widest">
+                    <ShieldCheck className="w-4 h-4" /> Vincular Blockchain NXT
+                  </h4>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Hash do Pedido</label>
+                    <Input 
+                      value={hash} 
+                      onChange={(e) => setHash(e.target.value)}
+                      placeholder="Ex: 0x885...NXT"
+                      className="font-mono text-xs bg-white border-slate-200 rounded-xl h-12"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">URL de Auditoria (Link Nxt)</label>
+                    <Input 
+                      value={link} 
+                      onChange={(e) => setLink(e.target.value)}
+                      placeholder="https://nxt.explorer/tx/..."
+                      className="font-mono text-xs bg-white border-slate-200 rounded-xl h-12"
+                    />
+                  </div>
+                  <Button onClick={handleSaveAudit} className="w-full gap-2 font-black uppercase text-[10px] h-12 rounded-2xl shadow-lg shadow-primary/10">
+                    <Save className="w-4 h-4" /> Salvar Auditoria de Hash
+                  </Button>
                 </div>
-                <Button onClick={handleSaveAudit} className="w-full gap-2 font-black uppercase text-[10px] h-12 rounded-2xl shadow-lg shadow-primary/10">
-                  <Save className="w-4 h-4" /> Salvar Auditoria de Hash
-                </Button>
+
+                <div className="space-y-4">
+                  <h4 className="text-[10px] font-black uppercase text-slate-900 flex items-center gap-2 tracking-widest">
+                    <Database className="w-4 h-4" /> Importar Novos Rastreios
+                  </h4>
+                  <OrderAuditForm onAdd={(movements) => onAddMovement(order.id, movements)} />
+                </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <h4 className="text-[10px] font-black uppercase text-slate-900 flex items-center gap-2 tracking-widest">
-                  <Database className="w-4 h-4" /> Importar Novos Rastreios
+                  Movimentações Registradas <Badge variant="secondary" className="bg-slate-100 text-slate-600 rounded-full">{movimentos?.length || 0}</Badge>
                 </h4>
-                <OrderAuditForm onAdd={(movements) => onAddMovement(order.id, movements)} />
+                <MovementList 
+                  movements={movimentos || []} 
+                  onDelete={(mid) => onDeleteMovement(order.id, mid)}
+                />
               </div>
             </div>
 
-            <div className="space-y-6">
-              <h4 className="text-[10px] font-black uppercase text-slate-900 flex items-center gap-2 tracking-widest">
-                Movimentações Registradas <Badge variant="secondary" className="bg-slate-100 text-slate-600 rounded-full">{movimentos?.length || 0}</Badge>
-              </h4>
-              <MovementList 
-                movements={movimentos || []} 
-                onDelete={(mid) => onDeleteMovement(order.id, mid)}
-              />
+            <div className="flex justify-between items-center pt-8 border-t border-slate-100 mt-10">
+              <Button variant="ghost" className="text-[10px] font-bold uppercase text-rose-500 hover:bg-rose-50 hover:text-rose-600 rounded-xl" onClick={() => onDeleteOrder(order.id)}>
+                <Trash2 className="w-4 h-4 mr-2" /> Remover Permanente
+              </Button>
+              <div className="flex gap-3">
+                 <Button variant="outline" className="text-[10px] font-bold uppercase rounded-xl h-11 border-slate-200">Exportar XML</Button>
+                 {order.status === 'ok' && (
+                   <Button onClick={handlePrint} className="text-[10px] font-black uppercase rounded-xl h-11 px-8 shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 text-white flex items-center gap-2">
+                     <FileText className="w-4 h-4" /> Gerar Certificado PDF
+                   </Button>
+                 )}
+              </div>
             </div>
           </div>
+        )}
 
-          <div className="flex justify-between items-center pt-8 border-t border-slate-100 mt-10">
-            <Button variant="ghost" className="text-[10px] font-bold uppercase text-rose-500 hover:bg-rose-50 hover:text-rose-600 rounded-xl" onClick={() => onDeleteOrder(order.id)}>
-              <Trash2 className="w-4 h-4 mr-2" /> Remover Permanente
-            </Button>
-            <div className="flex gap-3">
-               <Button variant="outline" className="text-[10px] font-bold uppercase rounded-xl h-11 border-slate-200">Exportar XML</Button>
-               {order.status === 'ok' && (
-                 <Button onClick={handlePrint} className="text-[10px] font-black uppercase rounded-xl h-11 px-8 shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 text-white flex items-center gap-2">
-                   <FileText className="w-4 h-4" /> Gerar Certificado PDF
-                 </Button>
-               )}
-            </div>
-          </div>
-        </div>
-
-        {/* Audit Report View (Print Optimized PDF) */}
-        <div className="hidden print:block p-12 font-body text-slate-900 bg-white min-h-screen">
+        {/* VIEW DO CERTIFICADO (Preview do PDF) - APARECE NO MODO PDF OU NA IMPRESSÃO */}
+        <div className={`${variant === 'default' ? 'hidden print:block' : 'block'} p-12 font-body text-slate-900 bg-white min-h-screen`}>
           <div className="flex justify-between items-start mb-12 border-b-2 border-slate-900 pb-8">
             <div className="relative w-40 h-20">
               <Image 
@@ -388,10 +391,15 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
                 <p className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Documento Assinado Digitalmente</p>
              </div>
           </div>
-          
-          <div className="mt-12 pt-8 border-t border-slate-100 text-center">
-             <p className="text-[8px] text-slate-300 font-bold uppercase tracking-[0.3em]">Este certificado é uma prova de rastreabilidade gerada via LedgerTrust Audit para a Rede BMV</p>
-          </div>
+
+          {/* Botão de salvar o PDF quando visualizado na tela */}
+          {variant === "pdf" && (
+            <div className="mt-10 pt-8 border-t border-slate-100 flex justify-end print:hidden">
+              <Button onClick={handlePrint} className="gap-2 font-black uppercase text-[10px] h-12 px-10 rounded-xl shadow-xl shadow-primary/20">
+                <Printer className="w-4 h-4" /> Salvar Certificado como PDF
+              </Button>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
