@@ -328,7 +328,12 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
                 <p><strong>Quantidade Total:</strong> <span className="font-bold">{order.quantidade} UCS (Unidade de Crédito de Sustentabilidade)</span></p>
                 <p><strong>Valor Auditado:</strong> {order.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
                 <p><strong>Estado (UF):</strong> {order.uf}</p>
-                <p><strong>Status Blockchain:</strong> <span className="text-emerald-600 font-bold uppercase">Integridade Confirmada</span></p>
+                <p>
+                  <strong>Status Blockchain:</strong>{" "}
+                  <a href={order.linkNxt} target="_blank" rel="noopener noreferrer" className="text-emerald-600 font-black uppercase underline hover:text-emerald-700">
+                    Integridade Confirmada
+                  </a>
+                </p>
               </div>
             </div>
           </div>
@@ -373,7 +378,9 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
               </div>
               <div>
                 <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Link de Auditoria Pública</p>
-                <p className="text-[10px] text-primary underline truncate">{order.linkNxt}</p>
+                <a href={order.linkNxt} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary underline truncate block hover:text-primary/80">
+                  {order.linkNxt}
+                </a>
               </div>
             </div>
           </div>
