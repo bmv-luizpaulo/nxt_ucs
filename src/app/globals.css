@@ -54,8 +54,8 @@
   /* Reset total de layout para impressão */
   html, body {
     background: white !important;
-    width: 100% !important;
-    height: auto !important;
+    width: 210mm !important;
+    height: 297mm !important;
     margin: 0 !important;
     padding: 0 !important;
     overflow: visible !important;
@@ -92,19 +92,21 @@
 
   /* Estilização final do conteúdo do certificado */
   .printable-content {
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
     visibility: visible !important;
-    width: 210mm !important; /* Largura A4 */
-    min-height: 297mm !important; /* Altura A4 */
+    width: 210mm !important;
+    height: 297mm !important;
     background: white !important;
-    padding: 15mm !important;
+    padding: 15mm 20mm !important;
     margin: 0 auto !important;
     color: black !important;
-    overflow: visible !important;
+    overflow: hidden !important;
     position: relative !important;
   }
 
   .print-no-break {
     break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 }
