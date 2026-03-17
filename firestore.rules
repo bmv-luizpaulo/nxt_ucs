@@ -1,0 +1,110 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * CORE PHILOSOPHY
+     * This ruleset implements a Role-Based Access Control (RBAC) model specifically designed for 
+     * an auditing workflow. It centralizes authorization by verifying the presence of an 
+     * "auditor" marker in a dedicated collection. This allows for rapid iteration of data 
+     * structures while maintaining strict security boundaries around sensitive financial 
+     * and blockchain traceability data.
+     *
+     * DATA STRUCTURE
+     * The database is organized into four primary areas:
+     * 1. /roles_auditor: A DBAC collection where document existence defines user permissions.
+     * 2. /pedidos: The top-level collection for credit orders.
+     * 3. /pedidos/{id}/movimentos: A subcollection for granular credit movements.
+     * 4. /system_metadata: Internal collections for system-wide invariants like hash uniqueness.
+     *
+     * KEY SECURITY DECISIONS
+     * - Default Deny: All access is denied unless explicitly granted to an authenticated auditor.
+     * - Role-Based Access: Access to all 'Pedido' and 'Movimento' data is granted globally 
+     *   to any user identified as an auditor, rather than per-document ownership.
+     * - Relational Integrity: On creation of subcollections, the rules enforce that internal 
+     *   foreign keys (e.g., pedidoId) match the parent path parameters.
+     * - System Isolation: Metadata used for uniqueness checks is readable by auditors but 
+     *   writable only by backend services (Admin SDK), preventing client-side bypass.
+     */
+
+    // --- Global Helper Functions ---
+
+    /** 
+     * @description Checks if the request is from an authenticated user.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /** 
+     * @description Checks if the authenticated user has the 'auditor' role by 
+     * performing a lookup in the roles_auditor collection.
+     */
+    function isAuditor() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_auditor/$(request.auth.uid));
+    }
+
+    /** 
+     * @description Combines auditor check with a check for document existence 
+     * for state-changing operations (update/delete).
+     */
+    function isExistingAuditor() {
+      return isAuditor() && resource != null;
+    }
+
+    // --- Collection Rules ---
+
+    /**
+     * @description Marker collection for Role-Based Access Control. Existence of a UID document grants auditor rights.
+     * @path /roles_auditor/{userId}
+     * @allow get (read) if the user is authenticated and checking their own role marker.
+     * @deny write (create, update, delete) for all client-side requests; roles must be managed via Admin SDK.
+     * @principle Verified Identity and Role-Based Access Control.
+     */
+    match /roles_auditor/{userId} {
+      allow get: if isSignedIn() && request.auth.uid == userId;
+      allow list: if false;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Main collection for credit orders (UCS). Full management granted to auditors.
+     * @path /pedidos/{pedidoId}
+     * @allow get, list, create, update, delete (all) if the user has the auditor role.
+     * @deny access if the user is not an auditor or if trying to update/delete a non-existent order.
+     * @principle Roles and Relational Integrity.
+     */
+    match /pedidos/{pedidoId} {
+      allow get, list: if isAuditor();
+      allow create: if isAuditor() && request.resource.data.id == pedidoId;
+      allow update: if isExistingAuditor() && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingAuditor();
+    }
+
+    /**
+     * @description Subcollection for credit movements. Linked to a parent Pedido.
+     * @path /pedidos/{pedidoId}/movimentos/{movimentoId}
+     * @allow create (write) if user is an auditor and data matches path parameters.
+     * @deny update (write) if the parent pedidoId link is being changed.
+     * @principle Relational Integrity and Structural Segregation.
+     */
+    match /pedidos/{pedidoId}/movimentos/{movimentoId} {
+      allow get, list: if isAuditor();
+      allow create: if isAuditor() && request.resource.data.id == movimentoId && request.resource.data.pedidoId == pedidoId;
+      allow update: if isExistingAuditor() && request.resource.data.id == resource.data.id && request.resource.data.pedidoId == resource.data.pedidoId;
+      allow delete: if isExistingAuditor();
+    }
+
+    /**
+     * @description System-level collection for tracking unique hashes.
+     * @path /system_metadata/unique_movimento_hashes/{hashMovimento}
+     * @allow get, list (read) if the user is an auditor for visibility into system integrity.
+     * @deny create, update, delete (write) as this is managed exclusively by backend logic.
+     * @principle Robustness for State-Changing Operations.
+     */
+    match /system_metadata/unique_movimento_hashes/{hashMovimento} {
+      allow get, list: if isAuditor();
+      allow create, update, delete: if false;
+    }
+  }
+}

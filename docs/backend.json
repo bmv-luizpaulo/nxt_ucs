@@ -1,0 +1,226 @@
+{
+  "entities": {
+    "Pedido": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Pedido",
+      "type": "object",
+      "description": "Represents a credit order (UCS - Unidade de Crédito de Carbono) with its associated details, audit status, and overall processing status, including traceability to the NXT blockchain.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Pedido entity."
+        },
+        "data": {
+          "type": "string",
+          "description": "Date and time when the credit order was created.",
+          "format": "date-time"
+        },
+        "empresa": {
+          "type": "string",
+          "description": "Name of the company associated with the order."
+        },
+        "cnpj": {
+          "type": "string",
+          "description": "Brazilian company registry number (CNPJ) of the company submitting the order."
+        },
+        "programa": {
+          "type": "string",
+          "description": "The specific program or project under which the credits are issued."
+        },
+        "uf": {
+          "type": "string",
+          "description": "Federative Unit (Brazilian State) where the company is located or the project is registered."
+        },
+        "quantidade": {
+          "type": "number",
+          "description": "The total quantity of credits (UCS) specified in this order."
+        },
+        "valor": {
+          "type": "number",
+          "description": "The financial value associated with the credit order."
+        },
+        "hashPedido": {
+          "type": "string",
+          "description": "The pre-existing unique hash identifier for this order from the NXT blockchain."
+        },
+        "linkNxt": {
+          "type": "string",
+          "description": "URL link to the NXT blockchain transaction or related public information for this specific order. (Relationship: Pedido 1:1 ExternalResource)",
+          "format": "uri"
+        },
+        "auditado": {
+          "type": "boolean",
+          "description": "A flag indicating whether this order has been manually reviewed and audited by a user."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current processing status of the order. Can be 'pendente' (pending), 'ok' (ready for migration), or 'erro' (error detected, e.g., due to duplication)."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when this order record was first created in the system.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "data",
+        "empresa",
+        "cnpj",
+        "programa",
+        "uf",
+        "quantidade",
+        "valor",
+        "hashPedido",
+        "auditado",
+        "status",
+        "createdAt"
+      ]
+    },
+    "Movimento": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Movimento",
+      "type": "object",
+      "description": "Represents an individual movement or transaction of credits associated with a specific Pedido, tracking its origin, destination, and validation status within the system.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Movimento entity."
+        },
+        "pedidoId": {
+          "type": "string",
+          "description": "Reference to the parent Pedido entity this movement belongs to. (Relationship: Pedido 1:N Movimento)"
+        },
+        "raw": {
+          "type": "string",
+          "description": "Raw string data representing the movement, which might contain detailed, unstructured information for auditing."
+        },
+        "hashMovimento": {
+          "type": "string",
+          "description": "A globally unique hash identifier for this specific movement. This hash is critical for detecting and preventing duplications across all movements in the system."
+        },
+        "tipo": {
+          "type": "string",
+          "description": "Categorization of the movement type, e.g., 'gov' (government-related), 'cliente' (client-initiated), or 'outro' (other types)."
+        },
+        "origem": {
+          "type": "string",
+          "description": "Description or identifier of the source entity or account of the credit movement."
+        },
+        "destino": {
+          "type": "string",
+          "description": "Description or identifier of the destination entity or account of the credit movement."
+        },
+        "quantidade": {
+          "type": "number",
+          "description": "The quantity of credits involved in this specific movement."
+        },
+        "duplicado": {
+          "type": "boolean",
+          "description": "Flag indicating if this movement's hash (`hashMovimento`) has been found to be a duplicate of an existing movement in the system."
+        },
+        "validado": {
+          "type": "boolean",
+          "description": "Flag indicating if this movement has passed all required internal validation checks, such as data integrity or business rule compliance."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when this movement record was first created in the system.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "pedidoId",
+        "raw",
+        "hashMovimento",
+        "tipo",
+        "origem",
+        "destino",
+        "quantidade",
+        "duplicado",
+        "validado",
+        "createdAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/pedidos/{pedidoId}",
+        "definition": {
+          "entityName": "Pedido",
+          "schema": {
+            "$ref": "#/backend/entities/Pedido"
+          },
+          "description": "Main collection for credit orders (Pedidos). Each document represents a single order with its details, audit status, and overall processing status. Access is restricted to users with the 'auditor' role.",
+          "params": [
+            {
+              "name": "pedidoId",
+              "description": "Unique identifier for a Pedido document."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/pedidos/{pedidoId}/movimentos/{movimentoId}",
+        "definition": {
+          "entityName": "Movimento",
+          "schema": {
+            "$ref": "#/backend/entities/Movimento"
+          },
+          "description": "Subcollection for individual credit movements (Movimentos) associated with a specific Pedido. Documents track origin, destination, quantity, and validation status. Access is restricted to users with the 'auditor' role. No denormalized authorization fields from the parent Pedido are required for access control.",
+          "params": [
+            {
+              "name": "pedidoId",
+              "description": "The unique identifier of the parent Pedido."
+            },
+            {
+              "name": "movimentoId",
+              "description": "Unique identifier for a Movimento document."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_auditor/{userId}",
+        "definition": {
+          "entityName": "AuditorRole",
+          "schema": {
+            "$ref": "#/backend/entities/AuditorRole"
+          },
+          "description": "Database Access Control (DBAC) collection. The existence of a document here indicates that the corresponding user (identified by userId) has 'auditor' privileges, granting them access to manage Pedidos and Movimentos. Documents typically contain minimal data, serving primarily as a role marker. This is a conceptual entity for role management.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The Firebase Authentication UID of the user with auditor privileges."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/system_metadata/unique_movimento_hashes/{hashMovimento}",
+        "definition": {
+          "entityName": "UniqueMovimentoHash",
+          "schema": {
+            "$ref": "#/backend/entities/UniqueMovimentoHash"
+          },
+          "description": "A system-level collection used to enforce global uniqueness for `hashMovimento` values across all Movimento documents. Primarily managed by Cloud Functions to prevent duplicates. Each document's ID is the `hashMovimento` itself, with its content confirming its existence. This is a conceptual entity for system integrity.",
+          "params": [
+            {
+              "name": "hashMovimento",
+              "description": "The unique hash value of a Movimento."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The recommended Firestore structure is designed to support a robust audit and traceability system for credit orders (Pedidos) and their associated movements (Movimentos), strictly adhering to the core design principles and strategy mandates.\n\n**Authorization Independence via Denormalization:**\nFor this application, authorization is primarily role-based for administrative users (auditors). A dedicated collection, `/roles_auditor/{userId}`, is introduced. The presence of a document in this collection signifies that the `request.auth.uid` has `AuditorRole` privileges. This eliminates the need for complex `get()` calls in security rules to ascertain user roles, ensuring authorization independence. Neither `Pedido` nor `Movimento` documents require denormalized `ownerId` or `members` fields because access is granted to any user with the `AuditorRole` to manage *all* orders and movements, not just their own.\n\nFurthermore, while `Movimento` documents are children of `Pedido` documents, their authorization to be created, read, updated, or deleted does not depend on specific fields (like `status`) of their parent `Pedido` for access control. The `pedido.status` primarily governs business logic (e.g., readiness for migration), not fundamental access to the `Movimento` data itself. Therefore, denormalizing `pedido.status` into `Movimento` for authorization is not necessary in this design, preserving atomicity for `Movimento` operations.\n\n**Structural Segregation (Homogeneous Security Posture):**\nThe design utilizes clear segregation:\n*   `/pedidos/{pedidoId}`: Contains all `Pedido` documents, each sharing the same security posture (manageable by auditors).\n*   `/pedidos/{pedidoId}/movimentos/{movimentoId}`: Contains all `Movimento` documents, all sharing the same security posture (manageable by auditors).\n*   `/roles_auditor/{userId}`: Contains documents indicating `AuditorRole`s, with a distinct security posture (read-only for rule evaluation, writable only by trusted administrators).\n*   `/system_metadata/unique_movimento_hashes/{hashMovimento}`: A utility collection, primarily managed by Cloud Functions, for enforcing global uniqueness of `hashMovimento` values. This collection is segregated from the core application data and has a very specific, restricted write posture (only by trusted backend services).\n\nThis segregation simplifies security rules significantly, as each collection or subcollection can have a uniform set of access permissions, reducing complexity and potential for error.\n\n**QAPs (Rules are not Filters):**\nThe structure supports secure `list` operations (Query/Authorization Patterns) effectively:\n*   **Listing Pedidos:** Auditors can perform `list` queries on `/pedidos` to retrieve all orders. Security rules will simply check for the `AuditorRole`, allowing the query to return only data the user is authorized to see (which, in this case, is all `Pedido` documents).\n*   **Listing Movimentos for a Pedido:** When viewing an individual `Pedido`, auditors can `list` its associated `Movimento` documents from `/pedidos/{pedidoId}/movimentos`. Again, the `AuditorRole` check is sufficient, as access to the parent implies access to the children. \n*   **Global Uniqueness Check:** The `system_metadata/unique_movimento_hashes` collection, although not directly queried by end-users for listing, facilitates efficient global uniqueness checks for `hashMovimento` at the application layer (Cloud Functions) without relying on expensive and non-atomic `get()` calls within security rules for write operations.\n\n**Invariants:**\n*   **Ownership & Timestamps:** `createdAt` timestamps are included in both `Pedido` and `Movimento` entities, supporting audit trails. While explicit `ownerId` is not present due to the global auditor model, the `roles_auditor` collection ensures only authorized users perform actions.\n*   **Global Uniqueness:** The `system_metadata/unique_movimento_hashes` collection is a critical component for enforcing the global uniqueness invariant of `hashMovimento`, although this enforcement is primarily handled by Cloud Functions rather than directly by Firestore rules.\n*   **Explicit State:** The `status` field for `Pedido` and `duplicado`/`validado` for `Movimento` provide clear, explicit state modeling, simplifying business logic and reporting."
+  }
+}
