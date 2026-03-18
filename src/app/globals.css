@@ -2,85 +2,153 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================= */
+/* 🎨 BASE                       */
+/* ============================= */
 @layer base {
   :root {
     --background: 210 20% 98%;
     --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 162 76% 41%; /* #1DB489 Green/Emerald Institutional */
+
+    --primary: 162 76% 41%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 258 55% 55%; /* #734DCC Purple for Config/Admin */
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+
     --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 162 76% 41%;
     --radius: 1.5rem;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
+
   body {
-    @apply bg-background text-foreground font-body antialiased;
+    @apply bg-background text-foreground antialiased;
   }
 }
 
+/* ============================= */
+/* 🧾 PRINT PERFEITO A4          */
+/* ============================= */
 @media print {
+
+  /* 📄 TAMANHO REAL */
   @page {
     size: A4;
-    margin: 20mm;
+    margin: 12mm; /* 🔥 menor margem = mais espaço útil */
   }
 
-  body {
+  /* 🎯 RESET */
+  html, body {
     margin: 0;
+    padding: 0;
+    background: white !important;
+    font-family: "Inter", Arial, sans-serif;
+    font-size: 11.5px; /* 🔥 levemente menor evita overflow */
+    line-height: 1.35;
+  }
+
+  /* 🔥 CORREÇÃO DO CHROME */
+  html {
+    zoom: 0.96;
+  }
+
+  * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
-    background: white !important;
   }
 
+  /* 🧠 ESCONDE TUDO */
   body * {
     visibility: hidden;
   }
 
+  /* ✅ MOSTRA APENAS CERTIFICADO */
   .printable-certificate,
-  .printable-certificate *,
-  .printable-audit-report,
-  .printable-audit-report * {
+  .printable-certificate * {
     visibility: visible;
   }
 
-  .printable-certificate,
-  .printable-audit-report {
-    position: absolute;
-    left: 0;
-    top: 0;
+  /* 🧾 CONTAINER PRINCIPAL */
+  .printable-certificate {
+    position: relative;
+
     width: 100%;
-    height: auto;
+    max-width: 186mm; /* 🔥 210 - (12mm x 2) */
+
+    margin: 0 auto;
+
+    padding: 0;
+
     background: white !important;
-    padding: 40px !important;
-    box-sizing: border-box;
-    display: block !important;
     color: black !important;
+
+    box-sizing: border-box;
+
+    overflow: hidden; /* 🔥 evita spill */
   }
 
+  /* 🚫 ELEMENTOS NÃO PRINT */
   .no-print,
   header,
   aside,
-  main > header,
   button,
-  [role="dialog"] > button,
   .print-hidden {
     display: none !important;
+  }
+
+  /* 📊 TABELAS */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr, td, th {
+    page-break-inside: avoid !important;
+  }
+
+  /* 🧱 BLOQUEIOS IMPORTANTES */
+  .section {
+    page-break-inside: avoid;
+  }
+
+  .no-break {
+    page-break-inside: avoid;
+  }
+
+  /* 🔐 WATERMARK (SEM QUEBRAR LAYOUT) */
+  .printable-certificate::before {
+    content: "DOCUMENTO OFICIAL";
+
+    position: absolute; /* 🔥 NÃO usar fixed */
+
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%) rotate(-30deg);
+
+    font-size: 58px;
+    font-weight: 900;
+
+    color: rgba(0, 0, 0, 0.03);
+
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* 🧾 FOOTER CONTROLADO */
+  .print-footer {
+    margin-top: 20px;
+    font-size: 9px;
+    color: #666;
+  }
+
+  /* 🧠 PROTEÇÃO FINAL CONTRA QUEBRA */
+  h1, h2, h3, p {
+    page-break-inside: avoid;
   }
 }
