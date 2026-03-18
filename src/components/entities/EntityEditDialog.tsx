@@ -40,14 +40,18 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     // Saldo Final Auditado: 
     // (+) Originação
     // (+) Movimentação (já vem negativa do parser)
-    // (+) IMEI (Líquido)
     // (-) Aquisição (VOLUME A SER RETIRADO conforme regra de auditoria 2018/2019)
+    // IMEI não entra no saldo, é apenas controle.
     const operationsTotal = 
       sumTable(formData.tabelaOriginacao) + 
-      sumTable(formData.tabelaMovimentacao) + 
-      sumTable(formData.tabelaImei) - 
+      sumTable(formData.tabelaMovimentacao) - 
       sumTable(formData.tabelaAquisicao);
     
+    // Ajuste IMEI: Débito - Crédito (Pendência de estorno)
+    const totalCreditoImei = sumField(formData.tabelaImei, 'valorCredito');
+    const totalDebitoImei = sumField(formData.tabelaImei, 'valorDebito');
+    const ajusteImei = Math.max(0, totalDebitoImei - totalCreditoImei);
+
     // Saldo Legado: Valor de Referência (Disponível + Reservado)
     const legadoTotal = sumTable(formData.tabelaLegado);
     
@@ -63,7 +67,8 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
       aposentado: totalAposentado,
       bloqueado: totalBloqueado,
       aquisicao: totalAquisicao,
-      movimentacao: sumTable(formData.tabelaMovimentacao)
+      movimentacao: sumTable(formData.tabelaMovimentacao),
+      saldoAjustarImei: ajusteImei
     }));
   }, [
     formData.tabelaOriginacao, 
@@ -93,7 +98,6 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
       };
 
       if (activePasteField === 'tabelaAquisicao') {
-        // Formato Simplificado: "Ano - Valor" ou "Ano Valor"
         const match = line.match(/(\d{4})[^\d]+(\d+)/);
         if (match) {
           results.push({
@@ -123,9 +127,19 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
         });
       } else if (activePasteField === 'tabelaImei') {
         const parts = line.split('\t');
+        if (parts.length < 5) return;
+        // Estrutura esperada: Dist | Data | Usuário Destino | [Vazio/Outros] | Crédito | Débito
+        // Frequentemente as colunas variam, buscamos os últimos 2 campos numéricos
         const cred = parseBRL(parts[parts.length - 2]);
         const deb = parseBRL(parts[parts.length - 1]);
-        results.push({ dist: parts[0]?.trim(), data: parts[1]?.trim(), destino: parts[2]?.trim(), valor: cred - deb, valorCredito: cred, valorDebito: deb });
+        results.push({ 
+          dist: parts[0]?.trim(), 
+          data: parts[1]?.trim(), 
+          destino: parts[2]?.trim(), 
+          valor: cred - deb, 
+          valorCredito: cred, 
+          valorDebito: deb 
+        });
       } else {
         const parts = line.split('\t');
         const valor = parseBRL(parts[parts.length - 1]);
@@ -199,11 +213,14 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               <div className="p-10">
                 <div className="bg-slate-50 rounded-[2rem] border border-slate-100 p-8 flex items-center justify-between">
                   <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total {activePasteField === 'tabelaAquisicao' ? 'a Deduzir' : 'Identificado'}</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                      {activePasteField === 'tabelaAquisicao' ? 'Total a Deduzir' : 
+                       activePasteField === 'tabelaImei' ? 'Saldo Identificado (Líquido)' : 'Total Identificado'}
+                    </p>
                     <div className="flex items-baseline gap-2">
                       <span className={cn(
                         "text-5xl font-black tracking-tighter",
-                        activePasteField === 'tabelaAquisicao' ? "text-rose-500" : (previewRows.reduce((a, r) => a + (r.valor || 0), 0) < 0 ? "text-rose-500" : "text-emerald-500")
+                        (activePasteField === 'tabelaAquisicao' || previewRows.reduce((a, r) => a + (r.valor || 0), 0) < 0) ? "text-rose-500" : "text-emerald-500"
                       )}>
                         {Math.abs(previewRows.reduce((a, r) => a + (r.valor || 0), 0)).toLocaleString('pt-BR')}
                       </span>
@@ -241,12 +258,19 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             </div>
           </div>
 
-          <div className="flex gap-12 text-right">
+          <div className="flex gap-10 text-right">
             <div className="flex flex-col items-end">
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Saldo Legado (REF)</span>
-              <div className="flex items-baseline justify-end gap-3 text-amber-500">
-                <span className="text-4xl font-black tracking-tighter">{(formData.saldoLegadoTotal || 0).toLocaleString('pt-BR')}</span>
-                <span className="text-xl font-black opacity-30">UCS</span>
+              <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Saldo Legado (REF)</span>
+              <div className="flex items-baseline justify-end gap-2 text-amber-500">
+                <span className="text-3xl font-black tracking-tighter">{(formData.saldoLegadoTotal || 0).toLocaleString('pt-BR')}</span>
+                <span className="text-sm font-black opacity-30">UCS</span>
+              </div>
+            </div>
+            <div className="flex flex-col items-end">
+              <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Ajuste IMEI (PENDÊNCIA)</span>
+              <div className="flex items-baseline justify-end gap-2 text-indigo-400">
+                <span className="text-3xl font-black tracking-tighter">{(formData.saldoAjustarImei || 0).toLocaleString('pt-BR')}</span>
+                <span className="text-sm font-black opacity-30">UCS</span>
               </div>
             </div>
             <div className="flex flex-col items-end">
@@ -288,20 +312,22 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             />
 
             <SectionTechnical 
-              title="Transferências IMEI"
+              title="Transferências IMEI (Balanceamento)"
               icon={CreditCard}
+              color="indigo"
               onImport={() => setActivePasteField('tabelaImei')}
               data={formData.tabelaImei || []}
               columns={[
                 { label: "Dist.", key: "dist" },
-                { label: "Crédito", key: "valorCredito", variant: "emerald" },
-                { label: "Débito", key: "valorDebito", variant: "rose" },
+                { label: "Data Operação", key: "data" },
+                { label: "Crédito (UCS)", key: "valorCredito", align: "right", variant: "emerald" },
+                { label: "Débito (UCS)", key: "valorDebito", align: "right", variant: "rose" },
                 { label: "Líquido", key: "valor", align: "right", variant: "primary" }
               ]}
             />
 
             <SectionTechnical 
-              title="Aquisições a Deduzir (2018/2019)"
+              title="Aquisições a Deduzir (Auditoria)"
               icon={Database}
               color="rose"
               onImport={() => setActivePasteField('tabelaAquisicao')}
@@ -353,6 +379,9 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
 function SectionTechnical({ title, icon: Icon, color = "emerald", onImport, data, columns }: any) {
   const currentTotal = (data || []).reduce((acc: number, r: any) => acc + (r.valor || 0), 0);
+  const displayTotal = title.toLowerCase().includes('imei') 
+    ? (data || []).reduce((acc: number, r: any) => acc + (Math.max(0, (r.valorDebito || 0) - (r.valorCredito || 0))), 0)
+    : currentTotal;
 
   return (
     <div className="space-y-6">
@@ -360,13 +389,15 @@ function SectionTechnical({ title, icon: Icon, color = "emerald", onImport, data
         <div className="flex items-center gap-4">
           <div className={cn("w-1.5 h-10 rounded-full", 
             color === "amber" ? "bg-amber-500" : 
-            color === "rose" ? "bg-rose-500" : "bg-primary"
+            color === "rose" ? "bg-rose-500" : 
+            color === "indigo" ? "bg-indigo-500" : "bg-primary"
           )} />
           <div>
             <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-900 leading-none mb-1">{title}</h3>
             <p className="text-[10px] font-bold text-slate-400 uppercase">
-              Consolidado: <span className={cn("font-black", (currentTotal < 0 || color === 'rose') ? "text-rose-500" : "text-emerald-600")}>
-                {Math.abs(currentTotal).toLocaleString('pt-BR')} UCS
+              {title.toLowerCase().includes('imei') ? 'Pendência de Estorno: ' : 'Consolidado: '} 
+              <span className={cn("font-black", (displayTotal < 0 || color === 'rose') ? "text-rose-500" : (color === 'indigo' ? "text-indigo-600" : "text-emerald-600"))}>
+                {Math.abs(displayTotal).toLocaleString('pt-BR')} UCS
               </span>
             </p>
           </div>
