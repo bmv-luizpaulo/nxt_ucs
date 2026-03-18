@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react";
@@ -37,7 +36,7 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate }: 
     <>
       <div className="rounded-[1.5rem] border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col">
         <ScrollArea className="w-full">
-          <Table className="min-w-[1600px]">
+          <Table className="min-w-[1400px]">
             <TableHeader>
               <TableRow className="bg-slate-50/50 h-14 border-b border-slate-100">
                 <TableHead className="w-[60px] pl-8">
@@ -55,7 +54,6 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate }: 
                 <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">Bloqueado</TableHead>
                 <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">Aquisição</TableHead>
                 <TableHead className="text-[9px] font-black uppercase tracking-widest text-indigo-500 text-right">Ajuste IMEI</TableHead>
-                <TableHead className="text-[9px] font-black uppercase tracking-widest text-amber-600 text-right bg-amber-50/30">Saldo Legado (REF)</TableHead>
                 <TableHead className="text-[10px] font-black uppercase tracking-widest text-primary text-right bg-emerald-50/30">Saldo Auditado</TableHead>
                 <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">Status</TableHead>
                 <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center pr-8">Ações</TableHead>
@@ -91,7 +89,6 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate }: 
                     <TableCell className="text-right font-mono text-[10px] text-rose-400">{formatUCS(item.bloqueado)}</TableCell>
                     <TableCell className="text-right font-mono text-[10px] text-rose-500">{formatUCS(item.aquisicao)}</TableCell>
                     <TableCell className="text-right font-mono text-[10px] text-indigo-500">{formatUCS(item.saldoAjustarImei)}</TableCell>
-                    <TableCell className="text-right font-mono font-bold text-[10px] text-amber-600 bg-amber-50/30">{formatUCS(item.saldoLegadoTotal)}</TableCell>
                     <TableCell className="text-right font-mono font-black text-[12px] text-primary bg-emerald-50/30">{formatUCS(item.saldoFinalAtual)} UCS</TableCell>
                     <TableCell className="text-center py-4">
                       {item.status === 'disponivel' ? (

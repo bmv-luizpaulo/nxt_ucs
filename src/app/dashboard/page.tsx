@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react";
@@ -8,7 +7,8 @@ import {
   Trash2,
   ChevronLeft,
   ChevronRight,
-  Loader2
+  Loader2,
+  Database
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -56,20 +56,29 @@ export default function Dashboard() {
     setSelectedIds([]);
   }, [activeTab]);
 
+  const handleSeedData = async () => {
+    if (!firestore) return;
+    const batch = writeBatch(firestore);
+    const sampleData = [
+      { id: "P-001", data: new Date().toISOString(), empresa: "VALE S.A.", cnpj: "33.592.510/0001-54", programa: "Amazonia Verde", uf: "PA", do: true, quantidade: 5000, taxa: 15.5, valorTotal: 77500, status: "ok", categoria: "selo", auditado: true, hashPedido: "0x88...f32", linkNxt: "https://explorer.nxt.org", createdAt: new Date().toISOString() },
+      { id: "P-002", data: new Date().toISOString(), empresa: "NATURA & CO", cnpj: "71.673.990/0001-77", programa: "Reserva Juma", uf: "AM", do: true, quantidade: 2500, taxa: 12.0, valorTotal: 30000, status: "pendente", categoria: "selo", auditado: false, hashPedido: "", linkNxt: "", createdAt: new Date().toISOString() }
+    ];
+
+    sampleData.forEach(item => {
+      batch.set(doc(firestore, "pedidos", item.id), item);
+    });
+
+    await batch.commit();
+    toast({ title: "Dados de Exemplo Gerados", description: "O dashboard agora contém registros para teste." });
+  };
+
   const handleAddOrder = (order: Omit<Pedido, 'createdAt'>) => {
     if (!firestore) return;
     const docRef = doc(firestore, "pedidos", order.id);
-    const data = {
-      ...order,
-      createdAt: new Date().toISOString()
-    };
+    const data = { ...order, createdAt: new Date().toISOString() };
 
     setDoc(docRef, data).catch(async (err) => {
-      if (!isPermissionDeniedError(err)) {
-        console.error(`[Firestore:create] ${docRef.path}`, err);
-        return;
-      }
-
+      if (!isPermissionDeniedError(err)) return;
       errorEmitter.emit('permission-error', new FirestorePermissionError({
         path: docRef.path,
         operation: 'create',
@@ -77,23 +86,15 @@ export default function Dashboard() {
         sourceError: err
       }));
     });
-
-    toast({ title: "Registro criado", description: `O pedido ${order.id} foi adicionado.` });
+    toast({ title: "Registro criado" });
   };
 
   const handleBulkImport = async (bulkOrders: any[]) => {
     if (!firestore) return;
     const batch = writeBatch(firestore);
-    const colRef = collection(firestore, "pedidos");
-
-    bulkOrders.forEach(order => {
-      const docId = order.id.toString();
-      const newDocRef = doc(colRef, docId);
-      batch.set(newDocRef, order);
-    });
-
+    bulkOrders.forEach(order => batch.set(doc(firestore, "pedidos", order.id.toString()), order));
     await batch.commit();
-    toast({ title: "Importação concluída", description: `${bulkOrders.length} registros sincronizados.` });
+    toast({ title: "Importação concluída" });
   };
 
   const handleBulkDelete = async () => {
@@ -107,8 +108,7 @@ export default function Dashboard() {
 
   const handleUpdateOrder = (id: string, updates: Partial<Pedido>) => {
     if (!firestore) return;
-    const docRef = doc(firestore, "pedidos", id);
-    updateDoc(docRef, updates);
+    updateDoc(doc(firestore, "pedidos", id), updates);
     toast({ title: "Dados atualizados" });
   };
 
@@ -135,11 +135,6 @@ export default function Dashboard() {
     toast({ title: "Rastreabilidade Gravada" });
   };
 
-  const handleDeleteMovement = (orderId: string, moveId: string) => {
-    if (!firestore) return;
-    deleteDoc(doc(firestore, "pedidos", orderId, "movimentos", moveId));
-  };
-
   const orders = pedidos || [];
   const totalPages = Math.ceil(orders.length / itemsPerPage);
   const paginatedOrders = orders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -156,7 +151,7 @@ export default function Dashboard() {
     <div className="flex min-h-screen bg-[#F8FAFC]">
       <Sidebar />
       <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-20 bg-white/50 backdrop-blur-md px-8 flex items-center justify-between border-b border-slate-200 sticky top-0 z-10 shrink-0">
+        <header className="h-20 bg-white px-8 flex items-center justify-between border-b border-slate-200 sticky top-0 z-10 shrink-0">
           <div className="flex items-center gap-3">
              <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
                 <Search className="w-5 h-5 text-primary" />
@@ -166,7 +161,7 @@ export default function Dashboard() {
           <div className="flex items-center gap-6">
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input placeholder="Buscar pedido ou hash..." className="pl-10 bg-slate-100 border-none rounded-full h-10 text-sm" />
+              <Input placeholder="Buscar pedido..." className="pl-10 bg-slate-100 border-none rounded-full h-10 text-sm" />
             </div>
             <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md uppercase">{user.email?.substring(0,2)}</div>
           </div>
@@ -179,7 +174,19 @@ export default function Dashboard() {
             </div>
           ) : (
             <>
-              <AuditOverview orders={orders} />
+              <div className="flex justify-between items-center">
+                <AuditOverview orders={orders} />
+                {orders.length === 0 && (
+                  <Button onClick={handleSeedData} variant="outline" className="h-20 border-dashed border-primary/40 rounded-3xl px-10 gap-3 group hover:bg-primary/5">
+                    <Database className="w-6 h-6 text-primary group-hover:scale-110 transition-transform" />
+                    <div className="text-left">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-primary">Gerar Dados de Teste</p>
+                      <p className="text-[9px] text-slate-400 font-bold uppercase">Popular banco de dados agora</p>
+                    </div>
+                  </Button>
+                )}
+              </div>
+
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as OrderCategory)} className="w-full">
                 <div className="flex items-center justify-between mb-6">
                   <TabsList className="bg-slate-100/50 p-1 border rounded-full h-12">
@@ -205,7 +212,7 @@ export default function Dashboard() {
                   onUpdateOrder={handleUpdateOrder}
                   onDeleteOrder={handleDeleteOrder}
                   onAddMovement={handleAddMovement}
-                  onDeleteMovement={handleDeleteMovement}
+                  onDeleteMovement={() => {}}
                 />
 
                 {totalPages > 1 && (
