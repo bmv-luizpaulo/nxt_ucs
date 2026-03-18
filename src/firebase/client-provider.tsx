@@ -1,8 +1,9 @@
+
 'use client';
 
-import React, { useMemo, useEffect, type ReactNode } from 'react';
+import React, { useMemo, type ReactNode } from 'react';
 import { FirebaseProvider } from '@/firebase/provider';
-import { initializeFirebase, initiateAnonymousSignIn } from '@/firebase';
+import { initializeFirebase } from '@/firebase';
 
 interface FirebaseClientProviderProps {
   children: ReactNode;
@@ -14,16 +15,7 @@ export function FirebaseClientProvider({ children }: FirebaseClientProviderProps
     return initializeFirebase();
   }, []); // Empty dependency array ensures this runs only once on mount
 
-  useEffect(() => {
-    const { auth } = firebaseServices;
-    // Garante que o usuário esteja autenticado (anônimo) para as regras de segurança do Firestore
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (!user) {
-        initiateAnonymousSignIn(auth);
-      }
-    });
-    return () => unsubscribe();
-  }, [firebaseServices]);
+  // Removemos o initiateAnonymousSignIn automático para permitir login/registro manual por e-mail e senha
 
   return (
     <FirebaseProvider

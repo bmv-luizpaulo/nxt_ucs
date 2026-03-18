@@ -1,301 +1,163 @@
+
 "use client"
 
 import { useState, useEffect } from "react";
-import { 
-  Search, 
-  FileText,
-  Trash2,
-  ChevronLeft,
-  ChevronRight
-} from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
+import { useAuth, useUser } from "@/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { OrderTable } from "@/components/dashboard/OrderTable";
-import { AuditOverview } from "@/components/dashboard/AuditOverview";
-import { AddOrderDialog } from "@/components/dashboard/AddOrderDialog";
-import { BulkImportDialog } from "@/components/dashboard/BulkImportDialog";
-import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
-import { collection, doc, updateDoc, deleteDoc, setDoc, writeBatch, query, orderBy, where } from "firebase/firestore";
-import { Pedido, OrderCategory } from "@/lib/types";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { errorEmitter } from "@/firebase/error-emitter";
-import { FirestorePermissionError } from "@/firebase/errors";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { ShieldCheck, ArrowRight, Loader2 } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
 
-export default function Dashboard() {
-  const firestore = useFirestore();
-  const { user } = useUser();
-  const [activeTab, setActiveTab] = useState<OrderCategory>("selo");
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 15;
-  
-  const pedidosQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    return query(
-      collection(firestore, "pedidos"), 
-      where("categoria", "==", activeTab),
-      orderBy("data", "desc")
-    );
-  }, [firestore, user, activeTab]);
-
-  const { data: pedidos, isLoading } = useCollection<Pedido>(pedidosQuery);
+export default function LoginPage() {
+  const router = useRouter();
+  const auth = useAuth();
+  const { user, isUserLoading } = useUser();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    setCurrentPage(1);
-    setSelectedIds([]);
-  }, [activeTab]);
-
-  const handleAddOrder = (order: Omit<Pedido, 'createdAt'>) => {
-    if (!firestore) return;
-    const docRef = doc(firestore, "pedidos", order.id);
-    const data = {
-      ...order,
-      createdAt: new Date().toISOString()
-    };
-
-    setDoc(docRef, data).catch(async (err) => {
-      errorEmitter.emit('permission-error', new FirestorePermissionError({
-        path: docRef.path,
-        operation: 'create',
-        requestResourceData: data
-      }));
-    });
-
-    toast({
-      title: "Registro criado",
-      description: `O pedido ${order.id} foi adicionado com sucesso.`
-    });
-  };
-
-  const handleBulkImport = async (bulkOrders: any[]) => {
-    if (!firestore) return;
-    const batch = writeBatch(firestore);
-    const colRef = collection(firestore, "pedidos");
-
-    bulkOrders.forEach(order => {
-      const docId = order.id.toString();
-      const newDocRef = doc(colRef, docId);
-      batch.set(newDocRef, order);
-    });
-
-    await batch.commit();
-    toast({
-      title: "Importação concluída",
-      description: `${bulkOrders.length} registros foram sincronizados com sucesso.`
-    });
-  };
-
-  const handleBulkDelete = async () => {
-    if (!firestore || selectedIds.length === 0) return;
-    
-    const batch = writeBatch(firestore);
-    selectedIds.forEach(id => {
-      const docRef = doc(firestore, "pedidos", id);
-      batch.delete(docRef);
-    });
-
-    await batch.commit();
-    setSelectedIds([]);
-    toast({
-      variant: "destructive",
-      title: "Remoção em lote",
-      description: `${selectedIds.length} registros foram excluídos permanentemente.`
-    });
-  };
-
-  const handleUpdateOrder = (id: string, updates: Partial<Pedido>) => {
-    if (!firestore) return;
-    const docRef = doc(firestore, "pedidos", id);
-    
-    updateDoc(docRef, updates).catch(async (err) => {
-      errorEmitter.emit('permission-error', new FirestorePermissionError({
-        path: docRef.path,
-        operation: 'update',
-        requestResourceData: updates
-      }));
-    });
-
-    toast({
-      title: "Dados atualizados",
-      description: `As informações do pedido ${id} foram salvas.`
-    });
-  };
-
-  const handleDeleteOrder = (id: string) => {
-    if (!firestore) return;
-    const docRef = doc(firestore, "pedidos", id);
-    
-    deleteDoc(docRef).catch(async (err) => {
-      errorEmitter.emit('permission-error', new FirestorePermissionError({
-        path: docRef.path,
-        operation: 'delete'
-      }));
-    });
-
-    toast({
-      variant: "destructive",
-      title: "Pedido removido",
-      description: `O registro ${id} foi excluído do banco de dados.`
-    });
-  };
-
-  const handleAddMovement = (orderId: string, movements: any[]) => {
-    if (!firestore) return;
-    const movementsRef = collection(firestore, "pedidos", orderId, "movimentos");
-
-    for (const mov of movements) {
-      const newMoveRef = doc(movementsRef);
-      const data = {
-        id: newMoveRef.id,
-        pedidoId: orderId,
-        raw: mov.raw,
-        hashMovimento: mov.hashMovimento,
-        tipo: mov.tipo,
-        origem: mov.origem,
-        destino: mov.destino,
-        quantidade: mov.quantidade,
-        duplicado: false,
-        validado: true,
-        createdAt: new Date().toISOString()
-      };
-
-      setDoc(newMoveRef, data).catch(async (err) => {
-        errorEmitter.emit('permission-error', new FirestorePermissionError({
-          path: newMoveRef.path,
-          operation: 'create',
-          requestResourceData: data
-        }));
-      });
+    if (!isUserLoading && user) {
+      router.push("/dashboard");
     }
-    
-    toast({
-      title: "Rastreabilidade Gravada",
-      description: `${movements.length} movimentos vinculados ao pedido ${orderId}.`
-    });
+  }, [user, isUserLoading, router]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) return;
+
+    setIsLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      toast({ title: "Bem-vindo!", description: "Acesso autorizado ao LedgerTrust." });
+      router.push("/dashboard");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Erro de autenticação",
+        description: "E-mail ou senha incorretos."
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDeleteMovement = (orderId: string, moveId: string) => {
-    if (!firestore) return;
-    const docRef = doc(firestore, "pedidos", orderId, "movimentos", moveId);
-    deleteDoc(docRef);
-  };
-
-  // O filtro agora é feito no servidor pelo queryPedidos
-  const orders = pedidos || [];
-  const totalPages = Math.ceil(orders.length / itemsPerPage);
-  const paginatedOrders = orders.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  if (isUserLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      </div>
+    );
+  }
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC]">
-      <Sidebar />
-
-      <main className="flex-1 flex flex-col">
-        <header className="h-20 bg-white/50 backdrop-blur-md px-8 flex items-center justify-between border-b border-slate-200 sticky top-0 z-10 print:hidden">
-          <div>
-            <h1 className="text-xl font-medium text-slate-600">Portal de Auditoria <span className="font-bold text-slate-900">Sistema Legado</span></h1>
-          </div>
-          <div className="flex items-center gap-6">
-            <div className="relative w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input placeholder="Buscar pedido ou hash..." className="pl-10 bg-slate-100 border-none rounded-full h-10 text-sm" />
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-white overflow-hidden">
+      {/* Lado Esquerdo - Branding */}
+      <div className="hidden lg:flex flex-col justify-between p-12 bg-[#0F172A] text-white relative">
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-12">
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+              <ShieldCheck className="w-6 h-6 text-white" />
             </div>
-            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">AD</div>
+            <span className="text-xl font-black uppercase tracking-tighter">LedgerTrust</span>
           </div>
-        </header>
-
-        <div className="p-8 space-y-8 overflow-y-auto print:p-0 print:overflow-visible">
-          {isLoading || !user ? (
-            <div className="flex items-center justify-center h-64 print:hidden">
-              <div className="text-center space-y-4">
-                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-                <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Sincronizando com Banco de Dados...</p>
-              </div>
-            </div>
-          ) : (
-            <>
-              <div className="print:hidden">
-                <AuditOverview orders={orders} />
-              </div>
-
-              <div className="space-y-6">
-                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as OrderCategory)} className="w-full">
-                  <div className="flex items-center justify-between mb-6 print:hidden">
-                    <TabsList className="bg-slate-100/50 p-1 border rounded-full h-12">
-                      <TabsTrigger value="selo" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-8 rounded-full text-[10px] font-bold uppercase tracking-tighter">Selo Tesouro Verde</TabsTrigger>
-                      <TabsTrigger value="Saas_Tesouro_Verde" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-8 rounded-full text-[10px] font-bold uppercase tracking-tighter">Saas Tesouro Verde</TabsTrigger>
-                      <TabsTrigger value="Saas_BMV" className="data-[state=active]:bg-white data-[state=active]:shadow-sm px-8 rounded-full text-[10px] font-bold uppercase tracking-tighter">SaaS BMV</TabsTrigger>
-                    </TabsList>
-                    <div className="flex gap-3">
-                       {selectedIds.length > 0 && (
-                         <Button onClick={handleBulkDelete} variant="destructive" size="sm" className="gap-2 text-[10px] font-bold uppercase tracking-widest h-12 px-6 rounded-full animate-in fade-in zoom-in">
-                           <Trash2 className="w-3.5 h-3.5" /> Remover ({selectedIds.length})
-                         </Button>
-                       )}
-                       <BulkImportDialog onImport={handleBulkImport} category={activeTab} />
-                       <AddOrderDialog onAdd={handleAddOrder} />
-                       <Button variant="outline" size="sm" className="gap-2 text-[10px] font-bold uppercase tracking-widest border-slate-200 h-12 px-6 rounded-full hover:bg-slate-50">
-                         <FileText className="w-3.5 h-3.5" /> Exportar Relatório
-                       </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <OrderTable 
-                      orders={paginatedOrders} 
-                      selectedIds={selectedIds}
-                      onSelectionChange={setSelectedIds}
-                      onUpdateOrder={handleUpdateOrder}
-                      onDeleteOrder={handleDeleteOrder}
-                      onAddMovement={handleAddMovement}
-                      onDeleteMovement={handleDeleteMovement}
-                    />
-
-                    {totalPages > 1 && (
-                      <div className="flex items-center justify-between bg-white px-8 py-4 rounded-[2rem] border border-slate-200 shadow-sm print:hidden">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                          Mostrando {paginatedOrders.length} de {orders.length} registros
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <Button 
-                            variant="outline" 
-                            size="icon" 
-                            className="w-10 h-10 rounded-xl border-slate-200"
-                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                            disabled={currentPage === 1}
-                          >
-                            <ChevronLeft className="w-4 h-4" />
-                          </Button>
-                          
-                          <div className="flex items-center gap-1 mx-4">
-                            <span className="text-[10px] font-black text-primary">{currentPage}</span>
-                            <span className="text-[10px] font-bold text-slate-300">/</span>
-                            <span className="text-[10px] font-bold text-slate-400">{totalPages}</span>
-                          </div>
-
-                          <Button 
-                            variant="outline" 
-                            size="icon" 
-                            className="w-10 h-10 rounded-xl border-slate-200"
-                            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                            disabled={currentPage === totalPages}
-                          >
-                            <ChevronRight className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </Tabs>
-              </div>
-            </>
-          )}
+          
+          <div className="space-y-6 max-w-md">
+            <h1 className="text-5xl font-black leading-tight uppercase tracking-tighter">
+              Auditoria & <br /> Rastreabilidade <br /> <span className="text-primary">Blockchain.</span>
+            </h1>
+            <p className="text-slate-400 font-medium leading-relaxed">
+              Sistema avançado de conformidade para Unidades de Crédito de Sustentabilidade (UCS) e ativos ambientais do ecossistema BMV.
+            </p>
+          </div>
         </div>
-      </main>
+
+        <div className="relative z-10 flex items-center gap-6">
+          <div className="flex -space-x-3">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="w-10 h-10 rounded-full border-2 border-[#0F172A] bg-slate-800 overflow-hidden">
+                <img src={`https://picsum.photos/seed/${i + 10}/100/100`} alt="user" />
+              </div>
+            ))}
+          </div>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+            Utilizado por mais de <span className="text-white">500 auditores</span> ativos
+          </p>
+        </div>
+
+        {/* Decorativo de fundo */}
+        <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none overflow-hidden">
+           <div className="absolute top-[-20%] right-[-10%] w-[80%] h-[80%] rounded-full bg-primary blur-[120px]"></div>
+        </div>
+      </div>
+
+      {/* Lado Direito - Formuário */}
+      <div className="flex flex-col items-center justify-center p-8 lg:p-24 bg-white">
+        <div className="w-full max-w-sm space-y-10">
+          <div className="text-center lg:text-left space-y-2">
+            <div className="lg:hidden flex justify-center mb-8">
+               <ShieldCheck className="w-12 h-12 text-primary" />
+            </div>
+            <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tighter">Acessar Portal</h2>
+            <p className="text-slate-400 font-medium">Entre com suas credenciais de auditor.</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">E-mail Corporativo</Label>
+              <Input 
+                type="email" 
+                placeholder="nome@empresa.com" 
+                className="h-14 rounded-2xl border-slate-200 bg-slate-50/50 px-6 focus:ring-primary focus:border-primary"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Senha</Label>
+                <Link href="#" className="text-[10px] font-black uppercase text-primary tracking-widest">Esqueceu a senha?</Link>
+              </div>
+              <Input 
+                type="password" 
+                placeholder="••••••••" 
+                className="h-14 rounded-2xl border-slate-200 bg-slate-50/50 px-6 focus:ring-primary focus:border-primary"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <Button 
+              type="submit" 
+              disabled={isLoading}
+              className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest shadow-xl shadow-primary/20 transition-all active:scale-[0.98]"
+            >
+              {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Entrar no Sistema"}
+            </Button>
+          </form>
+
+          <div className="pt-8 text-center border-t border-slate-100">
+            <p className="text-sm text-slate-400 font-medium">
+              Ainda não possui acesso?{" "}
+              <Link href="/register" className="text-primary font-black uppercase tracking-widest hover:underline decoration-2 underline-offset-4 ml-1">
+                Solicitar Registro
+              </Link>
+            </p>
+          </div>
+
+          <p className="text-[8px] text-center font-bold text-slate-300 uppercase tracking-widest pt-12">
+            © 2024 BMV LedgerTrust • Sistema Restrito de Auditoria
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
