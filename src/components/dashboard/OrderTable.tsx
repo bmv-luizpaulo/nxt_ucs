@@ -240,27 +240,21 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
                     <p className="text-2xl font-black text-slate-900">{order.quantidade.toLocaleString('pt-BR')}</p>
                   </div>
                   <div>
-                    <p className="text-slate-400 font-black text-[9px] mb-1">VALOR TOTAL AUDITADO</p>
+                    <p className="text-slate-400 font-black text-[9px] mb-1">VALOR TOTAL DO PEDIDO</p>
                     <p className="text-2xl font-black text-slate-900">{order.valorTotal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>
                   </div>
-                  {link && (
-                    <div className="pt-2">
-                      <p className="text-slate-400 font-black text-[9px] mb-1">BLOCKCHAIN EXPLORER</p>
-                      <span className="text-[9px] text-blue-600 underline font-mono break-all normal-case">{link}</span>
-                    </div>
-                  )}
                 </div>
 
                 {/* QR CODE BOX */}
                 <div className="flex flex-col items-center gap-2 bg-slate-50 p-4 rounded-3xl border border-slate-100 shrink-0 shadow-sm">
                   {qrCodeUrl ? (
-                    <img src={qrCodeUrl} alt="QR Code" className="w-24 h-24 bg-white p-1 rounded-lg" />
+                    <img src={qrCodeUrl} alt="QR Code" className="w-28 h-28 bg-white p-1 rounded-lg" />
                   ) : (
-                    <div className="w-24 h-24 bg-white flex items-center justify-center rounded-lg border-2 border-dashed border-slate-200">
+                    <div className="w-28 h-28 bg-white flex items-center justify-center rounded-lg border-2 border-dashed border-slate-200">
                       <QrCodeIcon className="w-8 h-8 text-slate-200" />
                     </div>
                   )}
-                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">VALIDAÇÃO TÉCNICA</p>
+                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">CERTIFICADO</p>
                 </div>
               </div>
             </div>
@@ -307,7 +301,6 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
             <div className="text-right">
               <div className="border-t-2 border-slate-900 w-80 pt-4">
                 <p className="text-[12px] font-black uppercase text-slate-900 tracking-tight">AUDITOR DE CONFORMIDADE BMV</p>
-                <p className="text-[9px] font-bold text-slate-400 uppercase mt-1">DOCUMENTO GERADO DIGITALMENTE PELO SISTEMA LEDGERTRUST</p>
               </div>
             </div>
           </div>
