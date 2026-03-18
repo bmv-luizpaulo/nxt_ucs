@@ -1,8 +1,8 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Permissão total para qualquer usuário autenticado em qualquer coleção ou subcoleção
-    // Isso resolve o erro de "Missing or insufficient permissions" para usuários logados
+    // Permissão global para qualquer usuário autenticado
+    // Isso resolve o erro de permissão para leitura e escrita em qualquer coleção
     match /{document=**} {
       allow read, write: if request.auth != null;
     }

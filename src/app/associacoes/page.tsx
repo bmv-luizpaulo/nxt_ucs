@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Trash2, ChevronLeft, ChevronRight, Loader2, ShieldCheck } from "lucide-react";
+import { Search, Trash2, ChevronLeft, ChevronRight, Loader2, ShieldCheck, Database } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -47,6 +47,18 @@ export default function AssociacoesPage() {
 
   const totalPages = Math.ceil((associacoes || []).length / itemsPerPage);
   const paginated = (associacoes || []).slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handleSeedAssociacoes = async () => {
+    if (!firestore) return;
+    const batch = writeBatch(firestore);
+    const sample = [
+      { id: "ASSOC-001", nome: "ASSOCIAÇÃO DOS PRODUTORES DE MARICÁ", documento: "00.111.222/0001-33", originacao: 50000, movimentacao: 5000, aposentado: 2000, bloqueado: 1000, aquisicao: 500, saldoAjustarImei: 0, saldoFinalAtual: 42500, status: "disponivel", createdAt: new Date().toISOString() },
+      { id: "ASSOC-002", nome: "COOPERATIVA VERDE BRASIL", documento: "99.888.777/0001-66", originacao: 30000, movimentacao: 2000, aposentado: 0, bloqueado: 0, aquisicao: 0, saldoAjustarImei: 0, saldoFinalAtual: 28000, status: "disponivel", createdAt: new Date().toISOString() }
+    ];
+    sample.forEach(a => batch.set(doc(firestore, "associacoes", a.id), a));
+    await batch.commit();
+    toast({ title: "Dados de Associações Gerados" });
+  };
 
   const handleUpdate = async (id: string, updates: Partial<EntidadeSaldo>) => {
     if (!firestore) return;
@@ -106,6 +118,11 @@ export default function AssociacoesPage() {
                   <TabsTrigger value="inapto" className="data-[state=active]:bg-white px-8 rounded-full text-[10px] font-bold uppercase tracking-widest">Inaptos</TabsTrigger>
                 </TabsList>
                 <div className="flex gap-3">
+                  {(associacoes?.length === 0) && (
+                    <Button onClick={handleSeedAssociacoes} variant="outline" className="h-12 px-6 rounded-full text-[10px] font-bold uppercase tracking-widest border-dashed">
+                      <Database className="w-3.5 h-3.5 mr-2" /> Gerar Teste
+                    </Button>
+                  )}
                   {selectedIds.length > 0 && (
                     <Button onClick={handleBulkDelete} variant="destructive" size="sm" className="h-12 px-6 rounded-full text-[10px] font-bold uppercase tracking-widest">
                       <Trash2 className="w-3.5 h-3.5 mr-2" /> Excluir ({selectedIds.length})

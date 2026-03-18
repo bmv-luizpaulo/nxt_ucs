@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Trash2, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Search, Trash2, ChevronLeft, ChevronRight, Loader2, ShieldCheck, Database } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -47,6 +47,18 @@ export default function ProdutoresPage() {
 
   const totalPages = Math.ceil((produtores || []).length / itemsPerPage);
   const paginated = (produtores || []).slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handleSeedProdutores = async () => {
+    if (!firestore) return;
+    const batch = writeBatch(firestore);
+    const sample = [
+      { id: "PROD-001", nome: "JOÃO SILVA - FAZENDA ESTRELA", documento: "123.456.789-00", originacao: 15000, movimentacao: 2000, aposentado: 1000, bloqueado: 500, aquisicao: 0, saldoAjustarImei: 0, saldoFinalAtual: 11500, status: "disponivel", createdAt: new Date().toISOString() },
+      { id: "PROD-002", nome: "MARIA OLIVEIRA - SÍTIO VERDE", documento: "987.654.321-11", originacao: 8000, movimentacao: 500, aposentado: 0, bloqueado: 200, aquisicao: 1000, saldoAjustarImei: 0, saldoFinalAtual: 8300, status: "disponivel", createdAt: new Date().toISOString() }
+    ];
+    sample.forEach(p => batch.set(doc(firestore, "produtores", p.id), p));
+    await batch.commit();
+    toast({ title: "Dados de Produtores Gerados" });
+  };
 
   const handleUpdate = async (id: string, updates: Partial<EntidadeSaldo>) => {
     if (!firestore) return;
@@ -106,6 +118,11 @@ export default function ProdutoresPage() {
                   <TabsTrigger value="inapto" className="data-[state=active]:bg-white px-8 rounded-full text-[10px] font-bold uppercase tracking-widest">Inaptos</TabsTrigger>
                 </TabsList>
                 <div className="flex gap-3">
+                  {(produtores?.length === 0) && (
+                    <Button onClick={handleSeedProdutores} variant="outline" className="h-12 px-6 rounded-full text-[10px] font-bold uppercase tracking-widest border-dashed">
+                      <Database className="w-3.5 h-3.5 mr-2" /> Gerar Teste
+                    </Button>
+                  )}
                   {selectedIds.length > 0 && (
                     <Button onClick={handleBulkDelete} variant="destructive" size="sm" className="h-12 px-6 rounded-full text-[10px] font-bold uppercase tracking-widest">
                       <Trash2 className="w-3.5 h-3.5 mr-2" /> Excluir ({selectedIds.length})

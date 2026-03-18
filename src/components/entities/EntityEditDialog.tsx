@@ -41,20 +41,20 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const totalDebitoImei = (formData.tabelaImei || []).reduce((acc, row) => acc + (row.valorDebito || 0), 0);
     const ajusteImei = Math.max(0, totalDebitoImei - totalCreditoImei);
 
-    const legadoTotal = (formData.tabelaLegado || []).reduce((acc, row) => acc + ((row.disponivel || 0) + (row.reservado || 0)), 0);
     const totalAposentado = (formData.tabelaLegado || []).reduce((acc, row) => acc + (row.bloqueado || 0), 0);
     const totalBloqueado = (formData.tabelaLegado || []).reduce((acc, row) => acc + (row.aposentado || 0), 0);
+    const legadoDisponivel = (formData.tabelaLegado || []).reduce((acc, row) => acc + (row.disponivel || 0), 0);
     
-    const finalAuditado = totalOrig + totalMov - totalAq;
+    const finalAuditado = (totalOrig + totalMov - totalAq) + legadoDisponivel;
 
     return {
       totalMov,
       totalOrig,
       totalAq,
       ajusteImei,
-      legadoTotal,
       totalAposentado,
       totalBloqueado,
+      legadoDisponivel,
       finalAuditado
     };
   }, [formData]);
@@ -112,7 +112,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
       bloqueado: stats.totalBloqueado,
       aquisicao: stats.totalAq,
       saldoAjustarImei: stats.ajusteImei,
-      saldoLegadoTotal: stats.legadoTotal,
+      saldoLegadoTotal: stats.legadoDisponivel,
       saldoFinalAtual: stats.finalAuditado
     };
     onUpdate(entity.id, finalData);
@@ -160,7 +160,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             <StatItem label="Bloqueado" value={stats.totalBloqueado} color="rose" />
             <StatItem label="Aquisição" value={stats.totalAq} color="rose" />
             <StatItem label="Ajuste IMEI" value={stats.ajusteImei} color="indigo" />
-            <StatItem label="Legado" value={stats.legadoTotal} color="amber" />
+            <StatItem label="Legado" value={stats.legadoDisponivel} color="amber" />
             <StatItem label="Integridade" value={stats.finalAuditado} color="emerald" />
           </div>
         </div>
@@ -255,7 +255,7 @@ function TableSection({ title, data, onImport, columns, onUpdate }: any) {
                   {columns.map((col: any) => (
                     <TableCell key={col.label} className={cn("text-[10px] font-medium py-3 px-6", col.align === 'right' && "text-right font-mono font-bold")}>
                       {col.type === 'status' ? (
-                        <Select value={row[col.key]} onValueChange={v => onUpdate(i, {[col.key]: v})}>
+                        <Select value={row[col.key]} onValueChange={v => onUpdate && onUpdate(i, {[col.key]: v})}>
                           <SelectTrigger className="h-8 text-[9px] font-bold uppercase rounded-lg bg-slate-50 border-slate-100">
                             <SelectValue />
                           </SelectTrigger>
