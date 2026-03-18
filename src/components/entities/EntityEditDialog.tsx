@@ -11,16 +11,10 @@ import {
   ShieldCheck, 
   Database, 
   Save, 
-  ArrowRightLeft, 
   FileText, 
-  Link as LinkIcon, 
-  AlertCircle, 
-  CheckCircle2,
   Layers,
   Search,
-  Check,
-  X,
-  Clock
+  ChevronDown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -52,12 +46,12 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const mov = sumVal(formData.tabelaMovimentacao);
     const aq = sumVal(formData.tabelaAquisicao);
     
-    // IMEI Adjustment (Debits - Credits) - Treated as Pending/Informational
+    // IMEI Adjustment (Debits - Credits) - Treated as Pending/Informational (Neutral)
     const imeiCredits = sumCredits(formData.tabelaImei);
     const imeiDebits = sumDebits(formData.tabelaImei);
     const imeiPending = imeiDebits - imeiCredits;
 
-    // Legado Consolidado (REF)
+    // Legado Consolidado (REF) - Not part of the final balance equation
     const legDisp = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.disponivel || 0), 0);
     const legRes = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.reservado || 0), 0);
     const legadoTotal = legDisp + legRes;
@@ -66,9 +60,9 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const bloqueado = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.bloqueado || 0), 0);
 
     /**
-     * EQUAÇÃO DE AUDITORIA BMV:
-     * Saldo Final = Originação + Movimentação (débitos) - Aquisição (retiradas)
-     * IMEI = Neutro (Conferência de Pendência)
+     * EQUAÇÃO DE CONFORMIDADE BMV:
+     * Saldo Final = Originação + Movimentação (débitos) - Aquisição (antecipações retiradas)
+     * IMEI = Neutro (Controle de Pendência)
      * Legado = Valor de Referência (REF)
      */
     const final = orig + mov - aq;
@@ -126,21 +120,21 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
           <div className="flex justify-between items-start mb-12">
             <div className="space-y-1.5">
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 bg-primary rounded-lg flex items-center justify-center">
+                <div className="w-6 h-6 bg-[#734DCC] rounded-lg flex items-center justify-center">
                   <ShieldCheck className="w-4 h-4 text-white" />
                 </div>
-                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">AUDITORIA TÉCNICA BMV</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#734DCC]">AUDITORIA TÉCNICA BMV</p>
               </div>
               <h1 className="text-[28px] font-black tracking-tight uppercase leading-none">{entity.nome}</h1>
               <p className="text-xs font-bold text-slate-500 font-mono tracking-widest">{entity.documento}</p>
             </div>
 
             <div className="bg-[#161B2E] border border-white/5 rounded-[2rem] p-8 min-w-[340px] shadow-2xl flex flex-col items-end relative overflow-hidden">
-               <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 blur-3xl -mr-20 -mt-20"></div>
+               <div className="absolute top-0 right-0 w-40 h-40 bg-[#734DCC]/10 blur-3xl -mr-20 -mt-20"></div>
                <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 relative z-10">Saldo Final Auditado</p>
                <div className="flex items-baseline gap-3 relative z-10">
                   <span className="text-5xl font-black text-white tracking-tighter">{totals.final.toLocaleString('pt-BR')}</span>
-                  <span className="text-[11px] font-black text-primary uppercase tracking-widest">UCS</span>
+                  <span className="text-[11px] font-black text-[#734DCC] uppercase tracking-widest">UCS</span>
                </div>
             </div>
           </div>
@@ -160,24 +154,13 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
         <ScrollArea className="flex-1 bg-white">
           <div className="p-10 space-y-20">
             {/* SESSÃO 01 - ORIGINAÇÃO */}
-            <Section title="LANÇAMENTOS DE ORIGINAÇÃO" data={formData.tabelaOriginacao || []} icon={Database} value={totals.orig} />
+            <SectionHeader title="LANÇAMENTOS DE ORIGINAÇÃO" value={totals.orig} />
+            <SectionTable data={formData.tabelaOriginacao || []} type="originacao" />
 
             {/* SESSÃO 02 - MOVIMENTAÇÕES / RETIRADAS */}
             <div className="space-y-6">
-              <div className="flex justify-between items-center border-b border-slate-100 pb-5">
-                <div className="flex items-center gap-4">
-                  <div className="w-1.5 h-8 bg-emerald-500 rounded-full" />
-                  <div className="flex flex-col">
-                    <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">MOVIMENTAÇÕES / RETIRADAS</h3>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">CONSOLIDADO: <span className="text-primary">{Math.abs(totals.mov).toLocaleString()} UCS</span></p>
-                  </div>
-                </div>
-                <Button variant="outline" className="h-12 px-6 rounded-2xl border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-600 gap-2 hover:bg-slate-50">
-                  <Calculator className="w-3.5 h-3.5" /> COLAGEM VIA CALCULADORA
-                </Button>
-              </div>
-
-              <div className="rounded-[2.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm min-h-[150px]">
+              <SectionHeader title="MOVIMENTAÇÕES / RETIRADAS" value={totals.mov} isNegative />
+              <div className="rounded-[2.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
                 <Table>
                   <TableHeader className="bg-slate-50/50">
                     <TableRow className="border-b border-slate-100">
@@ -190,17 +173,10 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                   </TableHeader>
                   <TableBody>
                     {(formData.tabelaMovimentacao || []).length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={5} className="py-24 text-center">
-                          <div className="flex flex-col items-center gap-4 opacity-30">
-                            <Layers className="w-12 h-12 text-slate-300" />
-                            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Aguardando inserção técnica de dados...</p>
-                          </div>
-                        </TableCell>
-                      </TableRow>
+                      <EmptyState message="AGUARDANDO INSERÇÃO TÉCNICA DE DADOS..." />
                     ) : (
                       formData.tabelaMovimentacao?.map((row, i) => {
-                        const isTransfer = row.destino?.toLowerCase().includes('transferência') || row.destino?.toLowerCase().includes('cliente') || row.destino?.toLowerCase().includes('investment') || row.destino?.toLowerCase().includes('trading');
+                        const isTransfer = row.destino?.toLowerCase().includes('transferência') || row.destino?.toLowerCase().includes('cliente');
                         return (
                           <TableRow key={i} className={cn(
                             "border-b border-slate-50 last:border-0 group transition-colors",
@@ -211,7 +187,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                             <TableCell className="py-4">
                               <div className="flex flex-col gap-1">
                                 <span className="text-[10px] font-bold text-slate-700 truncate max-w-[300px]">{row.destino || row.tipo || '-'}</span>
-                                {isTransfer && <Badge className="w-fit bg-indigo-100 text-indigo-600 border-indigo-200 text-[7px] font-black h-4 px-1">TRANSFERÊNCIA / DÉBITO</Badge>}
+                                {isTransfer && <Badge className="w-fit bg-indigo-100 text-indigo-600 border-indigo-200 text-[7px] font-black h-4 px-1">TRANSFERÊNCIA ENTRE CLIENTES</Badge>}
                               </div>
                             </TableCell>
                             <TableCell className="py-4 text-right font-mono font-black pr-4 text-rose-500">
@@ -250,19 +226,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
             {/* SESSÃO 03 - TRANSFERÊNCIAS IMEI */}
             <div className="space-y-6">
-              <div className="flex justify-between items-center border-b border-slate-100 pb-5">
-                <div className="flex items-center gap-4">
-                  <div className="w-1.5 h-8 bg-emerald-500 rounded-full" />
-                  <div className="flex flex-col">
-                    <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">TRANSFERÊNCIAS IMEI</h3>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">CONSOLIDADO: <span className="text-primary">{totals.imeiPending.toLocaleString()} UCS</span></p>
-                  </div>
-                </div>
-                <Button variant="outline" className="h-12 px-6 rounded-2xl border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-600 gap-2 hover:bg-slate-50">
-                  <Calculator className="w-3.5 h-3.5" /> COLAGEM VIA CALCULADORA
-                </Button>
-              </div>
-
+              <SectionHeader title="TRANSFERÊNCIAS IMEI" value={totals.imeiPending} isImei />
               <div className="rounded-[2.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
                 <Table>
                   <TableHeader className="bg-slate-50/50">
@@ -277,14 +241,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                   </TableHeader>
                   <TableBody>
                     {(formData.tabelaImei || []).length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={6} className="py-24 text-center">
-                          <div className="flex flex-col items-center gap-4 opacity-30">
-                            <Layers className="w-12 h-12 text-slate-300" />
-                            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Aguardando inserção técnica de dados...</p>
-                          </div>
-                        </TableCell>
-                      </TableRow>
+                      <EmptyState message="AGUARDANDO INSERÇÃO TÉCNICA DE DADOS..." />
                     ) : (
                       formData.tabelaImei?.map((row, i) => (
                         <TableRow key={i} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors">
@@ -308,23 +265,41 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             </div>
 
             {/* SESSÃO 04 - AQUISIÇÕES */}
-            <Section title="AQUISIÇÕES (DEDUÇÃO DO SALDO)" data={formData.tabelaAquisicao || []} icon={FileText} value={totals.aq} />
+            <div className="space-y-6">
+              <SectionHeader title="AQUISIÇÃO DE UCS" value={totals.aq} isNegative />
+              <div className="rounded-[2.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
+                <Table>
+                  <TableHeader className="bg-slate-50/50">
+                    <TableRow className="border-b border-slate-100">
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Referência</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Ano / Data</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Origem / Histórico</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right pr-8">Volume (UCS)</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {(formData.tabelaAquisicao || []).length === 0 ? (
+                      <EmptyState message="AGUARDANDO IMPORTAÇÃO DE DADOS..." />
+                    ) : (
+                      formData.tabelaAquisicao?.map((row, i) => (
+                        <TableRow key={i} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors">
+                          <TableCell className="py-4 text-[11px] font-bold text-slate-600 font-mono">{row.id || row.dist || '-'}</TableCell>
+                          <TableCell className="py-4 text-[11px] text-slate-400">{row.data}</TableCell>
+                          <TableCell className="py-4 text-[10px] text-slate-600 font-bold">{row.destino || row.tipo || '-'}</TableCell>
+                          <TableCell className="py-4 text-right font-mono font-black pr-8 text-rose-500">
+                            {row.valor?.toLocaleString('pt-BR')}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
 
             {/* SESSÃO 05 - SALDO LEGADO CONSOLIDADO (REF) */}
             <div className="space-y-6">
-              <div className="flex justify-between items-center border-b border-slate-100 pb-5">
-                <div className="flex items-center gap-4">
-                  <div className="w-1.5 h-8 bg-amber-500 rounded-full" />
-                  <div className="flex flex-col">
-                    <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">SALDO LEGADO CONSOLIDADO</h3>
-                    <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-tighter">CONSOLIDADO: <span className="font-black">{totals.legadoTotal.toLocaleString()} UCS</span></p>
-                  </div>
-                </div>
-                <Button variant="outline" className="h-12 px-6 rounded-2xl border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-600 gap-2 hover:bg-slate-50 shadow-sm">
-                  <Calculator className="w-3.5 h-3.5" /> COLAGEM VIA CALCULADORA
-                </Button>
-              </div>
-
+              <SectionHeader title="SALDO LEGADO CONSOLIDADO" value={totals.legadoTotal} isLegado />
               <div className="rounded-[2.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
                 <Table>
                   <TableHeader className="bg-slate-50/50">
@@ -338,14 +313,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                   </TableHeader>
                   <TableBody>
                     {(formData.tabelaLegado || []).length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={5} className="text-center py-24 opacity-30">
-                          <div className="flex flex-col items-center gap-2">
-                            <Layers className="w-8 h-8 text-slate-300" />
-                            <p className="text-[10px] font-bold uppercase tracking-widest">Aguardando inserção técnica de dados...</p>
-                          </div>
-                        </TableCell>
-                      </TableRow>
+                      <EmptyState message="AGUARDANDO INSERÇÃO TÉCNICA DE DADOS..." />
                     ) : (
                       formData.tabelaLegado?.map((row, i) => (
                         <TableRow key={i} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors">
@@ -376,7 +344,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             <Button variant="outline" onClick={handlePrint} className="h-14 px-10 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[11px] tracking-widest text-slate-700 hover:bg-white transition-all">
               <Printer className="w-4 h-4 mr-2" /> Gerar Relatório PDF
             </Button>
-            <Button onClick={handleSave} className="h-14 px-12 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black uppercase text-[11px] tracking-widest shadow-xl shadow-primary/20 transition-all active:scale-[0.98]">
+            <Button onClick={handleSave} className="h-14 px-12 rounded-2xl bg-[#734DCC] hover:bg-[#633fb9] text-white font-black uppercase text-[11px] tracking-widest shadow-xl shadow-indigo-200 transition-all active:scale-[0.98]">
               <Save className="w-4 h-4 mr-2" /> Salvar no Ledger
             </Button>
           </div>
@@ -386,7 +354,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   );
 }
 
-function StatBox({ label, value, isNegative, isHighlight, isAccent, isReference, isPending, percentage }: any) {
+function StatBox({ label, value, isNegative, isHighlight, isReference, isPending, percentage }: any) {
   return (
     <div className={cn(
       "border rounded-2xl p-5 flex flex-col justify-between h-[100px] transition-all group relative",
@@ -414,7 +382,6 @@ function StatBox({ label, value, isNegative, isHighlight, isAccent, isReference,
         "text-[20px] font-black font-mono leading-none tracking-tight",
         isNegative ? "text-rose-500" : 
         isHighlight ? "text-emerald-400" : 
-        isAccent ? "text-primary" : 
         isReference ? "text-amber-500" : 
         isPending ? "text-indigo-400" :
         "text-white"
@@ -425,60 +392,72 @@ function StatBox({ label, value, isNegative, isHighlight, isAccent, isReference,
   );
 }
 
-function Section({ title, data, icon: Icon, value }: any) {
+function SectionHeader({ title, value, isNegative, isLegado, isImei }: any) {
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center border-b border-slate-100 pb-5">
-        <div className="flex items-center gap-4">
-          <div className="w-1.5 h-8 bg-emerald-500 rounded-full" />
-          <div className="flex flex-col">
-            <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">{title}</h3>
-            {value !== undefined && <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">CONSOLIDADO: <span className="text-primary">{Math.abs(value).toLocaleString()} UCS</span></p>}
-          </div>
+    <div className="flex justify-between items-center border-b border-slate-100 pb-5">
+      <div className="flex items-center gap-4">
+        <div className="w-1.5 h-8 bg-[#10B981] rounded-full" />
+        <div className="flex flex-col">
+          <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">{title}</h3>
+          <p className={cn(
+            "text-[10px] font-bold uppercase tracking-tighter",
+            isLegado ? "text-emerald-600" : "text-slate-400"
+          )}>
+            CONSOLIDADO: <span className={cn("font-black", !isLegado && "text-[#734DCC]")}>
+              {Math.abs(value || 0).toLocaleString()} UCS
+            </span>
+          </p>
         </div>
-        <Button variant="outline" className="h-12 px-6 rounded-2xl border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-600 gap-2 hover:bg-slate-50">
-          <Calculator className="w-3.5 h-3.5" /> COLAGEM VIA CALCULADORA
-        </Button>
       </div>
+      <Button variant="outline" className="h-12 px-6 rounded-2xl border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-600 gap-2 hover:bg-slate-50 shadow-sm">
+        <Calculator className="w-3.5 h-3.5" /> COLAGEM VIA CALCULADORA
+      </Button>
+    </div>
+  );
+}
 
-      <div className="rounded-[2.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
-        <Table>
-          <TableHeader className="bg-slate-50/50">
-            <TableRow className="border-b border-slate-100">
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Referência</TableHead>
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Data</TableHead>
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Destino/Histórico</TableHead>
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right pr-8">Volume (UCS)</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center py-24">
-                  <div className="flex flex-col items-center gap-4 opacity-30">
-                    <Layers className="w-12 h-12 text-slate-300" />
-                    <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Aguardando inserção técnica de dados...</p>
-                  </div>
+function EmptyState({ message }: { message: string }) {
+  return (
+    <TableRow>
+      <TableCell colSpan={10} className="py-24 text-center">
+        <div className="flex flex-col items-center gap-4 opacity-10">
+          <Layers className="w-12 h-12 text-slate-300" />
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">{message}</p>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+}
+
+function SectionTable({ data, type }: { data: any[], type: string }) {
+  return (
+    <div className="rounded-[2.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm mb-12">
+      <Table>
+        <TableHeader className="bg-slate-50/50">
+          <TableRow className="border-b border-slate-100">
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Referência</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Data</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Destino/Histórico</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right pr-8">Volume (UCS)</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.length === 0 ? (
+            <EmptyState message="AGUARDANDO INSERÇÃO TÉCNICA DE DADOS..." />
+          ) : (
+            data.map((row: any, i: number) => (
+              <TableRow key={i} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors">
+                <TableCell className="py-4 text-[11px] font-bold text-slate-600 font-mono">{row.dist || row.id || '-'}</TableCell>
+                <TableCell className="py-4 text-[11px] text-slate-400">{row.data}</TableCell>
+                <TableCell className="py-4 text-[10px] text-slate-600 font-bold truncate max-w-[300px]">{row.destino || row.tipo || '-'}</TableCell>
+                <TableCell className="py-4 text-right font-mono font-black pr-8 text-slate-900">
+                  {row.valor?.toLocaleString('pt-BR')}
                 </TableCell>
               </TableRow>
-            ) : (
-              data.map((row: any, i: number) => (
-                <TableRow key={i} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors">
-                  <TableCell className="py-4 text-[11px] font-bold text-slate-600 font-mono">{row.dist || row.id || '-'}</TableCell>
-                  <TableCell className="py-4 text-[11px] text-slate-400">{row.data}</TableCell>
-                  <TableCell className="py-4 text-[10px] text-slate-600 font-bold truncate max-w-[300px]">{row.destino || row.tipo || '-'}</TableCell>
-                  <TableCell className={cn(
-                    "py-4 text-right font-mono font-black pr-8",
-                    (row.valor || row.quantidade) < 0 ? "text-rose-500" : "text-slate-900"
-                  )}>
-                    {(row.valor || row.quantidade)?.toLocaleString('pt-BR')}
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+            ))
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
 }
