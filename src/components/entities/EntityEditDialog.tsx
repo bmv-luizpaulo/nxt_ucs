@@ -6,13 +6,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { EntidadeSaldo, RegistroTabela } from "@/lib/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Save, ShieldCheck, Calculator, History, Download, TrendingUp, ArrowRightLeft, CreditCard, X, Database, CheckCircle2, AlertCircle, Clock, FileText, Printer } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { Save, ShieldCheck, Calculator, History, TrendingUp, ArrowRightLeft, Database, X, Printer, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import Image from "next/image";
 
 interface EntityEditDialogProps {
   entity: EntidadeSaldo | null;
@@ -33,16 +31,14 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     }
   }, [entity]);
 
-  // Cálculo Dinâmico de Saldos para Auditoria
   useEffect(() => {
     const sumTable = (table?: RegistroTabela[]) => (table || []).reduce((acc, row) => acc + (row.valor || 0), 0);
     const sumField = (table?: RegistroTabela[], field: keyof RegistroTabela) => 
       (table || []).reduce((acc, row) => acc + (Number(row[field]) || 0), 0);
     
-    const operationsTotal = 
-      sumTable(formData.tabelaOriginacao) + 
-      sumTable(formData.tabelaMovimentacao) - 
-      sumTable(formData.tabelaAquisicao);
+    const totalOriginacao = sumTable(formData.tabelaOriginacao);
+    const totalMovimentacao = sumTable(formData.tabelaMovimentacao);
+    const totalAquisicao = sumTable(formData.tabelaAquisicao);
     
     const totalCreditoImei = sumField(formData.tabelaImei, 'valorCredito');
     const totalDebitoImei = sumField(formData.tabelaImei, 'valorDebito');
@@ -52,16 +48,19 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const totalAposentado = sumField(formData.tabelaLegado, 'aposentado');
     const totalBloqueado = sumField(formData.tabelaLegado, 'bloqueado');
     
+    // Saldo Final Auditado = Originação + Movimentação (débitos são negativos) - Aquisição
+    const saldoFinal = totalOriginacao + totalMovimentacao - totalAquisicao;
+
     setFormData(prev => ({ 
       ...prev, 
-      originacao: sumTable(formData.tabelaOriginacao),
-      movimentacao: sumTable(formData.tabelaMovimentacao),
-      saldoFinalAtual: operationsTotal,
-      saldoLegadoTotal: legadoTotal,
+      originacao: totalOriginacao,
+      movimentacao: totalMovimentacao,
+      aquisicao: totalAquisicao,
       aposentado: totalAposentado,
       bloqueado: totalBloqueado,
-      aquisicao: sumTable(formData.tabelaAquisicao),
-      saldoAjustarImei: ajusteImei
+      saldoAjustarImei: ajusteImei,
+      saldoLegadoTotal: legadoTotal,
+      saldoFinalAtual: saldoFinal
     }));
   }, [
     formData.tabelaOriginacao, 
@@ -87,11 +86,10 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     };
 
     lines.forEach((line, index) => {
-      // Parser heurístico: pega o valor numérico da última coluna preenchida
       const parts = line.split(/[\t]{1,}/).map(p => p.trim()).filter(p => p !== "");
       if (parts.length === 0) return;
 
-      const isHeader = (line.toLowerCase().includes('data') || line.toLowerCase().includes('dist') || line.toLowerCase().includes('usuário')) && !/^\d+/.test(line);
+      const isHeader = (line.toLowerCase().includes('data') || line.toLowerCase().includes('dist')) && !/^\d+/.test(line);
       if (isHeader && index === 0) return;
 
       if (activePasteField === 'tabelaAquisicao') {
@@ -107,9 +105,6 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
         if (parts.length < 8) return;
         const disp = parseBRL(parts[4]);
         const res = parseBRL(parts[5]);
-        const bloq = parseBRL(parts[6]);
-        const apos = parseBRL(parts[7]);
-        
         results.push({
           data: parts[0] || "N/A",
           plataforma: parts[1] || "N/A",
@@ -117,8 +112,8 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
           documento: parts[3] || "N/A",
           disponivel: disp,
           reservado: res,
-          bloqueado: bloq,
-          aposentado: apos,
+          bloqueado: parseBRL(parts[6]),
+          aposentado: parseBRL(parts[7]),
           valor: disp + res,
         });
       } else if (activePasteField === 'tabelaImei') {
@@ -136,13 +131,12 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
         const valorRaw = parts[parts.length - 1];
         const valor = parseBRL(valorRaw);
         const isNegative = activePasteField === 'tabelaMovimentacao';
-        
         results.push({ 
           dist: parts[0], 
           data: parts[1], 
           destino: parts[2], 
           situacao: "Processado",
-          valor: isNegative ? -valor : valor,
+          valor: isNegative ? -Math.abs(valor) : valor,
         });
       }
     });
@@ -150,136 +144,106 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     setPreviewRows(results);
   }, [pasteBuffer, activePasteField]);
 
-  const handleConfirmSection = () => {
-    if (!activePasteField) return;
-    setFormData(prev => ({ ...prev, [activePasteField]: previewRows }));
-    setPasteBuffer("");
-    setPreviewRows([]);
-    setActivePasteField(null);
-  };
+  if (!entity) return null;
 
   const handlePrint = () => {
-    const originalTitle = document.title;
-    document.title = `Relatorio_Auditoria_${entity?.nome.replace(/\s+/g, '_')}`;
     window.print();
-    document.title = originalTitle;
   };
-
-  if (!entity) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="max-w-[1350px] h-[95vh] flex flex-col p-0 border-none bg-white shadow-2xl overflow-hidden rounded-[2.5rem] print:bg-white print:max-h-none print:h-auto print:rounded-none print:shadow-none"
+        className="max-w-[1200px] h-[90vh] flex flex-col p-0 border-none bg-white shadow-2xl overflow-hidden rounded-[1.5rem]"
         onPointerDownOutside={(e) => { if (activePasteField) e.preventDefault(); }}
         onInteractOutside={(e) => { if (activePasteField) e.preventDefault(); }}
       >
         <DialogHeader className="sr-only">
-          <DialogTitle>Auditoria de Rastreabilidade BMV: {entity.nome}</DialogTitle>
-          <DialogDescription>Console executivo para conciliação de ativos e rastreabilidade total.</DialogDescription>
+          <DialogTitle>Auditoria: {entity.nome}</DialogTitle>
+          <DialogDescription>Console de conformidade técnica LedgerTrust.</DialogDescription>
         </DialogHeader>
 
         {activePasteField && (
-          <div className="absolute inset-0 z-[100] bg-white/95 backdrop-blur-sm flex items-center justify-center p-12 animate-in fade-in zoom-in duration-200 print:hidden">
-            <div className="bg-white w-full max-w-3xl rounded-[2.5rem] shadow-2xl border border-slate-100 flex flex-col overflow-hidden">
-              <div className="p-10 flex justify-between items-start">
-                <div className="flex gap-6">
-                  <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center shadow-sm border border-slate-100">
-                    <Calculator className="w-8 h-8 text-primary" />
-                  </div>
-                  <div className="space-y-1">
-                    <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase">Entrada Técnica</h3>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                      {activePasteField === 'tabelaAquisicao' ? 'FORMATO: ANO - VALOR' : `PROCESSADOR: ${activePasteField.replace('tabela', '').toUpperCase()}`}
-                    </p>
-                  </div>
-                </div>
+          <div className="absolute inset-0 z-[100] bg-white/95 backdrop-blur-sm flex items-center justify-center p-8 animate-in fade-in zoom-in duration-200">
+            <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-100 flex flex-col overflow-hidden">
+              <div className="p-8 flex justify-between items-center border-b">
+                <h3 className="text-lg font-black text-slate-900 uppercase">Processador de Colagem</h3>
                 <Button variant="ghost" size="icon" onClick={() => { setActivePasteField(null); setPasteBuffer(""); }} className="rounded-full">
-                  <X className="w-5 h-5 text-slate-400" />
+                  <X className="w-5 h-5" />
                 </Button>
               </div>
-              <div className="px-10 flex-1">
+              <div className="p-8 flex-1">
                 <Textarea 
                   autoFocus
                   value={pasteBuffer}
                   onChange={e => setPasteBuffer(e.target.value)}
-                  placeholder="Cole aqui os dados copiados do Excel..."
-                  className="w-full h-64 bg-slate-50/50 border-slate-200 text-slate-900 font-mono text-sm p-8 rounded-3xl resize-none shadow-inner"
+                  placeholder="Cole os dados do Excel aqui..."
+                  className="w-full h-64 bg-slate-50 border-slate-200 font-mono text-sm p-4 rounded-xl resize-none"
                 />
               </div>
-              <div className="p-10">
-                <div className="bg-slate-50 rounded-[2rem] border border-slate-100 p-8 flex items-center justify-between">
-                  <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Detectado</p>
-                    <div className="flex items-baseline gap-2">
-                      <span className={cn("text-5xl font-black tracking-tighter", (activePasteField === 'tabelaAquisicao' || previewRows.reduce((a, r) => a + (r.valor || 0), 0) < 0) ? "text-rose-500" : "text-emerald-500")}>
-                        {Math.abs(previewRows.reduce((a, r) => a + (r.valor || 0), 0)).toLocaleString('pt-BR')}
-                      </span>
-                    </div>
-                  </div>
-                  <Button onClick={handleConfirmSection} disabled={!pasteBuffer.trim()} className="h-16 px-12 rounded-2xl font-black uppercase text-xs tracking-widest bg-primary hover:bg-primary/90 text-white">
-                    Confirmar e Consolidar
-                  </Button>
+              <div className="p-8 bg-slate-50 flex justify-between items-center">
+                <div className="text-sm font-bold text-slate-500 uppercase">
+                  Registros: {previewRows.length}
                 </div>
+                <Button onClick={() => { setFormData(prev => ({ ...prev, [activePasteField]: previewRows })); setActivePasteField(null); setPasteBuffer(""); }} disabled={!pasteBuffer.trim()} className="px-10 h-12 rounded-xl font-black uppercase text-xs">
+                  Confirmar
+                </Button>
               </div>
             </div>
           </div>
         )}
 
-        {/* HEADER BMV PREMIUM (HIGH FIDELITY) */}
-        <div className="bg-[#0F172A] px-16 py-16 shrink-0 print:bg-white print:text-slate-900 print:px-0 print:py-8 print:border-b-2 print:border-slate-900">
-          <div className="flex items-center gap-2 mb-12 print:hidden">
-            <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center">
-              <ShieldCheck className="w-3.5 h-3.5 text-primary" />
-            </div>
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Sistema LedgerTrust BMV</span>
+        {/* HEADER - HIGH FIDELITY AS PER SCREENSHOT */}
+        <div className="bg-[#0F172A] p-10 shrink-0 text-white relative">
+          <div className="flex items-center gap-2 mb-6">
+            <ShieldCheck className="w-4 h-4 text-primary" />
+            <span className="text-[9px] font-black uppercase tracking-widest text-primary">Sistema LedgerTrust BMV</span>
           </div>
 
           <div className="flex justify-between items-end">
-            <div className="space-y-10">
-              <h2 className="text-[7rem] font-black text-white tracking-tighter leading-[0.8] uppercase max-w-[800px] print:text-slate-900 print:text-4xl">
-                {entity.nome}
+            <div className="space-y-6">
+              <h2 className="text-7xl font-black leading-[0.9] tracking-tighter uppercase max-w-[500px]">
+                {entity.nome.split(' ').map((n, i) => <div key={i}>{n}</div>)}
               </h2>
-              <div className="flex gap-16">
-                <div className="flex flex-col">
-                  <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Documento</span>
-                  <span className="text-2xl font-bold text-slate-300 tracking-tighter print:text-slate-600">{entity.documento}</span>
+              <div className="flex gap-10">
+                <div className="space-y-1">
+                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Documento</p>
+                  <p className="text-xl font-bold tracking-tight">{entity.documento}</p>
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">UF</span>
-                  <span className="text-2xl font-bold text-slate-300 print:text-slate-600">{entity.uf || "MT"}</span>
+                <div className="space-y-1">
+                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">UF</p>
+                  <p className="text-xl font-bold tracking-tight">{entity.uf || "MT"}</p>
                 </div>
               </div>
             </div>
 
-            <div className="flex gap-16 text-right items-end">
+            <div className="flex gap-12 text-right">
               <div className="flex flex-col items-end">
-                <span className="text-[12px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4">Legado (REF)</span>
-                <div className="flex items-baseline justify-end gap-2 text-[#F59E0B]">
-                  <span className="text-[5.5rem] font-black tracking-tighter leading-none">{(formData.saldoLegadoTotal || 0).toLocaleString('pt-BR')}</span>
-                  <span className="text-xl font-black opacity-30">UCS</span>
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Legado (REF)</p>
+                <div className="flex items-baseline gap-1 text-[#F59E0B]">
+                  <span className="text-6xl font-black tracking-tighter">{(formData.saldoLegadoTotal || 0).toLocaleString('pt-BR')}</span>
+                  <span className="text-sm font-black opacity-40">UCS</span>
                 </div>
               </div>
               <div className="flex flex-col items-end">
-                <span className="text-[12px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4">Ajuste IMEI</span>
-                <div className="flex items-baseline justify-end gap-2 text-[#818CF8]">
-                  <span className="text-[5.5rem] font-black tracking-tighter leading-none">{(formData.saldoAjustarImei || 0).toLocaleString('pt-BR')}</span>
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Ajuste IMEI</p>
+                <div className="flex items-baseline gap-1 text-[#818CF8]">
+                  <span className="text-6xl font-black tracking-tighter">{(formData.saldoAjustarImei || 0).toLocaleString('pt-BR')}</span>
+                  <span className="text-sm font-black opacity-40">UCS</span>
                 </div>
               </div>
               <div className="flex flex-col items-end">
-                <div className="bg-primary/10 px-4 py-1.5 rounded mb-4">
-                   <span className="text-[12px] font-black text-primary uppercase tracking-[0.2em]">Saldo Auditado</span>
-                </div>
-                <div className="flex items-baseline justify-end gap-4 text-primary">
-                  <span className="text-[11rem] font-black tracking-tighter leading-[0.6]">{(formData.saldoFinalAtual || 0).toLocaleString('pt-BR')}</span>
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Saldo Auditado</p>
+                <div className="flex items-baseline gap-1 text-primary">
+                  <span className="text-6xl font-black tracking-tighter">{(formData.saldoFinalAtual || 0).toLocaleString('pt-BR')}</span>
+                  <span className="text-sm font-black opacity-40">UCS</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <ScrollArea className="flex-1 print:overflow-visible bg-[#F8FAFC]">
-          <div className="p-16 space-y-20 print:p-0 print:space-y-10 print:mt-10">
+        <ScrollArea className="flex-1 bg-white">
+          <div className="p-10 space-y-12">
             <SectionTechnical 
               title="Originação de Ativos"
               icon={TrendingUp}
@@ -301,41 +265,24 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                 { label: "Ref. Dist.", key: "dist" },
                 { label: "Data Operação", key: "data" },
                 { label: "Destinatário", key: "destino" },
-                { label: "Situação", key: "situacao", variant: "status" },
                 { label: "Débito", key: "valor", align: "right", variant: "rose" }
               ]}
             />
 
             <SectionTechnical 
-              title="Transferências IMEI (Balanceamento)"
-              icon={CreditCard}
-              color="indigo"
-              onImport={() => setActivePasteField('tabelaImei')}
-              data={formData.tabelaImei || []}
-              columns={[
-                { label: "Dist.", key: "dist" },
-                { label: "Data Operação", key: "data" },
-                { label: "Crédito (UCS)", key: "valorCredito", align: "right", variant: "emerald" },
-                { label: "Débito (UCS)", key: "valorDebito", align: "right", variant: "rose" },
-                { label: "Líquido", key: "valor", align: "right", variant: "primary" }
-              ]}
-            />
-
-            <SectionTechnical 
-              title="Aquisições de UCS (Dedução Auditada)"
+              title="Aquisições (Deduções)"
               icon={Database}
               color="rose"
               onImport={() => setActivePasteField('tabelaAquisicao')}
               data={formData.tabelaAquisicao || []}
               columns={[
                 { label: "Ano", key: "data" },
-                { label: "Status de Auditoria", key: "destino" },
                 { label: "Volume a Retirar", key: "valor", align: "right", variant: "rose" }
               ]}
             />
 
             <SectionTechnical 
-              title="Saldo Legado Consolidado (Referência)"
+              title="Saldo Legado (Referência)"
               icon={History}
               color="amber"
               onImport={() => setActivePasteField('tabelaLegado')}
@@ -343,26 +290,24 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               columns={[
                 { label: "Atualização", key: "data" },
                 { label: "Plataforma", key: "plataforma" },
-                { label: "Disp.", key: "disponivel", align: "right" },
-                { label: "Res.", key: "reservado", align: "right" },
-                { label: "Bloq.", key: "bloqueado", align: "right", variant: "rose" },
-                { label: "Apos.", key: "aposentado", align: "right", variant: "slate" },
-                { label: "Total (D+R)", key: "valor", align: "right", variant: "emerald" }
+                { label: "Disponível", key: "disponivel", align: "right" },
+                { label: "Reservado", key: "reservado", align: "right" },
+                { label: "Total (REF)", key: "valor", align: "right", variant: "amber" }
               ]}
             />
           </div>
         </ScrollArea>
 
-        <div className="p-10 border-t border-slate-100 bg-white flex justify-between items-center shrink-0 print:hidden">
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[11px] font-black uppercase text-slate-400 tracking-widest px-10">
+        <div className="p-8 border-t bg-white flex justify-between items-center shrink-0">
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[10px] font-black uppercase text-slate-400 tracking-widest">
             Descartar Alterações
           </Button>
-          <div className="flex gap-6">
-            <Button onClick={handlePrint} variant="outline" className="h-14 px-10 rounded-2xl border-slate-200 font-black uppercase text-[11px] tracking-widest text-slate-600 gap-3 hover:bg-slate-50">
-              <Printer className="w-5 h-5" /> Imprimir Relatório Auditado
+          <div className="flex gap-4">
+            <Button onClick={handlePrint} variant="outline" className="h-12 px-8 rounded-xl border-slate-200 font-black uppercase text-[10px] tracking-widest gap-2">
+              <Printer className="w-4 h-4" /> Imprimir Relatório Auditado
             </Button>
-            <Button onClick={() => { onUpdate(entity.id, formData); onOpenChange(false); }} className="h-14 px-16 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black uppercase text-[11px] tracking-widest shadow-2xl shadow-primary/20 gap-4">
-              <Save className="w-6 h-6" /> Gravar no Ledger Permanente
+            <Button onClick={() => { onUpdate(entity.id, formData); onOpenChange(false); }} className="h-12 px-10 rounded-xl bg-primary hover:bg-primary/90 text-white font-black uppercase text-[10px] tracking-widest shadow-lg shadow-primary/20 gap-2">
+              <Save className="w-4 h-4" /> Gravar no Ledger Permanente
             </Button>
           </div>
         </div>
@@ -373,85 +318,61 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
 function SectionTechnical({ title, icon: Icon, color = "emerald", onImport, data, columns }: any) {
   const currentTotal = (data || []).reduce((acc: number, r: any) => acc + (r.valor || 0), 0);
-  const displayTotal = title.toLowerCase().includes('imei') 
-    ? (data || []).reduce((acc: number, r: any) => acc + (Math.max(0, (r.valorDebito || 0) - (r.valorCredito || 0))), 0)
-    : currentTotal;
 
   return (
-    <div className="space-y-8 print:space-y-4 print:break-inside-avoid">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <div className={cn("w-2 h-12 rounded-full", 
+        <div className="flex items-center gap-4">
+          <div className={cn("w-1.5 h-8 rounded-full", 
             color === "amber" ? "bg-amber-500" : 
-            color === "rose" ? "bg-rose-500" : 
-            color === "indigo" ? "bg-indigo-500" : "bg-primary"
+            color === "rose" ? "bg-rose-500" : "bg-primary"
           )} />
           <div>
-            <h3 className="text-[16px] font-black uppercase tracking-[0.15em] text-slate-900 leading-none mb-2">{title}</h3>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-              {title.toLowerCase().includes('imei') ? 'Pendência de Estorno: ' : 'Consolidado da Seção: '} 
-              <span className={cn("font-black", (displayTotal < 0 || color === 'rose') ? "text-rose-500" : (color === 'indigo' ? "text-indigo-600" : "text-emerald-600"))}>
-                {Math.abs(displayTotal).toLocaleString('pt-BR')} UCS
+            <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 leading-none">{title}</h3>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">
+              Consolidado da Seção: <span className={cn("font-black", color === 'rose' ? "text-rose-500" : (color === 'amber' ? "text-amber-600" : "text-emerald-600"))}>
+                {Math.abs(currentTotal).toLocaleString('pt-BR')} UCS
               </span>
             </p>
           </div>
         </div>
-
-        <Button onClick={onImport} variant="outline" className="h-12 px-10 rounded-[1.25rem] border-slate-200 text-slate-600 font-black uppercase text-[11px] tracking-widest gap-3 hover:bg-slate-50 shadow-sm transition-all print:hidden">
-          <Calculator className="w-5 h-5" /> Colagem Técnica
+        <Button onClick={onImport} variant="outline" className="h-10 px-6 rounded-xl border-slate-100 bg-slate-50/50 text-slate-600 font-black uppercase text-[9px] tracking-widest gap-2 hover:bg-slate-100">
+          <Calculator className="w-3.5 h-3.5" /> Colagem Técnica
         </Button>
       </div>
 
-      <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden min-h-[120px] flex flex-col">
+      <div className="rounded-2xl border border-slate-100 overflow-hidden bg-white shadow-sm">
         {data.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center py-16 opacity-30 gap-4">
-            <Database className="w-10 h-10 text-slate-200" />
-            <p className="text-[11px] font-black uppercase tracking-widest text-slate-400">Sem registros vinculados</p>
+          <div className="py-12 text-center opacity-30">
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Sem registros</p>
           </div>
         ) : (
           <Table>
-            <TableHeader className="bg-slate-50/50 sticky top-0">
-              <TableRow className="h-16 border-b border-slate-100">
+            <TableHeader className="bg-slate-50/50">
+              <TableRow className="h-12">
                 {columns.map((col: any) => (
-                  <TableHead key={col.label} className={cn("text-[11px] font-black uppercase tracking-widest text-slate-400 px-10", col.align === 'right' && "text-right")}>
+                  <TableHead key={col.label} className={cn("text-[9px] font-black uppercase tracking-widest text-slate-400 px-6", col.align === 'right' && "text-right")}>
                     {col.label}
                   </TableHead>
                 ))}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((row: any, i: number) => {
-                const isTransfer = title.toLowerCase().includes('movimentação') && 
-                  (row.destino?.toLowerCase().includes('transferência') || row.destino?.toLowerCase().includes('cliente'));
-
-                return (
-                  <TableRow 
-                    key={i} 
-                    className={cn(
-                      "border-b border-slate-50 last:border-0 h-16 hover:bg-slate-50/30 transition-colors",
-                      isTransfer && "bg-indigo-50/40 border-l-[6px] border-l-indigo-400"
-                    )}
-                  >
-                    {columns.map((col: any) => (
-                      <TableCell key={col.label} className={cn(
-                        "px-10 text-[12px] font-bold text-slate-600 tracking-tight",
-                        col.align === 'right' && "text-right",
-                        col.variant === 'emerald' && "text-emerald-600",
-                        col.variant === 'rose' && "text-rose-500",
-                        col.variant === 'primary' && "text-primary font-black"
-                      )}>
-                        {col.variant === 'status' ? (
-                          <div className="flex items-center gap-2">
-                            <span className="text-[11px] font-black uppercase">{row[col.key] || 'Processado'}</span>
-                          </div>
-                        ) : (
-                          typeof row[col.key] === 'number' ? Math.abs(row[col.key]).toLocaleString('pt-BR') : row[col.key]
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                );
-              })}
+              {data.map((row: any, i: number) => (
+                <TableRow key={i} className="h-12 hover:bg-slate-50/30 transition-colors">
+                  {columns.map((col: any) => (
+                    <TableCell key={col.label} className={cn(
+                      "px-6 text-[11px] font-bold text-slate-600",
+                      col.align === 'right' && "text-right",
+                      col.variant === 'emerald' && "text-emerald-600",
+                      col.variant === 'rose' && "text-rose-500",
+                      col.variant === 'amber' && "text-amber-600 font-black"
+                    )}>
+                      {typeof row[col.key] === 'number' ? Math.abs(row[col.key]).toLocaleString('pt-BR') : row[col.key]}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         )}
