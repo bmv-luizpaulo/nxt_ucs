@@ -45,13 +45,19 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
   const totals = useMemo(() => {
     const sumVal = (arr?: RegistroTabela[]) => (arr || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
+    const sumCredits = (arr?: RegistroTabela[]) => (arr || []).reduce((acc, curr) => acc + (curr.valorCredito || 0), 0);
+    const sumDebits = (arr?: RegistroTabela[]) => (arr || []).reduce((acc, curr) => acc + (curr.valorDebito || 0), 0);
     
     const orig = sumVal(formData.tabelaOriginacao);
     const mov = sumVal(formData.tabelaMovimentacao);
     const aq = sumVal(formData.tabelaAquisicao);
-    const imei = sumVal(formData.tabelaImei);
     
-    // Legado consolidado (Tratado como REF - Valor de Referência)
+    // IMEI Adjustment (Debits - Credits) - Treated as Pending/Informational
+    const imeiCredits = sumCredits(formData.tabelaImei);
+    const imeiDebits = sumDebits(formData.tabelaImei);
+    const imeiPending = imeiDebits - imeiCredits;
+
+    // Legado Consolidado (REF)
     const legDisp = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.disponivel || 0), 0);
     const legRes = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.reservado || 0), 0);
     const legadoTotal = legDisp + legRes;
@@ -62,15 +68,15 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     /**
      * EQUAÇÃO DE AUDITORIA BMV:
      * Saldo Final = Originação + Movimentação (débitos) - Aquisição (retiradas)
-     * IMEI = Neutro (Conferência)
-     * Legado = Valor de Referência (REF) - Não soma no saldo final auditado
+     * IMEI = Neutro (Conferência de Pendência)
+     * Legado = Valor de Referência (REF)
      */
     const final = orig + mov - aq;
     
     const movPercentage = orig !== 0 ? ((Math.abs(mov) / Math.abs(orig)) * 100).toFixed(1) : "0.0";
 
     return { 
-      orig, mov, aq, imei, legadoTotal, aposentado, bloqueado, final, movPercentage 
+      orig, mov, aq, imeiPending, legadoTotal, aposentado, bloqueado, final, movPercentage 
     };
   }, [formData]);
 
@@ -87,6 +93,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
       originacao: totals.orig,
       movimentacao: totals.mov,
       aquisicao: totals.aq,
+      saldoAjustarImei: totals.imeiPending,
       saldoLegadoTotal: totals.legadoTotal,
       aposentado: totals.aposentado,
       bloqueado: totals.bloqueado,
@@ -144,7 +151,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             <StatBox label="APOSENTADO" value={totals.aposentado} />
             <StatBox label="BLOQUEADO" value={totals.bloqueado} isNegative />
             <StatBox label="AQUISIÇÃO" value={totals.aq} isNegative />
-            <StatBox label="AJUSTE IMEI" value={totals.imei} isAccent />
+            <StatBox label="AJUSTE IMEI" value={totals.imeiPending} isPending />
             <StatBox label="SALDO LEGADO" value={totals.legadoTotal} isReference />
             <StatBox label="DISPONÍVEL" value={totals.final} isHighlight />
           </div>
@@ -153,17 +160,13 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
         <ScrollArea className="flex-1 bg-white">
           <div className="p-10 space-y-20">
             {/* SESSÃO 01 - ORIGINAÇÃO */}
-            <Section 
-              title="LANÇAMENTOS DE ORIGINAÇÃO" 
-              data={formData.tabelaOriginacao || []} 
-              icon={Database}
-            />
+            <Section title="LANÇAMENTOS DE ORIGINAÇÃO" data={formData.tabelaOriginacao || []} icon={Database} value={totals.orig} />
 
             {/* SESSÃO 02 - MOVIMENTAÇÕES / RETIRADAS */}
             <div className="space-y-6">
               <div className="flex justify-between items-center border-b border-slate-100 pb-5">
                 <div className="flex items-center gap-4">
-                  <div className="w-1 h-8 bg-[#00B67A] rounded-full" />
+                  <div className="w-1.5 h-8 bg-emerald-500 rounded-full" />
                   <div className="flex flex-col">
                     <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">MOVIMENTAÇÕES / RETIRADAS</h3>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">CONSOLIDADO: <span className="text-primary">{Math.abs(totals.mov).toLocaleString()} UCS</span></p>
@@ -174,7 +177,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                 </Button>
               </div>
 
-              <div className="rounded-[1.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm min-h-[150px]">
+              <div className="rounded-[2.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm min-h-[150px]">
                 <Table>
                   <TableHeader className="bg-slate-50/50">
                     <TableRow className="border-b border-slate-100">
@@ -188,9 +191,9 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                   <TableBody>
                     {(formData.tabelaMovimentacao || []).length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="py-16 text-center opacity-30">
-                          <div className="flex flex-col items-center gap-4">
-                            <Layers className="w-12 h-12 text-slate-400" />
+                        <TableCell colSpan={5} className="py-24 text-center">
+                          <div className="flex flex-col items-center gap-4 opacity-30">
+                            <Layers className="w-12 h-12 text-slate-300" />
                             <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Aguardando inserção técnica de dados...</p>
                           </div>
                         </TableCell>
@@ -245,19 +248,67 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               </div>
             </div>
 
-            {/* SESSÃO 03 - AJUSTES IMEI */}
-            <Section 
-              title="AJUSTES IMEI (CONFERÊNCIA NEUTRA)" 
-              data={formData.tabelaImei || []} 
-              icon={Calculator}
-            />
+            {/* SESSÃO 03 - TRANSFERÊNCIAS IMEI */}
+            <div className="space-y-6">
+              <div className="flex justify-between items-center border-b border-slate-100 pb-5">
+                <div className="flex items-center gap-4">
+                  <div className="w-1.5 h-8 bg-emerald-500 rounded-full" />
+                  <div className="flex flex-col">
+                    <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">TRANSFERÊNCIAS IMEI</h3>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">CONSOLIDADO: <span className="text-primary">{totals.imeiPending.toLocaleString()} UCS</span></p>
+                  </div>
+                </div>
+                <Button variant="outline" className="h-12 px-6 rounded-2xl border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-600 gap-2 hover:bg-slate-50">
+                  <Calculator className="w-3.5 h-3.5" /> COLAGEM VIA CALCULADORA
+                </Button>
+              </div>
+
+              <div className="rounded-[2.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
+                <Table>
+                  <TableHeader className="bg-slate-50/50">
+                    <TableRow className="border-b border-slate-100">
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Referência</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Data</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Usuário Destino</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Crédito</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Débito</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right pr-8">Valor Líquido</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {(formData.tabelaImei || []).length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="py-24 text-center">
+                          <div className="flex flex-col items-center gap-4 opacity-30">
+                            <Layers className="w-12 h-12 text-slate-300" />
+                            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Aguardando inserção técnica de dados...</p>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      formData.tabelaImei?.map((row, i) => (
+                        <TableRow key={i} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors">
+                          <TableCell className="py-4 text-[11px] font-bold text-slate-600 font-mono">{row.dist || row.id || '-'}</TableCell>
+                          <TableCell className="py-4 text-[11px] text-slate-400">{row.data}</TableCell>
+                          <TableCell className="py-4 text-[10px] text-slate-600 font-bold truncate max-w-[200px]">{row.destino || row.tipo || '-'}</TableCell>
+                          <TableCell className="text-right font-mono font-bold text-emerald-600">{row.valorCredito?.toLocaleString('pt-BR') || '0'}</TableCell>
+                          <TableCell className="text-right font-mono font-bold text-rose-500">{row.valorDebito?.toLocaleString('pt-BR') || '0'}</TableCell>
+                          <TableCell className={cn(
+                            "text-right font-mono font-black pr-8",
+                            (row.valor || 0) < 0 ? "text-rose-500" : "text-emerald-600"
+                          )}>
+                            {row.valor?.toLocaleString('pt-BR')}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
 
             {/* SESSÃO 04 - AQUISIÇÕES */}
-            <Section 
-              title="AQUISIÇÕES (DEDUÇÃO DO SALDO)" 
-              data={formData.tabelaAquisicao || []} 
-              icon={FileText}
-            />
+            <Section title="AQUISIÇÕES (DEDUÇÃO DO SALDO)" data={formData.tabelaAquisicao || []} icon={FileText} value={totals.aq} />
 
             {/* SESSÃO 05 - SALDO LEGADO CONSOLIDADO (REF) */}
             <div className="space-y-6">
@@ -266,7 +317,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                   <div className="w-1.5 h-8 bg-amber-500 rounded-full" />
                   <div className="flex flex-col">
                     <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">SALDO LEGADO CONSOLIDADO</h3>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">CONSOLIDADO: <span className="text-emerald-600 font-black">{totals.legadoTotal.toLocaleString()} UCS</span></p>
+                    <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-tighter">CONSOLIDADO: <span className="font-black">{totals.legadoTotal.toLocaleString()} UCS</span></p>
                   </div>
                 </div>
                 <Button variant="outline" className="h-12 px-6 rounded-2xl border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-600 gap-2 hover:bg-slate-50 shadow-sm">
@@ -274,7 +325,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                 </Button>
               </div>
 
-              <div className="rounded-[1.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
+              <div className="rounded-[2.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
                 <Table>
                   <TableHeader className="bg-slate-50/50">
                     <TableRow className="border-b border-slate-100">
@@ -288,7 +339,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                   <TableBody>
                     {(formData.tabelaLegado || []).length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-16 opacity-30">
+                        <TableCell colSpan={5} className="text-center py-24 opacity-30">
                           <div className="flex flex-col items-center gap-2">
                             <Layers className="w-8 h-8 text-slate-300" />
                             <p className="text-[10px] font-bold uppercase tracking-widest">Aguardando inserção técnica de dados...</p>
@@ -335,18 +386,20 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   );
 }
 
-function StatBox({ label, value, isNegative, isHighlight, isAccent, isReference, percentage }: any) {
+function StatBox({ label, value, isNegative, isHighlight, isAccent, isReference, isPending, percentage }: any) {
   return (
     <div className={cn(
       "border rounded-2xl p-5 flex flex-col justify-between h-[100px] transition-all group relative",
-      isReference ? "bg-amber-500/10 border-amber-500/20" : "bg-[#161B2E] border-white/5 hover:bg-[#1C2237]"
+      isReference ? "bg-amber-500/10 border-amber-500/20" : 
+      isPending ? "bg-indigo-500/10 border-indigo-500/20" :
+      "bg-[#161B2E] border-white/5 hover:bg-[#1C2237]"
     )}>
       <div className="flex justify-between items-start w-full">
         <p className={cn(
           "text-[9px] font-black uppercase tracking-widest leading-none",
-          isReference ? "text-amber-500" : "text-slate-500"
+          isReference ? "text-amber-500" : isPending ? "text-indigo-400" : "text-slate-500"
         )}>
-          {label} {isReference && "(REF)"}
+          {label} {isReference && "(REF)"} {isPending && "(PENDÊNCIA)"}
         </p>
         {percentage !== undefined && (
           <span className={cn(
@@ -362,7 +415,9 @@ function StatBox({ label, value, isNegative, isHighlight, isAccent, isReference,
         isNegative ? "text-rose-500" : 
         isHighlight ? "text-emerald-400" : 
         isAccent ? "text-primary" : 
-        isReference ? "text-amber-500" : "text-white"
+        isReference ? "text-amber-500" : 
+        isPending ? "text-indigo-400" :
+        "text-white"
       )}>
         {value === 0 ? "0" : value.toLocaleString('pt-BR')}
       </p>
@@ -370,19 +425,23 @@ function StatBox({ label, value, isNegative, isHighlight, isAccent, isReference,
   );
 }
 
-function Section({ title, data, icon: Icon }: any) {
+function Section({ title, data, icon: Icon, value }: any) {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center border-b border-slate-100 pb-5">
         <div className="flex items-center gap-4">
-          <div className="p-2.5 bg-slate-100 rounded-xl">
-            <Icon className="w-4 h-4 text-slate-400" />
+          <div className="w-1.5 h-8 bg-emerald-500 rounded-full" />
+          <div className="flex flex-col">
+            <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">{title}</h3>
+            {value !== undefined && <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">CONSOLIDADO: <span className="text-primary">{Math.abs(value).toLocaleString()} UCS</span></p>}
           </div>
-          <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">{title}</h3>
         </div>
+        <Button variant="outline" className="h-12 px-6 rounded-2xl border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-600 gap-2 hover:bg-slate-50">
+          <Calculator className="w-3.5 h-3.5" /> COLAGEM VIA CALCULADORA
+        </Button>
       </div>
 
-      <div className="rounded-[1.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
+      <div className="rounded-[2.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
         <Table>
           <TableHeader className="bg-slate-50/50">
             <TableRow className="border-b border-slate-100">
@@ -395,10 +454,10 @@ function Section({ title, data, icon: Icon }: any) {
           <TableBody>
             {data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-16 opacity-30">
-                  <div className="flex flex-col items-center gap-2">
-                    <Layers className="w-8 h-8 text-slate-300" />
-                    <p className="text-[10px] font-bold uppercase tracking-widest">Aguardando inserção técnica de dados...</p>
+                <TableCell colSpan={4} className="text-center py-24">
+                  <div className="flex flex-col items-center gap-4 opacity-30">
+                    <Layers className="w-12 h-12 text-slate-300" />
+                    <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Aguardando inserção técnica de dados...</p>
                   </div>
                 </TableCell>
               </TableRow>
@@ -407,7 +466,7 @@ function Section({ title, data, icon: Icon }: any) {
                 <TableRow key={i} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors">
                   <TableCell className="py-4 text-[11px] font-bold text-slate-600 font-mono">{row.dist || row.id || '-'}</TableCell>
                   <TableCell className="py-4 text-[11px] text-slate-400">{row.data}</TableCell>
-                  <TableCell className="py-4 text-[10px] text-slate-600 truncate max-w-[300px]">{row.destino || row.tipo || '-'}</TableCell>
+                  <TableCell className="py-4 text-[10px] text-slate-600 font-bold truncate max-w-[300px]">{row.destino || row.tipo || '-'}</TableCell>
                   <TableCell className={cn(
                     "py-4 text-right font-mono font-black pr-8",
                     (row.valor || row.quantidade) < 0 ? "text-rose-500" : "text-slate-900"
