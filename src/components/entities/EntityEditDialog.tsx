@@ -25,17 +25,20 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   const [pasteBuffer, setPasteBuffer] = useState("");
   const [previewRows, setPreviewRows] = useState<RegistroTabela[]>([]);
 
+  // Inicializa o formulário quando a entidade muda
   useEffect(() => {
     if (entity) {
       setFormData(entity);
     }
   }, [entity]);
 
+  // Cálculos em tempo real para exibição (sem atualizar o estado continuamente)
   const stats = useMemo(() => {
     const sumTable = (table?: RegistroTabela[]) => (table || []).reduce((acc, row) => acc + (row.valor || 0), 0);
     
     const movTable = formData.tabelaMovimentacao || [];
     const totalMov = sumTable(movTable);
+    
     const pagas = movTable.filter(m => m.statusAuditoria === 'Pago').length;
     const percPago = movTable.length > 0 ? (pagas / movTable.length) * 100 : 0;
 
@@ -47,8 +50,8 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const ajusteImei = Math.max(0, totalDebitoImei - totalCreditoImei);
 
     const legadoTotal = (formData.tabelaLegado || []).reduce((acc, row) => acc + ((row.disponivel || 0) + (row.reservado || 0)), 0);
-    const totalAposentado = (formData.tabelaLegado || []).reduce((acc, row) => acc + (row.aposentado || 0), 0);
-    const totalBloqueado = (formData.tabelaLegado || []).reduce((acc, row) => acc + (row.bloqueado || 0), 0);
+    const totalAposentado = (formData.tabelaLegado || []).reduce((acc, row) => acc + (row.bloqueado || 0), 0);
+    const totalBloqueado = (formData.tabelaLegado || []).reduce((acc, row) => acc + (row.aposentado || 0), 0);
     
     const finalAuditado = totalOrig + totalMov - totalAq;
 
@@ -65,6 +68,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     };
   }, [formData]);
 
+  // Handler para processar dados colados
   useEffect(() => {
     if (!pasteBuffer.trim()) {
       setPreviewRows([]);
@@ -100,18 +104,16 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
         });
       } else if (activePasteField === 'tabelaLegado') {
         if (parts.length < 8) return;
-        const disp = parseBRL(parts[4]);
-        const res = parseBRL(parts[5]);
         results.push({
           data: parts[0] || "N/A",
           plataforma: parts[1] || "N/A",
           nome: parts[2] || "N/A",
           documento: parts[3] || "N/A",
-          disponivel: disp,
-          reservado: res,
+          disponivel: parseBRL(parts[4]),
+          reservado: parseBRL(parts[5]),
           bloqueado: parseBRL(parts[6]),
           aposentado: parseBRL(parts[7]),
-          valor: disp + res,
+          valor: parseBRL(parts[4]) + parseBRL(parts[5]),
         });
       } else {
         const lastPart = parts[parts.length - 1];
@@ -142,6 +144,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   };
 
   const handleSaveFinal = () => {
+    // Consolida todos os cálculos no momento do save para evitar loops de render
     const finalData: Partial<EntidadeSaldo> = {
       ...formData,
       originacao: stats.totalOrig,
@@ -213,44 +216,44 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
         <div className="bg-[#0F172A] p-8 shrink-0 text-white relative">
           <div className="flex items-center gap-2 mb-4">
             <ShieldCheck className="w-4 h-4 text-primary" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Console de Auditoria BMV</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Auditoria BMV • Console Técnico</span>
           </div>
 
           <div className="flex justify-between items-start mb-8">
             <div className="space-y-1">
-              <h2 className="text-3xl font-bold tracking-tight uppercase text-slate-50">
+              <h2 className="text-2xl font-black tracking-tight uppercase text-white">
                 {entity.nome}
               </h2>
               <div className="flex items-center gap-3">
-                <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Documento:</span>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Documento:</span>
                 <span className="text-sm font-mono text-slate-300">{entity.documento}</span>
               </div>
             </div>
             
-            <div className="bg-primary/10 px-6 py-4 rounded-2xl border border-primary/20 backdrop-blur-sm min-w-[200px]">
-              <p className="text-[9px] font-bold text-primary uppercase tracking-widest mb-1">SALDO FINAL AUDITADO</p>
-              <div className="flex items-baseline gap-1.5 text-3xl font-bold tracking-tighter text-white">
+            <div className="bg-primary px-6 py-4 rounded-2xl shadow-xl shadow-primary/20 border border-white/10 min-w-[220px] transition-all">
+              <p className="text-[9px] font-black text-white/70 uppercase tracking-widest mb-1">Saldo Final Auditado</p>
+              <div className="flex items-baseline gap-1.5 text-2xl font-black tracking-tight text-white">
                 {formatUCS(stats.finalAuditado)}
-                <span className="text-xs font-medium opacity-60">UCS</span>
+                <span className="text-xs font-medium opacity-80">UCS</span>
               </div>
             </div>
           </div>
 
           {/* Grade de 8 Colunas de Indicadores Técnicos */}
-          <div className="grid grid-cols-4 md:grid-cols-8 gap-4 pt-6 border-t border-slate-800">
-            <StatColumn label="ORIGINAÇÃO" value={formatUCS(stats.totalOrig)} color="white" />
+          <div className="grid grid-cols-4 md:grid-cols-8 gap-4 pt-6 border-t border-white/10">
+            <StatColumn label="Originação" value={formatUCS(stats.totalOrig)} color="white" />
             <StatColumn 
-              label="MOVIMENTAÇÃO" 
+              label="Movimentação" 
               value={formatUCS(stats.totalMov)} 
               color="rose" 
-              subValue={`${stats.percPago.toFixed(0)}% PAGO`}
+              subValue={`${stats.percPago.toFixed(0)}% Pago`}
             />
-            <StatColumn label="APOSENTADO" value={formatUCS(stats.totalAposentado)} color="white" />
-            <StatColumn label="BLOQUEADO" value={formatUCS(stats.totalBloqueado)} color="rose" />
-            <StatColumn label="AQUISIÇÃO" value={formatUCS(stats.totalAq)} color="rose" />
-            <StatColumn label="AJUSTE IMEI" value={formatUCS(stats.ajusteImei)} color="indigo" />
-            <StatColumn label="SALDO LEGADO" value={formatUCS(stats.legadoTotal)} color="amber" />
-            <StatColumn label="VALOR AJUSTAR" value={formatUCS(entity.valorAjustar)} color="white" />
+            <StatColumn label="Aposentado" value={formatUCS(stats.totalAposentado)} color="white" />
+            <StatColumn label="Bloqueado" value={formatUCS(stats.totalBloqueado)} color="rose" />
+            <StatColumn label="Aquisição" value={formatUCS(stats.totalAq)} color="rose" />
+            <StatColumn label="Ajuste IMEI" value={formatUCS(stats.ajusteImei)} color="indigo" />
+            <StatColumn label="Saldo Legado" value={formatUCS(stats.legadoTotal)} color="amber" />
+            <StatColumn label="Saldo Auditado" value={formatUCS(stats.finalAuditado)} color="emerald" />
           </div>
         </div>
 
@@ -298,7 +301,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             />
 
             <SectionTechnical 
-              title="Transferências IMEI (Balanceamento)"
+              title="Transferências IMEI"
               icon={Calculator}
               color="indigo"
               onImport={() => setActivePasteField('tabelaImei')}
@@ -314,7 +317,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             />
 
             <SectionTechnical 
-              title="Saldo Legado (Referência)"
+              title="Saldo Legado"
               icon={History}
               color="amber"
               onImport={() => setActivePasteField('tabelaLegado')}
@@ -333,11 +336,11 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
         {/* RODAPÉ DE AÇÕES */}
         <div className="p-6 border-t bg-slate-50 flex justify-between items-center shrink-0">
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[10px] font-bold uppercase text-slate-400 tracking-widest hover:bg-rose-50 hover:text-rose-600 h-12 rounded-xl px-8">
-            Sair sem Salvar
+            Descartar Alterações
           </Button>
           <div className="flex gap-4">
             <Button onClick={() => window.print()} variant="outline" className="h-12 px-8 rounded-xl border-slate-200 bg-white font-bold uppercase text-[10px] tracking-widest gap-2">
-              <Printer className="w-4 h-4" /> Imprimir Relatório
+              <Printer className="w-4 h-4" /> Relatório
             </Button>
             <Button onClick={handleSaveFinal} className="h-12 px-10 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold uppercase text-[10px] tracking-widest shadow-lg shadow-primary/20 gap-2">
               <Save className="w-4 h-4" /> Gravar no Ledger
@@ -355,19 +358,19 @@ function StatColumn({ label, value, color, subValue }: { label: string, value: s
     rose: "text-rose-500",
     amber: "text-amber-500",
     indigo: "text-indigo-400",
-    emerald: "text-primary"
+    emerald: "text-primary-foreground bg-primary/20 px-2 py-1 rounded-lg"
   };
 
   return (
     <div className="flex flex-col gap-0.5 min-w-0">
       <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest truncate">{label}</p>
-      <div className={cn("flex items-baseline gap-0.5 text-lg font-bold tracking-tight", colorClasses[color as keyof typeof colorClasses])}>
+      <div className={cn("flex items-baseline gap-0.5 text-base font-black tracking-tight", colorClasses[color as keyof typeof colorClasses])}>
         {value}
-        <span className="text-[9px] font-medium opacity-40">UCS</span>
+        <span className="text-[9px] font-medium opacity-60">UCS</span>
       </div>
       {subValue && (
         <span className="text-[8px] font-bold text-slate-500 uppercase flex items-center gap-1 truncate">
-          {subValue.includes('PAGO') ? <CheckCircle2 className="w-2.5 h-2.5 text-primary" /> : <Clock className="w-2.5 h-2.5" />}
+          {subValue.includes('Pago') ? <CheckCircle2 className="w-2.5 h-2.5 text-primary" /> : <Clock className="w-2.5 h-2.5" />}
           {subValue}
         </span>
       )}
@@ -396,15 +399,15 @@ function SectionTechnical({ title, icon: Icon, color = "emerald", onImport, data
             </p>
           </div>
         </div>
-        <Button onClick={onImport} variant="outline" className="h-8 px-4 rounded-lg border-slate-200 text-slate-600 font-bold uppercase text-[9px] tracking-widest gap-2 hover:bg-slate-50 border">
+        <Button onClick={onImport} variant="outline" className="h-8 px-4 rounded-lg border-slate-200 text-slate-600 font-bold uppercase text-[9px] tracking-widest gap-2 hover:bg-slate-50 border shadow-sm">
           <Calculator className="w-3 h-3" /> Importar
         </Button>
       </div>
 
-      <div className="rounded-xl border border-slate-100 overflow-hidden bg-white">
+      <div className="rounded-xl border border-slate-100 overflow-hidden bg-white shadow-sm">
         {data.length === 0 ? (
           <div className="py-8 text-center opacity-30 flex flex-col items-center gap-1">
-            <p className="text-[9px] font-medium uppercase tracking-widest text-slate-400">Nenhum registro</p>
+            <p className="text-[9px] font-medium uppercase tracking-widest text-slate-400">Nenhum registro para auditoria</p>
           </div>
         ) : (
           <Table>
@@ -424,10 +427,10 @@ function SectionTechnical({ title, icon: Icon, color = "emerald", onImport, data
                     <TableCell key={col.label} className={cn(
                       "px-4 py-2 text-[10px] font-medium text-slate-600",
                       col.align === 'right' && "text-right",
-                      col.variant === 'emerald' && "text-emerald-600",
-                      col.variant === 'rose' && "text-rose-500",
+                      col.variant === 'emerald' && "text-emerald-600 font-bold",
+                      col.variant === 'rose' && "text-rose-500 font-bold",
                       col.variant === 'amber' && "text-amber-600 font-bold",
-                      col.variant === 'indigo' && "text-indigo-600"
+                      col.variant === 'indigo' && "text-indigo-600 font-bold"
                     )}>
                       {col.type === 'status' ? (
                         <Select 
@@ -447,7 +450,7 @@ function SectionTechnical({ title, icon: Icon, color = "emerald", onImport, data
                         <div className="flex items-center gap-2">
                           <Input 
                             value={row[col.key] || ''} 
-                            placeholder="URL..."
+                            placeholder="Link do comprovante..."
                             onChange={(e) => onUpdateRow?.(i, { [col.key]: e.target.value })}
                             className="h-7 w-40 text-[9px] font-mono border-slate-200 rounded-lg bg-white"
                           />

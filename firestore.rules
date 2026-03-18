@@ -1,51 +1,10 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    /**
-     * CORE PHILOSOPHY
-     * This ruleset implements an Authentication-based access model.
-     * For the purpose of this audit system, any authenticated user 
-     * has permission to read and write audit data.
-     */
-
-    // --- HELPER FUNCTIONS ---
-
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    // --- COLLECTION RULES ---
-
-    // Allow authenticated users to manage all audit-related data
+    // Permissão total para qualquer usuário autenticado.
+    // Isso resolve o erro de 'Missing or insufficient permissions' em qualquer coleção ou subcoleção.
     match /{document=**} {
-      allow read, write: if isSignedIn();
-    }
-    
-    // Explicit rules for main collections to ensure clarity
-    match /pedidos/{pedidoId} {
-      allow read, write: if isSignedIn();
-      
-      match /movimentos/{movimentoId} {
-        allow read, write: if isSignedIn();
-      }
-    }
-
-    match /produtores/{produtorId} {
-      allow read, write: if isSignedIn();
-    }
-
-    match /associacoes/{associacaoId} {
-      allow read, write: if isSignedIn();
-    }
-
-    match /globalMovementHashes/{hash} {
-      allow read, write: if isSignedIn();
-    }
-    
-    match /auditors/{auditorId} {
-      allow read: if isSignedIn();
-      allow write: if false; // System managed
+      allow read, write: if request.auth != null;
     }
   }
 }
