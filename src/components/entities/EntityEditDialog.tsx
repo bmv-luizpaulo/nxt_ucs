@@ -38,15 +38,18 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const sumField = (table?: RegistroTabela[], field: keyof RegistroTabela) => 
       (table || []).reduce((acc, row) => acc + (Number(row[field]) || 0), 0);
     
+    // Saldo Final Auditado = Originação + Movimentação (já negativa) - Aquisição
     const operationsTotal = 
       sumTable(formData.tabelaOriginacao) + 
       sumTable(formData.tabelaMovimentacao) - 
       sumTable(formData.tabelaAquisicao);
     
+    // IMEI Balanceamento
     const totalCreditoImei = sumField(formData.tabelaImei, 'valorCredito');
     const totalDebitoImei = sumField(formData.tabelaImei, 'valorDebito');
     const ajusteImei = Math.max(0, totalDebitoImei - totalCreditoImei);
 
+    // Legado e Integração de Bloqueados/Aposentados
     const legadoTotal = sumTable(formData.tabelaLegado);
     const totalAposentado = sumField(formData.tabelaLegado, 'aposentado');
     const totalBloqueado = sumField(formData.tabelaLegado, 'bloqueado');
@@ -69,7 +72,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     formData.tabelaLegado
   ]);
 
-  // Parser Heurístico para entrada de dados
+  // Parser Heurístico Robusto para entrada de dados
   useEffect(() => {
     if (!pasteBuffer.trim()) {
       setPreviewRows([]);
@@ -79,15 +82,22 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const lines = pasteBuffer.split('\n').filter(l => l.trim());
     const results: RegistroTabela[] = [];
 
+    const parseBRL = (val: string) => {
+      if (!val) return 0;
+      // Remove R$, espaços, pontos de milhar e converte vírgula decimal
+      const clean = val.replace(/[R$\s.]/g, '').replace(',', '.');
+      return parseFloat(clean) || 0;
+    };
+
     lines.forEach(line => {
-      if (line.toLowerCase().includes('data') || line.toLowerCase().includes('usuário') || line.toLowerCase().includes('ano')) return;
+      // Ignorar cabeçalhos comuns
+      const lowerLine = line.toLowerCase();
+      if (lowerLine.includes('data') || lowerLine.includes('usuário') || lowerLine.includes('dist') || lowerLine.includes('ano')) return;
 
-      const parseBRL = (val: string) => {
-        if (!val) return 0;
-        return parseFloat(val.replace(/[R$\s.]/g, '').replace(',', '.')) || 0;
-      };
-
+      const parts = line.split('\t').map(p => p.trim());
+      
       if (activePasteField === 'tabelaAquisicao') {
+        // Formato esperado: "Ano - Valor" ou "Ano Valor"
         const match = line.match(/(\d{4})[^\d]+(\d+)/);
         if (match) {
           results.push({
@@ -97,46 +107,50 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
           });
         }
       } else if (activePasteField === 'tabelaLegado') {
-        const parts = line.split('\t');
+        // Formato Legado (8 colunas): Data, Plataforma, Nome, Doc, Disp, Res, Bloq, Apos
         if (parts.length < 5) return;
         const disp = parseBRL(parts[4]);
         const res = parseBRL(parts[5]);
-        const bloq = parseBRL(parts[6]);
-        const apos = parseBRL(parts[7]);
+        const bloq = parts.length > 6 ? parseBRL(parts[6]) : 0;
+        const apos = parts.length > 7 ? parseBRL(parts[7]) : 0;
         
         results.push({
-          data: parts[0]?.trim() || "N/A",
-          plataforma: parts[1]?.trim() || "N/A",
-          nome: parts[2]?.trim() || "N/A",
-          documento: parts[3]?.trim() || "N/A",
+          data: parts[0] || "N/A",
+          plataforma: parts[1] || "N/A",
+          nome: parts[2] || "N/A",
+          documento: parts[3] || "N/A",
           disponivel: disp,
           reservado: res,
           bloqueado: bloq,
           aposentado: apos,
-          valor: disp + res,
+          valor: disp + res, // Total Legado é a soma de Disp + Res
         });
       } else if (activePasteField === 'tabelaImei') {
-        const parts = line.split('\t');
+        // Formato IMEI: Dist, Data, Destino, [Extras], Crédito, Débito
         if (parts.length < 5) return;
-        const cred = parseBRL(parts[parts.length - 2]);
-        const deb = parseBRL(parts[parts.length - 1]);
+        const nonInternalParts = parts.filter(p => p !== "");
+        const deb = parseBRL(nonInternalParts[nonInternalParts.length - 1]);
+        const cred = parseBRL(nonInternalParts[nonInternalParts.length - 2]);
         results.push({ 
-          dist: parts[0]?.trim(), 
-          data: parts[1]?.trim(), 
-          destino: parts[2]?.trim(), 
+          dist: parts[0], 
+          data: parts[1], 
+          destino: parts[2], 
           valor: cred - deb, 
           valorCredito: cred, 
           valorDebito: deb 
         });
       } else {
-        const parts = line.split('\t');
-        const valor = parseBRL(parts[parts.length - 1]);
+        // Formato Movimentação/Originação: Dist, Data, Destino, [Situacao], Valor
+        // Usa a técnica de pegar o último valor não vazio para garantir que leu a planilha toda
+        const nonInternalParts = parts.filter(p => p !== "");
+        const valor = parseBRL(nonInternalParts[nonInternalParts.length - 1]);
         const isNegative = activePasteField === 'tabelaMovimentacao';
+        
         results.push({ 
-          dist: parts[0]?.trim(), 
-          data: parts[1]?.trim(), 
-          destino: parts[2]?.trim(), 
-          situacao: parts.length > 3 ? parts[3]?.trim() : "Processado",
+          dist: parts[0], 
+          data: parts[1], 
+          destino: parts[2], 
+          situacao: parts.length > 4 ? parts[3] : "Processado",
           valor: isNegative ? -valor : valor,
         });
       }
@@ -151,7 +165,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     setPasteBuffer("");
     setPreviewRows([]);
     setActivePasteField(null);
-    toast({ title: "Auditado", description: "Os volumes foram consolidados no Ledger." });
+    toast({ title: "Auditado com Sucesso", description: `${previewRows.length} registros foram consolidados.` });
   };
 
   if (!entity) return null;
@@ -164,8 +178,8 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
         onInteractOutside={(e) => { if (activePasteField) e.preventDefault(); }}
       >
         <DialogHeader className="sr-only">
-          <DialogTitle>Auditoria Executiva: {entity.nome}</DialogTitle>
-          <DialogDescription>Console para conciliação de ativos UCS.</DialogDescription>
+          <DialogTitle>Auditoria de Produtor: {entity.nome}</DialogTitle>
+          <DialogDescription>Console executivo para conciliação de ativos e rastreabilidade total.</DialogDescription>
         </DialogHeader>
 
         {activePasteField && (
@@ -179,7 +193,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                   <div className="space-y-1">
                     <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase">Entrada Técnica</h3>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                      {activePasteField === 'tabelaAquisicao' ? 'VOLUMES A SER SER RETIRADOS (EX: 2019 - 9)' : `COLAGEM: ${activePasteField.replace('tabela', '').toUpperCase()}`}
+                      {activePasteField === 'tabelaAquisicao' ? 'FORMATO: ANO - VALOR' : `PROCESSADOR: ${activePasteField.replace('tabela', '').toUpperCase()}`}
                     </p>
                   </div>
                 </div>
@@ -193,7 +207,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                   autoFocus
                   value={pasteBuffer}
                   onChange={e => setPasteBuffer(e.target.value)}
-                  placeholder={activePasteField === 'tabelaAquisicao' ? "Insira no formato: Ano - Valor\n2019 - 9\n2018 - 90" : "Cole as colunas do site legado ou Excel aqui..."}
+                  placeholder="Cole aqui os dados copiados da sua planilha ou site legado..."
                   className="w-full h-64 bg-slate-50/50 border-slate-200 text-slate-900 font-mono text-sm p-8 rounded-3xl resize-none shadow-inner"
                 />
               </div>
@@ -202,7 +216,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                 <div className="bg-slate-50 rounded-[2rem] border border-slate-100 p-8 flex items-center justify-between">
                   <div>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                      {activePasteField === 'tabelaAquisicao' ? 'Total a Deduzir' : 'Total Identificado'}
+                      Total de {previewRows.length} Registros
                     </p>
                     <div className="flex items-baseline gap-2">
                       <span className={cn(
@@ -214,7 +228,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                       <span className="text-xs font-black text-slate-300 uppercase">UCS</span>
                     </div>
                   </div>
-                  <Button onClick={handleConfirmSection} disabled={!pasteBuffer.trim()} className="h-16 px-12 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-primary/20">
+                  <Button onClick={handleConfirmSection} disabled={!pasteBuffer.trim()} className="h-16 px-12 rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl shadow-primary/20 bg-primary hover:bg-primary/90 text-white">
                     Confirmar e Consolidar
                   </Button>
                 </div>
@@ -464,4 +478,3 @@ function SectionTechnical({ title, icon: Icon, color = "emerald", onImport, data
     </div>
   );
 }
-
