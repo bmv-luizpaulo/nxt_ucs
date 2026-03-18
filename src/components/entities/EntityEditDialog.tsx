@@ -153,12 +153,12 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="max-w-[1280px] h-[95vh] flex flex-col p-0 border-none bg-white shadow-2xl overflow-hidden rounded-[1.5rem]"
+        className="max-w-[1400px] h-[95vh] flex flex-col p-0 border-none bg-white shadow-2xl overflow-hidden rounded-[1.5rem]"
         onPointerDownOutside={(e) => { if (activePasteField) e.preventDefault(); }}
         onInteractOutside={(e) => { if (activePasteField) e.preventDefault(); }}
       >
         <DialogHeader className="sr-only">
-          <DialogTitle>Auditoria: {entity.nome}</DialogTitle>
+          <DialogTitle>Auditoria BMV: {entity.nome}</DialogTitle>
           <DialogDescription>Console de conformidade técnica LedgerTrust.</DialogDescription>
         </DialogHeader>
 
@@ -192,33 +192,34 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
           </div>
         )}
 
-        {/* HEADER - ALTA FIDELIDADE EXECUTIVA */}
         <div className="bg-[#0F172A] p-10 shrink-0 text-white relative">
-          <div className="flex items-center gap-2 mb-6">
+          <div className="flex items-center gap-2 mb-8">
             <ShieldCheck className="w-4 h-4 text-primary" />
-            <span className="text-[9px] font-black uppercase tracking-widest text-primary">AUDITORIA BMV</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-primary">AUDITORIA BMV</span>
           </div>
 
-          <div className="space-y-6">
-            <div className="flex justify-between items-start">
-              <h2 className="text-3xl font-black leading-none tracking-tighter uppercase max-w-[800px]">
+          <div className="space-y-8">
+            <div className="flex justify-between items-end border-b border-slate-800/50 pb-4">
+              <h2 className="text-4xl font-black leading-none tracking-tighter uppercase">
                 {entity.nome}
               </h2>
-              <div className="text-right space-y-0.5">
-                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">DOCUMENTO</p>
-                <p className="text-base font-bold tracking-tight text-slate-200 font-mono">{entity.documento}</p>
+              <div className="text-right flex items-center gap-4">
+                <div className="flex flex-col items-end">
+                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">DOCUMENTO</span>
+                  <span className="text-base font-bold tracking-tight text-slate-200 font-mono">{entity.documento}</span>
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-4 lg:grid-cols-8 gap-4 pt-6 border-t border-slate-800/50">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6 items-center">
               <StatColumn label="ORIGINAÇÃO" value={formatUCS(formData.originacao)} color="slate" />
               <StatColumn label="MOVIMENTAÇÃO" value={formatUCS(formData.movimentacao)} color="rose" />
               <StatColumn label="APOSENTADO" value={formatUCS(formData.aposentado)} color="slate" />
               <StatColumn label="BLOQUEADO" value={formatUCS(formData.bloqueado)} color="rose" />
               <StatColumn label="AQUISIÇÃO" value={formatUCS(formData.aquisicao)} color="rose" />
               <StatColumn label="AJUSTE IMEI" value={formatUCS(formData.saldoAjustarImei)} color="indigo" />
-              <StatColumn label="LEGADO (REF)" value={formatUCS(formData.saldoLegadoTotal)} color="amber" />
-              <StatColumn label="SALDO AUDITADO" value={formatUCS(formData.saldoFinalAtual)} color="emerald" />
+              <StatColumn label="SALDO LEGADO" value={formatUCS(formData.saldoLegadoTotal)} color="amber" />
+              <StatColumn label="SALDO AUDITADO" value={formatUCS(formData.saldoFinalAtual)} color="emerald" highlight />
             </div>
           </div>
         </div>
@@ -297,9 +298,9 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   );
 }
 
-function StatColumn({ label, value, color, prefix }: { label: string, value: string, color: string, prefix?: string }) {
+function StatColumn({ label, value, color, highlight }: { label: string, value: string, color: string, highlight?: boolean }) {
   const colorClasses = {
-    slate: "text-slate-100",
+    slate: "text-slate-400",
     rose: "text-rose-500",
     amber: "text-amber-500",
     indigo: "text-indigo-400",
@@ -307,14 +308,28 @@ function StatColumn({ label, value, color, prefix }: { label: string, value: str
   };
 
   return (
-    <div className="space-y-1">
-      <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{label}</p>
+    <div className={cn(
+      "flex flex-col gap-1 transition-all",
+      highlight && "bg-slate-800/40 p-5 rounded-2xl border border-slate-700/50 min-w-[180px]"
+    )}>
+      <p className={cn(
+        "font-black uppercase tracking-widest",
+        highlight ? "text-[10px] text-slate-400" : "text-[8px] text-slate-500"
+      )}>
+        {label}
+      </p>
       <div className={cn(
-        "flex items-baseline gap-0.5 font-black tracking-tighter transition-all text-xl",
+        "flex items-baseline gap-1 font-black tracking-tighter",
+        highlight ? "text-4xl" : "text-xl",
         colorClasses[color as keyof typeof colorClasses]
       )}>
-        {prefix}{value}
-        <span className="text-[7px] opacity-40 uppercase ml-0.5 tracking-tighter">UCS</span>
+        {value}
+        <span className={cn(
+          "uppercase tracking-tighter",
+          highlight ? "text-sm opacity-60" : "text-[8px] opacity-40"
+        )}>
+          UCS
+        </span>
       </div>
     </div>
   );
