@@ -1,11 +1,11 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { EntidadeSaldo, RegistroTabela } from "@/lib/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ShieldCheck, Calculator, Save, X, Printer } from "lucide-react";
+import { ShieldCheck, Calculator, Save, X, Printer, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -30,7 +30,6 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     }
   }, [entity]);
 
-  // Cálculos técnicos de auditoria
   const stats = useMemo(() => {
     const sumTable = (table?: RegistroTabela[]) => (table || []).reduce((acc, row) => acc + (row.valor || 0), 0);
     
@@ -46,7 +45,6 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const totalAposentado = (formData.tabelaLegado || []).reduce((acc, row) => acc + (row.bloqueado || 0), 0);
     const totalBloqueado = (formData.tabelaLegado || []).reduce((acc, row) => acc + (row.aposentado || 0), 0);
     
-    // Fórmula de Auditoria BMV
     const finalAuditado = totalOrig + totalMov - totalAq;
 
     return {
@@ -268,7 +266,7 @@ function TableSection({ title, data, onImport, columns, onUpdate }: any) {
                   ))}
                 </TableRow>
               ))
-            }
+            )}
           </TableBody>
         </Table>
       </div>
