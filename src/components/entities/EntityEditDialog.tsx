@@ -194,29 +194,23 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
         {/* HEADER - ALTA FIDELIDADE EXECUTIVA */}
         <div className="bg-[#0F172A] p-10 shrink-0 text-white relative">
-          <div className="flex items-center gap-2 mb-8">
+          <div className="flex items-center gap-2 mb-6">
             <ShieldCheck className="w-4 h-4 text-primary" />
             <span className="text-[9px] font-black uppercase tracking-widest text-primary">SISTEMA LEDGERTRUST BMV</span>
           </div>
 
-          <div className="space-y-10">
+          <div className="space-y-8">
             <div className="flex justify-between items-start">
-              <h2 className="text-5xl font-black leading-none tracking-tighter uppercase max-w-[800px]">
+              <h2 className="text-3xl font-black leading-none tracking-tighter uppercase max-w-[800px]">
                 {entity.nome}
               </h2>
-              <div className="flex gap-8 text-right">
-                <div className="space-y-0.5">
-                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">DOCUMENTO</p>
-                  <p className="text-xl font-bold tracking-tight text-slate-200">{entity.documento}</p>
-                </div>
-                <div className="space-y-0.5">
-                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">UF</p>
-                  <p className="text-xl font-bold tracking-tight text-slate-200">{entity.uf || "MT"}</p>
-                </div>
+              <div className="text-right space-y-0.5">
+                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">DOCUMENTO</p>
+                <p className="text-base font-bold tracking-tight text-slate-200 font-mono">{entity.documento}</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-4 lg:grid-cols-8 gap-6">
+            <div className="grid grid-cols-4 lg:grid-cols-8 gap-4 pt-6 border-t border-slate-800/50">
               <StatColumn label="ORIGINAÇÃO" value={formatUCS(formData.originacao)} color="slate" />
               <StatColumn label="MOVIMENTAÇÃO" value={formatUCS(formData.movimentacao)} color="rose" prefix="-" />
               <StatColumn label="APOSENTADO" value={formatUCS(formData.aposentado)} color="slate" />
@@ -224,7 +218,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               <StatColumn label="AQUISIÇÃO" value={formatUCS(formData.aquisicao)} color="rose" />
               <StatColumn label="AJUSTE IMEI" value={formatUCS(formData.saldoAjustarImei)} color="indigo" />
               <StatColumn label="LEGADO (REF)" value={formatUCS(formData.saldoLegadoTotal)} color="amber" />
-              <StatColumn label="SALDO AUDITADO" value={formatUCS(formData.saldoFinalAtual)} color="emerald" isBig />
+              <StatColumn label="SALDO AUDITADO" value={formatUCS(formData.saldoFinalAtual)} color="emerald" />
             </div>
           </div>
         </div>
@@ -290,10 +284,10 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             Descartar Alterações
           </Button>
           <div className="flex gap-4">
-            <Button onClick={handlePrint} variant="outline" className="h-14 px-8 rounded-2xl border-slate-200 font-black uppercase text-[10px] tracking-widest gap-2 hover:bg-slate-50 transition-all">
+            <Button onClick={handlePrint} variant="outline" className="h-12 px-6 rounded-xl border-slate-200 font-black uppercase text-[10px] tracking-widest gap-2 hover:bg-slate-50 transition-all">
               <Printer className="w-4 h-4" /> Imprimir Relatório Auditado
             </Button>
-            <Button onClick={() => { onUpdate(entity.id, formData); onOpenChange(false); }} className="h-14 px-10 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/20 gap-2 transition-all active:scale-95">
+            <Button onClick={() => { onUpdate(entity.id, formData); onOpenChange(false); }} className="h-12 px-8 rounded-xl bg-primary hover:bg-primary/90 text-white font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/20 gap-2 transition-all active:scale-95">
               <Save className="w-4 h-4" /> Gravar no Ledger Permanente
             </Button>
           </div>
@@ -303,7 +297,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   );
 }
 
-function StatColumn({ label, value, color, isBig = false, prefix }: { label: string, value: string, color: string, isBig?: boolean, prefix?: string }) {
+function StatColumn({ label, value, color, prefix }: { label: string, value: string, color: string, prefix?: string }) {
   const colorClasses = {
     slate: "text-slate-100",
     rose: "text-rose-500",
@@ -313,15 +307,14 @@ function StatColumn({ label, value, color, isBig = false, prefix }: { label: str
   };
 
   return (
-    <div className="space-y-1.5">
-      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{label}</p>
+    <div className="space-y-1">
+      <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{label}</p>
       <div className={cn(
-        "flex items-baseline gap-1 font-black tracking-tighter transition-all",
-        colorClasses[color as keyof typeof colorClasses],
-        isBig ? "text-3xl" : "text-2xl"
+        "flex items-baseline gap-0.5 font-black tracking-tighter transition-all text-xl",
+        colorClasses[color as keyof typeof colorClasses]
       )}>
         {prefix}{value}
-        <span className="text-[8px] opacity-40 uppercase ml-0.5 tracking-tighter">UCS</span>
+        <span className="text-[7px] opacity-40 uppercase ml-0.5 tracking-tighter">UCS</span>
       </div>
     </div>
   );
@@ -334,35 +327,35 @@ function SectionTechnical({ title, icon: Icon, color = "emerald", onImport, data
     <div className="space-y-6">
       <div className="flex items-end justify-between border-b border-slate-100 pb-4">
         <div className="flex items-center gap-4">
-          <div className={cn("w-1.5 h-10 rounded-full", 
+          <div className={cn("w-1 h-8 rounded-full", 
             color === "amber" ? "bg-amber-500" : 
             color === "rose" ? "bg-rose-500" : "bg-primary"
           )} />
           <div>
-            <h3 className="text-lg font-black uppercase tracking-widest text-slate-900 leading-none">{title}</h3>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2">
+            <h3 className="text-base font-black uppercase tracking-widest text-slate-900 leading-none">{title}</h3>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">
               Consolidado da Seção: <span className={cn("font-black", color === 'rose' ? "text-rose-500" : (color === 'amber' ? "text-amber-600" : "text-emerald-600"))}>
                 {Math.abs(currentTotal).toLocaleString('pt-BR')} UCS
               </span>
             </p>
           </div>
         </div>
-        <Button onClick={onImport} variant="outline" className="h-11 px-6 rounded-2xl border-primary text-primary font-black uppercase text-[10px] tracking-widest gap-2 hover:bg-emerald-50 transition-all">
-          <Calculator className="w-4 h-4" /> Colagem Técnica
+        <Button onClick={onImport} variant="outline" className="h-10 px-4 rounded-xl border-primary text-primary font-black uppercase text-[9px] tracking-widest gap-2 hover:bg-emerald-50 transition-all">
+          <Calculator className="w-3.5 h-3.5" /> Colagem Técnica
         </Button>
       </div>
 
       <div className="rounded-2xl border border-slate-100 overflow-hidden bg-white shadow-sm">
         {data.length === 0 ? (
-          <div className="py-12 text-center opacity-30">
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Sem registros processados</p>
+          <div className="py-8 text-center opacity-30">
+            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Sem registros processados</p>
           </div>
         ) : (
           <Table>
             <TableHeader className="bg-slate-50/50">
-              <TableRow className="h-12">
+              <TableRow className="h-10">
                 {columns.map((col: any) => (
-                  <TableHead key={col.label} className={cn("text-[9px] font-black uppercase tracking-widest text-slate-400 px-6", col.align === 'right' && "text-right")}>
+                  <TableHead key={col.label} className={cn("text-[8px] font-black uppercase tracking-widest text-slate-400 px-6", col.align === 'right' && "text-right")}>
                     {col.label}
                   </TableHead>
                 ))}
@@ -370,10 +363,10 @@ function SectionTechnical({ title, icon: Icon, color = "emerald", onImport, data
             </TableHeader>
             <TableBody>
               {data.map((row: any, i: number) => (
-                <TableRow key={i} className="h-12 hover:bg-slate-50/30 transition-colors border-b border-slate-50 last:border-0">
+                <TableRow key={i} className="h-10 hover:bg-slate-50/30 transition-colors border-b border-slate-50 last:border-0">
                   {columns.map((col: any) => (
                     <TableCell key={col.label} className={cn(
-                      "px-6 text-[11px] font-bold text-slate-600",
+                      "px-6 text-[10px] font-bold text-slate-600",
                       col.align === 'right' && "text-right",
                       col.variant === 'emerald' && "text-emerald-600",
                       col.variant === 'rose' && "text-rose-500",

@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react";
@@ -139,7 +140,7 @@ LUIZ CARLOS DE OLIVEIRA	156.767.901-30	0
 LUIZ HENRIQUE ANTUNES	822.914.031-68	90.235
 LUIZ PAULO BASSO	174.664.900-34	468.567
 Madeireira Medianeira Ltda	150915150001-11	355.908
-Madeireira Menino Cláudio Ltda	374773460001-95	1.035.399
+Madeireira Menino Cláudio Ltda	374773460001-95	1035.399
 Maicon Patrick	042.734.779-39	30.576
 MANOEL PARRON RUIZ	117.524.249-72	90.235
 Marcelo Fraccari Canova	828.881.081-00	12.896
@@ -164,7 +165,6 @@ Nilo Sérgio de Resende Neto	190.311.901-44	580.374
 Norival Comandolli	019.398.319-20	518.543
 Odair de Resende	134.178.271-91	551.017
 Onício Resende Agropastoril Ltda	03.780.657/0001-07	699.808
-Orlando Almeida Matos	429.627.141-53	3.665
 Osmar Albino Sontag	219.693.610-34	42.033
 Osvaldo Mondini	008.573.718-60	25.536
 Paulo Roberto Seelend e Outro	276.622.681-87	1.374.843
@@ -270,7 +270,7 @@ export default function ProdutoresPage() {
           id,
           nome: nome.trim(),
           documento: documento.trim(),
-          uf: "MT", // Default para a base inicial
+          uf: "", // Removido valor padrão MT para conformidade com os dados reais
           originacao: saldoFinal,
           debito: 0,
           aposentadas: 0,
