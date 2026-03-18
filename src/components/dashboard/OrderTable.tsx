@@ -207,7 +207,7 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
         <div className="printable-certificate hidden print:block bg-white text-slate-900 p-10">
           {/* LOGO E HEADER */}
           <div className="flex justify-between items-start border-b-2 border-slate-900 pb-6 mb-8">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
                <Image src="/image/logo_amarelo.png" alt="BMV Logo" width={80} height={80} className="object-contain" />
                <span className="text-[36px] font-black text-amber-500 leading-none">bmv</span>
             </div>
@@ -238,7 +238,7 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
               <h3 className="text-[11px] font-black text-slate-400 uppercase border-b border-slate-100 pb-2 tracking-[0.15em]">AUDITORIA DIGITAL</h3>
               <div className="flex justify-between items-start gap-4">
                 <div className="text-[10px] space-y-3 font-medium flex-1">
-                  <p><strong className="font-black uppercase text-[9px] text-slate-400 mr-2">QUANTIDADE UCS:</strong> {order.quantidade}</p>
+                  <p><strong className="font-black uppercase text-[9px] text-slate-400 mr-2">QUANTIDADE UCS APOSENTADAS:</strong> {order.quantidade}</p>
                   <p><strong className="font-black uppercase text-[9px] text-slate-400 mr-2">VALOR DO PEDIDO:</strong> {order.valorTotal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>
                   {link && (
                     <p className="mt-4 leading-relaxed">
