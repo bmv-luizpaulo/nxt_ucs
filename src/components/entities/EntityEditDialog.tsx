@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react";
@@ -59,12 +60,12 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const mov = sumVal(formData.tabelaMovimentacao);
     const aq = (formData.tabelaAquisicao || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
     
-    // IMEI Adjustment: Débito - Crédito (Neutral in final balance)
+    // IMEI Balance: Debits - Credits (Pending status)
     const imeiCredits = sumCredits(formData.tabelaImei);
     const imeiDebits = sumDebits(formData.tabelaImei);
     const imeiPending = imeiDebits - imeiCredits;
 
-    // Saldo Legado: Soma de Disponível + Reservado
+    // Legado: Disponivel + Reservado
     const legDisp = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.disponivel || 0), 0);
     const legRes = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.reservado || 0), 0);
     const legadoTotal = legDisp + legRes;
@@ -131,7 +132,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
       destino: newImeiDest || "Transferência IMEI",
       valorCredito: cred,
       valorDebito: deb,
-      valor: deb - cred, // Líquido
+      valor: deb - cred, 
     };
     setFormData({
       ...formData,
@@ -147,7 +148,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   const handleDeleteItem = (section: keyof EntidadeSaldo, id: string) => {
     setFormData({
       ...formData,
-      [section]: (formData[section] as any[] || []).filter(item => item.id !== id && item.dist !== id)
+      [section]: (formData[section] as any[] || []).filter(item => (item.id !== id && item.dist !== id))
     });
   };
 
@@ -166,25 +167,39 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
       switch (pasteData.section) {
         case 'tabelaLegado':
           return {
+            id: `LEG-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
             data: parts[0]?.trim() || '',
             plataforma: parts[1]?.trim() || '',
             nome: parts[2]?.trim() || '',
+            documento: parts[3]?.trim() || '',
             disponivel: parseVal(parts[4]),
             reservado: parseVal(parts[5]),
             bloqueado: parseVal(parts[6]),
             aposentado: parseVal(parts[7]),
           };
         
-        case 'tabelaImei':
-          const cred = parseVal(parts[3]);
-          const deb = parseVal(parts[4]);
+        case 'tabelaImeiDebito':
+          const valDeb = parseVal(parts[parts.length - 1]);
           return {
+            id: `IMEI-D-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
             dist: parts[0]?.trim() || '',
             data: parts[1]?.trim() || '',
             destino: parts[2]?.trim() || '',
-            valorCredito: cred,
-            valorDebito: deb,
-            valor: deb - cred,
+            valorCredito: 0,
+            valorDebito: valDeb,
+            valor: valDeb,
+          };
+
+        case 'tabelaImeiCredito':
+          const valCred = parseVal(parts[parts.length - 1]);
+          return {
+            id: `IMEI-C-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
+            dist: parts[0]?.trim() || '',
+            data: parts[1]?.trim() || '',
+            destino: parts[2]?.trim() || '',
+            valorCredito: valCred,
+            valorDebito: 0,
+            valor: -valCred,
           };
 
         case 'tabelaOriginacao':
@@ -197,6 +212,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             }
           }
           return {
+            id: `ORIG-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
             dist: parts[0]?.trim() || '',
             data: parts[1]?.trim() || '',
             destino: parts[2]?.trim() || '',
@@ -205,6 +221,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
         default:
           return {
+            id: `MOV-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
             dist: parts[0]?.trim() || '',
             data: parts[1]?.trim() || '',
             destino: parts[2]?.trim() || '',
@@ -213,9 +230,13 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
       }
     });
 
+    const targetSection = (pasteData.section === 'tabelaImeiDebito' || pasteData.section === 'tabelaImeiCredito') 
+      ? 'tabelaImei' 
+      : pasteData.section;
+
     setFormData({ 
       ...formData, 
-      [pasteData.section]: [...(formData[pasteData.section as keyof EntidadeSaldo] as any[] || []), ...newRows] 
+      [targetSection]: [...(formData[targetSection as keyof EntidadeSaldo] as any[] || []), ...newRows] 
     });
     setPasteData(null);
   };
@@ -267,18 +288,20 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
         <ScrollArea className="flex-1 bg-white">
           <div className="p-10 space-y-20">
+            {/* 01. ORIGINAÇÃO */}
             <div className="space-y-6">
               <SectionHeader 
-                title="LANÇAMENTOS DE ORIGINAÇÃO" 
+                title="01. LANÇAMENTOS DE ORIGINAÇÃO" 
                 value={totals.orig} 
                 onPaste={() => setPasteData({ section: 'tabelaOriginacao', raw: '' })}
               />
               <SectionTable data={formData.tabelaOriginacao || []} type="originacao" />
             </div>
 
+            {/* 02. MOVIMENTAÇÃO */}
             <div className="space-y-6">
               <SectionHeader 
-                title="MOVIMENTAÇÕES / RETIRADAS" 
+                title="02. MOVIMENTAÇÕES / RETIRADAS" 
                 value={totals.mov} 
                 isNegative 
                 onPaste={() => setPasteData({ section: 'tabelaMovimentacao', raw: '' })}
@@ -337,14 +360,15 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               </div>
             </div>
 
+            {/* 03. TRANSFERÊNCIAS IMEI */}
             <div className="space-y-6">
               <div className="flex justify-between items-center border-b border-slate-100 pb-5">
                 <div className="flex items-center gap-4">
                   <div className="w-1.5 h-8 bg-[#10B981] rounded-full" />
                   <div className="flex flex-col">
-                    <h3 className="text-[14px] font-black uppercase tracking-widest text-slate-900">TRANSFERÊNCIAS IMEI</h3>
+                    <h3 className="text-[14px] font-black uppercase tracking-widest text-slate-900">03. TRANSFERÊNCIAS IMEI</h3>
                     <p className="text-[11px] font-bold uppercase tracking-tighter text-slate-400">
-                      AJUSTE LÍQUIDO: <span className="font-black text-indigo-600">
+                      PENDÊNCIA LÍQUIDA: <span className="font-black text-indigo-600">
                         {totals.imeiPending.toLocaleString()} UCS
                       </span>
                     </p>
@@ -357,7 +381,14 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                   <Input type="number" placeholder="Crédito" value={newImeiCred} onChange={e => setNewImeiCred(e.target.value)} className="h-10 w-24 text-[11px] font-bold rounded-xl text-emerald-600" />
                   <Input type="number" placeholder="Débito" value={newImeiDeb} onChange={e => setNewImeiDeb(e.target.value)} className="h-10 w-24 text-[11px] font-bold rounded-xl text-rose-500" />
                   <Button onClick={handleAddImei} className="h-10 px-4 rounded-full bg-primary text-white text-[10px] font-black uppercase gap-2"><Plus className="w-4 h-4"/> Add</Button>
-                  <Button variant="outline" onClick={() => setPasteData({ section: 'tabelaImei', raw: '' })} className="h-10 px-4 rounded-full border-slate-200 text-[10px] font-black uppercase gap-2"><Calculator className="w-4 h-4"/> Calc</Button>
+                  <div className="flex gap-1">
+                    <Button variant="outline" onClick={() => setPasteData({ section: 'tabelaImeiDebito', raw: '' })} className="h-10 px-3 rounded-full border-slate-200 text-[10px] font-black uppercase gap-2 hover:bg-rose-50 hover:text-rose-600">
+                      <Calculator className="w-4 h-4"/> Débito
+                    </Button>
+                    <Button variant="outline" onClick={() => setPasteData({ section: 'tabelaImeiCredito', raw: '' })} className="h-10 px-3 rounded-full border-slate-200 text-[10px] font-black uppercase gap-2 hover:bg-emerald-50 hover:text-emerald-600">
+                      <Calculator className="w-4 h-4"/> Crédito
+                    </Button>
+                  </div>
                 </div>
               </div>
               <div className="rounded-[2.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
@@ -385,7 +416,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                           <TableCell className="text-right font-mono font-bold text-[12px] text-rose-500">{row.valorDebito?.toLocaleString('pt-BR') || '0'}</TableCell>
                           <TableCell className={cn(
                             "text-right font-mono font-black pr-8 text-[12px]",
-                            (row.valor || 0) > 0 ? "text-indigo-500" : "text-emerald-600"
+                            (row.valor || 0) > 0 ? "text-rose-500" : "text-emerald-600"
                           )}>
                             {row.valor?.toLocaleString('pt-BR')}
                           </TableCell>
@@ -397,12 +428,13 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               </div>
             </div>
 
+            {/* 04. AQUISIÇÃO */}
             <div className="space-y-6">
               <div className="flex justify-between items-center border-b border-slate-100 pb-5">
                 <div className="flex items-center gap-4">
                   <div className="w-1.5 h-8 bg-[#10B981] rounded-full" />
                   <div className="flex flex-col">
-                    <h3 className="text-[14px] font-black uppercase tracking-widest text-slate-900">AQUISIÇÃO DE UCS</h3>
+                    <h3 className="text-[14px] font-black uppercase tracking-widest text-slate-900">04. AQUISIÇÃO DE UCS</h3>
                     <p className="text-[11px] font-bold uppercase tracking-tighter text-slate-400">
                       CONSOLIDADO: <span className="font-black text-emerald-600">
                         {Math.abs(totals.aq || 0).toLocaleString()} UCS
@@ -421,9 +453,10 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               <SectionTable data={formData.tabelaAquisicao || []} type="aquisicao" />
             </div>
 
+            {/* 05. SALDO LEGADO */}
             <div className="space-y-6">
               <SectionHeader 
-                title="SALDO LEGADO CONSOLIDADO" 
+                title="05. SALDO LEGADO CONSOLIDADO" 
                 value={totals.legadoTotal} 
                 isLegado 
                 onPaste={() => setPasteData({ section: 'tabelaLegado', raw: '' })}
@@ -485,7 +518,8 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             <DialogContent className="max-w-xl rounded-3xl p-8 space-y-6">
               <DialogHeader>
                 <DialogTitle className="text-xl font-black uppercase text-slate-900 flex items-center gap-3">
-                  <Calculator className="w-6 h-6 text-primary" /> Colagem de Dados: {pasteData.section.replace('tabela', '').toUpperCase()}
+                  <Calculator className="w-6 h-6 text-primary" /> 
+                  COLAGEM DE DADOS: {pasteData.section.replace('tabela', '').toUpperCase()}
                 </DialogTitle>
                 <DialogDescription className="text-sm font-medium text-slate-400">
                   Copie as colunas do seu Excel e cole no campo abaixo para processamento automático.
@@ -495,11 +529,11 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                 value={pasteData.raw} 
                 onChange={e => setPasteData({ ...pasteData, raw: e.target.value })}
                 placeholder="Cole os dados aqui..."
-                className="min-h-[250px] font-mono text-[11px] bg-slate-50 border-slate-200 rounded-2xl p-6 focus:ring-primary"
+                className="min-h-[250px] font-mono text-[11px] bg-slate-50 border-slate-200 rounded-2xl p-6 focus:ring-primary shadow-inner"
               />
               <div className="flex gap-4">
                 <Button variant="ghost" onClick={() => setPasteData(null)} className="flex-1 rounded-xl font-bold uppercase text-[11px]">Cancelar</Button>
-                <Button onClick={handleProcessPaste} className="flex-1 rounded-xl font-black uppercase text-[11px]">Processar e Importar</Button>
+                <Button onClick={handleProcessPaste} className="flex-1 rounded-xl font-black uppercase text-[11px] bg-primary text-white">Processar e Importar</Button>
               </div>
             </DialogContent>
           </Dialog>
