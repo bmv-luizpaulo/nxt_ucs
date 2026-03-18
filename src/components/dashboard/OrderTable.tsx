@@ -88,7 +88,7 @@ export function OrderTable({
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-14">Pedido</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-14">Data</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-14">Origem</TableHead>
-            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-14 text-center">UF</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center h-14">UF</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right h-14">Qtd</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right h-14">Total</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center h-14">Status</TableHead>
@@ -206,9 +206,10 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
         {/* CERTIFICADO DE RASTREABILIDADE A4 */}
         <div className="printable-certificate hidden print:block bg-white text-slate-900 p-10">
           {/* LOGO E HEADER */}
-          <div className="flex justify-between items-start border-b-2 border-slate-100 pb-6 mb-8">
-            <div className="flex items-center">
-            
+          <div className="flex justify-between items-start border-b-2 border-slate-900 pb-6 mb-8">
+            <div className="flex items-center gap-4">
+               <Image src="/image/logo_amarelo.png" alt="BMV Logo" width={80} height={80} className="object-contain" />
+               <span className="text-[36px] font-black text-amber-500 leading-none">bmv</span>
             </div>
             <div className="text-right">
               <h2 className="text-[18px] font-black uppercase tracking-tight leading-tight">CERTIFICADO DE RASTREABILIDADE</h2>
@@ -235,19 +236,25 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
             {/* AUDITORIA DIGITAL */}
             <div className="space-y-4">
               <h3 className="text-[11px] font-black text-slate-400 uppercase border-b border-slate-100 pb-2 tracking-[0.15em]">AUDITORIA DIGITAL</h3>
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start gap-4">
                 <div className="text-[10px] space-y-3 font-medium flex-1">
                   <p><strong className="font-black uppercase text-[9px] text-slate-400 mr-2">QUANTIDADE UCS:</strong> {order.quantidade}</p>
                   <p><strong className="font-black uppercase text-[9px] text-slate-400 mr-2">VALOR DO PEDIDO:</strong> {order.valorTotal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>
+                  {link && (
+                    <p className="mt-4 leading-relaxed">
+                      <strong className="font-black uppercase text-[9px] text-slate-400 block mb-1">Blockchain Hash Explorer:</strong>
+                      <span className="text-[8px] text-blue-600 underline font-mono break-all">{link}</span>
+                    </p>
+                  )}
                 </div>
 
                 {/* QR CODE BOX */}
-                <div className="flex flex-col items-center gap-1.5 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 ml-4">
+                <div className="flex flex-col items-center gap-1.5 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 shrink-0">
                   {qrCodeUrl ? (
-                    <img src={qrCodeUrl} alt="QR Code" className="w-30 h-30 bg-white" />
+                    <img src={qrCodeUrl} alt="QR Code" className="w-24 h-24 bg-white" />
                   ) : (
-                    <div className="w-30 h-30 bg-slate-100 flex items-center justify-center rounded-lg border-2 border-dashed border-slate-200">
-                      <QrCodeIcon className="w-10 h-10 text-slate-300" />
+                    <div className="w-24 h-24 bg-slate-100 flex items-center justify-center rounded-lg border-2 border-dashed border-slate-200">
+                      <QrCodeIcon className="w-8 h-8 text-slate-300" />
                     </div>
                   )}
                   <p className="text-[7px] font-black text-slate-400 uppercase tracking-tighter">VALIDAÇÃO DIGITAL</p>
