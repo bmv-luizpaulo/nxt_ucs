@@ -33,8 +33,16 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   const [formData, setFormData] = useState<Partial<EntidadeSaldo>>({});
   const [pasteData, setPasteData] = useState<{ section: string; raw: string } | null>(null);
   
+  // States for Acquisitions
   const [newAqYear, setNewAqYear] = useState("");
   const [newAqValue, setNewAqValue] = useState("");
+
+  // States for IMEI
+  const [newImeiDist, setNewImeiDist] = useState("");
+  const [newImeiDate, setNewImeiDate] = useState("");
+  const [newImeiDest, setNewImeiDest] = useState("");
+  const [newImeiCred, setNewImeiCred] = useState("");
+  const [newImeiDeb, setNewImeiDeb] = useState("");
 
   useEffect(() => {
     if (entity) {
@@ -51,7 +59,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const mov = sumVal(formData.tabelaMovimentacao);
     const aq = (formData.tabelaAquisicao || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
     
-    // IMEI Adjustment (Debits - Credits)
+    // IMEI Adjustment: Débito - Crédito (Neutral in final balance)
     const imeiCredits = sumCredits(formData.tabelaImei);
     const imeiDebits = sumDebits(formData.tabelaImei);
     const imeiPending = imeiDebits - imeiCredits;
@@ -64,7 +72,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const aposentado = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.aposentado || 0), 0);
     const bloqueado = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.bloqueado || 0), 0);
 
-    // EQUAÇÃO: Saldo = Originação + Movimentação - Aquisição (Legado é REF)
+    // EQUAÇÃO: Saldo = Originação + Movimentação - Aquisição
     const final = orig + mov - aq;
     
     const movPercentage = orig !== 0 ? ((Math.abs(mov) / Math.abs(orig)) * 100).toFixed(1) : "0.0";
@@ -112,10 +120,34 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     setNewAqValue("");
   };
 
-  const handleDeleteAq = (id: string) => {
+  const handleAddImei = () => {
+    if (!newImeiDist || (!newImeiCred && !newImeiDeb)) return;
+    const cred = parseInt(newImeiCred) || 0;
+    const deb = parseInt(newImeiDeb) || 0;
+    const newItem: RegistroTabela = {
+      id: `IMEI-${Date.now()}`,
+      dist: newImeiDist,
+      data: newImeiDate || new Date().toLocaleDateString('pt-BR'),
+      destino: newImeiDest || "Transferência IMEI",
+      valorCredito: cred,
+      valorDebito: deb,
+      valor: deb - cred, // Líquido
+    };
     setFormData({
       ...formData,
-      tabelaAquisicao: (formData.tabelaAquisicao || []).filter(item => item.id !== id)
+      tabelaImei: [...(formData.tabelaImei || []), newItem]
+    });
+    setNewImeiDist("");
+    setNewImeiDate("");
+    setNewImeiDest("");
+    setNewImeiCred("");
+    setNewImeiDeb("");
+  };
+
+  const handleDeleteItem = (section: keyof EntidadeSaldo, id: string) => {
+    setFormData({
+      ...formData,
+      [section]: (formData[section] as any[] || []).filter(item => item.id !== id && item.dist !== id)
     });
   };
 
@@ -208,14 +240,14 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                 <p className="text-[12px] font-black uppercase tracking-[0.2em] text-primary">AUDITORIA TÉCNICA BMV</p>
               </div>
               <h1 className="text-[30px] font-black tracking-tight uppercase leading-none">{entity.nome}</h1>
-              <p className="text-[13px] font-bold text-slate-500 font-mono tracking-widest">{entity.documento}</p>
+              <p className="text-[14px] font-bold text-slate-500 font-mono tracking-widest">{entity.documento}</p>
             </div>
 
             <div className="bg-[#161B2E] border border-white/5 rounded-[2rem] p-8 min-w-[340px] shadow-2xl flex flex-col items-end relative overflow-hidden">
                <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 blur-3xl -mr-20 -mt-20"></div>
                <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest mb-3 relative z-10">Saldo Final Auditado</p>
                <div className="flex items-baseline gap-3 relative z-10">
-                  <span className="text-5xl font-black text-white tracking-tighter">{totals.final.toLocaleString('pt-BR')}</span>
+                  <span className="text-[42px] font-black text-white tracking-tighter">{totals.final.toLocaleString('pt-BR')}</span>
                   <span className="text-[12px] font-black text-primary uppercase tracking-widest">UCS</span>
                </div>
             </div>
@@ -277,8 +309,8 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                             <TableCell className="py-4 text-[12px] text-slate-400">{row.data}</TableCell>
                             <TableCell className="py-4">
                               <div className="flex flex-col gap-1">
-                                <span className="text-[11px] font-bold text-slate-700 truncate max-w-[300px]">{row.destino || row.tipo || '-'}</span>
-                                {isTransfer && <Badge className="w-fit bg-indigo-100 text-indigo-600 border-indigo-200 text-[8px] font-black h-4 px-1">TRANSFERÊNCIA ENTRE CLIENTES</Badge>}
+                                <span className="text-[12px] font-bold text-slate-700 truncate max-w-[300px]">{row.destino || row.tipo || '-'}</span>
+                                {isTransfer && <Badge className="w-fit bg-indigo-100 text-indigo-600 border-indigo-200 text-[9px] font-black h-4 px-1">TRANSFERÊNCIA ENTRE CLIENTES</Badge>}
                               </div>
                             </TableCell>
                             <TableCell className="py-4 text-right font-mono font-black pr-4 text-[12px] text-rose-500">
@@ -306,12 +338,28 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             </div>
 
             <div className="space-y-6">
-              <SectionHeader 
-                title="TRANSFERÊNCIAS IMEI" 
-                value={totals.imeiPending} 
-                isImei 
-                onPaste={() => setPasteData({ section: 'tabelaImei', raw: '' })}
-              />
+              <div className="flex justify-between items-center border-b border-slate-100 pb-5">
+                <div className="flex items-center gap-4">
+                  <div className="w-1.5 h-8 bg-[#10B981] rounded-full" />
+                  <div className="flex flex-col">
+                    <h3 className="text-[14px] font-black uppercase tracking-widest text-slate-900">TRANSFERÊNCIAS IMEI</h3>
+                    <p className="text-[11px] font-bold uppercase tracking-tighter text-slate-400">
+                      AJUSTE LÍQUIDO: <span className="font-black text-indigo-600">
+                        {totals.imeiPending.toLocaleString()} UCS
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Input placeholder="Dist" value={newImeiDist} onChange={e => setNewImeiDist(e.target.value)} className="h-10 w-20 text-[11px] font-bold rounded-xl" />
+                  <Input placeholder="Data" value={newImeiDate} onChange={e => setNewImeiDate(e.target.value)} className="h-10 w-28 text-[11px] font-bold rounded-xl" />
+                  <Input placeholder="Destino" value={newImeiDest} onChange={e => setNewImeiDest(e.target.value)} className="h-10 w-40 text-[11px] font-bold rounded-xl" />
+                  <Input type="number" placeholder="Crédito" value={newImeiCred} onChange={e => setNewImeiCred(e.target.value)} className="h-10 w-24 text-[11px] font-bold rounded-xl text-emerald-600" />
+                  <Input type="number" placeholder="Débito" value={newImeiDeb} onChange={e => setNewImeiDeb(e.target.value)} className="h-10 w-24 text-[11px] font-bold rounded-xl text-rose-500" />
+                  <Button onClick={handleAddImei} className="h-10 px-4 rounded-full bg-primary text-white text-[10px] font-black uppercase gap-2"><Plus className="w-4 h-4"/> Add</Button>
+                  <Button variant="outline" onClick={() => setPasteData({ section: 'tabelaImei', raw: '' })} className="h-10 px-4 rounded-full border-slate-200 text-[10px] font-black uppercase gap-2"><Calculator className="w-4 h-4"/> Calc</Button>
+                </div>
+              </div>
               <div className="rounded-[2.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
                 <Table>
                   <TableHeader className="bg-slate-50/50">
@@ -363,60 +411,14 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Input 
-                    placeholder="Ano" 
-                    value={newAqYear} 
-                    onChange={e => setNewAqYear(e.target.value)}
-                    className="h-11 w-24 rounded-xl text-[11px] font-bold"
-                  />
-                  <Input 
-                    type="number"
-                    placeholder="Volume UCS" 
-                    value={newAqValue} 
-                    onChange={e => setNewAqValue(e.target.value)}
-                    className="h-11 w-32 rounded-xl text-[11px] font-bold"
-                  />
-                  <Button 
-                    onClick={handleAddAq}
-                    className="h-11 px-6 rounded-full bg-primary text-white text-[10px] font-black uppercase tracking-widest gap-2"
-                  >
+                  <Input placeholder="Ano" value={newAqYear} onChange={e => setNewAqYear(e.target.value)} className="h-11 w-24 rounded-xl text-[11px] font-bold" />
+                  <Input type="number" placeholder="Volume UCS" value={newAqValue} onChange={e => setNewAqValue(e.target.value)} className="h-11 w-32 rounded-xl text-[11px] font-bold" />
+                  <Button onClick={handleAddAq} className="h-11 px-6 rounded-full bg-primary text-white text-[10px] font-black uppercase tracking-widest gap-2">
                     <Plus className="w-4 h-4" /> Adicionar
                   </Button>
                 </div>
               </div>
-              
-              <div className="rounded-[2.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
-                <Table>
-                  <TableHeader className="bg-slate-50/50">
-                    <TableRow className="border-b border-slate-100">
-                      <TableHead className="text-[11px] font-black uppercase tracking-widest text-slate-400">Ano de Referência</TableHead>
-                      <TableHead className="text-[11px] font-black uppercase tracking-widest text-slate-400">Origem / Histórico</TableHead>
-                      <TableHead className="text-[11px] font-black uppercase tracking-widest text-slate-400 text-right">Volume (UCS)</TableHead>
-                      <TableHead className="w-[80px]"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {(formData.tabelaAquisicao || []).length === 0 ? (
-                      <EmptyState message="AGUARDANDO IMPORTAÇÃO DE DADOS..." />
-                    ) : (
-                      formData.tabelaAquisicao?.map((row, i) => (
-                        <TableRow key={row.id || i} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50">
-                          <TableCell className="py-4 text-[12px] font-bold text-slate-600 font-mono">{row.data}</TableCell>
-                          <TableCell className="py-4 text-[11px] text-slate-600 font-bold">{row.destino}</TableCell>
-                          <TableCell className="py-4 text-right font-mono font-black text-[12px] text-rose-500">
-                            {row.valor?.toLocaleString('pt-BR')}
-                          </TableCell>
-                          <TableCell className="text-right pr-4">
-                            <Button variant="ghost" size="icon" onClick={() => handleDeleteAq(row.id!)} className="h-9 w-9 text-slate-300 hover:text-rose-500">
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
+              <SectionTable data={formData.tabelaAquisicao || []} type="aquisicao" />
             </div>
 
             <div className="space-y-6">
@@ -468,7 +470,6 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[12px] font-black uppercase text-slate-400 tracking-widest hover:text-rose-500 hover:bg-rose-50 px-8 rounded-xl h-14">
             Sair Sem Salvar
           </Button>
-          
           <div className="flex gap-4">
             <Button variant="outline" onClick={handlePrint} className="h-14 px-10 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[12px] tracking-widest text-slate-700 hover:bg-white">
               <Printer className="w-5 h-5 mr-2" /> Gerar Relatório PDF
@@ -478,6 +479,31 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             </Button>
           </div>
         </div>
+
+        {pasteData && (
+          <Dialog open={!!pasteData} onOpenChange={() => setPasteData(null)}>
+            <DialogContent className="max-w-xl rounded-3xl p-8 space-y-6">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-black uppercase text-slate-900 flex items-center gap-3">
+                  <Calculator className="w-6 h-6 text-primary" /> Colagem de Dados: {pasteData.section.replace('tabela', '').toUpperCase()}
+                </DialogTitle>
+                <DialogDescription className="text-sm font-medium text-slate-400">
+                  Copie as colunas do seu Excel e cole no campo abaixo para processamento automático.
+                </DialogDescription>
+              </DialogHeader>
+              <Textarea 
+                value={pasteData.raw} 
+                onChange={e => setPasteData({ ...pasteData, raw: e.target.value })}
+                placeholder="Cole os dados aqui..."
+                className="min-h-[250px] font-mono text-[11px] bg-slate-50 border-slate-200 rounded-2xl p-6 focus:ring-primary"
+              />
+              <div className="flex gap-4">
+                <Button variant="ghost" onClick={() => setPasteData(null)} className="flex-1 rounded-xl font-bold uppercase text-[11px]">Cancelar</Button>
+                <Button onClick={handleProcessPaste} className="flex-1 rounded-xl font-black uppercase text-[11px]">Processar e Importar</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
       </DialogContent>
     </Dialog>
   );
@@ -493,14 +519,14 @@ function StatBox({ label, value, isNegative, isHighlight, isReference, isPending
     )}>
       <div className="flex justify-between items-start w-full">
         <p className={cn(
-          "text-[10px] font-black uppercase tracking-widest leading-none",
+          "text-[12px] font-black uppercase tracking-widest leading-none",
           isReference ? "text-amber-500" : isPending ? "text-indigo-400" : "text-slate-500"
         )}>
           {label} {isReference && "(REF)"} {isPending && "(PENDÊNCIA)"}
         </p>
         {percentage !== undefined && (
           <span className={cn(
-            "text-[9px] font-black px-1.5 py-0.5 rounded-md",
+            "text-[10px] font-black px-1.5 py-0.5 rounded-md",
             value < 0 ? "bg-rose-500/10 text-rose-500" : "bg-emerald-500/10 text-emerald-500"
           )}>
             {percentage}%
@@ -508,7 +534,7 @@ function StatBox({ label, value, isNegative, isHighlight, isReference, isPending
         )}
       </div>
       <p className={cn(
-        "text-[24px] font-black font-mono leading-none tracking-tight",
+        "text-[30px] font-black font-mono leading-none tracking-tight",
         isNegative ? "text-rose-500" : 
         isHighlight ? "text-emerald-400" : 
         isReference ? "text-amber-500" : 
@@ -582,7 +608,7 @@ function SectionTable({ data, type }: { data: any[], type: string }) {
               <TableRow key={i} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors">
                 <TableCell className="py-4 text-[12px] font-bold text-slate-600 font-mono">{row.dist || row.id || '-'}</TableCell>
                 <TableCell className="py-4 text-[12px] text-slate-400">{row.data}</TableCell>
-                <TableCell className="py-4 text-[11px] text-slate-600 font-bold truncate max-w-[300px]">{row.destino || row.tipo || '-'}</TableCell>
+                <TableCell className="py-4 text-[12px] text-slate-600 font-bold truncate max-w-[300px]">{row.destino || row.tipo || '-'}</TableCell>
                 <TableCell className="py-4 text-right font-mono font-black pr-8 text-[12px] text-slate-900">
                   {row.valor?.toLocaleString('pt-BR')}
                 </TableCell>
