@@ -6,9 +6,10 @@ import { EntidadeSaldo } from "@/lib/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Search } from "lucide-react";
+import { Search, MoreHorizontal } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { EntityEditDialog } from "./EntityEditDialog";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface EntityTableProps {
@@ -58,18 +59,19 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate }: 
                 <TableHead className="text-[9px] font-black uppercase tracking-widest text-amber-600 text-right bg-amber-50/30">Saldo Legado (REF)</TableHead>
                 <TableHead className="text-[10px] font-black uppercase tracking-widest text-primary text-right bg-emerald-50/30">Saldo Auditado</TableHead>
                 <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">Status</TableHead>
+                <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center pr-8">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={12} className="h-48 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest">
+                  <TableCell colSpan={13} className="h-48 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest">
                     Nenhum registro encontrado
                   </TableCell>
                 </TableRow>
               ) : (
                 data.map((item) => (
-                  <TableRow key={item.id} className="group border-b border-slate-50 last:border-0 hover:bg-slate-50/50">
+                  <TableRow key={item.id} className="group border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors">
                     <TableCell className="pl-8">
                       <Checkbox 
                         checked={selectedIds.includes(item.id)} 
@@ -78,10 +80,10 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate }: 
                       />
                     </TableCell>
                     <TableCell 
-                      className="font-black text-[10px] uppercase text-slate-900 max-w-[200px] truncate cursor-pointer hover:text-primary transition-colors flex items-center gap-2"
+                      className="font-black text-[10px] uppercase text-slate-900 max-w-[200px] truncate cursor-pointer hover:text-primary transition-colors"
                       onClick={() => setEditingEntity(item)}
                     >
-                      {item.nome} <Search className="w-3 h-3 opacity-0 group-hover:opacity-100" />
+                      {item.nome}
                     </TableCell>
                     <TableCell className="font-mono text-[9px] text-slate-500">{item.documento}</TableCell>
                     <TableCell className="text-right font-mono text-[10px] font-bold text-slate-600">{formatUCS(item.originacao)}</TableCell>
@@ -98,6 +100,17 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate }: 
                       ) : (
                         <Badge variant="outline" className="text-[8px] font-black uppercase">{item.status}</Badge>
                       )}
+                    </TableCell>
+                    <TableCell className="text-center pr-8">
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        title="Abrir Auditoria Técnica"
+                        onClick={() => setEditingEntity(item)}
+                        className="h-8 w-8 text-slate-400 hover:text-primary hover:bg-emerald-50 rounded-lg transition-all"
+                      >
+                        <Search className="w-4 h-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
