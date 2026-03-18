@@ -45,8 +45,9 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const bloqueado = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.bloqueado || 0), 0);
 
     const final = orig + mov + aq + imei + legado;
+    const movPercentage = orig > 0 ? ((Math.abs(mov) / orig) * 100).toFixed(1) : "0.0";
 
-    return { orig, mov, aq, imei, legado, aposentado, bloqueado, final };
+    return { orig, mov, aq, imei, legado, aposentado, bloqueado, final, movPercentage };
   }, [formData]);
 
   const handlePrint = () => {
@@ -96,9 +97,9 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[1280px] w-[95vw] h-[95vh] p-0 border-none bg-white overflow-hidden flex flex-col rounded-[2.5rem] shadow-2xl">
-        <DialogHeader className="sr-only">
-          <DialogTitle>Auditoria BMV - {entity.nome}</DialogTitle>
-          <DialogDescription>Console técnico de conciliação de saldos.</DialogDescription>
+        <DialogHeader className="p-8 pb-0 sr-only">
+          <DialogTitle>Auditoria Técnica - {entity.nome}</DialogTitle>
+          <DialogDescription>Detalhamento de saldos e conciliação do Ledger BMV.</DialogDescription>
         </DialogHeader>
 
         {activePasteField && (
@@ -137,8 +138,8 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               <p className="text-xs font-bold text-slate-500 font-mono">{entity.documento}</p>
             </div>
 
-            <div className="bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 rounded-3xl p-6 min-w-[320px] shadow-2xl relative overflow-hidden group">
-               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-3xl -mr-16 -mt-16 transition-colors"></div>
+            <div className="bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 rounded-3xl p-6 min-w-[320px] shadow-2xl relative overflow-hidden">
+               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-3xl -mr-16 -mt-16"></div>
                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 relative z-10">Saldo Final Auditado</p>
                <div className="flex items-baseline gap-2 relative z-10">
                   <span className="text-4xl font-black text-white">{totals.final.toLocaleString('pt-BR')}</span>
@@ -149,7 +150,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
             <StatBox label="ORIGINAÇÃO" value={totals.orig} />
-            <StatBox label="MOVIMENTAÇÃO" value={totals.mov} isNegative />
+            <StatBox label="MOVIMENTAÇÃO" value={totals.mov} isNegative percentage={totals.movPercentage} />
             <StatBox label="APOSENTADO" value={totals.aposentado} isHighlight />
             <StatBox label="BLOQUEADO" value={totals.bloqueado} isNegative />
             <StatBox label="AQUISIÇÃO" value={totals.aq} />
@@ -200,10 +201,10 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
           </Button>
           
           <div className="flex gap-4">
-            <Button variant="outline" onClick={handlePrint} className="h-12 px-8 rounded-2xl border-slate-200 bg-white font-black uppercase text-[10px] tracking-widest text-slate-600">
+            <Button variant="outline" onClick={handlePrint} className="h-14 px-8 rounded-2xl border-slate-200 bg-white font-black uppercase text-[10px] tracking-widest text-slate-600">
               <Printer className="w-4 h-4 mr-2" /> Gerar Relatório PDF
             </Button>
-            <Button onClick={handleSave} className="h-12 px-10 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/20">
+            <Button onClick={handleSave} className="h-14 px-10 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/20">
               <Save className="w-4 h-4 mr-2" /> Sincronizar no Ledger
             </Button>
           </div>
@@ -213,10 +214,20 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   );
 }
 
-function StatBox({ label, value, isNegative, isHighlight, isAccent }: any) {
+function StatBox({ label, value, isNegative, isHighlight, isAccent, percentage }: any) {
   return (
-    <div className="bg-[#161B2E] border border-white/5 rounded-2xl p-4 flex flex-col justify-between h-20 hover:bg-[#1C2237] transition-colors">
-      <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{label}</p>
+    <div className="bg-[#161B2E] border border-white/5 rounded-2xl p-4 flex flex-col justify-between h-20 hover:bg-[#1C2237] transition-colors relative">
+      <div className="flex justify-between items-start w-full">
+        <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{label}</p>
+        {percentage !== undefined && (
+          <span className={cn(
+            "text-[8px] font-black px-1.5 py-0.5 rounded-md",
+            isNegative ? "bg-rose-500/10 text-rose-500" : "bg-emerald-500/10 text-emerald-500"
+          )}>
+            {percentage}%
+          </span>
+        )}
+      </div>
       <p className={cn(
         "text-lg font-black font-mono",
         isNegative ? "text-rose-500" : isHighlight ? "text-emerald-400" : isAccent ? "text-primary" : "text-white"
