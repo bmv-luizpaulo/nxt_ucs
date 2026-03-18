@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { EntidadeSaldo, RegistroTabela } from "@/lib/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Printer, X, Calculator, Download } from "lucide-react";
+import { Printer, X, Calculator, ShieldCheck, Database, Save, ArrowRightLeft, FileText, Link as LinkIcon, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -29,9 +29,8 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     }
   }, [entity]);
 
-  // Cálculos automáticos para o dashboard do modal
   const totals = useMemo(() => {
-    const sum = (arr?: any[]) => (arr || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
+    const sum = (arr?: any[]) => (arr || []).reduce((acc, curr) => acc + (curr.valor || curr.valorCredito || 0) - (curr.valorDebito || 0), 0);
     
     const orig = sum(formData.tabelaOriginacao);
     const mov = sum(formData.tabelaMovimentacao);
@@ -50,7 +49,9 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     return { orig, mov, aq, imei, legado, aposentado, bloqueado, final };
   }, [formData]);
 
-  if (!entity) return null;
+  const handlePrint = () => {
+    window.print();
+  };
 
   const handleImport = (field: keyof EntidadeSaldo) => {
     if (!pasteBuffer.trim()) return;
@@ -75,6 +76,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   };
 
   const handleSave = () => {
+    if (!entity) return;
     onUpdate(entity.id, {
       ...formData,
       originacao: totals.orig,
@@ -89,20 +91,21 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     onOpenChange(false);
   };
 
+  if (!entity) return null;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[1280px] w-[95vw] h-[95vh] p-0 border-none bg-white overflow-hidden flex flex-col rounded-3xl shadow-2xl">
+      <DialogContent className="max-w-[1280px] w-[95vw] h-[95vh] p-0 border-none bg-white overflow-hidden flex flex-col rounded-[2.5rem] shadow-2xl">
         <DialogHeader className="sr-only">
-          <DialogTitle>Console de Auditoria - {entity.nome}</DialogTitle>
-          <DialogDescription>Interface técnica para conciliação de saldos e rastreabilidade.</DialogDescription>
+          <DialogTitle>Auditoria BMV - {entity.nome}</DialogTitle>
+          <DialogDescription>Console técnico de conciliação de saldos.</DialogDescription>
         </DialogHeader>
 
-        {/* Modal de Colagem (Overlay) */}
         {activePasteField && (
-          <div className="absolute inset-0 z-50 bg-[#0B0F1A]/80 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-300">
+          <div className="absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-300">
             <div className="bg-white w-full max-w-2xl rounded-[2rem] shadow-2xl overflow-hidden">
               <div className="p-6 border-b flex justify-between items-center bg-slate-50">
-                <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-900">Importação de Dados</h3>
+                <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-900">Mapeamento de Planilha</h3>
                 <Button variant="ghost" size="icon" onClick={() => setActivePasteField(null)}><X className="w-4 h-4" /></Button>
               </div>
               <div className="p-8 space-y-4">
@@ -110,75 +113,98 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                   autoFocus 
                   value={pasteBuffer} 
                   onChange={e => setPasteBuffer(e.target.value)}
-                  placeholder="Cole aqui os dados da sua planilha..."
-                  className="min-h-[300px] font-mono text-xs bg-slate-50 border-slate-200 rounded-2xl"
+                  placeholder="Cole aqui os dados copiados do Excel/Sheets..."
+                  className="min-h-[300px] font-mono text-xs bg-slate-50 border-slate-200 rounded-2xl p-6"
                 />
                 <Button onClick={() => handleImport(activePasteField)} className="w-full h-14 rounded-2xl font-black uppercase text-xs">
-                  Processar e Sincronizar
+                  Sincronizar Dados na Sessão
                 </Button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Header Estilo Imagem */}
         <div className="bg-[#0B0F1A] p-8 shrink-0 text-white relative">
           <div className="flex justify-between items-start mb-10">
             <div className="space-y-1">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/80">
-                CONSOLE TÉCNICO • AUDITORIA BMV
-              </p>
-              <h1 className="text-4xl font-black tracking-tight">{entity.nome}</h1>
-              <p className="text-sm font-bold text-slate-500 tracking-wider">{entity.documento}</p>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-6 h-6 bg-primary rounded-lg flex items-center justify-center">
+                  <ShieldCheck className="w-4 h-4 text-white" />
+                </div>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">AUDITORIA TÉCNICA BMV</p>
+              </div>
+              <h1 className="text-2xl font-black tracking-tight uppercase">{entity.nome}</h1>
+              <p className="text-xs font-bold text-slate-500 font-mono">{entity.documento}</p>
             </div>
 
-            {/* Card Saldo Final Principal */}
-            <div className="bg-gradient-to-br from-[#161B2E] to-[#0B0F1A] border border-white/10 rounded-[2rem] p-6 min-w-[300px] shadow-2xl relative overflow-hidden group">
-               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-3xl -mr-16 -mt-16 group-hover:bg-primary/20 transition-colors"></div>
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 relative z-10">SALDO FINAL AUDITADO</p>
+            <div className="bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 rounded-3xl p-6 min-w-[320px] shadow-2xl relative overflow-hidden group">
+               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-3xl -mr-16 -mt-16 transition-colors"></div>
+               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 relative z-10">Saldo Final Auditado</p>
                <div className="flex items-baseline gap-2 relative z-10">
-                  <span className="text-5xl font-black text-white">{totals.final.toLocaleString('pt-BR')}</span>
-                  <span className="text-sm font-bold text-slate-500 uppercase">UCS</span>
+                  <span className="text-4xl font-black text-white">{totals.final.toLocaleString('pt-BR')}</span>
+                  <span className="text-xs font-black text-primary uppercase">UCS</span>
                </div>
             </div>
           </div>
 
-          {/* Grid de 8 Indicadores */}
-          <div className="grid grid-cols-8 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
             <StatBox label="ORIGINAÇÃO" value={totals.orig} />
             <StatBox label="MOVIMENTAÇÃO" value={totals.mov} isNegative />
-            <StatBox label="APOSENTADO" value={totals.aposentado} />
+            <StatBox label="APOSENTADO" value={totals.aposentado} isHighlight />
             <StatBox label="BLOQUEADO" value={totals.bloqueado} isNegative />
-            <StatBox label="AQUISIÇÃO" value={totals.aq} isHighlight />
+            <StatBox label="AQUISIÇÃO" value={totals.aq} />
             <StatBox label="AJUSTE IMEI" value={totals.imei} isAccent />
-            <StatBox label="LEGADO" value={totals.legado} isHighlight />
-            <StatBox label="INTEGRIDADE" value={totals.final} isAccent />
+            <StatBox label="LEGADO" value={totals.legado} isAccent />
+            <StatBox label="DISPONÍVEL" value={totals.final} isHighlight />
           </div>
         </div>
 
-        {/* Content Area - Tabelas */}
         <ScrollArea className="flex-1 bg-white">
           <div className="p-8 space-y-12">
             <Section 
-              title="HISTÓRICO DE LANÇAMENTOS" 
+              title="Sessão 01: Lançamentos de Originação" 
               data={formData.tabelaOriginacao || []} 
               onImport={() => setActivePasteField('tabelaOriginacao')}
+              icon={Database}
+            />
+            <Section 
+              title="Sessão 02: Histórico de Movimentação" 
+              data={formData.tabelaMovimentacao || []} 
+              onImport={() => setActivePasteField('tabelaMovimentacao')}
+              icon={ArrowRightLeft}
+            />
+            <Section 
+              title="Sessão 03: Ajustes IMEI (Crédito/Débito)" 
+              data={formData.tabelaImei || []} 
+              onImport={() => setActivePasteField('tabelaImei')}
+              icon={Calculator}
+            />
+            <Section 
+              title="Sessão 04: Registros de Aquisição" 
+              data={formData.tabelaAquisicao || []} 
+              onImport={() => setActivePasteField('tabelaAquisicao')}
+              icon={FileText}
+            />
+            <Section 
+              title="Sessão 05: Saldo Legado" 
+              data={formData.tabelaLegado || []} 
+              onImport={() => setActivePasteField('tabelaLegado')}
+              icon={LinkIcon}
             />
           </div>
         </ScrollArea>
 
-        {/* Footer Estilo Imagem */}
-        <div className="p-6 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[11px] font-black uppercase text-slate-400 tracking-widest hover:text-rose-500">
-            DESCARTAR ALTERAÇÕES
+        <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between shrink-0">
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[10px] font-black uppercase text-slate-400 tracking-widest hover:text-rose-500">
+            Descartar Alterações
           </Button>
           
           <div className="flex gap-4">
-            <Button variant="outline" onClick={handlePrint} className="h-14 px-8 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[11px] tracking-widest text-slate-700 hover:bg-white">
-              <Printer className="w-4 h-4 mr-2" /> GERAR RELATÓRIO
+            <Button variant="outline" onClick={handlePrint} className="h-12 px-8 rounded-2xl border-slate-200 bg-white font-black uppercase text-[10px] tracking-widest text-slate-600">
+              <Printer className="w-4 h-4 mr-2" /> Gerar Relatório PDF
             </Button>
-            <Button onClick={handleSave} className="h-14 px-10 rounded-2xl bg-[#734DCC] hover:bg-[#633fb9] text-white font-black uppercase text-[11px] tracking-widest shadow-xl shadow-indigo-200">
-              SINCRONIZAR NO LEDGER
+            <Button onClick={handleSave} className="h-12 px-10 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/20">
+              <Save className="w-4 h-4 mr-2" /> Sincronizar no Ledger
             </Button>
           </div>
         </div>
@@ -189,54 +215,75 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
 function StatBox({ label, value, isNegative, isHighlight, isAccent }: any) {
   return (
-    <div className="bg-[#161B2E] border border-white/5 rounded-2xl p-4 flex flex-col justify-between h-24 hover:border-white/20 transition-colors">
-      <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{label}</p>
+    <div className="bg-[#161B2E] border border-white/5 rounded-2xl p-4 flex flex-col justify-between h-20 hover:bg-[#1C2237] transition-colors">
+      <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">{label}</p>
       <p className={cn(
-        "text-xl font-black",
-        isNegative ? "text-rose-500" : isHighlight ? "text-rose-400" : isAccent ? "text-indigo-400" : "text-white"
+        "text-lg font-black font-mono",
+        isNegative ? "text-rose-500" : isHighlight ? "text-emerald-400" : isAccent ? "text-primary" : "text-white"
       )}>
-        {value < 0 ? value.toLocaleString('pt-BR') : value.toLocaleString('pt-BR')}
+        {value.toLocaleString('pt-BR')}
       </p>
     </div>
   );
 }
 
-function Section({ title, data, onImport }: any) {
+function Section({ title, data, onImport, icon: Icon }: any) {
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">{title}</h3>
-        <Button onClick={onImport} variant="outline" size="sm" className="h-8 rounded-full text-[9px] font-black uppercase px-4">
-          <Calculator className="w-3.5 h-3.5 mr-2" /> IMPORTAR
+    <div className="space-y-4">
+      <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-slate-100 rounded-lg">
+            <Icon className="w-4 h-4 text-slate-400" />
+          </div>
+          <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-900">{title}</h3>
+        </div>
+        <Button onClick={onImport} variant="outline" size="sm" className="h-8 rounded-full text-[9px] font-black uppercase px-4 border-dashed border-primary/40 text-primary hover:bg-primary/5">
+          <Calculator className="w-3.5 h-3.5 mr-2" /> Importar Planilha
         </Button>
       </div>
 
-      <div className="overflow-hidden">
+      <div className="rounded-2xl border border-slate-100 overflow-hidden bg-white shadow-sm">
         <Table>
+          <TableHeader className="bg-slate-50/50">
+            <TableRow>
+              <TableHead className="text-[9px] font-black uppercase h-10">Referência</TableHead>
+              <TableHead className="text-[9px] font-black uppercase h-10">Data</TableHead>
+              <TableHead className="text-[9px] font-black uppercase h-10">Categoria/Tipo</TableHead>
+              <TableHead className="text-[9px] font-black uppercase h-10">Status Auditoria</TableHead>
+              <TableHead className="text-[9px] font-black uppercase h-10 text-right">Volume (UCS)</TableHead>
+            </TableRow>
+          </TableHeader>
           <TableBody>
             {data.length === 0 ? (
               <TableRow>
-                <TableCell className="text-center py-20 text-[10px] font-bold uppercase text-slate-300">Nenhum dado vinculado</TableCell>
+                <TableCell colSpan={5} className="text-center py-10 opacity-30">
+                  <div className="flex flex-col items-center gap-2">
+                    <AlertCircle className="w-6 h-6" />
+                    <p className="text-[9px] font-bold uppercase tracking-tighter">Nenhum registro vinculado nesta sessão</p>
+                  </div>
+                </TableCell>
               </TableRow>
             ) : (
               data.map((row: any, i: number) => (
-                <TableRow key={i} className="border-b border-slate-50 hover:bg-slate-50/50">
-                  <TableCell className="py-4 text-[11px] font-bold text-slate-600">{row.id}</TableCell>
-                  <TableCell className="py-4 text-[11px] font-bold text-slate-500">{row.data}</TableCell>
-                  <TableCell className="py-4 text-[11px] font-black text-slate-900 uppercase tracking-tight">{row.tipo}</TableCell>
-                  <TableCell className="py-4">
+                <TableRow key={i} className="border-b border-slate-50 last:border-0">
+                  <TableCell className="py-3 text-[10px] font-bold text-slate-600 font-mono">{row.id}</TableCell>
+                  <TableCell className="py-3 text-[10px] text-slate-400">{row.data}</TableCell>
+                  <TableCell className="py-3">
+                    <span className="text-[9px] font-black uppercase bg-slate-100 px-2 py-0.5 rounded text-slate-600">{row.tipo || 'ATIVO'}</span>
+                  </TableCell>
+                  <TableCell className="py-3">
                     <Select defaultValue="valido">
-                       <SelectTrigger className="h-9 w-32 rounded-full bg-slate-100/50 border-none text-[10px] font-black uppercase">
+                       <SelectTrigger className="h-8 w-32 rounded-lg bg-emerald-50 border-none text-[9px] font-black text-emerald-600 uppercase">
                           <SelectValue />
                        </SelectTrigger>
                        <SelectContent>
                           <SelectItem value="valido">VALIDADO</SelectItem>
-                          <SelectItem value="pendente">PENDENTE</SelectItem>
+                          <SelectItem value="pendente">EM ANÁLISE</SelectItem>
                        </SelectContent>
                     </Select>
                   </TableCell>
-                  <TableCell className="py-4 text-right">
-                    <span className="text-xs font-black text-rose-500">{row.prioridade || 1}</span>
+                  <TableCell className="py-3 text-right font-mono font-black text-slate-900">
+                    {row.valor?.toLocaleString('pt-BR') || row.disponivel?.toLocaleString('pt-BR')}
                   </TableCell>
                 </TableRow>
               ))
