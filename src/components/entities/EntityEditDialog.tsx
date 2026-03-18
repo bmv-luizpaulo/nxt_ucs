@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react";
@@ -133,49 +132,53 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[1200px] h-[90vh] flex flex-col p-0 border-none bg-white shadow-2xl overflow-hidden rounded-3xl">
-        <DialogHeader className="px-8 py-6 border-b border-slate-100 bg-white sticky top-0 z-20 flex flex-row items-center justify-between">
+      <DialogContent 
+        className="max-w-[1100px] h-[92vh] flex flex-col p-0 border-none bg-white shadow-2xl overflow-hidden rounded-[2rem]"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
+        <DialogHeader className="px-10 py-6 border-b border-slate-100 bg-white sticky top-0 z-20 flex flex-row items-center justify-between shrink-0">
           <div>
-            <DialogTitle className="text-xl font-black text-slate-900">Auditoria de Produtor - {entity.nome}</DialogTitle>
-            <DialogDescription className="text-xs text-slate-400 font-bold uppercase tracking-wider">
+            <DialogTitle className="text-lg font-black text-slate-900 tracking-tight">Auditoria de Produtor - {entity.nome}</DialogTitle>
+            <DialogDescription className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
               Painel de conformidade e rastreabilidade LedgerTrust
             </DialogDescription>
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 bg-slate-50/30">
-          <div className="p-8 space-y-10">
+        <ScrollArea className="flex-1 bg-slate-50/20">
+          <div className="p-10 space-y-12">
             
             {/* CABEÇALHO EXECUTIVO DE SALDOS */}
-            <div className="bg-[#0F172A] rounded-3xl p-10 flex justify-between items-end shadow-2xl shadow-slate-200">
-              <div className="space-y-4">
+            <div className="bg-[#0F172A] rounded-[2.5rem] p-10 flex justify-between items-end shadow-2xl shadow-slate-200/50">
+              <div className="space-y-6">
                 <div className="flex items-center gap-2 text-primary">
                   <ShieldCheck className="w-4 h-4" />
                   <span className="text-[10px] font-black uppercase tracking-widest text-primary">Saldo Atualizado Ledger</span>
                 </div>
-                <div className="grid grid-cols-2 gap-x-12 gap-y-2 text-white">
+                <div className="grid grid-cols-2 gap-x-16 gap-y-4 text-white">
                   <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Documento</span>
-                    <span className="text-sm font-mono font-bold">{entity.documento}</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Documento</span>
+                    <span className="text-sm font-mono font-bold tracking-tight">{entity.documento}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Localização</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Localização</span>
                     <span className="text-sm font-bold">{entity.uf || "MT"} - Brasil</span>
                   </div>
                 </div>
               </div>
 
               <div className="text-right">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Saldo Final Auditado</span>
-                <div className="flex items-baseline gap-2 text-primary">
-                  <span className="text-6xl font-black tracking-tighter">{(formData.saldoFinalAtual || 0).toLocaleString('pt-BR')}</span>
-                  <span className="text-xl font-black opacity-60">UCS</span>
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Saldo Final Auditado</span>
+                <div className="flex items-baseline justify-end gap-3 text-primary">
+                  <span className="text-5xl font-black tracking-tighter">{(formData.saldoFinalAtual || 0).toLocaleString('pt-BR')}</span>
+                  <span className="text-lg font-black opacity-40">UCS</span>
                 </div>
               </div>
             </div>
 
             {/* SEÇÕES TÉCNICAS */}
-            <div className="space-y-12 pb-10">
+            <div className="space-y-16">
               
               <TechnicalSection 
                 title="Sessão de Originação"
@@ -191,7 +194,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                   { label: "Dist.", key: "dist" },
                   { label: "Data Inicio", key: "data" },
                   { label: "Usuário Destino", key: "destino" },
-                  { label: "Crédito (UCS)", key: "valor", align: "right", color: "text-emerald-600 font-black" }
+                  { label: "Crédito (UCS)", key: "valor", align: "right", color: "text-emerald-600 font-bold" }
                 ]}
               />
 
@@ -209,7 +212,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                   { label: "Dist.", key: "dist" },
                   { label: "Data Inicio", key: "data" },
                   { label: "Usuário Destino", key: "destino" },
-                  { label: "Débito (UCS)", key: "valor", align: "right", color: "text-rose-500 font-black" }
+                  { label: "Débito (UCS)", key: "valor", align: "right", color: "text-rose-500 font-bold" }
                 ]}
               />
 
@@ -227,7 +230,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                   { label: "Dist.", key: "dist" },
                   { label: "Crédito", key: "valorCredito", color: "text-emerald-600" },
                   { label: "Débito", key: "valorDebito", color: "text-rose-500" },
-                  { label: "Líquido (UCS)", key: "valor", align: "right", font: "mono", color: "text-primary font-black" }
+                  { label: "Líquido (UCS)", key: "valor", align: "right", font: "mono", color: "text-primary font-bold" }
                 ]}
               />
 
@@ -244,7 +247,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                 columns={[
                   { label: "Usuário", key: "nome" },
                   { label: "Ano", key: "ano", align: "center" },
-                  { label: "Volume (UCS)", key: "valor", align: "right", color: "text-rose-500 font-black" }
+                  { label: "Volume (UCS)", key: "valor", align: "right", color: "text-rose-500 font-bold" }
                 ]}
               />
 
@@ -264,7 +267,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                   { label: "Plataforma", key: "plataforma" },
                   { label: "Disponível", key: "disponivel", align: "right" },
                   { label: "Reservado", key: "reservado", align: "right" },
-                  { label: "Total Linha (UCS)", key: "valor", align: "right", color: "text-primary font-black" }
+                  { label: "Total Linha (UCS)", key: "valor", align: "right", color: "text-primary font-bold" }
                 ]}
               />
 
@@ -272,15 +275,15 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
           </div>
         </ScrollArea>
 
-        <div className="p-8 border-t border-slate-100 bg-white flex justify-between items-center sticky bottom-0 z-20">
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[10px] font-black uppercase text-slate-400 hover:text-rose-500">
-            Descartar Auditoria
+        <div className="p-8 border-t border-slate-100 bg-white flex justify-between items-center sticky bottom-0 z-20 shrink-0">
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[10px] font-black uppercase text-slate-400 hover:text-rose-500 tracking-widest">
+            Descartar Alterações
           </Button>
           <div className="flex gap-4">
-             <Button variant="outline" className="gap-2 font-black uppercase text-[10px] h-12 px-8 rounded-xl border-slate-200">
-                <Download className="w-4 h-4" /> Exportar Registro
+             <Button variant="outline" className="gap-2 font-black uppercase text-[10px] h-12 px-8 rounded-2xl border-slate-200 tracking-widest text-slate-600">
+                <Download className="w-4 h-4" /> Exportar Relatório
              </Button>
-             <Button onClick={() => { onUpdate(entity.id, formData); onOpenChange(false); }} className="bg-primary hover:bg-primary/90 text-white px-12 h-14 rounded-xl font-black uppercase text-xs shadow-xl shadow-primary/20 flex gap-3 transition-all active:scale-95">
+             <Button onClick={() => { onUpdate(entity.id, formData); onOpenChange(false); }} className="bg-primary hover:bg-primary/90 text-white px-14 h-14 rounded-2xl font-black uppercase text-[11px] shadow-2xl shadow-primary/20 flex gap-3 transition-all active:scale-95 tracking-widest">
                <Save className="w-5 h-5" /> Gravar Auditoria Permanente
              </Button>
           </div>
@@ -298,13 +301,13 @@ function TechnicalSection({ title, activeField, setActiveField, pasteBuffer, set
       <div className="flex items-center justify-between px-2">
         <div className="flex items-center gap-4">
           <div className={cn(
-            "w-2 h-8 rounded-full",
+            "w-1.5 h-8 rounded-full",
             variant === 'amber' ? "bg-amber-500" : "bg-primary"
           )} />
           <div>
-            <h3 className="text-xs font-black uppercase tracking-widest text-slate-900">{title}</h3>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-              Saldo Consolidado: <span className={cn("font-black", currentValue < 0 ? "text-rose-500" : "text-emerald-600")}>{currentValue.toLocaleString('pt-BR')} UCS</span>
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-900 leading-none mb-1.5">{title}</h3>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              Consolidação Ledger: <span className={cn("font-black", currentValue < 0 ? "text-rose-500" : "text-emerald-600")}>{currentValue.toLocaleString('pt-BR')} UCS</span>
             </p>
           </div>
         </div>
@@ -314,15 +317,20 @@ function TechnicalSection({ title, activeField, setActiveField, pasteBuffer, set
           else { setActiveField(activeField); }
         }}>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="border-primary/20 text-primary h-10 px-6 rounded-full font-black uppercase text-[10px] tracking-widest gap-2 hover:bg-primary/5 shadow-sm">
+            <Button variant="outline" className="border-primary/20 text-primary h-10 px-6 rounded-full font-black uppercase text-[10px] tracking-widest gap-2 hover:bg-primary/5 transition-all">
               <Plus className="w-3.5 h-3.5" /> Colagem via Calculadora
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-[500px] p-0 rounded-[2rem] bg-white border-slate-200 shadow-3xl overflow-hidden" side="top" align="end">
+          <PopoverContent 
+            className="w-[520px] p-0 rounded-[2.5rem] bg-white border-slate-200 shadow-3xl overflow-hidden" 
+            side="top" 
+            align="end"
+            onPointerDownOutside={(e) => e.preventDefault()}
+            onInteractOutside={(e) => e.preventDefault()}
+          >
             <div className="flex flex-col">
-              {/* HEADER DO PROCESSADOR - ALTA FIDELIDADE */}
-              <div className="p-6 border-b border-slate-100 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <div className="p-8 border-b border-slate-50 flex items-center gap-3 bg-slate-50/50">
+                <div className="w-10 h-10 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shadow-sm">
                   <Calculator className="w-4 h-4 text-primary" />
                 </div>
                 <h4 className="text-[10px] font-black uppercase text-primary tracking-widest">
@@ -330,8 +338,7 @@ function TechnicalSection({ title, activeField, setActiveField, pasteBuffer, set
                 </h4>
               </div>
 
-              {/* ÁREA DE TEXTO */}
-              <div className="p-6">
+              <div className="p-8">
                 <Textarea 
                   value={pasteBuffer} 
                   onChange={e => setPasteBuffer(e.target.value)}
@@ -340,20 +347,19 @@ function TechnicalSection({ title, activeField, setActiveField, pasteBuffer, set
                 />
               </div>
 
-              {/* FOOTER DE CONSOLIDAÇÃO - ALTA FIDELIDADE */}
-              <div className="px-6 pb-6 pt-2">
-                <div className="bg-slate-50 rounded-2xl border border-slate-100 p-6 flex items-center justify-between">
+              <div className="px-8 pb-8">
+                <div className="bg-[#F8FAFC] rounded-3xl border border-slate-100 p-8 flex items-center justify-between">
                   <div className="space-y-1">
                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Saldo a ser aplicado</p>
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-2xl font-black text-primary">{saldoASerAplicado.toLocaleString('pt-BR')}</span>
-                      <span className="text-[10px] font-black text-primary opacity-60">UCS</span>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-black text-primary tracking-tight">{saldoASerAplicado.toLocaleString('pt-BR')}</span>
+                      <span className="text-[10px] font-black text-primary opacity-40 uppercase">UCS</span>
                     </div>
                   </div>
                   <Button 
                     onClick={onImport} 
                     disabled={previewRows.length === 0} 
-                    className="bg-primary hover:bg-primary/90 text-white font-black uppercase text-[10px] h-12 px-10 rounded-2xl shadow-lg shadow-primary/20 transition-all active:scale-95"
+                    className="bg-primary hover:bg-primary/90 text-white font-black uppercase text-[10px] h-12 px-12 rounded-2xl shadow-xl shadow-primary/20 transition-all active:scale-95 tracking-widest"
                   >
                     Confirmar
                   </Button>
@@ -365,12 +371,12 @@ function TechnicalSection({ title, activeField, setActiveField, pasteBuffer, set
       </div>
 
       <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
-        <ScrollArea className="h-[280px]">
+        <ScrollArea className="h-[300px]">
           <Table>
-            <TableHeader className="bg-slate-50/50 sticky top-0 z-10 backdrop-blur-sm">
-              <TableRow className="h-12 border-b border-slate-100">
+            <TableHeader className="bg-slate-50/50 sticky top-0 z-10 backdrop-blur-md">
+              <TableRow className="h-14 border-b border-slate-100 hover:bg-transparent">
                 {columns.map((col: any) => (
-                  <TableHead key={col.label} className={cn("text-[9px] font-black uppercase tracking-widest text-slate-400 px-6", col.align === 'right' && "text-right", col.align === 'center' && "text-center")}>
+                  <TableHead key={col.label} className={cn("text-[9px] font-black uppercase tracking-widest text-slate-400 px-8", col.align === 'right' && "text-right", col.align === 'center' && "text-center")}>
                     {col.label}
                   </TableHead>
                 ))}
@@ -379,8 +385,8 @@ function TechnicalSection({ title, activeField, setActiveField, pasteBuffer, set
             <TableBody>
               {data.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="h-48 text-center">
-                    <div className="flex flex-col items-center justify-center opacity-30 gap-2">
+                  <TableCell colSpan={columns.length} className="h-48 text-center hover:bg-transparent">
+                    <div className="flex flex-col items-center justify-center opacity-30 gap-3">
                       <History className="w-8 h-8 text-slate-300" />
                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">Histórico de Auditoria Vazio</p>
                     </div>
@@ -390,7 +396,7 @@ function TechnicalSection({ title, activeField, setActiveField, pasteBuffer, set
                 data.map((row: any, i: number) => (
                   <TableRow key={i} className="group border-b border-slate-50 last:border-0 hover:bg-emerald-50/30 transition-colors">
                     {columns.map((col: any) => (
-                      <TableCell key={col.label} className={cn("py-4 px-6 text-[10px] font-bold text-slate-600", col.align === 'right' && "text-right", col.align === 'center' && "text-center", col.color, col.font === 'mono' && "font-mono")}>
+                      <TableCell key={col.label} className={cn("py-5 px-8 text-[11px] font-bold text-slate-600 tracking-tight", col.align === 'right' && "text-right", col.align === 'center' && "text-center", col.color, col.font === 'mono' && "font-mono")}>
                         {typeof row[col.key] === 'number' ? Math.abs(row[col.key]).toLocaleString('pt-BR') : row[col.key]}
                       </TableCell>
                     ))}
