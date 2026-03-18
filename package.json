@@ -9,7 +9,9 @@
     "build": "NODE_ENV=production next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "firebase:rules:deploy": "firebase deploy --only firestore:rules",
+    "firebase:indexes:deploy": "firebase deploy --only firestore:indexes"
   },
   "dependencies": {
     "@genkit-ai/google-genai": "^1.28.0",
