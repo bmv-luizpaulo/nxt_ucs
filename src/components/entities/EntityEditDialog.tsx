@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react";
@@ -9,7 +10,6 @@ import { Printer, X, Calculator, ShieldCheck, Database, Save, ArrowRightLeft, Fi
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface EntityEditDialogProps {
   entity: EntidadeSaldo | null;
@@ -29,36 +29,26 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     }
   }, [entity]);
 
-  // Lógica de Auditoria BMV (Equação Central)
   const totals = useMemo(() => {
-    const sum = (arr?: RegistroTabela[]) => (arr || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
+    const sumVal = (arr?: RegistroTabela[]) => (arr || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
     
-    // 1. Originação (Sessão 1)
-    const orig = sum(formData.tabelaOriginacao);
+    const orig = sumVal(formData.tabelaOriginacao);
+    const mov = sumVal(formData.tabelaMovimentacao);
+    const aq = sumVal(formData.tabelaAquisicao);
+    const imei = sumVal(formData.tabelaImei);
     
-    // 2. Movimentação (Sessão 2) - Geralmente valores negativos
-    const mov = sum(formData.tabelaMovimentacao);
-    
-    // 3. Ajuste IMEI (Sessão 3) - Neutro para o cálculo final
-    const imei = (formData.tabelaImei || []).reduce((acc, c) => acc + (c.valorCredito || 0) - (c.valorDebito || 0), 0);
-
-    // 4. Aquisição (Sessão 4) - Retirada da conta
-    const aq = sum(formData.tabelaAquisicao);
-
-    // 5. Legado (Sessão 5)
     // Legado = Disponível + Reservado
-    const legDisponivel = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.disponivel || 0), 0);
-    const legReservado = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.reservado || 0), 0);
-    const legadoTotal = legDisponivel + legReservado;
+    const legDisp = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.disponivel || 0), 0);
+    const legRes = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.reservado || 0), 0);
+    const legadoTotal = legDisp + legRes;
 
-    // Aposentado e Bloqueado vêm das colunas específicas da tabela Legado
     const aposentado = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.aposentado || 0), 0);
     const bloqueado = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.bloqueado || 0), 0);
 
-    // EQUAÇÃO: Saldo Final = Originação + Movimentação - Aquisição + Legado
+    // EQUAÇÃO BMV: Saldo = Originação + Movimentação - Aquisição + Legado
     const final = orig + mov - aq + legadoTotal;
     
-    const movPercentage = orig > 0 ? ((Math.abs(mov) / orig) * 100).toFixed(1) : "0.0";
+    const movPercentage = orig !== 0 ? ((Math.abs(mov) / Math.abs(orig)) * 100).toFixed(1) : "0.0";
 
     return { 
       orig, mov, aq, imei, legadoTotal, aposentado, bloqueado, final, movPercentage 
@@ -69,40 +59,6 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     if (typeof window !== 'undefined') {
       window.print();
     }
-  };
-
-  const handleImport = (field: keyof EntidadeSaldo) => {
-    if (!pasteBuffer.trim()) return;
-    
-    const lines = pasteBuffer.split('\n').filter(l => l.trim());
-    const newRows: RegistroTabela[] = lines.map(line => {
-      const parts = line.split('\t');
-      
-      if (field === 'tabelaLegado') {
-        return {
-          id: parts[0] || Math.random().toString(36).substr(2, 5).toUpperCase(),
-          data: parts[1] || new Date().toLocaleString(),
-          disponivel: parseFloat(parts[15]?.replace(/[^\d-]/g, '') || '0'),
-          reservado: parseFloat(parts[16]?.replace(/[^\d-]/g, '') || '0'), // Ajustar conforme coluna real
-          aposentado: parseFloat(parts[4]?.replace(/[^\d-]/g, '') || '0'),
-          bloqueado: parseFloat(parts[5]?.replace(/[^\d-]/g, '') || '0'),
-          tipo: 'LEGADO'
-        };
-      }
-
-      const val = parseFloat(parts[parts.length - 1]?.replace(/[R$\s.]/g, '').replace(',', '.') || '0');
-      return {
-        id: parts[0] || Math.random().toString(36).substr(2, 5).toUpperCase(),
-        data: parts[1] || new Date().toLocaleString(),
-        tipo: parts[2] || 'ATIVO',
-        valor: val,
-        statusAuditoria: 'VALIDADO'
-      };
-    });
-
-    setFormData(prev => ({ ...prev, [field]: [...(prev[field] as any[] || []), ...newRows] }));
-    setPasteBuffer("");
-    setActivePasteField(null);
   };
 
   const handleSave = () => {
@@ -127,32 +83,9 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[1280px] w-[95vw] h-[95vh] p-0 border-none bg-white overflow-hidden flex flex-col rounded-[2.5rem] shadow-2xl">
         <DialogHeader className="sr-only">
-          <DialogTitle>Auditoria Técnica BMV - {entity.nome}</DialogTitle>
+          <DialogTitle>Console de Auditoria Técnica - {entity.nome}</DialogTitle>
           <DialogDescription>Cálculos de conferência técnica e conciliação de saldos Ledger.</DialogDescription>
         </DialogHeader>
-
-        {activePasteField && (
-          <div className="absolute inset-0 z-[100] bg-[#0B0F1A]/95 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-300">
-            <div className="bg-white w-full max-w-2xl rounded-[2rem] shadow-2xl overflow-hidden border border-slate-100">
-              <div className="p-6 border-b flex justify-between items-center bg-slate-50/50">
-                <h3 className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-900">Mapeamento LedgerTrust</h3>
-                <Button variant="ghost" size="icon" onClick={() => setActivePasteField(null)}><X className="w-4 h-4" /></Button>
-              </div>
-              <div className="p-8 space-y-6">
-                <Textarea 
-                  autoFocus 
-                  value={pasteBuffer} 
-                  onChange={e => setPasteBuffer(e.target.value)}
-                  placeholder="Cole os dados do Excel/Sheets aqui..."
-                  className="min-h-[250px] font-mono text-[11px] bg-slate-50 border-slate-200 rounded-2xl p-6 focus:ring-primary shadow-inner"
-                />
-                <Button onClick={() => handleImport(activePasteField)} className="w-full h-14 rounded-2xl bg-[#734DCC] text-white font-black uppercase text-[11px] tracking-widest shadow-xl shadow-indigo-100 transition-all active:scale-[0.98]">
-                  Sincronizar no Ledger
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* CABEÇALHO DARK - 8 COLUNAS */}
         <div className="bg-[#0B0F1A] p-10 shrink-0 text-white relative">
@@ -195,31 +128,26 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             <Section 
               title="Sessão 01: Lançamentos de Originação" 
               data={formData.tabelaOriginacao || []} 
-              onImport={() => setActivePasteField('tabelaOriginacao')}
               icon={Database}
             />
             <Section 
               title="Sessão 02: Histórico de Movimentação" 
               data={formData.tabelaMovimentacao || []} 
-              onImport={() => setActivePasteField('tabelaMovimentacao')}
               icon={ArrowRightLeft}
             />
             <Section 
-              title="Sessão 03: Ajuste IMEI (Conferência)" 
+              title="Sessão 03: Ajuste IMEI (Conferência Neutra)" 
               data={formData.tabelaImei || []} 
-              onImport={() => setActivePasteField('tabelaImei')}
               icon={Calculator}
             />
             <Section 
               title="Sessão 04: Aquisições (Dedução)" 
               data={formData.tabelaAquisicao || []} 
-              onImport={() => setActivePasteField('tabelaAquisicao')}
               icon={FileText}
             />
             <Section 
               title="Sessão 05: Saldo Legado (Disponível + Reservado)" 
               data={formData.tabelaLegado || []} 
-              onImport={() => setActivePasteField('tabelaLegado')}
               icon={LinkIcon}
               isLegado
             />
@@ -228,7 +156,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
         <div className="p-8 border-t border-slate-100 bg-white flex items-center justify-between shrink-0 shadow-inner">
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[11px] font-black uppercase text-slate-400 tracking-widest hover:text-rose-500 hover:bg-rose-50 px-8 rounded-xl h-14">
-            Descartar Alterações
+            Sair Sem Salvar
           </Button>
           
           <div className="flex gap-4">
@@ -236,7 +164,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               <Printer className="w-4 h-4 mr-2" /> Gerar Relatório PDF
             </Button>
             <Button onClick={handleSave} className="h-14 px-12 rounded-2xl bg-[#734DCC] hover:bg-[#633fb9] text-white font-black uppercase text-[11px] tracking-widest shadow-xl shadow-indigo-100 transition-all active:scale-[0.98]">
-              <Save className="w-4 h-4 mr-2" /> Sincronizar no Ledger
+              <Save className="w-4 h-4 mr-2" /> Salvar no Ledger
             </Button>
           </div>
         </div>
@@ -253,7 +181,7 @@ function StatBox({ label, value, isNegative, isHighlight, isAccent, percentage }
         {percentage !== undefined && (
           <span className={cn(
             "text-[8px] font-black px-1.5 py-0.5 rounded-md",
-            isNegative ? "bg-rose-500/10 text-rose-500" : "bg-emerald-500/10 text-emerald-500"
+            value < 0 ? "bg-rose-500/10 text-rose-500" : "bg-emerald-500/10 text-emerald-500"
           )}>
             {percentage}%
           </span>
@@ -261,7 +189,7 @@ function StatBox({ label, value, isNegative, isHighlight, isAccent, percentage }
       </div>
       <p className={cn(
         "text-[20px] font-black font-mono leading-none tracking-tight",
-        isNegative ? "text-rose-500" : isHighlight ? "text-emerald-400" : isAccent ? "text-[#734DCC]" : "text-white"
+        value < 0 ? "text-rose-500" : isHighlight ? "text-emerald-400" : isAccent ? "text-[#734DCC]" : "text-white"
       )}>
         {value === 0 ? "0" : value.toLocaleString('pt-BR')}
       </p>
@@ -269,7 +197,7 @@ function StatBox({ label, value, isNegative, isHighlight, isAccent, percentage }
   );
 }
 
-function Section({ title, data, onImport, icon: Icon, isLegado }: any) {
+function Section({ title, data, icon: Icon, isLegado }: any) {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center border-b border-slate-100 pb-5">
@@ -279,9 +207,6 @@ function Section({ title, data, onImport, icon: Icon, isLegado }: any) {
           </div>
           <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">{title}</h3>
         </div>
-        <Button onClick={onImport} variant="outline" size="sm" className="h-10 rounded-xl text-[10px] font-black uppercase px-6 border-dashed border-[#734DCC]/30 text-[#734DCC] hover:bg-[#734DCC]/5">
-          <Calculator className="w-3.5 h-3.5 mr-2" /> Importar Planilha
-        </Button>
       </div>
 
       <div className="rounded-[1.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
@@ -292,6 +217,7 @@ function Section({ title, data, onImport, icon: Icon, isLegado }: any) {
               <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Data</TableHead>
               {isLegado ? (
                 <>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Plataforma</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Disponível</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Reservado</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Aposentado</TableHead>
@@ -299,8 +225,7 @@ function Section({ title, data, onImport, icon: Icon, isLegado }: any) {
                 </>
               ) : (
                 <>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Categoria</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Status</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Destino/Histórico</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right pr-8">Volume (UCS)</TableHead>
                 </>
               )}
@@ -309,17 +234,18 @@ function Section({ title, data, onImport, icon: Icon, isLegado }: any) {
           <TableBody>
             {data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={isLegado ? 6 : 5} className="text-center py-16 opacity-30">
+                <TableCell colSpan={isLegado ? 7 : 4} className="text-center py-16 opacity-30">
                   <p className="text-[11px] font-bold uppercase tracking-widest">Nenhum registro encontrado</p>
                 </TableCell>
               </TableRow>
             ) : (
               data.map((row: any, i: number) => (
                 <TableRow key={i} className="border-b border-slate-50 last:border-0">
-                  <TableCell className="py-4 text-[11px] font-bold text-slate-600 font-mono">{row.id}</TableCell>
+                  <TableCell className="py-4 text-[11px] font-bold text-slate-600 font-mono">{row.dist || row.id || '-'}</TableCell>
                   <TableCell className="py-4 text-[11px] text-slate-400">{row.data}</TableCell>
                   {isLegado ? (
                     <>
+                      <TableCell className="py-4 text-[10px] font-black uppercase text-slate-500">{row.plataforma || 'N/A'}</TableCell>
                       <TableCell className="text-right font-mono font-black">{row.disponivel?.toLocaleString('pt-BR')}</TableCell>
                       <TableCell className="text-right font-mono font-black">{row.reservado?.toLocaleString('pt-BR')}</TableCell>
                       <TableCell className="text-right font-mono font-black text-emerald-500">{row.aposentado?.toLocaleString('pt-BR')}</TableCell>
@@ -327,15 +253,11 @@ function Section({ title, data, onImport, icon: Icon, isLegado }: any) {
                     </>
                   ) : (
                     <>
-                      <TableCell className="py-4">
-                        <span className="text-[10px] font-black uppercase bg-slate-100 px-2 py-0.5 rounded text-slate-600">{row.tipo}</span>
-                      </TableCell>
-                      <TableCell className="py-4">
-                        <span className="text-[9px] font-black text-emerald-600 flex items-center gap-1">
-                          <CheckCircle2 className="w-3 h-3" /> VALIDADO
-                        </span>
-                      </TableCell>
-                      <TableCell className="py-4 text-right font-mono font-black text-slate-900 pr-8">
+                      <TableCell className="py-4 text-[10px] text-slate-600 truncate max-w-[300px]">{row.destino || row.tipo || '-'}</TableCell>
+                      <TableCell className={cn(
+                        "py-4 text-right font-mono font-black pr-8",
+                        row.valor < 0 ? "text-rose-500" : "text-slate-900"
+                      )}>
                         {row.valor?.toLocaleString('pt-BR')}
                       </TableCell>
                     </>
@@ -349,3 +271,4 @@ function Section({ title, data, onImport, icon: Icon, isLegado }: any) {
     </div>
   );
 }
+
