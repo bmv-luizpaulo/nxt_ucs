@@ -1,4 +1,3 @@
-
 "use client"
 
 import { Pedido, Movimento } from "@/lib/types";
@@ -200,84 +199,83 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
           <DialogDescription>Detalhamento técnico de rastreabilidade e conferência blockchain.</DialogDescription>
         </DialogHeader>
 
-        {/* CONTEÚDO IMPRIMÍVEL (CERTIFICADO DE RASTREABILIDADE - EVOLUÍDO) */}
+        {/* CERTIFICADO DE RASTREABILIDADE (EVOLUÍDO E COMPACTO PARA A4) */}
         <div className="printable-certificate hidden print:block">
-          <div className="flex justify-between items-start border-b-2 border-slate-900 pb-6 mb-8">
+          <div className="flex justify-between items-start border-b-2 border-slate-900 pb-4 mb-6">
             <div>
-               <h1 className="text-[38px] font-black text-primary leading-none tracking-tighter">bmv</h1>
-               <p className="text-[9px] font-black uppercase tracking-[0.2em] mt-2 text-slate-400">LedgerTrust Auditoria de Conformidade</p>
+               <h1 className="text-[32px] font-black text-primary leading-none tracking-tighter">bmv</h1>
+               <p className="text-[8px] font-black uppercase tracking-[0.2em] mt-1 text-slate-400">LedgerTrust Auditoria de Conformidade</p>
             </div>
             <div className="text-right">
-              <h2 className="text-[18px] font-black uppercase tracking-tight text-slate-900">Certificado de Rastreabilidade</h2>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Protocolo: {order.id}</p>
-              <p className="text-[8px] text-slate-400 font-mono mt-0.5">{new Date().toLocaleString('pt-BR')}</p>
+              <h2 className="text-[16px] font-black uppercase tracking-tight text-slate-900">Certificado de Rastreabilidade</h2>
+              <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1">Protocolo: {order.id}</p>
+              <p className="text-[7px] text-slate-400 font-mono">{new Date().toLocaleString('pt-BR')}</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-10 mb-8">
-            <div className="space-y-4">
-              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 border-b border-slate-100 pb-1.5">Informações do Ativo</h3>
-              <div className="space-y-3">
-                <div className="grid gap-1">
-                  <p className="text-[12px] font-black text-slate-900 uppercase">{order.empresa}</p>
-                  <p className="text-[10px] font-bold text-slate-400 font-mono">{order.cnpj}</p>
-                  <div className="mt-3 pt-3 border-t border-slate-50">
-                    <p className="text-[9px] font-black text-slate-400 uppercase mb-0.5">Programa / Projeto:</p>
-                    <p className="text-[10px] font-bold text-slate-900 uppercase">{order.programa} - {order.uf}</p>
-                  </div>
+          <div className="grid grid-cols-2 gap-8 mb-6">
+            <div className="space-y-3">
+              <h3 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-300 border-b border-slate-100 pb-1">Informações do Ativo</h3>
+              <div className="space-y-1">
+                <p className="text-[11px] font-black text-slate-900 uppercase">{order.empresa}</p>
+                <p className="text-[9px] font-bold text-slate-400 font-mono">{order.cnpj}</p>
+                <div className="mt-2 pt-2 border-t border-slate-50">
+                  <p className="text-[8px] font-black text-slate-400 uppercase mb-0.5">Programa / Projeto:</p>
+                  <p className="text-[9px] font-bold text-slate-900 uppercase">{order.programa} - {order.uf}</p>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-4">
-               <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 border-b border-slate-100 pb-1.5">Dados Auditados (UCS)</h3>
-               <div className="grid grid-cols-2 gap-3">
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    <p className="text-[8px] font-black text-slate-400 uppercase mb-0.5">Volume</p>
-                    <p className="text-[14px] font-black text-slate-900">{order.quantidade.toLocaleString('pt-BR')}</p>
+            <div className="space-y-3">
+               <h3 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-300 border-b border-slate-100 pb-1">Dados Auditados (UCS)</h3>
+               <div className="grid grid-cols-2 gap-2">
+                  <div className="p-2 bg-slate-50 rounded-xl border border-slate-100">
+                    <p className="text-[7px] font-black text-slate-400 uppercase mb-0.5">Volume</p>
+                    <p className="text-[12px] font-black text-slate-900">{order.quantidade.toLocaleString('pt-BR')}</p>
                   </div>
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    <p className="text-[8px] font-black text-slate-400 uppercase mb-0.5">Valor Total</p>
-                    <p className="text-[14px] font-black text-primary">{order.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+                  <div className="p-2 bg-slate-50 rounded-xl border border-slate-100">
+                    <p className="text-[7px] font-black text-slate-400 uppercase mb-0.5">Valor Total</p>
+                    <p className="text-[12px] font-black text-primary">{order.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
                   </div>
                </div>
-               <div className="p-4 border-2 border-primary/20 rounded-2xl bg-primary/5 flex items-center justify-between">
+               <div className="p-3 border-2 border-primary/20 rounded-2xl bg-primary/5 flex items-center justify-between">
                   <div>
-                    <p className="text-[9px] font-black text-primary uppercase tracking-widest">Hash Blockchain</p>
-                    <p className="text-[8px] font-mono text-slate-600 mt-0.5 truncate max-w-[140px]">{order.hashPedido || 'Pendente de Sincronização'}</p>
+                    <p className="text-[8px] font-black text-primary uppercase tracking-widest">Hash Blockchain</p>
+                    <p className="text-[7px] font-mono text-slate-600 mt-0.5 truncate max-w-[120px]">{order.hashPedido || 'Pendente de Sincronização'}</p>
                   </div>
-                  <QrCode className="w-10 h-10 text-slate-200" />
+                  <QrCode className="w-8 h-8 text-slate-200" />
                </div>
             </div>
           </div>
 
-          <div className="space-y-6">
-            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 border-b border-slate-100 pb-1.5">Rastreabilidade Ledger (Traceability Records)</h3>
+          <div className="space-y-4">
+            <h3 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-300 border-b border-slate-100 pb-1">Rastreabilidade Ledger (Traceability Records)</h3>
             <div className="border border-slate-100 rounded-xl overflow-hidden">
-              <table className="w-full text-left text-[9px]">
+              <table className="w-full text-left text-[8px]">
                 <thead className="bg-slate-50">
                   <tr className="border-b border-slate-200">
-                    <th className="px-3 py-2.5 font-black uppercase tracking-widest text-slate-500">Origem</th>
-                    <th className="px-3 py-2.5 font-black uppercase tracking-widest text-slate-500">Destino</th>
-                    <th className="px-3 py-2.5 font-black uppercase tracking-widest text-slate-500 text-right">Volume (UCS)</th>
+                    <th className="px-3 py-2 font-black uppercase tracking-widest text-slate-500">Origem</th>
+                    <th className="px-3 py-2 font-black uppercase tracking-widest text-slate-500">Destino</th>
+                    <th className="px-3 py-2 font-black uppercase tracking-widest text-slate-500 text-right">Volume (UCS)</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {movimentos && movimentos.length > 0 ? movimentos.slice(0, 15).map((mov, i) => (
+                  {(movimentos || []).slice(0, 15).map((mov, i) => (
                     <tr key={i} className="border-b border-slate-100 last:border-0">
-                      <td className="px-3 py-3 text-slate-900 font-bold uppercase">{mov.origem}</td>
-                      <td className="px-3 py-3 text-slate-600 uppercase">{mov.destino}</td>
-                      <td className="px-3 py-3 text-right font-black text-slate-900">{mov.quantidade.toLocaleString('pt-BR')}</td>
+                      <td className="px-3 py-2 text-slate-900 font-bold uppercase">{mov.origem}</td>
+                      <td className="px-3 py-2 text-slate-600 uppercase">{mov.destino}</td>
+                      <td className="px-3 py-2 text-right font-black text-slate-900">{mov.quantidade.toLocaleString('pt-BR')}</td>
                     </tr>
-                  )) : (
+                  ))}
+                  {(!movimentos || movimentos.length === 0) && (
                     <tr>
-                      <td colSpan={3} className="py-10 text-center text-slate-300 font-bold uppercase text-[9px] tracking-widest italic">Nenhum registro de rastreabilidade encontrado</td>
+                      <td colSpan={3} className="py-6 text-center text-slate-300 font-bold uppercase text-[8px] tracking-widest italic">Nenhum registro de rastreabilidade encontrado</td>
                     </tr>
                   )}
                   {movimentos && movimentos.length > 15 && (
                     <tr className="bg-slate-50/50">
-                      <td colSpan={3} className="px-3 py-2 text-center text-[8px] font-bold text-slate-400 uppercase tracking-widest">
-                        Exibindo os primeiros 15 de {movimentos.length} registros. Para extrato completo, consulte o Ledger.
+                      <td colSpan={3} className="px-3 py-1.5 text-center text-[7px] font-bold text-slate-400 uppercase tracking-widest">
+                        Exibindo os primeiros 15 de {movimentos.length} registros.
                       </td>
                     </tr>
                   )}
@@ -286,21 +284,21 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
             </div>
           </div>
 
-          <div className="mt-auto pt-12 flex justify-between items-end">
-            <div className="flex items-center gap-3">
-               <ShieldCheck className="w-7 h-7 text-primary" />
-               <p className="text-[9px] font-black uppercase tracking-widest text-primary">Autenticidade Verificada pelo Sistema LedgerTrust</p>
+          <div className="mt-8 pt-8 flex justify-between items-end border-t border-slate-100">
+            <div className="flex items-center gap-2">
+               <ShieldCheck className="w-6 h-6 text-primary" />
+               <p className="text-[8px] font-black uppercase tracking-widest text-primary">Autenticidade Verificada LedgerTrust</p>
             </div>
-            <div className="text-right space-y-3">
-               <div className="w-56 border-t border-slate-900 pt-1.5">
-                 <p className="text-[9px] font-black uppercase text-slate-900">Auditor Responsável BMV</p>
-                 <p className="text-[7px] font-bold text-slate-400 uppercase">Documento Gerado Digitalmente para Fins de Auditoria</p>
+            <div className="text-right space-y-2">
+               <div className="w-48 border-t border-slate-900 pt-1">
+                 <p className="text-[8px] font-black uppercase text-slate-900">Auditor Responsável BMV</p>
+                 <p className="text-[6px] font-bold text-slate-400 uppercase">Protocolo Gerado via Blockchain Integrity</p>
                </div>
             </div>
           </div>
         </div>
 
-        {/* CABEÇALHO TÉCNICO - TEMA DARK (UI CONSOLE) */}
+        {/* CABEÇALHO TÉCNICO - CONSOLE UI (HIDDEN EM PRINT) */}
         <div className="bg-[#0B0F1A] p-6 shrink-0 text-white relative print:hidden">
           <div className="flex justify-between items-start mb-6">
             <div className="space-y-1">
@@ -339,7 +337,6 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
         <ScrollArea className="flex-1 bg-white print:hidden">
           <div className="p-10 space-y-14">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-               {/* Sessão de Vinculação */}
                <div className="space-y-8">
                   <div className="bg-slate-50/50 p-8 rounded-[2rem] space-y-6 border border-slate-100">
                     <h4 className="text-[10px] font-black uppercase text-primary flex items-center gap-2 tracking-[0.2em]">
@@ -378,7 +375,6 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
                   </div>
                </div>
 
-               {/* Histórico de Rastreabilidade */}
                <div className="space-y-6">
                   <h4 className="text-[10px] font-black uppercase text-slate-900 flex items-center gap-2 tracking-widest">
                     Movimentações Registradas <Badge variant="secondary" className="bg-slate-100 text-slate-600 rounded-full">{movimentos?.length || 0}</Badge>
@@ -392,7 +388,6 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
           </div>
         </ScrollArea>
 
-        {/* RODAPÉ DE AÇÕES (CONSOLE) */}
         <div className="p-8 border-t border-slate-100 bg-white flex items-center justify-between shrink-0 print:hidden">
           <Button variant="ghost" className="text-[11px] font-black uppercase text-rose-500 hover:bg-rose-50 hover:text-rose-600 px-8 rounded-xl h-14" onClick={() => onDeleteOrder(order.id)}>
             Remover Registro Permanente
