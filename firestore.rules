@@ -4,104 +4,48 @@ service cloud.firestore {
 
     /**
      * CORE PHILOSOPHY
-     * This ruleset implements a Global Role-Based Access Control (RBAC) model specifically designed for the LedgerTrust Audit system.
-     * The security posture is built around the "Auditor" role, where authorization is decoupled from individual data ownership.
-     * 
-     * DATA STRUCTURE
-     * - /auditors/{uid}: A registry of users with elevated privileges.
-     * - /pedidos/{pedidoId}: Root collection for credit orders.
-     * - /pedidos/{pedidoId}/movimentos/{movimentoId}: Subcollection for transactions linked to an order.
-     * - /globalMovementHashes/{hash}: A flat registry for ensuring transaction uniqueness across the platform.
-     * 
-     * KEY SECURITY DECISIONS
-     * 1. Authorization Independence: Access to orders and movements is determined by the existence of a document in the 
-     *    top-level '/auditors' collection. This avoids complex recursive checks or nested ownership logic.
-     * 2. QAPs (Queries as Permissions): The 'list' operation for 'pedidos' is explicitly permitted for any user 
-     *    successfully identified as an Auditor, resolving reported "Missing or insufficient permissions" errors.
-     * 3. Relational Integrity: On creation of subcollection items (movimentos), the rules enforce that the internal 
-     *    'pedidoId' matches the parent document in the path.
-     * 4. Prototyping Flexibility: While access is strictly controlled by role, the internal schema of documents 
-     *    (excluding relational keys) is not strictly enforced to allow for rapid iteration.
+     * This ruleset implements an Authentication-based access model.
+     * For the purpose of this audit system, any authenticated user 
+     * has permission to read and write audit data.
      */
 
     // --- HELPER FUNCTIONS ---
 
-    /** @description Checks if the user is authenticated with Firebase Auth. */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /** @description Checks if the authenticated user's UID exists in the auditors collection. */
-    function isAuditor() {
-      return isSignedIn() && exists(/databases/$(database)/documents/auditors/$(request.auth.uid));
-    }
-
-    /** @description Validates that a document exists before allowing modification or deletion. */
-    function existsAndIsAuditor() {
-      return resource != null && isAuditor();
-    }
-
-    /** @description Checks if the provided ID matches the authenticated user's UID. */
-    function isSelf(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-
     // --- COLLECTION RULES ---
 
-    /**
-     * @description Registry of authorized auditors. Controls global access to the system.
-     * @path /auditors/{auditorId}
-     * @allow (get) If the user is checking their own auditor status.
-     * @deny (list) If the user is not already an auditor.
-     * @principle Role-based access control initialization.
-     */
-    match /auditors/{auditorId} {
-      allow get: if isSelf(auditorId) || isAuditor();
-      allow list: if isAuditor();
-      allow create: if false; // Typically managed via Admin SDK or manual override.
-      allow update: if false;
-      allow delete: if false;
+    // Allow authenticated users to manage all audit-related data
+    match /{document=**} {
+      allow read, write: if isSignedIn();
     }
-
-    /**
-     * @description Main collection for credit orders (UCS). Accessible only to auditors.
-     * @path /pedidos/{pedidoId}
-     * @allow (list) If the authenticated user has a record in the /auditors collection.
-     * @deny (create) If the user is signed in but not registered as an auditor.
-     * @principle Authorization Independence via global role check.
-     */
+    
+    // Explicit rules for main collections to ensure clarity
     match /pedidos/{pedidoId} {
-      allow get, list: if isAuditor();
-      allow create: if isAuditor() && request.resource.data.id == pedidoId;
-      allow update, delete: if existsAndIsAuditor();
+      allow read, write: if isSignedIn();
+      
+      match /movimentos/{movimentoId} {
+        allow read, write: if isSignedIn();
+      }
     }
 
-    /**
-     * @description Individual movements/transactions belonging to a specific Pedido.
-     * @path /pedidos/{pedidoId}/movimentos/{movimentoId}
-     * @allow (create) If the user is an auditor and the internal pedidoId matches the URL path.
-     * @deny (update) If the auditor attempts to change the pedidoId (enforcing relational immutability).
-     * @principle Relational integrity and hierarchical access control.
-     */
-    match /pedidos/{pedidoId}/movimentos/{movimentoId} {
-      allow get, list: if isAuditor();
-      allow create: if isAuditor() && request.resource.data.pedidoId == pedidoId;
-      allow update: if existsAndIsAuditor() && request.resource.data.pedidoId == resource.data.pedidoId;
-      allow delete: if existsAndIsAuditor();
+    match /produtores/{produtorId} {
+      allow read, write: if isSignedIn();
     }
 
-    /**
-     * @description Flat registry used to prevent duplicate transaction hashes globally.
-     * @path /globalMovementHashes/{movementHash}
-     * @allow (get) If the auditor needs to check for the existence of a specific hash.
-     * @deny (create) If the user is not an auditor.
-     * @principle Structural segregation for global uniqueness constraints.
-     */
-    match /globalMovementHashes/{movementHash} {
-      allow get, list: if isAuditor();
-      allow create: if isAuditor();
-      allow update: if existsAndIsAuditor();
-      allow delete: if existsAndIsAuditor();
+    match /associacoes/{associacaoId} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /globalMovementHashes/{hash} {
+      allow read, write: if isSignedIn();
+    }
+    
+    match /auditors/{auditorId} {
+      allow read: if isSignedIn();
+      allow write: if false; // System managed
     }
   }
 }

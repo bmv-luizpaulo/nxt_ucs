@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useMemo } from "react";
@@ -163,7 +162,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="max-w-[1300px] h-[90vh] flex flex-col p-0 border-none bg-white shadow-2xl overflow-hidden rounded-[2.5rem] print:rounded-none"
+        className="max-w-[1300px] h-[90vh] flex flex-col p-0 border-none bg-white shadow-2xl overflow-hidden rounded-[2.5rem]"
         onPointerDownOutside={(e) => { if (activePasteField) e.preventDefault(); }}
         onInteractOutside={(e) => { if (activePasteField) e.preventDefault(); }}
       >
@@ -187,7 +186,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                   value={pasteBuffer}
                   onChange={e => setPasteBuffer(e.target.value)}
                   placeholder="Cole os dados do Excel aqui..."
-                  className="w-full h-64 bg-slate-50 border-slate-200 font-mono text-[11px] p-4 rounded-xl resize-none"
+                  className="w-full h-64 bg-slate-50 border-slate-200 font-mono text-[11px] p-4 rounded-xl resize-none text-slate-900"
                 />
               </div>
               <div className="p-5 bg-slate-50 flex justify-between items-center">
@@ -210,28 +209,35 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
           </div>
         )}
 
-        {/* CABEÇALHO BMV PREMIUM */}
+        {/* CABEÇALHO CONSOLE TÉCNICO */}
         <div className="bg-[#0F172A] p-8 shrink-0 text-white relative">
-          <div className="flex items-center gap-2 mb-6">
+          <div className="flex items-center gap-2 mb-4">
             <ShieldCheck className="w-4 h-4 text-primary" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Auditoria BMV</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Console de Auditoria BMV</span>
           </div>
 
-          <div className="flex justify-between items-end mb-10">
-            <div>
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Entidade Auditada</p>
-              <h2 className="text-2xl font-black leading-none tracking-tighter uppercase text-slate-50">
+          <div className="flex justify-between items-start mb-8">
+            <div className="space-y-1">
+              <h2 className="text-3xl font-bold tracking-tight uppercase text-slate-50">
                 {entity.nome}
               </h2>
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Documento:</span>
+                <span className="text-sm font-mono text-slate-300">{entity.documento}</span>
+              </div>
             </div>
-            <div className="text-right">
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Documento Ledger</p>
-              <p className="text-xl font-bold tracking-tight text-slate-200 font-mono">{entity.documento}</p>
+            
+            <div className="bg-primary/10 px-6 py-4 rounded-2xl border border-primary/20 backdrop-blur-sm min-w-[200px]">
+              <p className="text-[9px] font-bold text-primary uppercase tracking-widest mb-1">SALDO FINAL AUDITADO</p>
+              <div className="flex items-baseline gap-1.5 text-3xl font-bold tracking-tighter text-white">
+                {formatUCS(stats.finalAuditado)}
+                <span className="text-xs font-medium opacity-60">UCS</span>
+              </div>
             </div>
           </div>
 
-          {/* Grade de 8 Colunas de Consolidados */}
-          <div className="grid grid-cols-8 gap-4 items-end border-t border-slate-800 pt-8">
+          {/* Grade de 8 Colunas de Indicadores Técnicos */}
+          <div className="grid grid-cols-4 md:grid-cols-8 gap-4 pt-6 border-t border-slate-800">
             <StatColumn label="ORIGINAÇÃO" value={formatUCS(stats.totalOrig)} color="white" />
             <StatColumn 
               label="MOVIMENTAÇÃO" 
@@ -244,18 +250,11 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             <StatColumn label="AQUISIÇÃO" value={formatUCS(stats.totalAq)} color="rose" />
             <StatColumn label="AJUSTE IMEI" value={formatUCS(stats.ajusteImei)} color="indigo" />
             <StatColumn label="SALDO LEGADO" value={formatUCS(stats.legadoTotal)} color="amber" />
-            
-            <div className="bg-primary/10 p-4 rounded-2xl border border-primary/20 backdrop-blur-md">
-              <p className="text-[9px] font-black text-primary uppercase tracking-widest mb-1.5">SALDO AUDITADO</p>
-              <div className="flex items-baseline gap-1 text-2xl font-black tracking-tighter text-white">
-                {formatUCS(stats.finalAuditado)}
-                <span className="text-[10px] font-black opacity-50 ml-1">UCS</span>
-              </div>
-            </div>
+            <StatColumn label="VALOR AJUSTAR" value={formatUCS(entity.valorAjustar)} color="white" />
           </div>
         </div>
 
-        {/* ÁREA DE TRABALHO TÉCNICA */}
+        {/* ÁREA DE TABELAS */}
         <ScrollArea className="flex-1 bg-white">
           <div className="p-8 space-y-12 pb-20">
             <SectionTechnical 
@@ -331,16 +330,16 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
           </div>
         </ScrollArea>
 
-        {/* RODAPÉ BMV */}
+        {/* RODAPÉ DE AÇÕES */}
         <div className="p-6 border-t bg-slate-50 flex justify-between items-center shrink-0">
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[10px] font-black uppercase text-slate-400 tracking-widest hover:bg-rose-50 hover:text-rose-600 h-12 rounded-xl px-8">
-            Descartar Alterações
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[10px] font-bold uppercase text-slate-400 tracking-widest hover:bg-rose-50 hover:text-rose-600 h-12 rounded-xl px-8">
+            Sair sem Salvar
           </Button>
           <div className="flex gap-4">
-            <Button onClick={() => window.print()} variant="outline" className="h-12 px-8 rounded-xl border-slate-200 bg-white font-black uppercase text-[10px] tracking-widest gap-2">
-              <Printer className="w-4 h-4" /> Relatório Técnico
+            <Button onClick={() => window.print()} variant="outline" className="h-12 px-8 rounded-xl border-slate-200 bg-white font-bold uppercase text-[10px] tracking-widest gap-2">
+              <Printer className="w-4 h-4" /> Imprimir Relatório
             </Button>
-            <Button onClick={handleSaveFinal} className="h-12 px-10 rounded-xl bg-primary hover:bg-primary/90 text-white font-black uppercase text-[10px] tracking-widest shadow-xl shadow-primary/20 gap-2">
+            <Button onClick={handleSaveFinal} className="h-12 px-10 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold uppercase text-[10px] tracking-widest shadow-lg shadow-primary/20 gap-2">
               <Save className="w-4 h-4" /> Gravar no Ledger
             </Button>
           </div>
@@ -360,14 +359,14 @@ function StatColumn({ label, value, color, subValue }: { label: string, value: s
   };
 
   return (
-    <div className="flex flex-col gap-1 min-w-0">
-      <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-0.5 truncate">{label}</p>
-      <div className={cn("flex items-baseline gap-0.5 text-xl font-black tracking-tighter", colorClasses[color as keyof typeof colorClasses])}>
+    <div className="flex flex-col gap-0.5 min-w-0">
+      <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest truncate">{label}</p>
+      <div className={cn("flex items-baseline gap-0.5 text-lg font-bold tracking-tight", colorClasses[color as keyof typeof colorClasses])}>
         {value}
-        <span className="text-[9px] font-black opacity-40">UCS</span>
+        <span className="text-[9px] font-medium opacity-40">UCS</span>
       </div>
       {subValue && (
-        <span className="text-[8px] font-black text-slate-500 uppercase flex items-center gap-1 mt-0.5 truncate">
+        <span className="text-[8px] font-bold text-slate-500 uppercase flex items-center gap-1 truncate">
           {subValue.includes('PAGO') ? <CheckCircle2 className="w-2.5 h-2.5 text-primary" /> : <Clock className="w-2.5 h-2.5" />}
           {subValue}
         </span>
@@ -381,39 +380,38 @@ function SectionTechnical({ title, icon: Icon, color = "emerald", onImport, data
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-2">
         <div className="flex items-center gap-3">
-          <div className={cn("w-1 h-6 rounded-full", 
+          <div className={cn("w-1 h-5 rounded-full", 
             color === "amber" ? "bg-amber-500" : 
             color === "rose" ? "bg-rose-500" : 
             color === "indigo" ? "bg-indigo-500" : "bg-primary"
           )} />
           <div>
-            <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-900 leading-none">{title}</h3>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">
-              Volume Consolidado: <span className={cn("font-black", color === 'rose' ? "text-rose-500" : "text-emerald-600")}>
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-900 leading-none">{title}</h3>
+            <p className="text-[8px] font-medium text-slate-400 uppercase tracking-widest mt-1">
+              Volume: <span className={cn("font-bold", color === 'rose' ? "text-rose-500" : "text-emerald-600")}>
                 {Math.abs(currentTotal).toLocaleString('pt-BR')} UCS
               </span>
             </p>
           </div>
         </div>
-        <Button onClick={onImport} variant="outline" className="h-9 px-4 rounded-xl border-primary/30 text-primary font-black uppercase text-[9px] tracking-widest gap-2 hover:bg-emerald-50 border">
-          <Calculator className="w-3.5 h-3.5" /> Colagem Técnica
+        <Button onClick={onImport} variant="outline" className="h-8 px-4 rounded-lg border-slate-200 text-slate-600 font-bold uppercase text-[9px] tracking-widest gap-2 hover:bg-slate-50 border">
+          <Calculator className="w-3 h-3" /> Importar
         </Button>
       </div>
 
-      <div className="rounded-2xl border border-slate-100 overflow-hidden bg-white shadow-sm">
+      <div className="rounded-xl border border-slate-100 overflow-hidden bg-white">
         {data.length === 0 ? (
-          <div className="py-10 text-center opacity-30 flex flex-col items-center gap-2">
-            <AlertCircle className="w-5 h-5 text-slate-300" />
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nenhum registro mapeado no ledger</p>
+          <div className="py-8 text-center opacity-30 flex flex-col items-center gap-1">
+            <p className="text-[9px] font-medium uppercase tracking-widest text-slate-400">Nenhum registro</p>
           </div>
         ) : (
           <Table>
             <TableHeader className="bg-slate-50/50">
-              <TableRow className="h-10">
+              <TableRow className="h-8">
                 {columns.map((col: any) => (
-                  <TableHead key={col.label} className={cn("text-[9px] font-black uppercase tracking-widest text-slate-400 px-4 h-10", col.align === 'right' && "text-right")}>
+                  <TableHead key={col.label} className={cn("text-[8px] font-bold uppercase tracking-widest text-slate-400 px-4 h-8", col.align === 'right' && "text-right")}>
                     {col.label}
                   </TableHead>
                 ))}
@@ -424,11 +422,11 @@ function SectionTechnical({ title, icon: Icon, color = "emerald", onImport, data
                 <TableRow key={i} className="h-10 hover:bg-slate-50/40 transition-colors border-b border-slate-50 last:border-0">
                   {columns.map((col: any) => (
                     <TableCell key={col.label} className={cn(
-                      "px-4 py-2 text-[10px] font-bold text-slate-600",
+                      "px-4 py-2 text-[10px] font-medium text-slate-600",
                       col.align === 'right' && "text-right",
                       col.variant === 'emerald' && "text-emerald-600",
                       col.variant === 'rose' && "text-rose-500",
-                      col.variant === 'amber' && "text-amber-600 font-black",
+                      col.variant === 'amber' && "text-amber-600 font-bold",
                       col.variant === 'indigo' && "text-indigo-600"
                     )}>
                       {col.type === 'status' ? (
@@ -436,13 +434,13 @@ function SectionTechnical({ title, icon: Icon, color = "emerald", onImport, data
                           value={row[col.key] || 'Pendente'} 
                           onValueChange={(v) => onUpdateRow?.(i, { [col.key]: v as AuditoriaStatus })}
                         >
-                          <SelectTrigger className="h-7 w-28 text-[9px] font-black uppercase tracking-widest rounded-lg border-slate-200">
+                          <SelectTrigger className="h-7 w-28 text-[9px] font-bold uppercase tracking-widest rounded-lg border-slate-200 bg-white">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Pendente" className="text-[9px] font-black uppercase">Pendente</SelectItem>
-                            <SelectItem value="Pago" className="text-[9px] font-black uppercase text-emerald-600">Pago</SelectItem>
-                            <SelectItem value="Não Pago" className="text-[9px] font-black uppercase text-rose-500">Não Pago</SelectItem>
+                          <SelectContent className="bg-white">
+                            <SelectItem value="Pendente" className="text-[9px] font-bold uppercase">Pendente</SelectItem>
+                            <SelectItem value="Pago" className="text-[9px] font-bold uppercase text-emerald-600">Pago</SelectItem>
+                            <SelectItem value="Não Pago" className="text-[9px] font-bold uppercase text-rose-500">Não Pago</SelectItem>
                           </SelectContent>
                         </Select>
                       ) : col.type === 'link' ? (
@@ -451,14 +449,14 @@ function SectionTechnical({ title, icon: Icon, color = "emerald", onImport, data
                             value={row[col.key] || ''} 
                             placeholder="URL..."
                             onChange={(e) => onUpdateRow?.(i, { [col.key]: e.target.value })}
-                            className="h-7 w-40 text-[9px] font-mono border-slate-200 rounded-lg"
+                            className="h-7 w-40 text-[9px] font-mono border-slate-200 rounded-lg bg-white"
                           />
                           {row[col.key] ? (
                             <a href={row[col.key]} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80">
-                              <LinkIcon className="w-3.5 h-3.5" />
+                              <LinkIcon className="w-3 h-3" />
                             </a>
                           ) : (
-                            <AlertCircle className="w-3.5 h-3.5 text-slate-100" />
+                            <AlertCircle className="w-3 h-3 text-slate-200" />
                           )}
                         </div>
                       ) : (
