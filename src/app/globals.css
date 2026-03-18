@@ -35,7 +35,7 @@
   /* 📄 TAMANHO REAL */
   @page {
     size: A4;
-    margin: 15mm;
+    margin: 10mm;
   }
 
   /* 🎯 RESET */
@@ -44,8 +44,8 @@
     padding: 0;
     background: white !important;
     font-family: "Raleway", Arial, sans-serif !important;
-    font-size: 11px;
-    line-height: 1.4;
+    font-size: 10px;
+    line-height: 1.3;
   }
 
   * {
@@ -58,18 +58,23 @@
     visibility: hidden;
   }
 
-  /* ✅ MOSTRA APENAS CERTIFICADO */
+  /* ✅ MOSTRA APENAS CERTIFICADO OU RELATÓRIO */
   .printable-certificate,
-  .printable-certificate * {
+  .printable-certificate *,
+  .printable-audit-report,
+  .printable-audit-report * {
     visibility: visible;
   }
 
   /* 🧾 CONTAINER PRINCIPAL */
-  .printable-certificate {
-    position: relative;
+  .printable-certificate,
+  .printable-audit-report {
+    position: absolute;
+    top: 0;
+    left: 0;
     display: block !important;
     width: 100%;
-    max-width: 180mm;
+    max-width: 190mm;
     margin: 0 auto;
     padding: 0 !important;
     background: white !important;
@@ -83,7 +88,8 @@
   header,
   aside,
   button,
-  .print-hidden {
+  .print-hidden,
+  [role="dialog"] > button {
     display: none !important;
   }
 
@@ -98,15 +104,16 @@
   }
 
   /* 🔐 WATERMARK */
-  .printable-certificate::before {
+  .printable-certificate::before,
+  .printable-audit-report::before {
     content: "DOCUMENTO OFICIAL";
-    position: absolute;
-    top: 35%;
+    position: fixed;
+    top: 45%;
     left: 50%;
     transform: translate(-50%, -50%) rotate(-30deg);
-    font-size: 70px;
+    font-size: 80px;
     font-weight: 900;
-    color: rgba(0, 0, 0, 0.03);
+    color: rgba(0, 0, 0, 0.02);
     white-space: nowrap;
     pointer-events: none;
     z-index: 0;

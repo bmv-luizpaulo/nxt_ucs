@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useMemo } from "react";
@@ -169,51 +168,51 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
           <DialogDescription>Detalhamento técnico de conformidade e auditoria de UCS.</DialogDescription>
         </DialogHeader>
         
-        {/* CERTIFICADO A4 PRINT */}
+        {/* RELATÓRIO EXECUTIVO A4 PRINT */}
         <div className="printable-audit-report hidden print:block bg-white text-slate-900 p-0 font-body">
-          <div className="flex justify-between items-start border-b-2 border-slate-900 pb-4 mb-6">
+          <div className="flex justify-between items-start border-b-2 border-slate-900 pb-3 mb-5">
             <div className="flex items-center gap-0">
-               <div className="relative w-16 h-16">
+               <div className="relative w-14 h-14">
                  <Image src="/image/logo_amarelo.png" alt="BMV Logo" fill className="object-contain" />
                </div>
-               <span className="text-[36px] font-black text-amber-500 leading-none -ml-2">bmv</span>
+               <span className="text-[32px] font-black text-amber-500 leading-none -ml-2">bmv</span>
             </div>
             <div className="text-right">
-              <h2 className="text-[16px] font-black uppercase tracking-tight leading-tight">RELATÓRIO EXECUTIVO DE AUDITORIA</h2>
-              <p className="text-[10px] font-black uppercase text-slate-900 tracking-widest mt-1">PROTOCOLO DE SALDO: {entity.id}</p>
-              <p className="text-[8px] text-slate-400 font-bold mt-0.5 uppercase">{new Date().toLocaleString("pt-BR")}</p>
+              <h2 className="text-[14px] font-black uppercase tracking-tight leading-tight">RELATÓRIO EXECUTIVO DE AUDITORIA</h2>
+              <p className="text-[9px] font-black uppercase text-slate-900 tracking-widest mt-0.5">PROTOCOLO DE SALDO: {entity.id}</p>
+              <p className="text-[7px] text-slate-400 font-bold mt-0.5 uppercase">{new Date().toLocaleString("pt-BR")}</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-12 mb-8">
-            <div className="space-y-4">
-              <h3 className="text-[10px] font-black text-slate-400 uppercase border-b border-slate-100 pb-1.5 tracking-[0.2em]">IDENTIFICAÇÃO DA ENTIDADE</h3>
-              <div className="space-y-4">
-                <p className="text-[20px] font-black text-slate-900 leading-none tracking-tighter uppercase">{entity.nome}</p>
-                <div className="text-[9px] space-y-2 font-bold uppercase tracking-tight">
+          <div className="grid grid-cols-2 gap-8 mb-6">
+            <div className="space-y-3">
+              <h3 className="text-[8px] font-black text-slate-400 uppercase border-b border-slate-100 pb-1 tracking-[0.2em]">IDENTIFICAÇÃO DA ENTIDADE</h3>
+              <div className="space-y-2">
+                <p className="text-[16px] font-black text-slate-900 leading-none tracking-tighter uppercase">{entity.nome}</p>
+                <div className="text-[8px] space-y-1 font-bold uppercase tracking-tight">
                   <p><strong className="text-slate-400 font-black mr-2">DOCUMENTO REGISTRADO:</strong> {entity.documento}</p>
                   <p><strong className="text-slate-400 font-black mr-2">AUDITOR RESPONSÁVEL:</strong> {user?.email}</p>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <h3 className="text-[10px] font-black text-slate-400 uppercase border-b border-slate-100 pb-1.5 tracking-[0.2em]">RESUMO DE SALDOS (UCS)</h3>
-              <div className="flex justify-between items-start gap-4">
-                <div className="text-[9px] space-y-3 font-bold uppercase flex-1">
+            <div className="space-y-3">
+              <h3 className="text-[8px] font-black text-slate-400 uppercase border-b border-slate-100 pb-1 tracking-[0.2em]">RESUMO DE SALDOS (UCS)</h3>
+              <div className="flex justify-between items-start gap-3">
+                <div className="text-[8px] space-y-2 font-bold uppercase flex-1">
                   <div>
-                    <p className="text-slate-400 font-black text-[7px] mb-0.5">ORIGINAÇÃO TOTAL</p>
-                    <p className="text-lg font-black text-slate-900">{totals.orig.toLocaleString('pt-BR')}</p>
+                    <p className="text-slate-400 font-black text-[6px] mb-0.5">ORIGINAÇÃO TOTAL</p>
+                    <p className="text-base font-black text-slate-900">{totals.orig.toLocaleString('pt-BR')}</p>
                   </div>
                   <div>
-                    <p className="text-slate-400 font-black text-[7px] mb-0.5">SALDO FINAL AUDITADO</p>
-                    <p className="text-lg font-black text-primary">{totals.final.toLocaleString('pt-BR')}</p>
+                    <p className="text-slate-400 font-black text-[6px] mb-0.5">SALDO FINAL AUDITADO</p>
+                    <p className="text-base font-black text-primary">{totals.final.toLocaleString('pt-BR')}</p>
                   </div>
                 </div>
 
-                <div className="flex flex-col items-center gap-1.5 bg-slate-50 p-3 rounded-2xl border border-slate-100 shrink-0 shadow-sm">
-                  <QrCode className="w-16 h-16 text-slate-200" />
-                  <p className="text-[6px] font-black text-slate-400 uppercase tracking-widest">CONFORMIDADE</p>
+                <div className="flex flex-col items-center gap-1 bg-slate-50 p-2 rounded-xl border border-slate-100 shrink-0 shadow-sm">
+                  <QrCode className="w-12 h-12 text-slate-200" />
+                  <p className="text-[5px] font-black text-slate-400 uppercase tracking-widest">CONFORMIDADE</p>
                 </div>
               </div>
             </div>
@@ -229,22 +228,25 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             {formData.tabelaLegado && formData.tabelaLegado.length > 0 && (
               <ReportTable title="03. DEMONSTRATIVO DE SALDO LEGADO" data={formData.tabelaLegado} isLegado />
             )}
+            {formData.tabelaImei && formData.tabelaImei.length > 0 && (
+              <ReportTable title="04. AJUSTE IMEI" data={formData.tabelaImei} />
+            )}
           </div>
 
-          <div className="mt-10 flex justify-between items-end">
-            <div className="text-[9px] text-[#10B981] font-black flex items-center gap-2 uppercase tracking-tight">
-              <ShieldCheck className="w-4 h-4" /> SALDO VALIDADO PELO LEDGERTRUST
+          <div className="mt-8 flex justify-between items-end">
+            <div className="text-[8px] text-[#10B981] font-black flex items-center gap-1.5 uppercase tracking-tight">
+              <ShieldCheck className="w-3.5 h-3.5" /> SALDO VALIDADO PELO LEDGERTRUST
             </div>
             <div className="text-right">
-              <div className="border-t border-slate-900 w-64 pt-3">
-                <p className="text-[9px] font-black uppercase text-slate-900 tracking-tight">RESPONSÁVEL TÉCNICO BMV</p>
-                <p className="text-[7px] text-slate-400 uppercase font-bold">Assinado digitalmente via LedgerTrust</p>
+              <div className="border-t border-slate-900 w-56 pt-2">
+                <p className="text-[8px] font-black uppercase text-slate-900 tracking-tight">RESPONSÁVEL TÉCNICO BMV</p>
+                <p className="text-[6px] text-slate-400 uppercase font-bold">Assinado digitalmente via LedgerTrust</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* CONSOLE UI DESIGN SCREENSHOT */}
+        {/* CONSOLE UI - INTERFACE TÉCNICA (HIDDEN EM PRINT) */}
         <div className="flex-1 flex flex-col overflow-hidden print:hidden bg-[#0F172A]">
           <div className="p-6 pb-8 shrink-0 text-white relative">
             <div className="flex justify-between items-start mb-6">
@@ -355,7 +357,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
           </div>
         </div>
 
-        {/* MODAL DE COLAGEM */}
+        {/* MODAL DE COLAGEM TÉCNICA */}
         {pasteData && (
           <Dialog open={!!pasteData} onOpenChange={() => setPasteData(null)}>
             <DialogContent className="max-w-xl rounded-3xl p-8 space-y-4">
@@ -369,9 +371,9 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                 value={pasteData.raw} 
                 onChange={e => setPasteData({ ...pasteData, raw: e.target.value })}
                 placeholder="Cole aqui as colunas do Excel/Google Sheets para processamento automático..."
-                className="min-h-[250px] font-mono text-[10px] bg-slate-50 border-slate-100 rounded-2xl p-6"
+                className="min-h-[250px] font-mono text-[10px] bg-slate-50 border-slate-100 rounded-2xl p-6 shadow-inner"
               />
-              <Button onClick={handleProcessPaste} className="w-full h-12 rounded-xl font-black uppercase text-[10px] bg-primary text-white">IMPORTAR DADOS</Button>
+              <Button onClick={handleProcessPaste} className="w-full h-12 rounded-xl font-black uppercase text-[10px] bg-primary text-white shadow-lg shadow-emerald-100">IMPORTAR DADOS</Button>
             </DialogContent>
           </Dialog>
         )}
@@ -382,23 +384,25 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
 function ReportTable({ title, data, isNegative, isLegado }: any) {
   return (
-    <div className="space-y-2">
-       <h4 className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 pb-1.5">{title}</h4>
-       <table className="w-full text-left text-[8px]">
+    <div className="space-y-1.5">
+       <h4 className="text-[7px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 pb-1">{title}</h4>
+       <table className="w-full text-left text-[7px]">
           <thead className="bg-[#F8FAFC]">
             <tr className="border-b border-slate-100">
-              <th className="px-3 py-1.5 font-black uppercase tracking-widest text-slate-500">REFERÊNCIA</th>
-              <th className="px-3 py-1.5 font-black uppercase tracking-widest text-slate-500">HISTÓRICO</th>
-              <th className="px-3 py-1.5 font-black uppercase tracking-widest text-slate-500 text-right">VOLUME (UCS)</th>
+              <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">REFERÊNCIA</th>
+              <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">HISTÓRICO</th>
+              <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">VOLUME (UCS)</th>
             </tr>
           </thead>
           <tbody className="font-bold uppercase">
             {data.map((row: any, i: number) => (
               <tr key={i} className="border-b border-slate-50">
-                <td className="px-3 py-1.5 font-mono text-slate-400">{row.data || row.dist || '-'}</td>
-                <td className="px-3 py-1.5 text-slate-600 truncate max-w-[200px]">{row.destino || row.plataforma || '-'}</td>
-                <td className={cn("px-3 py-1.5 text-right font-black", isNegative ? "text-rose-600" : "text-slate-900")}>
-                  {isLegado ? (row.disponivel + row.reservado).toLocaleString('pt-BR') : row.valor?.toLocaleString('pt-BR')}
+                <td className="px-2 py-1 font-mono text-slate-400">{row.data || row.dist || '-'}</td>
+                <td className="px-2 py-1 text-slate-600 truncate max-w-[250px]">{row.destino || row.plataforma || '-'}</td>
+                <td className={cn("px-2 py-1 text-right font-black", isNegative ? "text-rose-600" : "text-slate-900")}>
+                  {isLegado ? (row.disponivel + row.reservado).toLocaleString('pt-BR') : 
+                   type === 'imei' ? (row.valorDebito - row.valorCredito).toLocaleString('pt-BR') :
+                   row.valor?.toLocaleString('pt-BR')}
                 </td>
               </tr>
             ))}
