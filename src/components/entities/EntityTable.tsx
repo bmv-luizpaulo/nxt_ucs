@@ -5,11 +5,10 @@ import { EntidadeSaldo } from "@/lib/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Search, AlertTriangle, MessageSquare } from "lucide-react";
+import { Search, AlertTriangle, MessageSquare, Clock, CheckCircle2 } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { EntityEditDialog } from "./EntityEditDialog";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface EntityTableProps {
   data: EntidadeSaldo[];
@@ -31,8 +30,33 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate }: 
     else onSelectionChange([...selectedIds, id]);
   };
 
-  // Formata números com ponto para milhares conforme o print
   const formatUCS = (val: number) => (val || 0).toLocaleString('pt-BR');
+
+  const renderStatus = (item: EntidadeSaldo) => {
+    const status = item.statusAuditoriaSaldo;
+    
+    if (status === 'valido') {
+      return (
+        <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 text-[9px] font-black uppercase px-3 py-1.5 rounded-full flex items-center justify-center gap-1.5 w-fit mx-auto">
+          <CheckCircle2 className="w-3 h-3" /> Válido
+        </Badge>
+      );
+    }
+    
+    if (status === 'inconsistente') {
+      return (
+        <Badge className="bg-rose-50 text-rose-500 border-rose-100 text-[9px] font-black uppercase px-3 py-1.5 rounded-full flex items-center justify-center gap-1.5 w-fit mx-auto">
+          <AlertTriangle className="w-3 h-3" /> Divergente
+        </Badge>
+      );
+    }
+
+    return (
+      <Badge variant="outline" className="text-slate-400 border-slate-200 text-[9px] font-black uppercase px-3 py-1.5 rounded-full flex items-center justify-center gap-1.5 w-fit mx-auto">
+        <Clock className="w-3 h-3" /> Pendente
+      </Badge>
+    );
+  };
 
   return (
     <>
@@ -57,7 +81,7 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate }: 
                 <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Aquisição</TableHead>
                 <TableHead className="text-[10px] font-black uppercase tracking-widest text-[#734DCC] text-right">Ajuste IMEI</TableHead>
                 <TableHead className="text-[11px] font-black uppercase tracking-widest text-primary text-right">Saldo Auditado</TableHead>
-                <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Status</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Status Auditoria</TableHead>
                 <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center pr-8">Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -108,11 +132,7 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate }: 
                       </div>
                     </TableCell>
                     <TableCell className="text-center py-4">
-                      {item.status === 'disponivel' || item.statusAuditoriaSaldo === 'valido' ? (
-                        <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 text-[9px] font-black uppercase px-3 py-1 rounded-full">Válido</Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-[9px] font-black uppercase px-3 py-1 rounded-full">Pendente</Badge>
-                      )}
+                      {renderStatus(item)}
                     </TableCell>
                     <TableCell className="text-center pr-8">
                       <Button 
