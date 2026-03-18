@@ -199,75 +199,77 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
           <DialogDescription>Detalhamento técnico de rastreabilidade e conferência blockchain.</DialogDescription>
         </DialogHeader>
 
-        {/* CERTIFICADO DE RASTREABILIDADE (DESIGN ANALISADO) */}
+        {/* CERTIFICADO DE RASTREABILIDADE (DESIGN FIEL À IMAGEM) */}
         <div className="printable-certificate hidden print:block bg-white text-slate-900 p-10">
           {/* HEADER */}
-          <div className="flex justify-between items-start border-b pb-4">
+          <div className="flex justify-between items-start border-b-2 border-slate-100 pb-6 mb-8">
             <div className="flex items-center gap-2">
-              <span className="text-[28px] font-black text-amber-500">bmv</span>
+              <span className="text-[32px] font-black text-amber-500">bmv</span>
             </div>
 
-            <div className="text-right">
-              <h2 className="text-[14px] font-black uppercase tracking-wide">
+            <div className="text-right space-y-0.5">
+              <h2 className="text-[16px] font-black uppercase tracking-tight">
                 Certificado de Rastreabilidade
               </h2>
-              <p className="text-[9px] text-slate-500 uppercase">
-                Protocolo de Auditoria: {order.id}
+              <p className="text-[10px] font-bold text-slate-900 uppercase">
+                Protocolo de Auditoria: #{order.id}
               </p>
-              <p className="text-[8px] text-slate-400">
+              <p className="text-[9px] text-slate-400 font-medium">
                 {new Date().toLocaleString("pt-BR")}
               </p>
             </div>
           </div>
 
           {/* GRID PRINCIPAL */}
-          <div className="grid grid-cols-2 gap-10 mt-6">
+          <div className="grid grid-cols-2 gap-12 mt-8">
             {/* IDENTIFICAÇÃO */}
-            <div>
-              <h3 className="text-[10px] font-bold text-slate-400 uppercase border-b pb-1 mb-3">
+            <div className="space-y-4">
+              <h3 className="text-[11px] font-black text-slate-400 uppercase border-b border-slate-100 pb-2 tracking-widest">
                 Identificação do Ativo
               </h3>
 
-              <p className="text-[12px] font-bold text-primary mb-2">
-                #{order.id}
-              </p>
+              <div className="space-y-4">
+                <p className="text-[18px] font-black text-emerald-500">
+                  #{order.id}
+                </p>
 
-              <div className="text-[10px] space-y-1">
-                <p><strong>Data:</strong> {new Date(order.data).toLocaleDateString()}</p>
-                <p><strong>Empresa:</strong> {order.empresa}</p>
-                <p><strong>CNPJ:</strong> {order.cnpj}</p>
-                <p><strong>Programa:</strong> {order.programa} ({order.uf})</p>
+                <div className="text-[10px] space-y-2 font-medium">
+                  <p><strong className="font-black uppercase text-[9px] text-slate-400 mr-2">Data:</strong> {new Date(order.data).toLocaleDateString()}</p>
+                  <p className="leading-relaxed"><strong className="font-black uppercase text-[9px] text-slate-400 mr-2">Empresa:</strong> {order.empresa}</p>
+                  <p><strong className="font-black uppercase text-[9px] text-slate-400 mr-2">CNPJ:</strong> {order.cnpj}</p>
+                  <p><strong className="font-black uppercase text-[9px] text-slate-400 mr-2">Programa:</strong> {order.programa} ({order.uf})</p>
+                </div>
               </div>
             </div>
 
             {/* AUDITORIA */}
-            <div>
-              <h3 className="text-[10px] font-bold text-slate-400 uppercase border-b pb-1 mb-3">
+            <div className="space-y-4">
+              <h3 className="text-[11px] font-black text-slate-400 uppercase border-b border-slate-100 pb-2 tracking-widest">
                 Auditoria Digital
               </h3>
 
               <div className="flex justify-between items-start">
-                <div className="text-[10px] space-y-2">
-                  <p><strong>Quantidade UCS:</strong> {order.quantidade}</p>
+                <div className="text-[10px] space-y-3 font-medium">
+                  <p><strong className="font-black uppercase text-[9px] text-slate-400 mr-2">Quantidade UCS:</strong> {order.quantidade}</p>
                   <p>
-                    <strong>Valor Auditado:</strong>{" "}
+                    <strong className="font-black uppercase text-[9px] text-slate-400 mr-2">Valor Auditado:</strong>{" "}
                     {order.valorTotal.toLocaleString("pt-BR", {
                       style: "currency",
                       currency: "BRL"
                     })}
                   </p>
 
-                  {order.linkNxt && (
-                    <p className="text-[9px] text-blue-600 underline">
+                  <div className="pt-2">
+                    <a href={order.linkNxt} className="text-[9px] text-blue-600 font-bold underline">
                       Ver extrato blockchain
-                    </p>
-                  )}
+                    </a>
+                  </div>
                 </div>
 
                 {/* QR CODE */}
-                <div className="text-center">
-                  <QrCode className="w-16 h-16 text-slate-300" />
-                  <p className="text-[7px] text-slate-400 mt-1">
+                <div className="flex flex-col items-center gap-1 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                  <QrCode className="w-16 h-16 text-slate-400" />
+                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-tighter">
                     validação digital
                   </p>
                 </div>
@@ -276,53 +278,55 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
           </div>
 
           {/* HISTÓRICO */}
-          <div className="mt-8">
-            <h3 className="text-[10px] font-bold text-slate-400 uppercase border-b pb-1 mb-3">
+          <div className="mt-12 space-y-4">
+            <h3 className="text-[11px] font-black text-slate-400 uppercase border-b border-slate-100 pb-2 tracking-widest">
               Histórico de Rastreabilidade (Ledger Records)
             </h3>
 
-            <table className="w-full text-[9px] border border-slate-200 rounded overflow-hidden">
-              <thead className="bg-slate-100">
-                <tr>
-                  <th className="p-2 text-left">Categoria</th>
-                  <th className="p-2 text-left">Origem</th>
-                  <th className="p-2 text-left">Destino</th>
-                  <th className="p-2 text-right">Volume (UCS)</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {movimentos?.map((mov, i) => (
-                  <tr key={i} className="border-t">
-                    <td className="p-2">{mov.tipo || "-"}</td>
-                    <td className="p-2">{mov.origem}</td>
-                    <td className="p-2">{mov.destino}</td>
-                    <td className="p-2 text-right font-bold">
-                      {mov.quantidade}
-                    </td>
-                  </tr>
-                ))}
-                {(!movimentos || movimentos.length === 0) && (
+            <div className="border border-slate-100 rounded-xl overflow-hidden">
+              <table className="w-full text-[9px] text-left">
+                <thead className="bg-slate-50">
                   <tr>
-                    <td colSpan={4} className="p-4 text-center text-slate-400 italic">Nenhum registro encontrado</td>
+                    <th className="p-3 font-black uppercase text-slate-400">Categoria</th>
+                    <th className="p-3 font-black uppercase text-slate-400">Origem</th>
+                    <th className="p-3 font-black uppercase text-slate-400">Destino</th>
+                    <th className="p-3 font-black uppercase text-slate-400 text-right">Volume (UCS)</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+
+                <tbody className="font-medium">
+                  {movimentos?.map((mov, i) => (
+                    <tr key={i} className="border-t border-slate-50">
+                      <td className="p-3 uppercase text-slate-600">{mov.tipo || "cliente"}</td>
+                      <td className="p-3">{mov.origem}</td>
+                      <td className="p-3 uppercase">{mov.destino}</td>
+                      <td className="p-3 text-right font-black text-slate-900">
+                        {mov.quantidade}
+                      </td>
+                    </tr>
+                  ))}
+                  {(!movimentos || movimentos.length === 0) && (
+                    <tr>
+                      <td colSpan={4} className="p-6 text-center text-slate-400 italic">Aguardando sincronização de extrato...</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* FOOTER */}
-          <div className="mt-16 flex justify-between items-end">
-            <div className="text-[9px] text-green-600 font-bold flex items-center gap-2">
-              ✔ Integridade verificada
+          <div className="mt-20 flex justify-between items-end">
+            <div className="text-[10px] text-emerald-600 font-black flex items-center gap-2 uppercase tracking-tight">
+              <Check className="w-4 h-4 stroke-[3px]" /> Integridade verificada
             </div>
 
-            <div className="text-right">
-              <div className="border-t w-56 pt-2">
-                <p className="text-[9px] font-bold">
+            <div className="text-right space-y-1">
+              <div className="border-t-2 border-slate-900 w-64 pt-3">
+                <p className="text-[10px] font-black uppercase text-slate-900 tracking-tight">
                   Auditor de Conformidade BMV
                 </p>
-                <p className="text-[7px] text-slate-400">
+                <p className="text-[8px] font-bold text-slate-400 uppercase">
                   Documento assinado digitalmente
                 </p>
               </div>

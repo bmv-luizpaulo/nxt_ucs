@@ -34,7 +34,7 @@
   /* 📄 TAMANHO REAL */
   @page {
     size: A4;
-    margin: 12mm; /* 🔥 menor margem = mais espaço útil */
+    margin: 12mm;
   }
 
   /* 🎯 RESET */
@@ -43,13 +43,8 @@
     padding: 0;
     background: white !important;
     font-family: "Inter", Arial, sans-serif;
-    font-size: 11.5px; /* 🔥 levemente menor evita overflow */
-    line-height: 1.35;
-  }
-
-  /* 🔥 CORREÇÃO DO CHROME */
-  html {
-    zoom: 0.96;
+    font-size: 11px;
+    line-height: 1.4;
   }
 
   * {
@@ -71,20 +66,15 @@
   /* 🧾 CONTAINER PRINCIPAL */
   .printable-certificate {
     position: relative;
-
+    display: block !important;
     width: 100%;
-    max-width: 186mm; /* 🔥 210 - (12mm x 2) */
-
+    max-width: 186mm;
     margin: 0 auto;
-
     padding: 0;
-
     background: white !important;
     color: black !important;
-
     box-sizing: border-box;
-
-    overflow: hidden; /* 🔥 evita spill */
+    overflow: hidden;
   }
 
   /* 🚫 ELEMENTOS NÃO PRINT */
@@ -100,51 +90,25 @@
   table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 10px;
-  }
-
-  thead {
-    display: table-header-group;
   }
 
   tr, td, th {
     page-break-inside: avoid !important;
   }
 
-  /* 🧱 BLOQUEIOS IMPORTANTES */
-  .section {
-    page-break-inside: avoid;
-  }
-
-  .no-break {
-    page-break-inside: avoid;
-  }
-
-  /* 🔐 WATERMARK (SEM QUEBRAR LAYOUT) */
+  /* 🔐 WATERMARK */
   .printable-certificate::before {
     content: "DOCUMENTO OFICIAL";
-
-    position: absolute; /* 🔥 NÃO usar fixed */
-
-    top: 50%;
+    position: absolute;
+    top: 35%;
     left: 50%;
-
     transform: translate(-50%, -50%) rotate(-30deg);
-
-    font-size: 58px;
+    font-size: 80px;
     font-weight: 900;
-
     color: rgba(0, 0, 0, 0.03);
-
+    white-space: nowrap;
     pointer-events: none;
     z-index: 0;
-  }
-
-  /* 🧾 FOOTER CONTROLADO */
-  .print-footer {
-    margin-top: 20px;
-    font-size: 9px;
-    color: #666;
   }
 
   /* 🧠 PROTEÇÃO FINAL CONTRA QUEBRA */
