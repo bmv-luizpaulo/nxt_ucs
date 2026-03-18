@@ -227,13 +227,13 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
         
         <DialogHeader className={cn(
           "border-b border-slate-100 pb-6 print:hidden",
-          variant === 'pdf' ? 'hidden' : 'block'
+          variant === 'pdf' ? 'sr-only' : 'block'
         )}>
           <DialogTitle>
             Auditoria de Pedido - {order.id}
           </DialogTitle>
           <DialogDescription className="sr-only">
-            Detalhamento e rastreabilidade do certificado blockchain.
+            Detalhamento e rastreabilidade do certificado blockchain para {order.empresa}.
           </DialogDescription>
         </DialogHeader>
 

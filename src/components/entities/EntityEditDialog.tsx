@@ -122,6 +122,10 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[1200px] h-[90vh] flex flex-col p-0 border-none bg-white shadow-2xl overflow-hidden rounded-[2.5rem]">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Console de Auditoria: {entity.nome}</DialogTitle>
+        </DialogHeader>
+
         {activePasteField && (
           <div className="absolute inset-0 z-[100] bg-white/95 backdrop-blur-sm flex items-center justify-center p-8 animate-in fade-in">
             <div className="bg-white w-full max-w-xl rounded-2xl shadow-2xl border border-slate-100 flex flex-col">

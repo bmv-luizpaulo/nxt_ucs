@@ -1,8 +1,9 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Permissão global para qualquer usuário autenticado
-    // Isso resolve o erro de permissão para leitura e escrita em qualquer coleção
+    // REGRAS GLOBAIS DE AUDITORIA BMV
+    // Permitir leitura e escrita para qualquer usuário autenticado.
+    // Esta regra garante que auditores logados possam gerenciar o Ledger.
     match /{document=**} {
       allow read, write: if request.auth != null;
     }
