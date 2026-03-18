@@ -45,9 +45,9 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const sumCredits = (arr?: RegistroTabela[]) => (arr || []).reduce((acc, curr) => acc + (curr.valorCredito || 0), 0);
     const sumDebits = (arr?: RegistroTabela[]) => (arr || []).reduce((acc, curr) => acc + (curr.valorDebito || 0), 0);
     
-    const orig = sumVal(formData.tabelaOriginacao);
-    const mov = sumVal(formData.tabelaMovimentacao);
-    const aq = sumVal(formData.tabelaAquisicao);
+    const orig = (formData.tabelaOriginacao || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
+    const mov = (formData.tabelaMovimentacao || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
+    const aq = (formData.tabelaAquisicao || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
     
     // IMEI Adjustment (Debits - Credits) - Treated as Neutral Pending
     const imeiCredits = sumCredits(formData.tabelaImei);
@@ -102,30 +102,55 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   const handleProcessPaste = () => {
     if (!pasteData) return;
     const lines = pasteData.raw.split('\n').filter(l => l.trim());
+    
     const newRows: RegistroTabela[] = lines.map(line => {
       const parts = line.split('\t');
-      // Generic parser based on section type
-      if (pasteData.section === 'tabelaLegado') {
-        return {
-          data: parts[0] || '',
-          plataforma: parts[1] || '',
-          disponivel: parseInt(parts[2]?.replace(/[^\d-]/g, '')) || 0,
-          reservado: parseInt(parts[3]?.replace(/[^\d-]/g, '')) || 0,
-          aposentado: parseInt(parts[4]?.replace(/[^\d-]/g, '')) || 0,
-          bloqueado: parseInt(parts[5]?.replace(/[^\d-]/g, '')) || 0,
-        };
-      }
-      return {
-        dist: parts[0] || '',
-        data: parts[1] || '',
-        destino: parts[2] || '',
-        valor: parseInt(parts[3]?.replace(/[^\d-]/g, '')) || 0,
-        valorCredito: parseInt(parts[4]?.replace(/[^\d-]/g, '')) || 0,
-        valorDebito: parseInt(parts[5]?.replace(/[^\d-]/g, '')) || 0,
+      
+      const parseVal = (str: string) => {
+        if (!str) return 0;
+        // Remove dots (thousands) and non-numeric chars except minus sign
+        return parseInt(str.replace(/\./g, '').replace(/[^\d-]/g, '')) || 0;
       };
+
+      switch (pasteData.section) {
+        case 'tabelaLegado':
+          // Estrutura: Data Atualização [0] | Plataforma [1] | Nome [2] | Doc [3] | Disponível [4] | Reservado [5] | Bloqueado [6] | Aposentado [7]
+          return {
+            data: parts[0]?.trim() || '',
+            plataforma: parts[1]?.trim() || '',
+            disponivel: parseVal(parts[4]),
+            reservado: parseVal(parts[5]),
+            bloqueado: parseVal(parts[6]),
+            aposentado: parseVal(parts[7]),
+          };
+        
+        case 'tabelaImei':
+          // Estrutura: Data [0] | Destino [1] | Ref [2] | Valor [3] | Crédito [4] | Débito [5]
+          return {
+            data: parts[0]?.trim() || '',
+            destino: parts[1]?.trim() || '',
+            dist: parts[2]?.trim() || '',
+            valor: parseVal(parts[3]),
+            valorCredito: parseVal(parts[4]),
+            valorDebito: parseVal(parts[5]),
+          };
+
+        default:
+          // Estrutura Genérica: Ref [0] | Data [1] | Destino [2] | Valor [3]
+          return {
+            dist: parts[0]?.trim() || '',
+            id: parts[0]?.trim() || '',
+            data: parts[1]?.trim() || '',
+            destino: parts[2]?.trim() || '',
+            valor: parseVal(parts[3]),
+          };
+      }
     });
 
-    setFormData({ ...formData, [pasteData.section]: [...(formData[pasteData.section as keyof EntidadeSaldo] as any[] || []), ...newRows] });
+    setFormData({ 
+      ...formData, 
+      [pasteData.section]: [...(formData[pasteData.section as keyof EntidadeSaldo] as any[] || []), ...newRows] 
+    });
     setPasteData(null);
   };
 
@@ -178,12 +203,14 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
         <ScrollArea className="flex-1 bg-white">
           <div className="p-10 space-y-20">
             {/* SESSÃO 01 - ORIGINAÇÃO */}
-            <SectionHeader 
-              title="LANÇAMENTOS DE ORIGINAÇÃO" 
-              value={totals.orig} 
-              onPaste={() => setPasteData({ section: 'tabelaOriginacao', raw: '' })}
-            />
-            <SectionTable data={formData.tabelaOriginacao || []} type="originacao" />
+            <div className="space-y-6">
+              <SectionHeader 
+                title="LANÇAMENTOS DE ORIGINAÇÃO" 
+                value={totals.orig} 
+                onPaste={() => setPasteData({ section: 'tabelaOriginacao', raw: '' })}
+              />
+              <SectionTable data={formData.tabelaOriginacao || []} type="originacao" />
+            </div>
 
             {/* SESSÃO 02 - MOVIMENTAÇÕES / RETIRADAS */}
             <div className="space-y-6">
@@ -357,8 +384,8 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                         <TableRow key={i} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50">
                           <TableCell className="py-5 text-[11px] font-bold text-slate-600">{row.data}</TableCell>
                           <TableCell className="py-5 text-[10px] font-black uppercase text-slate-500">{row.plataforma}</TableCell>
-                          <TableCell className="text-right font-mono font-bold text-slate-600">{row.disponivel?.toLocaleString('pt-BR')}</TableCell>
-                          <TableCell className="text-right font-mono font-bold text-slate-400">{row.reservado?.toLocaleString('pt-BR')}</TableCell>
+                          <TableCell className="text-right font-mono font-bold text-emerald-600">{row.disponivel?.toLocaleString('pt-BR')}</TableCell>
+                          <TableCell className="text-right font-mono font-bold text-emerald-600">{row.reservado?.toLocaleString('pt-BR')}</TableCell>
                           <TableCell className="text-right font-mono font-black text-emerald-600 pr-8">
                             {((row.disponivel || 0) + (row.reservado || 0)).toLocaleString('pt-BR')}
                           </TableCell>
@@ -378,10 +405,10 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             <div className="bg-white w-full max-w-2xl rounded-[2.5rem] p-10 space-y-6 shadow-2xl">
               <div className="flex items-center gap-3">
                 <Calculator className="w-6 h-6 text-primary" />
-                <h3 className="text-xl font-black uppercase tracking-tight">Colagem de Dados: {pasteData.section.replace('tabela', '')}</h3>
+                <h3 className="text-xl font-black uppercase tracking-tight">Colagem de Dados: {pasteData.section.replace('tabela', '').toUpperCase()}</h3>
               </div>
               <p className="text-xs text-slate-400 font-bold uppercase tracking-widest leading-relaxed">
-                Cole as colunas do Excel/Planilha abaixo. O sistema mapeará automaticamente os valores para o Ledger.
+                Cole as colunas do Excel/Planilha abaixo. O sistema mapeará automaticamente os valores conforme a estrutura técnica.
               </p>
               <Textarea 
                 value={pasteData.raw} 
@@ -455,7 +482,7 @@ function StatBox({ label, value, isNegative, isHighlight, isReference, isPending
   );
 }
 
-function SectionHeader({ title, value, isNegative, isLegado, onPaste }: any) {
+function SectionHeader({ title, value, isNegative, isLegado, isImei, onPaste }: any) {
   return (
     <div className="flex justify-between items-center border-b border-slate-100 pb-5">
       <div className="flex items-center gap-4">
@@ -464,9 +491,9 @@ function SectionHeader({ title, value, isNegative, isLegado, onPaste }: any) {
           <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">{title}</h3>
           <p className={cn(
             "text-[10px] font-bold uppercase tracking-tighter",
-            isLegado ? "text-emerald-600" : "text-slate-400"
+            isLegado || isImei ? "text-emerald-600" : "text-slate-400"
           )}>
-            CONSOLIDADO: <span className={cn("font-black", !isLegado && "text-[#734DCC]")}>
+            CONSOLIDADO: <span className={cn("font-black", !isLegado && !isImei && "text-[#734DCC]")}>
               {Math.abs(value || 0).toLocaleString()} UCS
             </span>
           </p>
@@ -475,7 +502,7 @@ function SectionHeader({ title, value, isNegative, isLegado, onPaste }: any) {
       <Button 
         variant="outline" 
         onClick={onPaste}
-        className="h-12 px-8 rounded-full border-slate-200 text-[9px] font-black uppercase tracking-[0.1em] text-slate-300 gap-2.5 hover:bg-slate-50 transition-all shadow-sm"
+        className="h-10 px-6 rounded-full border-slate-200 text-[8px] font-black uppercase tracking-[0.1em] text-slate-400 gap-2.5 hover:bg-slate-50 transition-all shadow-sm"
       >
         <Calculator className="w-3.5 h-3.5" /> COLAGEM VIA CALCULADORA
       </Button>
