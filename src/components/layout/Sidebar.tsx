@@ -66,13 +66,8 @@ export function Sidebar() {
                 </div>
               </Link>
 
-              {/* Pill Label Style from Image Reference */}
-              <div className={cn(
-                "absolute left-20 px-6 py-2.5 rounded-full bg-[#0F172A] text-white text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all duration-300 z-50 pointer-events-none border border-slate-800",
-                isActive 
-                  ? "opacity-100 translate-x-2" 
-                  : "opacity-0 translate-x-0 group-hover:opacity-100 group-hover:translate-x-2"
-              )}>
+              {/* Pill Label Style - Only visible on hover */}
+              <div className="absolute left-20 px-6 py-2.5 rounded-full bg-[#0F172A] text-white text-[10px] font-black uppercase tracking-widest whitespace-nowrap opacity-0 translate-x-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-300 z-50 pointer-events-none border border-slate-800 shadow-xl">
                 {item.label}
               </div>
             </div>
