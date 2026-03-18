@@ -61,16 +61,15 @@ export interface EntidadeSaldo {
   id: string;
   nome: string; // Usuário
   documento: string; // Documento
-  uf: string;
   
   // Seção: Saldo Atualizado
   originacao: number;
-  movimentacao: number; // Soma de movimentação
+  movimentacao: number; 
   aposentado: number;
   bloqueado: number;
   aquisicao: number;
   saldoAjustarImei: number;
-  saldoFinalAtual: number; // SALDO FINAL (ATUAL)
+  saldoFinalAtual: number; 
   
   // Seção: Saldo Legado
   saldoLegadoTotal: number;

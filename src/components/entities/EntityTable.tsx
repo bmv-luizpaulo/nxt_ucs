@@ -6,11 +6,10 @@ import { EntidadeSaldo } from "@/lib/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Search, MoreHorizontal } from "lucide-react";
+import { Search } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { EntityEditDialog } from "./EntityEditDialog";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 interface EntityTableProps {
   data: EntidadeSaldo[];
@@ -38,7 +37,7 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate }: 
     <>
       <div className="rounded-[1.5rem] border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col">
         <ScrollArea className="w-full">
-          <Table className="min-w-[1800px]">
+          <Table className="min-w-[1600px]">
             <TableHeader>
               <TableRow className="bg-slate-50/50 h-14 border-b border-slate-100">
                 <TableHead className="w-[60px] pl-8">
@@ -71,7 +70,7 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate }: 
                 </TableRow>
               ) : (
                 data.map((item) => (
-                  <TableRow key={item.id} className="group border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors">
+                  <TableRow key={item.id} className={`group border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors ${selectedIds.includes(item.id) ? 'bg-emerald-50/20' : ''}`}>
                     <TableCell className="pl-8">
                       <Checkbox 
                         checked={selectedIds.includes(item.id)} 

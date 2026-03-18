@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Search, FileText, Trash2, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Search, Trash2, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -78,7 +78,7 @@ export default function AssociacoesPage() {
       <Sidebar />
       <main className="flex-1 flex flex-col overflow-hidden">
         <header className="h-20 bg-white/50 backdrop-blur-md px-8 flex items-center justify-between border-b border-slate-200 sticky top-0 z-10 shrink-0">
-          <h1 className="text-xl font-medium text-slate-600">Portal de Auditoria <span className="font-bold text-slate-900">Saldos: Associações</span></h1>
+          <h1 className="text-xl font-medium text-slate-600">Portal de Auditoria <span className="font-bold text-slate-900">Auditoria BMV</span></h1>
           <div className="flex items-center gap-6">
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />

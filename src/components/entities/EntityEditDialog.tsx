@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react";
@@ -217,7 +218,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
           </div>
 
           <div className="flex justify-between items-start mb-6">
-            <h2 className="text-2xl font-black leading-tight tracking-tighter uppercase text-slate-50 max-w-[70%]">
+            <h2 className="text-3xl font-black leading-tight tracking-tighter uppercase text-slate-50 max-w-[70%]">
               {entity.nome}
             </h2>
             <div className="text-right">
@@ -243,7 +244,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             
             <div className="bg-slate-800/60 p-3 rounded-2xl border border-slate-700/50">
               <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">SALDO AUDITADO</p>
-              <div className="flex items-baseline gap-1 text-xl font-black tracking-tighter text-primary">
+              <div className="flex items-baseline gap-1 text-2xl font-black tracking-tighter text-primary">
                 {formatUCS(stats.finalAuditado)}
                 <span className="text-[9px] font-black opacity-50 ml-1">UCS</span>
               </div>
@@ -385,7 +386,7 @@ function SectionTechnical({ title, icon: Icon, color = "emerald", onImport, data
             color === "indigo" ? "bg-indigo-500" : "bg-primary"
           )} />
           <div>
-            <h3 className="text-xs font-black uppercase tracking-widest text-slate-900 leading-none">{title}</h3>
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-900 leading-none">{title}</h3>
             <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
               Consolidado: <span className={cn("font-black", color === 'rose' ? "text-rose-500" : "text-emerald-600")}>
                 {Math.abs(currentTotal).toLocaleString('pt-BR')} UCS

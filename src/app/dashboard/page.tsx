@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { 
   Search, 
-  FileText,
   Trash2,
   ChevronLeft,
   ChevronRight,
@@ -152,7 +151,7 @@ export default function Dashboard() {
       <Sidebar />
       <main className="flex-1 flex flex-col overflow-hidden">
         <header className="h-20 bg-white/50 backdrop-blur-md px-8 flex items-center justify-between border-b border-slate-200 sticky top-0 z-10 shrink-0">
-          <h1 className="text-xl font-medium text-slate-600">Portal de Auditoria <span className="font-bold text-slate-900">Sistema Legado</span></h1>
+          <h1 className="text-xl font-medium text-slate-600">Portal de Auditoria <span className="font-bold text-slate-900">Auditoria BMV</span></h1>
           <div className="flex items-center gap-6">
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -199,7 +198,7 @@ export default function Dashboard() {
                 />
 
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-between bg-white px-8 py-4 rounded-[2rem] border border-slate-200 mt-6">
+                  <div className="flex items-center justify-between bg-white px-8 py-4 rounded-[2rem] border border-slate-200 mt-6 shadow-sm">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Página {currentPage} de {totalPages}</p>
                     <div className="flex gap-2">
                       <Button variant="outline" size="icon" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="w-10 h-10 rounded-xl"><ChevronLeft className="w-4 h-4"/></Button>
