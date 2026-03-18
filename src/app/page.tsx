@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react";
@@ -11,13 +10,13 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OrderTable } from "@/components/dashboard/OrderTable";
 import { AuditOverview } from "@/components/dashboard/AuditOverview";
 import { AddOrderDialog } from "@/components/dashboard/AddOrderDialog";
 import { BulkImportDialog } from "@/components/dashboard/BulkImportDialog";
 import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
-import { collection, doc, updateDoc, deleteDoc, setDoc, writeBatch, query, orderBy } from "firebase/firestore";
+import { collection, doc, updateDoc, deleteDoc, setDoc, writeBatch, query, orderBy, where } from "firebase/firestore";
 import { Pedido, OrderCategory } from "@/lib/types";
 import { toast } from "@/hooks/use-toast";
 import { errorEmitter } from "@/firebase/error-emitter";
@@ -34,8 +33,12 @@ export default function Dashboard() {
   
   const pedidosQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    return query(collection(firestore, "pedidos"), orderBy("data", "desc"));
-  }, [firestore, user]);
+    return query(
+      collection(firestore, "pedidos"), 
+      where("categoria", "==", activeTab),
+      orderBy("data", "desc")
+    );
+  }, [firestore, user, activeTab]);
 
   const { data: pedidos, isLoading } = useCollection<Pedido>(pedidosQuery);
 
@@ -179,11 +182,10 @@ export default function Dashboard() {
     deleteDoc(docRef);
   };
 
+  // O filtro agora é feito no servidor pelo queryPedidos
   const orders = pedidos || [];
-  const filteredOrders = orders.filter(o => o.categoria === activeTab);
-  
-  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
-  const paginatedOrders = filteredOrders.slice(
+  const totalPages = Math.ceil(orders.length / itemsPerPage);
+  const paginatedOrders = orders.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -256,7 +258,7 @@ export default function Dashboard() {
                     {totalPages > 1 && (
                       <div className="flex items-center justify-between bg-white px-8 py-4 rounded-[2rem] border border-slate-200 shadow-sm print:hidden">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                          Mostrando {Math.min(filteredOrders.length, itemsPerPage)} de {filteredOrders.length} registros
+                          Mostrando {paginatedOrders.length} de {orders.length} registros
                         </p>
                         <div className="flex items-center gap-2">
                           <Button 

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
-import { collection, doc, writeBatch, query, orderBy, updateDoc } from "firebase/firestore";
+import { collection, doc, writeBatch, query, orderBy, updateDoc, where } from "firebase/firestore";
 import { EntidadeSaldo, EntityStatus } from "@/lib/types";
 import { toast } from "@/hooks/use-toast";
 import { EntityTable } from "@/components/entities/EntityTable";
@@ -23,14 +23,22 @@ export default function AssociacoesPage() {
 
   const associacoesQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    return query(collection(firestore, "associacoes"), orderBy("nome", "asc"));
-  }, [firestore, user]);
+    return query(
+      collection(firestore, "associacoes"), 
+      where("status", "==", activeTab),
+      orderBy("nome", "asc")
+    );
+  }, [firestore, user, activeTab]);
 
   const { data: associacoes, isLoading } = useCollection<EntidadeSaldo>(associacoesQuery);
 
-  const filteredAssociacoes = (associacoes || []).filter(p => p.status === activeTab);
-  const totalPages = Math.ceil(filteredAssociacoes.length / itemsPerPage);
-  const paginated = filteredAssociacoes.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  useEffect(() => {
+    setCurrentPage(1);
+    setSelectedIds([]);
+  }, [activeTab]);
+
+  const totalPages = Math.ceil((associacoes || []).length / itemsPerPage);
+  const paginated = (associacoes || []).slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handleBulkImport = async (data: any[]) => {
     if (!firestore) return;
@@ -112,7 +120,7 @@ export default function AssociacoesPage() {
 
               {totalPages > 1 && (
                 <div className="flex items-center justify-between bg-white px-8 py-4 rounded-[2rem] border border-slate-200 mt-6 shadow-sm">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase">Página {currentPage} de {totalPages}</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase">Página {currentPage} de {totalPages} — Mostrando {paginated.length} de {associacoes?.length || 0} associações</p>
                   <div className="flex gap-2">
                     <Button variant="outline" size="icon" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="w-10 h-10 rounded-xl">
                       <ChevronLeft className="w-4 h-4" />
