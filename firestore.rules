@@ -1,39 +1,10 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Função auxiliar para verificar autenticação
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    // Regras explícitas por coleção para evitar erros de 'list'
-    match /pedidos/{pedidoId} {
-      allow read, write: if isSignedIn();
-      
-      match /movimentos/{movId} {
-        allow read, write: if isSignedIn();
-      }
-    }
-
-    match /produtores/{id} {
-      allow read, write: if isSignedIn();
-    }
-
-    match /associacoes/{id} {
-      allow read, write: if isSignedIn();
-    }
-
-    match /auditors/{id} {
-      allow read, write: if isSignedIn();
-    }
-
-    match /globalMovementHashes/{id} {
-      allow read, write: if isSignedIn();
-    }
-
-    // Fallback para qualquer outra coleção
+    // Permite leitura e escrita para qualquer usuário autenticado
+    // Essencial para o fluxo de auditoria do LedgerTrust
     match /{document=**} {
-      allow read, write: if isSignedIn();
+      allow read, write: if request.auth != null;
     }
   }
 }
