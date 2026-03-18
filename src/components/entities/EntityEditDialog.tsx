@@ -12,7 +12,8 @@ import {
   Save, 
   Layers,
   Plus,
-  Trash2
+  Trash2,
+  Database
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -130,14 +131,13 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const newRows: RegistroTabela[] = lines.map(line => {
       const parts = line.split('\t');
       
-      const parseVal = (str: string) => {
-        if (!str) return 0;
+      const parseVal = (str: string | undefined) => {
+        if (!str || !str.trim()) return 0;
         return parseInt(str.replace(/\./g, '').replace(/[^\d-]/g, '')) || 0;
       };
 
       switch (pasteData.section) {
         case 'tabelaLegado':
-          // Estrutura de 8 colunas: Data [0] | Plataforma [1] | Nome [2] | Doc [3] | Disponível [4] | Reservado [5] | Bloqueado [6] | Aposentado [7]
           return {
             data: parts[0]?.trim() || '',
             plataforma: parts[1]?.trim() || '',
@@ -158,12 +158,24 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
           };
 
         default:
+          // Processamento para Originação e Movimentação
+          // Tenta encontrar o volume buscando a última parte numérica se o index 3 estiver vazio
+          let volumeRaw = parts[3];
+          if (!volumeRaw?.trim() && parts.length > 3) {
+            for (let j = parts.length - 1; j > 2; j--) {
+              if (parts[j]?.trim() && !isNaN(parseInt(parts[j].replace(/\./g, '').replace(/[^\d-]/g, '')))) {
+                volumeRaw = parts[j];
+                break;
+              }
+            }
+          }
+
           return {
             dist: parts[0]?.trim() || '',
             id: parts[0]?.trim() || '',
             data: parts[1]?.trim() || '',
             destino: parts[2]?.trim() || '',
-            valor: parseVal(parts[3]),
+            valor: parseVal(volumeRaw),
           };
       }
     });
@@ -185,7 +197,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
           <DialogDescription>Detalhamento de conferência e rastreabilidade Ledger.</DialogDescription>
         </DialogHeader>
 
-        {/* CABEÇALHO DARK - DESIGN INSTITUCIONAL BMV */}
+        {/* CABEÇALHO DARK */}
         <div className="bg-[#0B0F1A] p-10 shrink-0 text-white relative">
           <div className="flex justify-between items-start mb-12">
             <div className="space-y-1.5">
@@ -233,7 +245,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               <SectionTable data={formData.tabelaOriginacao || []} type="originacao" />
             </div>
 
-            {/* SESSÃO 02 - MOVIMENTAÇÕES / RETIRADAS */}
+            {/* SESSÃO 02 - MOVIMENTAÇÕES */}
             <div className="space-y-6">
               <SectionHeader 
                 title="MOVIMENTAÇÕES / RETIRADAS" 
@@ -295,7 +307,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               </div>
             </div>
 
-            {/* SESSÃO 03 - TRANSFERÊNCIAS IMEI */}
+            {/* SESSÃO 03 - IMEI */}
             <div className="space-y-6">
               <SectionHeader 
                 title="TRANSFERÊNCIAS IMEI" 
@@ -340,7 +352,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               </div>
             </div>
 
-            {/* SESSÃO 04 - AQUISIÇÕES (ENTRADA MANUAL) */}
+            {/* SESSÃO 04 - AQUISIÇÃO */}
             <div className="space-y-6">
               <div className="flex justify-between items-center border-b border-slate-100 pb-5">
                 <div className="flex items-center gap-4">
@@ -411,7 +423,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               </div>
             </div>
 
-            {/* SESSÃO 05 - SALDO LEGADO (REF) */}
+            {/* SESSÃO 05 - LEGADO */}
             <div className="space-y-6">
               <SectionHeader 
                 title="SALDO LEGADO CONSOLIDADO" 
@@ -473,7 +485,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                 onChange={e => setPasteData({ ...pasteData, raw: e.target.value })}
                 placeholder={pasteData.section === 'tabelaLegado' ? 
                   "Data [tab] Plataforma [tab] Nome [tab] Doc [tab] Disponível [tab] Reservado [tab] Bloqueado [tab] Aposentado" :
-                  "ID [tab] Data [tab] Destino [tab] Valor [tab] ..."
+                  "Ref [tab] Data [tab] Destino [tab] ... [tab] Volume"
                 }
                 className="min-h-[300px] font-mono text-[10px] bg-slate-50 border-slate-200 rounded-2xl p-6 focus:ring-primary shadow-inner"
               />
@@ -486,7 +498,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
         )}
 
         {/* RODAPÉ */}
-        <div className="p-8 border-t border-slate-100 bg-white flex items-center justify-between shrink-0 shadow-inner">
+        <div className="p-8 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[11px] font-black uppercase text-slate-400 tracking-widest hover:text-rose-500 hover:bg-rose-50 px-8 rounded-xl h-14">
             Sair Sem Salvar
           </Button>
