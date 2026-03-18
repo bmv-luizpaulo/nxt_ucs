@@ -42,7 +42,7 @@ export interface RegistroTabela {
   dist?: string;
   data: string;
   destino?: string;
-  valor: number;
+  valor?: number;
   valorCredito?: number;
   valorDebito?: number;
   tipo?: string;
@@ -53,7 +53,7 @@ export interface RegistroTabela {
   reservado?: number;
   bloqueado?: number;
   aposentado?: number;
-  statusAuditoria?: AuditoriaStatus;
+  statusAuditoria?: AuditoriaStatus | string;
 }
 
 export interface EntidadeSaldo {
@@ -61,17 +61,17 @@ export interface EntidadeSaldo {
   nome: string;
   documento: string;
   
-  // Totais
+  // Totais Consolidados
   originacao: number;
   movimentacao: number; 
   aposentado: number;
   bloqueado: number;
   aquisicao: number;
   saldoAjustarImei: number;
-  saldoFinalAtual: number; 
   saldoLegadoTotal: number;
+  saldoFinalAtual: number; 
   
-  // Tabelas
+  // Tabelas de Lançamentos
   tabelaOriginacao?: RegistroTabela[];
   tabelaMovimentacao?: RegistroTabela[];
   tabelaImei?: RegistroTabela[];

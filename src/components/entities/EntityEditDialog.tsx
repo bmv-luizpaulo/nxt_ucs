@@ -29,29 +29,46 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     }
   }, [entity]);
 
+  // Lógica de Auditoria BMV (Equação Central)
   const totals = useMemo(() => {
-    const sum = (arr?: any[]) => (arr || []).reduce((acc, curr) => acc + (curr.valor || curr.valorCredito || 0) - (curr.valorDebito || 0), 0);
+    const sum = (arr?: RegistroTabela[]) => (arr || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
     
+    // 1. Originação (Sessão 1)
     const orig = sum(formData.tabelaOriginacao);
-    const mov = sum(formData.tabelaMovimentacao);
-    const aq = sum(formData.tabelaAquisicao);
     
-    const imeiCred = (formData.tabelaImei || []).reduce((acc, c) => acc + (c.valorCredito || 0), 0);
-    const imeiDeb = (formData.tabelaImei || []).reduce((acc, c) => acc + (c.valorDebito || 0), 0);
-    const imei = imeiCred - imeiDeb;
+    // 2. Movimentação (Sessão 2) - Geralmente valores negativos
+    const mov = sum(formData.tabelaMovimentacao);
+    
+    // 3. Ajuste IMEI (Sessão 3) - Neutro para o cálculo final
+    const imei = (formData.tabelaImei || []).reduce((acc, c) => acc + (c.valorCredito || 0) - (c.valorDebito || 0), 0);
 
-    const legado = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.disponivel || 0), 0);
+    // 4. Aquisição (Sessão 4) - Retirada da conta
+    const aq = sum(formData.tabelaAquisicao);
+
+    // 5. Legado (Sessão 5)
+    // Legado = Disponível + Reservado
+    const legDisponivel = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.disponivel || 0), 0);
+    const legReservado = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.reservado || 0), 0);
+    const legadoTotal = legDisponivel + legReservado;
+
+    // Aposentado e Bloqueado vêm das colunas específicas da tabela Legado
     const aposentado = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.aposentado || 0), 0);
     const bloqueado = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.bloqueado || 0), 0);
 
-    const final = orig + mov + aq + imei + legado;
+    // EQUAÇÃO: Saldo Final = Originação + Movimentação - Aquisição + Legado
+    const final = orig + mov - aq + legadoTotal;
+    
     const movPercentage = orig > 0 ? ((Math.abs(mov) / orig) * 100).toFixed(1) : "0.0";
 
-    return { orig, mov, aq, imei, legado, aposentado, bloqueado, final, movPercentage };
+    return { 
+      orig, mov, aq, imei, legadoTotal, aposentado, bloqueado, final, movPercentage 
+    };
   }, [formData]);
 
   const handlePrint = () => {
-    window.print();
+    if (typeof window !== 'undefined') {
+      window.print();
+    }
   };
 
   const handleImport = (field: keyof EntidadeSaldo) => {
@@ -60,14 +77,26 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const lines = pasteBuffer.split('\n').filter(l => l.trim());
     const newRows: RegistroTabela[] = lines.map(line => {
       const parts = line.split('\t');
-      const val = parseFloat(parts[parts.length - 1]?.replace(/[R$\s.]/g, '').replace(',', '.') || '0');
       
+      if (field === 'tabelaLegado') {
+        return {
+          id: parts[0] || Math.random().toString(36).substr(2, 5).toUpperCase(),
+          data: parts[1] || new Date().toLocaleString(),
+          disponivel: parseFloat(parts[15]?.replace(/[^\d-]/g, '') || '0'),
+          reservado: parseFloat(parts[16]?.replace(/[^\d-]/g, '') || '0'), // Ajustar conforme coluna real
+          aposentado: parseFloat(parts[4]?.replace(/[^\d-]/g, '') || '0'),
+          bloqueado: parseFloat(parts[5]?.replace(/[^\d-]/g, '') || '0'),
+          tipo: 'LEGADO'
+        };
+      }
+
+      const val = parseFloat(parts[parts.length - 1]?.replace(/[R$\s.]/g, '').replace(',', '.') || '0');
       return {
         id: parts[0] || Math.random().toString(36).substr(2, 5).toUpperCase(),
         data: parts[1] || new Date().toLocaleString(),
         tipo: parts[2] || 'ATIVO',
         valor: val,
-        statusAuditoria: 'Pago'
+        statusAuditoria: 'VALIDADO'
       };
     });
 
@@ -84,7 +113,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
       movimentacao: totals.mov,
       aquisicao: totals.aq,
       saldoAjustarImei: totals.imei,
-      saldoLegadoTotal: totals.legado,
+      saldoLegadoTotal: totals.legadoTotal,
       aposentado: totals.aposentado,
       bloqueado: totals.bloqueado,
       saldoFinalAtual: totals.final
@@ -97,31 +126,27 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[1280px] w-[95vw] h-[95vh] p-0 border-none bg-white overflow-hidden flex flex-col rounded-[2.5rem] shadow-2xl">
-        <DialogHeader className="p-8 pb-0 sr-only">
+        <DialogHeader className="sr-only">
           <DialogTitle>Auditoria Técnica BMV - {entity.nome}</DialogTitle>
-          <DialogDescription>Console de auditoria técnica e conciliação de saldos.</DialogDescription>
+          <DialogDescription>Cálculos de conferência técnica e conciliação de saldos Ledger.</DialogDescription>
         </DialogHeader>
 
         {activePasteField && (
           <div className="absolute inset-0 z-[100] bg-[#0B0F1A]/95 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-300">
             <div className="bg-white w-full max-w-2xl rounded-[2rem] shadow-2xl overflow-hidden border border-slate-100">
               <div className="p-6 border-b flex justify-between items-center bg-slate-50/50">
-                <h3 className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-900">Importação de Dados Ledger</h3>
+                <h3 className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-900">Mapeamento LedgerTrust</h3>
                 <Button variant="ghost" size="icon" onClick={() => setActivePasteField(null)}><X className="w-4 h-4" /></Button>
               </div>
               <div className="p-8 space-y-6">
-                <div className="bg-primary/5 p-4 rounded-xl border border-primary/10">
-                  <p className="text-[10px] text-primary font-bold uppercase tracking-widest">Dica de Importação:</p>
-                  <p className="text-[10px] text-slate-500 mt-1">Copie os dados diretamente do Excel ou Sheets. O sistema irá mapear automaticamente a coluna de volume.</p>
-                </div>
                 <Textarea 
                   autoFocus 
                   value={pasteBuffer} 
                   onChange={e => setPasteBuffer(e.target.value)}
-                  placeholder="Cole aqui os dados copiados..."
+                  placeholder="Cole os dados do Excel/Sheets aqui..."
                   className="min-h-[250px] font-mono text-[11px] bg-slate-50 border-slate-200 rounded-2xl p-6 focus:ring-primary shadow-inner"
                 />
-                <Button onClick={() => handleImport(activePasteField)} className="w-full h-14 rounded-2xl bg-[#734DCC] text-white font-black uppercase text-[11px] tracking-widest hover:bg-[#633fb9] shadow-xl shadow-indigo-100 transition-all active:scale-[0.98]">
+                <Button onClick={() => handleImport(activePasteField)} className="w-full h-14 rounded-2xl bg-[#734DCC] text-white font-black uppercase text-[11px] tracking-widest shadow-xl shadow-indigo-100 transition-all active:scale-[0.98]">
                   Sincronizar no Ledger
                 </Button>
               </div>
@@ -129,6 +154,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
           </div>
         )}
 
+        {/* CABEÇALHO DARK - 8 COLUNAS */}
         <div className="bg-[#0B0F1A] p-10 shrink-0 text-white relative">
           <div className="flex justify-between items-start mb-12">
             <div className="space-y-1.5">
@@ -155,11 +181,11 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-5">
             <StatBox label="ORIGINAÇÃO" value={totals.orig} />
             <StatBox label="MOVIMENTAÇÃO" value={totals.mov} isNegative percentage={totals.movPercentage} />
-            <StatBox label="APOSENTADO" value={totals.aposentado} isHighlight />
+            <StatBox label="APOSENTADO" value={totals.aposentado} />
             <StatBox label="BLOQUEADO" value={totals.bloqueado} isNegative />
-            <StatBox label="AQUISIÇÃO" value={totals.aq} />
+            <StatBox label="AQUISIÇÃO" value={totals.aq} isNegative />
             <StatBox label="AJUSTE IMEI" value={totals.imei} isAccent />
-            <StatBox label="LEGADO" value={totals.legado} isAccent />
+            <StatBox label="LEGADO" value={totals.legadoTotal} isAccent />
             <StatBox label="DISPONÍVEL" value={totals.final} isHighlight />
           </div>
         </div>
@@ -179,33 +205,34 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               icon={ArrowRightLeft}
             />
             <Section 
-              title="Sessão 03: Ajustes IMEI (Crédito/Débito)" 
+              title="Sessão 03: Ajuste IMEI (Conferência)" 
               data={formData.tabelaImei || []} 
               onImport={() => setActivePasteField('tabelaImei')}
               icon={Calculator}
             />
             <Section 
-              title="Sessão 04: Registros de Aquisição" 
+              title="Sessão 04: Aquisições (Dedução)" 
               data={formData.tabelaAquisicao || []} 
               onImport={() => setActivePasteField('tabelaAquisicao')}
               icon={FileText}
             />
             <Section 
-              title="Sessão 05: Saldo Legado" 
+              title="Sessão 05: Saldo Legado (Disponível + Reservado)" 
               data={formData.tabelaLegado || []} 
               onImport={() => setActivePasteField('tabelaLegado')}
               icon={LinkIcon}
+              isLegado
             />
           </div>
         </ScrollArea>
 
-        <div className="p-8 border-t border-slate-100 bg-white flex items-center justify-between shrink-0 shadow-[0_-4px_20px_rgba(0,0,0,0.02)]">
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[11px] font-black uppercase text-slate-400 tracking-[0.15em] hover:text-rose-500 hover:bg-rose-50 px-8 rounded-xl h-14">
+        <div className="p-8 border-t border-slate-100 bg-white flex items-center justify-between shrink-0 shadow-inner">
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[11px] font-black uppercase text-slate-400 tracking-widest hover:text-rose-500 hover:bg-rose-50 px-8 rounded-xl h-14">
             Descartar Alterações
           </Button>
           
           <div className="flex gap-4">
-            <Button variant="outline" onClick={handlePrint} className="h-14 px-10 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[11px] tracking-widest text-slate-700 hover:bg-white transition-all">
+            <Button variant="outline" onClick={handlePrint} className="h-14 px-10 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[11px] tracking-widest text-slate-700 hover:bg-white">
               <Printer className="w-4 h-4 mr-2" /> Gerar Relatório PDF
             </Button>
             <Button onClick={handleSave} className="h-14 px-12 rounded-2xl bg-[#734DCC] hover:bg-[#633fb9] text-white font-black uppercase text-[11px] tracking-widest shadow-xl shadow-indigo-100 transition-all active:scale-[0.98]">
@@ -220,7 +247,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
 function StatBox({ label, value, isNegative, isHighlight, isAccent, percentage }: any) {
   return (
-    <div className="bg-[#161B2E] border border-white/5 rounded-2xl p-5 flex flex-col justify-between h-[100px] hover:bg-[#1C2237] transition-all group relative">
+    <div className="bg-[#161B2E] border border-white/5 rounded-2xl p-5 flex flex-col justify-between h-[100px] hover:bg-[#1C2237] transition-all group">
       <div className="flex justify-between items-start w-full">
         <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none">{label}</p>
         {percentage !== undefined && (
@@ -233,7 +260,7 @@ function StatBox({ label, value, isNegative, isHighlight, isAccent, percentage }
         )}
       </div>
       <p className={cn(
-        "text-[22px] font-black font-mono leading-none tracking-tight",
+        "text-[20px] font-black font-mono leading-none tracking-tight",
         isNegative ? "text-rose-500" : isHighlight ? "text-emerald-400" : isAccent ? "text-[#734DCC]" : "text-white"
       )}>
         {value === 0 ? "0" : value.toLocaleString('pt-BR')}
@@ -242,7 +269,7 @@ function StatBox({ label, value, isNegative, isHighlight, isAccent, percentage }
   );
 }
 
-function Section({ title, data, onImport, icon: Icon }: any) {
+function Section({ title, data, onImport, icon: Icon, isLegado }: any) {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center border-b border-slate-100 pb-5">
@@ -250,9 +277,9 @@ function Section({ title, data, onImport, icon: Icon }: any) {
           <div className="p-2.5 bg-slate-100 rounded-xl">
             <Icon className="w-4 h-4 text-slate-400" />
           </div>
-          <h3 className="text-[12px] font-black uppercase tracking-[0.15em] text-slate-900">{title}</h3>
+          <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">{title}</h3>
         </div>
-        <Button onClick={onImport} variant="outline" size="sm" className="h-10 rounded-xl text-[10px] font-black uppercase px-6 border-dashed border-[#734DCC]/30 text-[#734DCC] hover:bg-[#734DCC]/5 transition-all">
+        <Button onClick={onImport} variant="outline" size="sm" className="h-10 rounded-xl text-[10px] font-black uppercase px-6 border-dashed border-[#734DCC]/30 text-[#734DCC] hover:bg-[#734DCC]/5">
           <Calculator className="w-3.5 h-3.5 mr-2" /> Importar Planilha
         </Button>
       </div>
@@ -260,49 +287,59 @@ function Section({ title, data, onImport, icon: Icon }: any) {
       <div className="rounded-[1.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
         <Table>
           <TableHeader className="bg-slate-50/50">
-            <TableRow className="border-b border-slate-100 hover:bg-transparent">
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-12">Referência</TableHead>
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-12">Data</TableHead>
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-12">Categoria/Tipo</TableHead>
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-12">Status Auditoria</TableHead>
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-12 text-right pr-8">Volume (UCS)</TableHead>
+            <TableRow className="border-b border-slate-100">
+              <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Referência</TableHead>
+              <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Data</TableHead>
+              {isLegado ? (
+                <>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Disponível</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Reservado</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Aposentado</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right pr-8">Bloqueado</TableHead>
+                </>
+              ) : (
+                <>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Categoria</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Status</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right pr-8">Volume (UCS)</TableHead>
+                </>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.length === 0 ? (
-              <TableRow className="hover:bg-transparent border-0">
-                <TableCell colSpan={5} className="text-center py-16 opacity-30">
-                  <div className="flex flex-col items-center gap-3">
-                    <AlertCircle className="w-8 h-8" />
-                    <p className="text-[11px] font-bold uppercase tracking-widest">Nenhum registro vinculado nesta sessão</p>
-                  </div>
+              <TableRow>
+                <TableCell colSpan={isLegado ? 6 : 5} className="text-center py-16 opacity-30">
+                  <p className="text-[11px] font-bold uppercase tracking-widest">Nenhum registro encontrado</p>
                 </TableCell>
               </TableRow>
             ) : (
               data.map((row: any, i: number) => (
-                <TableRow key={i} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/30 transition-colors">
-                  <TableCell className="py-4 text-[11px] font-bold text-slate-600 font-mono tracking-tighter">{row.id}</TableCell>
+                <TableRow key={i} className="border-b border-slate-50 last:border-0">
+                  <TableCell className="py-4 text-[11px] font-bold text-slate-600 font-mono">{row.id}</TableCell>
                   <TableCell className="py-4 text-[11px] text-slate-400">{row.data}</TableCell>
-                  <TableCell className="py-4">
-                    <span className="text-[10px] font-black uppercase bg-slate-100 px-2 py-0.5 rounded text-slate-600">{row.tipo || 'ATIVO'}</span>
-                  </TableCell>
-                  <TableCell className="py-4">
-                    <Select defaultValue="valido">
-                       <SelectTrigger className="h-8 w-36 rounded-lg bg-emerald-50 border-none text-[10px] font-black text-emerald-600 uppercase tracking-widest">
-                          <div className="flex items-center gap-2">
-                            <CheckCircle2 className="w-3 h-3" />
-                            <SelectValue />
-                          </div>
-                       </SelectTrigger>
-                       <SelectContent>
-                          <SelectItem value="valido">VALIDADO</SelectItem>
-                          <SelectItem value="pendente">EM ANÁLISE</SelectItem>
-                       </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell className="py-4 text-right font-mono font-black text-slate-900 pr-8">
-                    {row.valor?.toLocaleString('pt-BR') || row.disponivel?.toLocaleString('pt-BR')}
-                  </TableCell>
+                  {isLegado ? (
+                    <>
+                      <TableCell className="text-right font-mono font-black">{row.disponivel?.toLocaleString('pt-BR')}</TableCell>
+                      <TableCell className="text-right font-mono font-black">{row.reservado?.toLocaleString('pt-BR')}</TableCell>
+                      <TableCell className="text-right font-mono font-black text-emerald-500">{row.aposentado?.toLocaleString('pt-BR')}</TableCell>
+                      <TableCell className="text-right font-mono font-black text-rose-500 pr-8">{row.bloqueado?.toLocaleString('pt-BR')}</TableCell>
+                    </>
+                  ) : (
+                    <>
+                      <TableCell className="py-4">
+                        <span className="text-[10px] font-black uppercase bg-slate-100 px-2 py-0.5 rounded text-slate-600">{row.tipo}</span>
+                      </TableCell>
+                      <TableCell className="py-4">
+                        <span className="text-[9px] font-black text-emerald-600 flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" /> VALIDADO
+                        </span>
+                      </TableCell>
+                      <TableCell className="py-4 text-right font-mono font-black text-slate-900 pr-8">
+                        {row.valor?.toLocaleString('pt-BR')}
+                      </TableCell>
+                    </>
+                  )}
                 </TableRow>
               ))
             )}
