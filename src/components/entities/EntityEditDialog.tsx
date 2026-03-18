@@ -9,13 +9,8 @@ import {
   Printer, 
   Calculator, 
   ShieldCheck, 
-  Database, 
   Save, 
-  FileText, 
-  Layers,
-  Search,
-  ChevronDown,
-  AlertCircle
+  Layers
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -64,9 +59,8 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
     /**
      * EQUAÇÃO DE AUDITORIA BMV:
-     * Saldo Final = Originação + Movimentação - Aquisição
-     * IMEI = Neutro (Pendência)
-     * Legado = Valor de Referência (REF)
+     * Saldo Final Auditado = Originação + Movimentação - Aquisição
+     * (O Legado agora é tratado puramente como Valor de Referência [REF])
      */
     const final = orig + mov - aq;
     
@@ -108,7 +102,6 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
       
       const parseVal = (str: string) => {
         if (!str) return 0;
-        // Remove dots (thousands) and non-numeric chars except minus sign
         return parseInt(str.replace(/\./g, '').replace(/[^\d-]/g, '')) || 0;
       };
 
@@ -373,6 +366,8 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                       <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Plataforma</TableHead>
                       <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Disponível</TableHead>
                       <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Reservado</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Bloqueado</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Aposentado</TableHead>
                       <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right pr-8">Total</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -386,6 +381,8 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                           <TableCell className="py-5 text-[10px] font-black uppercase text-slate-500">{row.plataforma}</TableCell>
                           <TableCell className="text-right font-mono font-bold text-emerald-600">{row.disponivel?.toLocaleString('pt-BR')}</TableCell>
                           <TableCell className="text-right font-mono font-bold text-emerald-600">{row.reservado?.toLocaleString('pt-BR')}</TableCell>
+                          <TableCell className="text-right font-mono font-bold text-rose-500">{row.bloqueado?.toLocaleString('pt-BR')}</TableCell>
+                          <TableCell className="text-right font-mono font-bold text-slate-400">{row.aposentado?.toLocaleString('pt-BR')}</TableCell>
                           <TableCell className="text-right font-mono font-black text-emerald-600 pr-8">
                             {((row.disponivel || 0) + (row.reservado || 0)).toLocaleString('pt-BR')}
                           </TableCell>
@@ -408,12 +405,12 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                 <h3 className="text-xl font-black uppercase tracking-tight">Colagem de Dados: {pasteData.section.replace('tabela', '').toUpperCase()}</h3>
               </div>
               <p className="text-xs text-slate-400 font-bold uppercase tracking-widest leading-relaxed">
-                Cole as colunas do Excel/Planilha abaixo. O sistema mapeará automaticamente os valores conforme a estrutura técnica.
+                Cole as colunas do Excel/Planilha abaixo. O sistema mapeará automaticamente os valores conforme a estrutura técnica de 8 colunas para Legado.
               </p>
               <Textarea 
                 value={pasteData.raw} 
                 onChange={e => setPasteData({ ...pasteData, raw: e.target.value })}
-                placeholder="Data [tab] Referência [tab] Valor..."
+                placeholder="Data [tab] Plataforma [tab] Nome [tab] Documento [tab] Disponível [tab] Reservado [tab] Bloqueado [tab] Aposentado"
                 className="min-h-[300px] font-mono text-[10px] bg-slate-50 border-slate-200 rounded-2xl p-6 focus:ring-primary shadow-inner"
               />
               <div className="flex gap-4">
