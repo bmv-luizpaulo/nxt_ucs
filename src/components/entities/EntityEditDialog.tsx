@@ -10,13 +10,16 @@ import {
   Calculator, 
   ShieldCheck, 
   Save, 
-  Layers
+  Layers,
+  Plus,
+  Trash2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 
 interface EntityEditDialogProps {
   entity: EntidadeSaldo | null;
@@ -28,6 +31,10 @@ interface EntityEditDialogProps {
 export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: EntityEditDialogProps) {
   const [formData, setFormData] = useState<Partial<EntidadeSaldo>>({});
   const [pasteData, setPasteData] = useState<{ section: string; raw: string } | null>(null);
+  
+  // States para entrada manual de Aquisição
+  const [newAqYear, setNewAqYear] = useState("");
+  const [newAqValue, setNewAqValue] = useState("");
 
   useEffect(() => {
     if (entity) {
@@ -44,12 +51,12 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const mov = (formData.tabelaMovimentacao || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
     const aq = (formData.tabelaAquisicao || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
     
-    // IMEI Adjustment (Debits - Credits) - Treated as Neutral Pending
+    // IMEI Adjustment (Debits - Credits) - Pendência
     const imeiCredits = sumCredits(formData.tabelaImei);
     const imeiDebits = sumDebits(formData.tabelaImei);
     const imeiPending = imeiDebits - imeiCredits;
 
-    // Legado Consolidado (REF) - Sum of Disponivel + Reservado
+    // Legado Consolidado (REF) - Disponível + Reservado
     const legDisp = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.disponivel || 0), 0);
     const legRes = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.reservado || 0), 0);
     const legadoTotal = legDisp + legRes;
@@ -60,7 +67,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     /**
      * EQUAÇÃO DE AUDITORIA BMV:
      * Saldo Final Auditado = Originação + Movimentação - Aquisição
-     * (O Legado agora é tratado puramente como Valor de Referência [REF])
+     * (O Legado é apenas referência e não entra na conta principal conforme solicitado)
      */
     const final = orig + mov - aq;
     
@@ -93,6 +100,29 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     onOpenChange(false);
   };
 
+  const handleAddAq = () => {
+    if (!newAqYear || !newAqValue) return;
+    const newItem: RegistroTabela = {
+      id: `AQ-${Date.now()}`,
+      data: newAqYear,
+      destino: `Aquisição Antecipada ${newAqYear}`,
+      valor: parseInt(newAqValue) || 0,
+    };
+    setFormData({
+      ...formData,
+      tabelaAquisicao: [...(formData.tabelaAquisicao || []), newItem]
+    });
+    setNewAqYear("");
+    setNewAqValue("");
+  };
+
+  const handleDeleteAq = (id: string) => {
+    setFormData({
+      ...formData,
+      tabelaAquisicao: (formData.tabelaAquisicao || []).filter(item => item.id !== id)
+    });
+  };
+
   const handleProcessPaste = () => {
     if (!pasteData) return;
     const lines = pasteData.raw.split('\n').filter(l => l.trim());
@@ -107,7 +137,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
       switch (pasteData.section) {
         case 'tabelaLegado':
-          // Estrutura: Data Atualização [0] | Plataforma [1] | Nome [2] | Doc [3] | Disponível [4] | Reservado [5] | Bloqueado [6] | Aposentado [7]
+          // Estrutura de 8 colunas: Data [0] | Plataforma [1] | Nome [2] | Doc [3] | Disponível [4] | Reservado [5] | Bloqueado [6] | Aposentado [7]
           return {
             data: parts[0]?.trim() || '',
             plataforma: parts[1]?.trim() || '',
@@ -118,7 +148,6 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
           };
         
         case 'tabelaImei':
-          // Estrutura: Data [0] | Destino [1] | Ref [2] | Valor [3] | Crédito [4] | Débito [5]
           return {
             data: parts[0]?.trim() || '',
             destino: parts[1]?.trim() || '',
@@ -129,7 +158,6 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
           };
 
         default:
-          // Estrutura Genérica: Ref [0] | Data [1] | Destino [2] | Valor [3]
           return {
             dist: parts[0]?.trim() || '',
             id: parts[0]?.trim() || '',
@@ -312,22 +340,51 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               </div>
             </div>
 
-            {/* SESSÃO 04 - AQUISIÇÕES */}
+            {/* SESSÃO 04 - AQUISIÇÕES (ENTRADA MANUAL) */}
             <div className="space-y-6">
-              <SectionHeader 
-                title="AQUISIÇÃO DE UCS" 
-                value={totals.aq} 
-                isNegative 
-                onPaste={() => setPasteData({ section: 'tabelaAquisicao', raw: '' })}
-              />
+              <div className="flex justify-between items-center border-b border-slate-100 pb-5">
+                <div className="flex items-center gap-4">
+                  <div className="w-1.5 h-8 bg-[#10B981] rounded-full" />
+                  <div className="flex flex-col">
+                    <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">AQUISIÇÃO DE UCS</h3>
+                    <p className="text-[10px] font-bold uppercase tracking-tighter text-slate-400">
+                      CONSOLIDADO: <span className="font-black text-[#734DCC]">
+                        {Math.abs(totals.aq || 0).toLocaleString()} UCS
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Input 
+                    placeholder="Ano (Ex: 2018)" 
+                    value={newAqYear} 
+                    onChange={e => setNewAqYear(e.target.value)}
+                    className="h-10 w-32 rounded-xl text-[10px] font-bold uppercase"
+                  />
+                  <Input 
+                    type="number"
+                    placeholder="Volume UCS" 
+                    value={newAqValue} 
+                    onChange={e => setNewAqValue(e.target.value)}
+                    className="h-10 w-32 rounded-xl text-[10px] font-bold"
+                  />
+                  <Button 
+                    onClick={handleAddAq}
+                    className="h-10 px-6 rounded-full bg-primary text-white text-[8px] font-black uppercase tracking-widest gap-2 shadow-lg shadow-primary/20"
+                  >
+                    <Plus className="w-3.5 h-3.5" /> Adicionar
+                  </Button>
+                </div>
+              </div>
+              
               <div className="rounded-[2.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
                 <Table>
                   <TableHeader className="bg-slate-50/50">
                     <TableRow className="border-b border-slate-100">
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Referência</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Ano / Data</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Ano de Referência</TableHead>
                       <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Origem / Histórico</TableHead>
-                      <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right pr-8">Volume (UCS)</TableHead>
+                      <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Volume (UCS)</TableHead>
+                      <TableHead className="w-[80px]"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -335,12 +392,16 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                       <EmptyState message="AGUARDANDO IMPORTAÇÃO DE DADOS..." />
                     ) : (
                       formData.tabelaAquisicao?.map((row, i) => (
-                        <TableRow key={i} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50">
-                          <TableCell className="py-4 text-[11px] font-bold text-slate-600 font-mono">{row.id || '-'}</TableCell>
-                          <TableCell className="py-4 text-[11px] text-slate-400">{row.data}</TableCell>
+                        <TableRow key={row.id || i} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50">
+                          <TableCell className="py-4 text-[11px] font-bold text-slate-600 font-mono">{row.data}</TableCell>
                           <TableCell className="py-4 text-[10px] text-slate-600 font-bold">{row.destino}</TableCell>
-                          <TableCell className="py-4 text-right font-mono font-black pr-8 text-rose-500">
+                          <TableCell className="py-4 text-right font-mono font-black text-rose-500">
                             {row.valor?.toLocaleString('pt-BR')}
+                          </TableCell>
+                          <TableCell className="text-right pr-4">
+                            <Button variant="ghost" size="icon" onClick={() => handleDeleteAq(row.id!)} className="h-8 w-8 text-slate-300 hover:text-rose-500">
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
                           </TableCell>
                         </TableRow>
                       ))
@@ -405,12 +466,15 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                 <h3 className="text-xl font-black uppercase tracking-tight">Colagem de Dados: {pasteData.section.replace('tabela', '').toUpperCase()}</h3>
               </div>
               <p className="text-xs text-slate-400 font-bold uppercase tracking-widest leading-relaxed">
-                Cole as colunas do Excel/Planilha abaixo. O sistema mapeará automaticamente os valores conforme a estrutura técnica de 8 colunas para Legado.
+                Cole as colunas do Excel/Planilha abaixo conforme a estrutura técnica definida.
               </p>
               <Textarea 
                 value={pasteData.raw} 
                 onChange={e => setPasteData({ ...pasteData, raw: e.target.value })}
-                placeholder="Data [tab] Plataforma [tab] Nome [tab] Documento [tab] Disponível [tab] Reservado [tab] Bloqueado [tab] Aposentado"
+                placeholder={pasteData.section === 'tabelaLegado' ? 
+                  "Data [tab] Plataforma [tab] Nome [tab] Doc [tab] Disponível [tab] Reservado [tab] Bloqueado [tab] Aposentado" :
+                  "ID [tab] Data [tab] Destino [tab] Valor [tab] ..."
+                }
                 className="min-h-[300px] font-mono text-[10px] bg-slate-50 border-slate-200 rounded-2xl p-6 focus:ring-primary shadow-inner"
               />
               <div className="flex gap-4">
