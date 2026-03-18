@@ -208,7 +208,7 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
           {/* LOGO E HEADER */}
           <div className="flex justify-between items-start border-b-2 border-slate-100 pb-6 mb-8">
             <div className="flex items-center">
-              <span className="text-[36px] font-black text-amber-500">bmv</span>
+            
             </div>
             <div className="text-right">
               <h2 className="text-[18px] font-black uppercase tracking-tight leading-tight">CERTIFICADO DE RASTREABILIDADE</h2>
@@ -238,25 +238,16 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
               <div className="flex justify-between items-start">
                 <div className="text-[10px] space-y-3 font-medium flex-1">
                   <p><strong className="font-black uppercase text-[9px] text-slate-400 mr-2">QUANTIDADE UCS:</strong> {order.quantidade}</p>
-                  <p><strong className="font-black uppercase text-[9px] text-slate-400 mr-2">VALOR AUDITADO:</strong> {order.valorTotal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>
-                  
-                  {link && (
-                    <div className="pt-2">
-                      <p className="text-[8px] font-black text-slate-400 uppercase mb-1">EXPLORER LINK:</p>
-                      <p className="text-[8px] text-blue-600 font-bold underline break-all max-w-[220px] leading-tight">
-                        {link}
-                      </p>
-                    </div>
-                  )}
+                  <p><strong className="font-black uppercase text-[9px] text-slate-400 mr-2">VALOR DO PEDIDO:</strong> {order.valorTotal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>
                 </div>
 
                 {/* QR CODE BOX */}
                 <div className="flex flex-col items-center gap-1.5 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 ml-4">
                   {qrCodeUrl ? (
-                    <img src={qrCodeUrl} alt="QR Code" className="w-20 h-20 bg-white" />
+                    <img src={qrCodeUrl} alt="QR Code" className="w-30 h-30 bg-white" />
                   ) : (
-                    <div className="w-20 h-20 bg-slate-100 flex items-center justify-center rounded-lg border-2 border-dashed border-slate-200">
-                      <QrCodeIcon className="w-8 h-8 text-slate-300" />
+                    <div className="w-30 h-30 bg-slate-100 flex items-center justify-center rounded-lg border-2 border-dashed border-slate-200">
+                      <QrCodeIcon className="w-10 h-10 text-slate-300" />
                     </div>
                   )}
                   <p className="text-[7px] font-black text-slate-400 uppercase tracking-tighter">VALIDAÇÃO DIGITAL</p>
