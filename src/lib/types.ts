@@ -41,21 +41,25 @@ export interface EntidadeSaldo {
   nome: string; // Usuário
   documento: string; // Documento
   uf: string;
+  
+  // Seção: Saldo Atualizado
   originacao: number;
-  debito: number;
-  aposentadas: number;
-  bloqueadas: number;
+  movimentacao: number; // Soma de movimentação
+  aposentado: number;
+  bloqueado: number;
   aquisicao: number;
-  transferenciaImei: number;
-  estornoImei: number;
   saldoAjustarImei: number;
-  saldoLegado: number;
+  saldoFinalAtual: number; // SALDO FINAL (ATUAL)
+  
+  // Seção: Saldo Legado
+  saldoLegadoTotal: number;
+  
+  // Informações Adicionais
   cprs: string;
   bmtca: string;
   statusBmtca: string;
   desmate: string;
-  saldoFinal: number; // SALDO FINAL (ATUAL)
-  valorAjustar: number; // VALOR A AJUSTAR
+  valorAjustar: number; 
   status: EntityStatus;
   createdAt: string;
 }
