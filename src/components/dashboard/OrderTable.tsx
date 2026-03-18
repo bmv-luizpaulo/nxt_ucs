@@ -1,3 +1,4 @@
+
 "use client"
 
 import { Pedido, Movimento } from "@/lib/types";
@@ -199,111 +200,80 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
           <DialogDescription>Detalhamento técnico de rastreabilidade e conferência blockchain.</DialogDescription>
         </DialogHeader>
 
-        {/* CONTEÚDO IMPRIMÍVEL (CERTIFICADO DE RASTREABILIDADE) */}
+        {/* CONTEÚDO IMPRIMÍVEL (CERTIFICADO DE RASTREABILIDADE - AJUSTADO CONFORME REFERÊNCIA) */}
         <div className="printable-certificate hidden print:block">
-          {/* Header */}
-          <div className="flex justify-between items-start border-b-2 border-slate-900 pb-8 mb-10">
-            <div>
-               <h1 className="text-[52px] font-black text-[#E6A623] leading-none tracking-tighter">bmv</h1>
-            </div>
+          <div className="flex justify-between items-start mb-8">
+            <h1 className="text-[28px] font-black text-slate-900 tracking-tight uppercase">Certificado de Rastreabilidade</h1>
             <div className="text-right">
-              <h2 className="text-[20px] font-black uppercase tracking-tight text-slate-900">Certificado de Rastreabilidade</h2>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Protocolo de Auditoria: {order.id}</p>
-              <p className="text-[9px] text-slate-400 font-mono mt-0.5">{new Date().toLocaleString('pt-BR')}</p>
+              <p className="text-[10px] font-bold text-slate-900 uppercase tracking-tight">Protocolo de Auditoria: #{order.id}</p>
+              <p className="text-[9px] text-slate-400 font-medium">{new Date().toLocaleString('pt-BR')}</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-16 mb-12">
-            {/* Asset ID Column */}
-            <div className="space-y-6">
-              <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-300 border-b border-slate-100 pb-2">Identificação do Ativo</h3>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <span className="text-[10px] font-black text-slate-400 uppercase">Pedido ID:</span>
-                  <div className="px-5 py-1.5 bg-[#E6F3F0] rounded-full text-primary font-black text-xs">
-                    {order.id}
-                  </div>
+          <div className="w-full h-0.5 bg-slate-900 mb-8" />
+
+          <div className="mb-12 relative">
+            <h2 className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-8">Auditoria Digital</h2>
+            
+            <div className="flex justify-between items-start">
+              <div className="space-y-8">
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-tight mb-1">Quantidade UCS:</p>
+                  <p className="text-[36px] font-black text-slate-900 leading-none">{order.quantidade.toLocaleString('pt-BR')}</p>
                 </div>
-                <div className="grid gap-2">
-                  <p className="text-[11px] font-bold text-slate-900"><span className="text-slate-400 font-medium uppercase text-[10px]">Data de Registro:</span> {new Date(order.data).toLocaleDateString('pt-BR')}</p>
-                  <p className="text-[11px] font-bold text-slate-900"><span className="text-slate-400 font-medium uppercase text-[10px]">Empresa/Origem:</span> {order.empresa}</p>
-                  <p className="text-[11px] font-bold text-slate-900"><span className="text-slate-400 font-medium uppercase text-[10px]">CNPJ:</span> <span className="text-[#734DCC] underline decoration-1 underline-offset-2">{order.cnpj}</span></p>
-                  <p className="text-[11px] font-bold text-slate-900"><span className="text-slate-400 font-medium uppercase text-[10px]">Programa:</span> {order.programa}</p>
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-tight mb-1">Valor Auditado:</p>
+                  <p className="text-[24px] font-black text-slate-900 leading-none">
+                    {order.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                  </p>
+                </div>
+                <div className="max-w-[400px]">
+                  <p className="text-[9px] text-blue-600 font-medium underline break-all leading-tight">
+                    {order.linkNxt || 'https://app.tesouroverde.global/certificate/validation-pending'}
+                  </p>
                 </div>
               </div>
-            </div>
-
-            {/* Audit Column */}
-            <div className="space-y-6">
-               <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-300 border-b border-slate-100 pb-2">Auditoria Digital</h3>
-               <div className="flex justify-between items-start">
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Quantidade UCS:</p>
-                      <p className="text-[28px] font-black text-slate-900 leading-none">{order.quantidade.toLocaleString('pt-BR')}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Valor Auditado:</p>
-                      <p className="text-[20px] font-black text-slate-900 leading-none">
-                        {order.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                      </p>
-                    </div>
-                    <p className="text-[10px] text-[#734DCC] font-bold underline decoration-1 underline-offset-2 break-all max-w-[150px]">
-                      {order.linkNxt || 'VALIDAÇÃO EM PROCESSAMENTO'}
-                    </p>
-                  </div>
-                  <div className="w-24 h-24 border border-slate-100 rounded-xl flex items-center justify-center bg-slate-50">
-                    <QrCode className="w-16 h-16 text-slate-200" />
-                  </div>
-               </div>
+              <div className="w-32 h-32 bg-slate-50 rounded-2xl flex items-center justify-center opacity-10">
+                <QrCode className="w-20 h-20 text-slate-900" />
+              </div>
             </div>
           </div>
 
-          {/* History Section */}
-          <div className="space-y-4">
-             <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-300 border-b border-slate-100 pb-2">Histórico de Rastreabilidade (Ledger Records)</h3>
-             <div className="rounded-xl border border-slate-200 overflow-hidden">
-                <table className="w-full text-left text-[10px]">
-                  <thead className="bg-[#F8FAFC]">
-                    <tr className="border-b border-slate-200">
-                      <th className="px-4 py-3 font-black uppercase tracking-widest text-[#734DCC]">Categoria</th>
-                      <th className="px-4 py-3 font-black uppercase tracking-widest text-slate-400">Origem do Ativo</th>
-                      <th className="px-4 py-3 font-black uppercase tracking-widest text-slate-400">Destino</th>
-                      <th className="px-4 py-3 font-black uppercase tracking-widest text-slate-400 text-right">Volume (UCS)</th>
+          <div className="mb-8">
+            <h2 className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-6">Ledger Records</h2>
+            <div className="border-t border-slate-100">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-slate-100">
+                    <th className="py-3 text-[10px] font-bold text-slate-400 uppercase tracking-tight">Destino</th>
+                    <th className="py-3 text-[10px] font-bold text-slate-400 uppercase tracking-tight text-right">Volume (UCS)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {movimentos && movimentos.length > 0 ? movimentos.map((mov, i) => (
+                    <tr key={i} className="border-b border-slate-50 last:border-0">
+                      <td className="py-4">
+                        <p className="text-[11px] font-bold text-slate-900 uppercase leading-tight">{mov.destino}</p>
+                        <p className="text-[9px] text-slate-400 font-medium">ORIGEM: {mov.origem}</p>
+                      </td>
+                      <td className="py-4 text-right">
+                        <p className="text-[11px] font-black text-slate-900">{mov.quantidade.toLocaleString('pt-BR')}</p>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {movimentos && movimentos.length > 0 ? movimentos.map((mov, i) => (
-                      <tr key={i} className="border-b border-slate-100 last:border-0">
-                        <td className="px-4 py-3 font-bold uppercase">{mov.tipo}</td>
-                        <td className="px-4 py-3 text-slate-600">{mov.origem}</td>
-                        <td className="px-4 py-3 text-slate-600">{mov.destino}</td>
-                        <td className="px-4 py-3 text-right font-black">{mov.quantidade.toLocaleString('pt-BR')}</td>
-                      </tr>
-                    )) : (
-                      <tr>
-                        <td colSpan={4} className="px-4 py-10 text-center text-slate-300 font-bold uppercase italic tracking-widest">Aguardando Importação de Ledger Records</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-             </div>
+                  )) : (
+                    <tr>
+                      <td colSpan={2} className="py-12 text-center text-slate-300 font-bold uppercase text-[10px] tracking-widest italic">Nenhum registro de movimentação encontrado</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          {/* Footer */}
-          <div className="mt-auto pt-20 flex justify-between items-end">
-            <div className="flex items-center gap-3">
-               <div className="w-10 h-10 bg-[#E6F9F3] rounded-full flex items-center justify-center">
-                  <ShieldCheck className="w-6 h-6 text-primary" />
-               </div>
-               <p className="text-[10px] font-black uppercase tracking-widest text-primary">Integridade Verificada</p>
-            </div>
-            <div className="text-right space-y-2">
-               <div className="w-64 border-t border-slate-900 pt-2">
-                 <p className="text-[10px] font-black uppercase text-slate-900">Auditor de Conformidade BMV</p>
-                 <p className="text-[8px] font-bold text-slate-400 uppercase">Documento assinado digitalmente</p>
-               </div>
-            </div>
+          <div className="mt-auto pt-32">
+            <div className="w-64 h-px bg-slate-900 mb-3" />
+            <p className="text-[11px] font-black text-slate-900 uppercase tracking-tight">Auditor de Conformidade BMV</p>
+            <p className="text-[9px] font-medium text-slate-400 uppercase tracking-tight">Documento Assinado Digitalmente</p>
           </div>
         </div>
 
