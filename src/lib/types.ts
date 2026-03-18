@@ -25,8 +25,8 @@ export interface Pedido {
   cnpj: string;
   programa: string;
   uf: string;
-  do: boolean; // Dispositivo de Origem
-  quantidade: number; // UCS
+  do: boolean;
+  quantidade: number;
   taxa: number;
   valorTotal: number;
   hashPedido: string;
@@ -38,31 +38,30 @@ export interface Pedido {
 }
 
 export interface RegistroTabela {
+  id?: string;
   dist?: string;
   data: string;
   destino?: string;
   valor: number;
   valorCredito?: number;
   valorDebito?: number;
-  situacao?: string;
-  ano?: string;
+  tipo?: string;
+  status?: string;
+  prioridade?: number;
   plataforma?: string;
-  nome?: string;
-  documento?: string;
   disponivel?: number;
   reservado?: number;
   bloqueado?: number;
   aposentado?: number;
   statusAuditoria?: AuditoriaStatus;
-  linkComprovante?: string;
 }
 
 export interface EntidadeSaldo {
   id: string;
-  nome: string; // Usuário
-  documento: string; // Documento
+  nome: string;
+  documento: string;
   
-  // Seção: Saldo Atualizado
+  // Totais
   originacao: number;
   movimentacao: number; 
   aposentado: number;
@@ -70,23 +69,15 @@ export interface EntidadeSaldo {
   aquisicao: number;
   saldoAjustarImei: number;
   saldoFinalAtual: number; 
-  
-  // Seção: Saldo Legado
   saldoLegadoTotal: number;
   
-  // Tabelas de Histórico
+  // Tabelas
   tabelaOriginacao?: RegistroTabela[];
   tabelaMovimentacao?: RegistroTabela[];
   tabelaImei?: RegistroTabela[];
   tabelaAquisicao?: RegistroTabela[];
   tabelaLegado?: RegistroTabela[];
 
-  // Informações Adicionais
-  cprs: string;
-  bmtca: string;
-  statusBmtca: string;
-  desmate: string;
-  valorAjustar: number; 
   status: EntityStatus;
   createdAt: string;
 }
