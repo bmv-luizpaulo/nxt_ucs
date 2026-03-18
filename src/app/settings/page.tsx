@@ -13,7 +13,8 @@ import {
   Trash2,
   UserPlus,
   ShieldCheck,
-  RefreshCw
+  RefreshCw,
+  Plus
 } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Button } from "@/components/ui/button";
@@ -23,8 +24,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
-import { collection, query, orderBy, doc, deleteDoc, writeBatch, setDoc } from "firebase/firestore";
+import { collection, doc, deleteDoc, writeBatch, setDoc } from "firebase/firestore";
 import { AppUser } from "@/lib/types";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -34,6 +37,8 @@ export default function SettingsPage() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
   const [activeTab, setActiveTab] = useState("perfil");
+  const [isAddingUser, setIsAddingUser] = useState(false);
+  const [newUserData, setNewUserData] = useState({ nome: "", email: "", role: "auditor" });
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -41,7 +46,6 @@ export default function SettingsPage() {
     }
   }, [user, isUserLoading, router]);
 
-  // Sincronizar usuário atual automaticamente com todos os campos obrigatórios
   useEffect(() => {
     if (!firestore || !user || isUserLoading) return;
     
@@ -51,7 +55,7 @@ export default function SettingsPage() {
         id: user.uid,
         nome: user.email?.split('@')[0].toUpperCase() || "AUDITOR",
         email: user.email,
-        role: 'auditor',
+        role: 'admin',
         status: 'ativo',
         ultimoAcesso: new Date().toISOString(),
         createdAt: new Date().toISOString(),
@@ -61,7 +65,6 @@ export default function SettingsPage() {
     syncUser();
   }, [firestore, user, isUserLoading]);
 
-  // Consulta robusta para listar todos os usuários da coleção
   const usersQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
     return collection(firestore, "users");
@@ -75,13 +78,34 @@ export default function SettingsPage() {
     toast({ variant: "destructive", title: "Usuário removido" });
   };
 
+  const handleAddAuditor = async () => {
+    if (!firestore || !newUserData.nome || !newUserData.email) return;
+    
+    const newId = `U-${Date.now()}`;
+    const userRef = doc(firestore, "users", newId);
+    
+    await setDoc(userRef, {
+      id: newId,
+      nome: newUserData.nome.toUpperCase(),
+      email: newUserData.email,
+      role: newUserData.role,
+      status: 'ativo',
+      ultimoAcesso: new Date().toISOString(),
+      createdAt: new Date().toISOString()
+    });
+
+    toast({ title: "Auditor Adicionado", description: "O novo perfil foi criado no LedgerTrust." });
+    setNewUserData({ nome: "", email: "", role: "auditor" });
+    setIsAddingUser(false);
+  };
+
   const handleSeedUsers = async () => {
     if (!firestore || !user) return;
     const batch = writeBatch(firestore);
     
     const mockUsers: AppUser[] = [
-      { id: "U-001", nome: "ADMIN LEDGERTRUST", email: "admin@bmv.global", role: "admin", status: "ativo", ultimoAcesso: new Date().toISOString(), createdAt: new Date().toISOString() },
-      { id: "U-002", nome: "AUDITOR DE UCS", email: "auditor@bmv.global", role: "auditor", status: "ativo", ultimoAcesso: new Date().toISOString(), createdAt: new Date().toISOString() },
+      { id: "U-001", nome: "LUIZPAULO.JESUS", email: "luizpaulo.jesus@bmv.global", role: "auditor", status: "ativo", ultimoAcesso: new Date().toISOString(), createdAt: new Date().toISOString() },
+      { id: "U-002", nome: "ADMINISTRADOR BMV", email: "admin@bmv.global", role: "admin", status: "ativo", ultimoAcesso: new Date().toISOString(), createdAt: new Date().toISOString() },
     ];
     
     mockUsers.forEach(u => batch.set(doc(firestore, "users", u.id), u));
@@ -160,15 +184,15 @@ export default function SettingsPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                       <div className="space-y-3.5">
-                        <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">Nome Completo</Label>
+                        <Label className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">Nome Completo</Label>
                         <Input defaultValue={user.email?.split('@')[0].toUpperCase()} className="h-16 bg-slate-50/50 border-slate-100 rounded-2xl px-8 font-black text-[14px] text-slate-900 uppercase" />
                       </div>
                       <div className="space-y-3.5">
-                        <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">Cargo / Função</Label>
+                        <Label className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">Cargo / Função</Label>
                         <Input defaultValue="Auditor de UCS" className="h-16 bg-slate-50/50 border-slate-100 rounded-2xl px-8 font-black text-[14px] text-slate-900 uppercase" />
                       </div>
                       <div className="space-y-3.5 col-span-1">
-                        <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">E-mail Corporativo</Label>
+                        <Label className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">E-mail Corporativo</Label>
                         <Input value={user.email || ""} disabled className="h-16 bg-slate-50 border-none rounded-2xl px-8 font-bold text-slate-300 cursor-not-allowed" />
                       </div>
                       <div className="flex items-end">
@@ -183,23 +207,70 @@ export default function SettingsPage() {
                 <TabsContent value="usuarios" className="mt-0 space-y-10">
                   <div className="flex justify-between items-center">
                     <div>
-                      <h2 className="text-[32px] font-black uppercase text-slate-900 leading-none mb-4">Gestão de Auditores</h2>
-                      <p className="text-sm font-medium text-slate-400">Controle de acesso e permissões administrativas da rede.</p>
+                      <h2 className="text-[32px] font-black uppercase text-slate-900 leading-none mb-2">Gestão de Auditores</h2>
+                      <p className="text-[14px] font-medium text-slate-400">Controle de acesso e permissões administrativas da rede.</p>
                     </div>
                     <div className="flex gap-4">
-                      <Button onClick={handleSeedUsers} variant="outline" className="h-16 px-10 rounded-2xl text-[12px] font-black uppercase border-dashed border-slate-300 flex gap-3">
+                      <Button onClick={handleSeedUsers} variant="outline" className="h-16 px-10 rounded-2xl text-[12px] font-black uppercase border-dashed border-slate-300 flex gap-3 hover:bg-slate-50">
                         <RefreshCw className="w-4 h-4" /> Sincronizar
                       </Button>
-                      <Button className="h-16 px-12 rounded-2xl bg-[#734DCC] text-white font-black uppercase text-[12px] tracking-[0.2em] shadow-2xl shadow-indigo-100 flex gap-3 transition-all active:scale-95">
-                        <UserPlus className="w-6 h-6" /> Novo Auditor
-                      </Button>
+                      
+                      <Dialog open={isAddingUser} onOpenChange={setIsAddingUser}>
+                        <DialogTrigger asChild>
+                          <Button className="h-16 px-12 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black uppercase text-[12px] tracking-[0.2em] shadow-xl shadow-emerald-100 flex gap-3 transition-all active:scale-95">
+                            <UserPlus className="w-5 h-5" /> Novo Auditor
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-md bg-white rounded-3xl p-8 border-none">
+                          <DialogHeader>
+                            <DialogTitle className="text-xl font-black uppercase text-slate-900">Novo Auditor</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-6 mt-6">
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase text-slate-400">Nome Completo</Label>
+                              <Input 
+                                placeholder="EX: JOÃO SILVA" 
+                                value={newUserData.nome} 
+                                onChange={e => setNewUserData({...newUserData, nome: e.target.value})}
+                                className="h-14 rounded-xl border-slate-100 bg-slate-50 uppercase font-bold"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase text-slate-400">E-mail Corporativo</Label>
+                              <Input 
+                                type="email" 
+                                placeholder="nome@bmv.global" 
+                                value={newUserData.email} 
+                                onChange={e => setNewUserData({...newUserData, email: e.target.value})}
+                                className="h-14 rounded-xl border-slate-100 bg-slate-50 font-bold"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase text-slate-400">Nível de Acesso</Label>
+                              <Select value={newUserData.role} onValueChange={v => setNewUserData({...newUserData, role: v})}>
+                                <SelectTrigger className="h-14 rounded-xl bg-slate-50 border-slate-100 font-bold">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="auditor">AUDITOR</SelectItem>
+                                  <SelectItem value="admin">ADMINISTRADOR</SelectItem>
+                                  <SelectItem value="viewer">VISUALIZADOR</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <Button onClick={handleAddAuditor} className="w-full h-14 rounded-xl bg-primary text-white font-black uppercase tracking-widest shadow-lg shadow-emerald-100">
+                              Confirmar Cadastro
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </div>
 
                   <Card className="rounded-[3rem] border-none shadow-sm overflow-hidden bg-white min-h-[500px]">
                     <Table>
                       <TableHeader className="bg-slate-50/50">
-                        <TableRow className="border-b border-slate-100 h-20">
+                        <TableRow className="border-b border-slate-100 h-16">
                           <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 pl-12">Auditor</TableHead>
                           <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Nível</TableHead>
                           <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Status</TableHead>
@@ -228,10 +299,10 @@ export default function SettingsPage() {
                           </TableRow>
                         ) : (
                           appUsers.map((item) => (
-                            <TableRow key={item.id} className="border-b border-slate-50 hover:bg-slate-50/80 transition-all h-28">
+                            <TableRow key={item.id} className="border-b border-slate-50 hover:bg-slate-50/80 transition-all h-24">
                               <TableCell className="pl-12">
                                 <div className="flex items-center gap-5">
-                                  <div className="w-14 h-14 bg-slate-100 rounded-[1.25rem] flex items-center justify-center text-slate-400 font-black text-base uppercase">
+                                  <div className="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 font-black text-base uppercase">
                                     {item.nome ? item.nome.substring(0,1) : "U"}
                                   </div>
                                   <div className="flex flex-col gap-1">
@@ -253,7 +324,7 @@ export default function SettingsPage() {
                               </TableCell>
                               <TableCell className="text-right pr-12">
                                 <Button variant="ghost" size="icon" onClick={() => handleDeleteUser(item.id)} className="text-slate-200 hover:text-rose-500 transition-colors h-12 w-12 rounded-xl">
-                                  <Trash2 className="w-6 h-6" />
+                                  <Trash2 className="w-5 h-5" />
                                 </Button>
                               </TableCell>
                             </TableRow>
