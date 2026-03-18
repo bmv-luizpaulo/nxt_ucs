@@ -10,23 +10,18 @@ import {
   Calculator, 
   ShieldCheck, 
   Save, 
-  Layers,
-  Plus,
-  Database,
-  AlertTriangle,
   MessageSquare,
-  FileText,
-  BadgeCheck,
-  QrCode
+  QrCode,
+  LayoutGrid
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useUser } from "@/firebase";
+import Image from "next/image";
 
 interface EntityEditDialogProps {
   entity: EntidadeSaldo | null;
@@ -149,161 +144,147 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
       <DialogContent className="max-w-[1280px] w-[95vw] h-[95vh] p-0 border-none bg-white overflow-hidden flex flex-col rounded-[2.5rem] shadow-2xl">
         <DialogHeader className="sr-only">
           <DialogTitle>Console de Auditoria de Saldo - {entity.nome}</DialogTitle>
-          <DialogDescription>Detalhamento técnico de conformidade e auditoria de UCS para {entity.nome}.</DialogDescription>
+          <DialogDescription>Detalhamento técnico de conformidade e auditoria de UCS.</DialogDescription>
         </DialogHeader>
         
-        {/* COMPONENTE DE PDF / IMPRESSÃO EXECUTIVA (RELATÓRIO DE SALDOS) */}
-        <div className="printable-audit-report hidden print:block">
-          <div className="flex justify-between items-start border-b-2 border-slate-900 pb-8 mb-10">
-            <div>
-               <h1 className="text-[42px] font-black text-primary leading-none tracking-tighter">bmv</h1>
-               <p className="text-[10px] font-black uppercase tracking-[0.2em] mt-2 text-slate-400">LedgerTrust Auditoria de Conformidade</p>
+        {/* CERTIFICADO A4 PRINT */}
+        <div className="printable-audit-report hidden print:block bg-white text-slate-900 p-0 font-body">
+          <div className="flex justify-between items-start border-b-2 border-slate-900 pb-4 mb-6">
+            <div className="flex items-center gap-0">
+               <div className="relative w-16 h-16">
+                 <Image src="/image/logo_amarelo.png" alt="BMV Logo" fill className="object-contain" />
+               </div>
+               <span className="text-[36px] font-black text-amber-500 leading-none -ml-2">bmv</span>
             </div>
             <div className="text-right">
-              <h2 className="text-[20px] font-black uppercase tracking-tight text-slate-900">Protocolo de Auditoria de Saldo</h2>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Ref. Técnica: {entity.id}</p>
-              <p className="text-[9px] text-slate-400 font-mono mt-0.5">{new Date().toLocaleString('pt-BR')}</p>
+              <h2 className="text-[16px] font-black uppercase tracking-tight leading-tight">RELATÓRIO EXECUTIVO DE AUDITORIA</h2>
+              <p className="text-[10px] font-black uppercase text-slate-900 tracking-widest mt-1">PROTOCOLO DE SALDO: {entity.id}</p>
+              <p className="text-[8px] text-slate-400 font-bold mt-0.5 uppercase">{new Date().toLocaleString("pt-BR")}</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-16 mb-12">
-            <div className="space-y-6">
-              <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-300 border-b border-slate-100 pb-2">Identificação da Entidade</h3>
+          <div className="grid grid-cols-2 gap-12 mb-8">
+            <div className="space-y-4">
+              <h3 className="text-[10px] font-black text-slate-400 uppercase border-b border-slate-100 pb-1.5 tracking-[0.2em]">IDENTIFICAÇÃO DA ENTIDADE</h3>
               <div className="space-y-4">
-                <div className="grid gap-2">
-                  <p className="text-[13px] font-black text-slate-900 uppercase">{entity.nome}</p>
-                  <p className="text-[11px] font-bold text-slate-400 font-mono">{entity.documento}</p>
-                  <div className="mt-4 pt-4 border-t border-slate-50">
-                    <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Auditor Responsável:</p>
-                    <p className="text-[11px] font-bold text-slate-900">{user?.email}</p>
-                  </div>
+                <p className="text-[24px] font-black text-slate-900 leading-none tracking-tighter uppercase">{entity.nome}</p>
+                <div className="text-[10px] space-y-2 font-bold uppercase tracking-tight">
+                  <p><strong className="text-slate-400 font-black mr-2">DOCUMENTO REGISTRADO:</strong> {entity.documento}</p>
+                  <p><strong className="text-slate-400 font-black mr-2">AUDITOR RESPONSÁVEL:</strong> {user?.email}</p>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-6">
-               <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-300 border-b border-slate-100 pb-2">Sumário Executivo (UCS)</h3>
-               <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-slate-50 rounded-xl">
-                    <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Originação Total</p>
-                    <p className="text-[16px] font-black text-slate-900">{totals.orig.toLocaleString('pt-BR')}</p>
-                  </div>
-                  <div className="p-4 bg-slate-50 rounded-xl">
-                    <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Saldo Final Auditado</p>
-                    <p className="text-[16px] font-black text-primary">{totals.final.toLocaleString('pt-BR')}</p>
-                  </div>
-               </div>
-               <div className="p-5 border-2 border-primary/20 rounded-2xl bg-primary/5 flex items-center justify-between">
+            <div className="space-y-4">
+              <h3 className="text-[10px] font-black text-slate-400 uppercase border-b border-slate-100 pb-1.5 tracking-[0.2em]">RESUMO DE SALDOS (UCS)</h3>
+              <div className="flex justify-between items-start gap-4">
+                <div className="text-[10px] space-y-3 font-bold uppercase flex-1">
                   <div>
-                    <p className="text-[10px] font-black text-primary uppercase tracking-widest">Status de Conformidade</p>
-                    <p className="text-[14px] font-black text-slate-900 mt-1 uppercase">✓ SALDO VALIDADO PELO LEDGER</p>
+                    <p className="text-slate-400 font-black text-[8px] mb-0.5">ORIGINAÇÃO TOTAL</p>
+                    <p className="text-xl font-black text-slate-900">{totals.orig.toLocaleString('pt-BR')}</p>
                   </div>
-                  <QrCode className="w-12 h-12 text-slate-200" />
-               </div>
+                  <div>
+                    <p className="text-slate-400 font-black text-[8px] mb-0.5">SALDO FINAL AUDITADO</p>
+                    <p className="text-xl font-black text-primary">{totals.final.toLocaleString('pt-BR')}</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center gap-1.5 bg-slate-50 p-3 rounded-2xl border border-slate-100 shrink-0 shadow-sm">
+                  <QrCode className="w-20 h-20 text-slate-200" />
+                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest">CONFORMIDADE</p>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="space-y-10">
+          <div className="space-y-6">
             {formData.tabelaOriginacao && formData.tabelaOriginacao.length > 0 && (
-              <ReportTable title="Histórico de Originação" data={formData.tabelaOriginacao} />
+              <ReportTable title="DEMONSTRATIVO DE ORIGINAÇÃO" data={formData.tabelaOriginacao} />
             )}
             {formData.tabelaMovimentacao && formData.tabelaMovimentacao.length > 0 && (
-              <ReportTable title="Fluxo de Movimentação de Ativos" data={formData.tabelaMovimentacao} isNegative />
-            )}
-            {formData.tabelaImei && formData.tabelaImei.length > 0 && (
-              <ReportTable title="Detalhamento de Ajustes IMEI" data={formData.tabelaImei} isImei />
+              <ReportTable title="DEMONSTRATIVO DE MOVIMENTAÇÃO" data={formData.tabelaMovimentacao} isNegative />
             )}
           </div>
 
-          <div className="mt-12 p-8 bg-slate-50/50 rounded-2xl border border-slate-100">
-             <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3">Apontamentos e Observações Técnicas</h3>
-             <p className="text-[11px] leading-relaxed text-slate-700 italic">
-               {formData.observacao || "Nenhuma divergência ou apontamento registrado para este período de auditoria. O saldo final reflete a integridade dos lançamentos em blockchain."}
-             </p>
-          </div>
-
-          <div className="mt-auto pt-20 flex justify-between items-end">
-            <div className="flex items-center gap-3">
-               <ShieldCheck className="w-8 h-8 text-primary" />
-               <p className="text-[10px] font-black uppercase tracking-widest text-primary">Autenticidade Verificada</p>
+          <div className="mt-12 flex justify-between items-end">
+            <div className="text-[10px] text-[#10B981] font-black flex items-center gap-2 uppercase tracking-tight">
+              <ShieldCheck className="w-4 h-4" /> SALDO VALIDADO PELO LEDGERTRUST
             </div>
-            <div className="text-right space-y-4">
-               <div className="w-64 border-t border-slate-900 pt-2">
-                 <p className="text-[10px] font-black uppercase text-slate-900">Responsável Técnico BMV</p>
-                 <p className="text-[8px] font-bold text-slate-400 uppercase">Documento Gerado pelo Sistema LedgerTrust</p>
-               </div>
+            <div className="text-right">
+              <div className="border-t border-slate-900 w-64 pt-3">
+                <p className="text-[10px] font-black uppercase text-slate-900 tracking-tight">RESPONSÁVEL TÉCNICO BMV</p>
+                <p className="text-[7px] text-slate-400 uppercase font-bold">Assinado digitalmente via LedgerTrust</p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* UI DO CONSOLE (HIDDEN EM PRINT) */}
-        <div className="flex-1 flex flex-col overflow-hidden print:hidden">
-          <div className="bg-[#0B0F1A] p-10 shrink-0 text-white relative">
-            <div className="flex justify-between items-start mb-12">
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-6 h-6 bg-primary rounded-lg flex items-center justify-center">
-                    <ShieldCheck className="w-4 h-4 text-white" />
+        {/* CONSOLE UI DESIGN SCREENSHOT */}
+        <div className="flex-1 flex flex-col overflow-hidden print:hidden bg-[#0F172A]">
+          <div className="p-8 pb-10 shrink-0 text-white relative">
+            <div className="flex justify-between items-start mb-8">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-5 h-5 bg-[#10B981]/20 rounded-md flex items-center justify-center">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#10B981]" />
                   </div>
-                  <p className="text-[12px] font-black uppercase tracking-[0.2em] text-primary">AUDITORIA TÉCNICA BMV</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#10B981]">AUDITORIA TÉCNICA BMV</p>
                 </div>
-                <h1 className="text-[30px] font-black tracking-tight uppercase leading-none">{entity.nome}</h1>
-                <p className="text-[14px] font-bold text-slate-500 font-mono tracking-widest">{entity.documento}</p>
+                <h1 className="text-[28px] font-black tracking-tight uppercase leading-none">{entity.nome}</h1>
+                <p className="text-[12px] font-bold text-slate-500 font-mono tracking-widest">{entity.documento}</p>
               </div>
 
-              <div className="bg-[#161B2E] border border-white/5 rounded-[2rem] p-8 min-w-[340px] shadow-2xl flex flex-col items-end relative overflow-hidden">
-                 <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 blur-3xl -mr-20 -mt-20"></div>
-                 <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest mb-3 relative z-10">Saldo Final Auditado</p>
-                 <div className="flex items-baseline gap-3 relative z-10">
+              <div className="bg-[#1E293B] border border-white/5 rounded-[2rem] p-6 min-w-[340px] shadow-2xl flex flex-col items-end relative overflow-hidden">
+                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#10B981]/10 blur-3xl -mr-16 -mt-16"></div>
+                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 relative z-10">Saldo Final Auditado</p>
+                 <div className="flex items-baseline gap-2 relative z-10">
                     <span className="text-[42px] font-black text-white tracking-tighter">{totals.final.toLocaleString('pt-BR')}</span>
-                    <span className="text-[12px] font-black text-primary uppercase tracking-widest">UCS</span>
+                    <span className="text-[12px] font-black text-[#10B981] uppercase tracking-widest">UCS</span>
                  </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-5">
+            <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
               <StatBox label="ORIGINAÇÃO" value={totals.orig} />
-              <StatBox label="MOVIMENTAÇÃO" value={totals.mov} isNegative percentage={totals.movPercentage} />
+              <StatBox label="MOVIMENTAÇÃO" value={totals.mov} isNegative />
               <StatBox label="APOSENTADO" value={totals.aposentado} isNegative />
               <StatBox label="BLOQUEADO" value={totals.bloqueado} isNegative />
               <StatBox label="AQUISIÇÃO" value={totals.aq} isNegative />
-              <StatBox label="AJUSTE IMEI" value={totals.imeiPending} isPending />
-              <StatBox label="SALDO LEGADO" value={totals.legadoTotal} isReference />
+              <StatBox label="AJUSTE IMEI" value={totals.imeiPending} isImei />
+              <StatBox label="SALDO LEGADO" value={totals.legadoTotal} isAmber />
               <StatBox label="DISPONÍVEL" value={totals.final} isHighlight />
             </div>
           </div>
 
-          <ScrollArea className="flex-1 bg-white">
-            <div className="p-10 space-y-20">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 bg-slate-50/50 p-10 rounded-[2.5rem] border border-slate-100">
+          <ScrollArea className="flex-1 bg-white rounded-t-[2.5rem]">
+            <div className="p-10 space-y-16">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                  <div className="lg:col-span-2 space-y-4">
                     <div className="flex items-center gap-3 mb-2">
-                      <MessageSquare className="w-5 h-5 text-primary" />
-                      <h3 className="text-[14px] font-black uppercase tracking-widest text-slate-900">APONTAMENTOS DE AUDITORIA</h3>
+                      <MessageSquare className="w-4 h-4 text-[#10B981]" />
+                      <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-900">APONTAMENTOS DE AUDITORIA</h3>
                     </div>
                     <Textarea 
                       value={formData.observacao || ""} 
                       onChange={e => setFormData({...formData, observacao: e.target.value})}
                       placeholder="Descreva aqui divergências, inconsistências ou justificativas..."
-                      className="min-h-[140px] bg-white border-slate-200 rounded-2xl p-6 text-[13px] font-medium focus:ring-primary shadow-sm resize-none"
+                      className="min-h-[120px] bg-slate-50 border-slate-100 rounded-2xl p-6 text-[12px] font-medium focus:ring-primary shadow-inner resize-none"
                     />
                  </div>
-                 <div className="space-y-6">
-                    <div className="space-y-4">
-                      <Label className="text-[11px] font-black uppercase tracking-widest text-slate-400">STATUS DA CONFORMIDADE</Label>
-                      <Select 
-                        value={formData.statusAuditoriaSaldo || "valido"} 
-                        onValueChange={v => setFormData({...formData, statusAuditoriaSaldo: v as any})}
-                      >
-                        <SelectTrigger className="h-14 rounded-2xl bg-white border-slate-200 font-bold text-[12px] uppercase tracking-widest">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="valido" className="font-bold text-[12px] uppercase">✓ SALDO VALIDADO</SelectItem>
-                          <SelectItem value="inconsistente" className="font-bold text-[12px] uppercase text-rose-500">⚠ DIVERGÊNCIA</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                 <div className="space-y-4">
+                    <Label className="text-[11px] font-black uppercase tracking-widest text-slate-400">STATUS DA CONFORMIDADE</Label>
+                    <Select 
+                      value={formData.statusAuditoriaSaldo || "valido"} 
+                      onValueChange={v => setFormData({...formData, statusAuditoriaSaldo: v as any})}
+                    >
+                      <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-slate-100 font-bold text-[11px] uppercase tracking-widest">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="valido" className="font-bold text-[11px] uppercase">✓ SALDO VALIDADO</SelectItem>
+                        <SelectItem value="inconsistente" className="font-bold text-[11px] uppercase text-rose-500">⚠ DIVERGÊNCIA</SelectItem>
+                      </SelectContent>
+                    </Select>
                  </div>
               </div>
 
@@ -316,24 +297,19 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                 <SectionHeader title="02. MOVIMENTAÇÃO" value={totals.mov} isNegative onPaste={() => setPasteData({ section: 'tabelaMovimentacao', raw: '' })} />
                 <SectionTable data={formData.tabelaMovimentacao || []} type="movimentacao" />
               </div>
-
-              <div className="space-y-6">
-                <SectionHeader title="03. AJUSTE IMEI" value={totals.imeiPending} isImei onPaste={() => setPasteData({ section: 'tabelaImeiDebito', raw: '' })} />
-                <SectionTable data={formData.tabelaImei || []} type="imei" />
-              </div>
             </div>
           </ScrollArea>
 
           <div className="p-8 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
-            <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[12px] font-black uppercase text-slate-400 tracking-widest hover:text-rose-500 px-8 h-14">
-              Cancelar
+            <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[11px] font-black uppercase text-slate-400 tracking-widest hover:text-rose-500 px-8 h-12">
+              CANCELAR
             </Button>
             <div className="flex gap-4">
-              <Button variant="outline" onClick={handlePrint} className="h-14 px-10 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[12px] tracking-widest text-slate-700">
-                <Printer className="w-5 h-5 mr-2" /> Gerar Relatório Executivo
+              <Button variant="outline" onClick={handlePrint} className="h-14 px-10 rounded-2xl border-slate-100 bg-slate-50/50 font-black uppercase text-[11px] tracking-widest text-slate-700 hover:bg-white transition-all">
+                <Printer className="w-4 h-4 mr-2" /> GERAR RELATÓRIO EXECUTIVO
               </Button>
-              <Button onClick={handleSave} className="h-14 px-12 rounded-2xl bg-[#734DCC] hover:bg-[#633fb9] text-white font-black uppercase text-[12px] tracking-widest shadow-xl shadow-indigo-200">
-                <Save className="w-5 h-5 mr-2" /> Salvar no Ledger
+              <Button onClick={handleSave} className="h-14 px-12 rounded-2xl bg-[#734DCC] hover:bg-[#633fb9] text-white font-black uppercase text-[11px] tracking-widest shadow-xl shadow-indigo-100 transition-all active:scale-95">
+                <Save className="w-4 h-4 mr-2" /> SALVAR NO LEDGER
               </Button>
             </div>
           </div>
@@ -342,20 +318,20 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
         {/* MODAL DE COLAGEM */}
         {pasteData && (
           <Dialog open={!!pasteData} onOpenChange={() => setPasteData(null)}>
-            <DialogContent className="max-w-xl rounded-3xl p-8 space-y-6">
+            <DialogContent className="max-w-xl rounded-3xl p-8 space-y-4">
               <DialogHeader>
-                <DialogTitle className="text-xl font-black uppercase text-slate-900 flex items-center gap-3">
-                  <Calculator className="w-6 h-6 text-primary" /> COLAGEM TÉCNICA
+                <DialogTitle className="text-lg font-black uppercase text-slate-900 flex items-center gap-2">
+                  <Calculator className="w-5 h-5 text-primary" /> COLAGEM TÉCNICA
                 </DialogTitle>
-                <DialogDescription className="sr-only">Interface de colagem de dados estruturados para processamento em lote.</DialogDescription>
+                <DialogDescription className="sr-only">Colagem de dados para processamento.</DialogDescription>
               </DialogHeader>
               <Textarea 
                 value={pasteData.raw} 
                 onChange={e => setPasteData({ ...pasteData, raw: e.target.value })}
                 placeholder="Cole colunas do Excel..."
-                className="min-h-[250px] font-mono text-[11px] bg-slate-50 border-slate-200 rounded-2xl p-6"
+                className="min-h-[250px] font-mono text-[10px] bg-slate-50 border-slate-100 rounded-2xl p-6"
               />
-              <Button onClick={handleProcessPaste} className="w-full h-12 rounded-xl font-black uppercase text-[11px] bg-primary text-white">Importar Dados</Button>
+              <Button onClick={handleProcessPaste} className="w-full h-12 rounded-xl font-black uppercase text-[10px] bg-primary text-white">IMPORTAR DADOS</Button>
             </DialogContent>
           </Dialog>
         )}
@@ -364,25 +340,25 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   );
 }
 
-function ReportTable({ title, data, isNegative, isImei }: any) {
+function ReportTable({ title, data, isNegative }: any) {
   return (
     <div className="space-y-3">
-       <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 border-b border-slate-100 pb-2">{title}</h4>
-       <table className="w-full text-left text-[10px]">
+       <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 pb-2">{title}</h4>
+       <table className="w-full text-left text-[9px]">
           <thead className="bg-[#F8FAFC]">
-            <tr className="border-b border-slate-200">
-              <th className="px-4 py-3 font-black uppercase tracking-widest text-slate-500">Referência</th>
-              <th className="px-4 py-3 font-black uppercase tracking-widest text-slate-500">Histórico / Destino</th>
-              <th className="px-4 py-3 font-black uppercase tracking-widest text-slate-500 text-right">Volume (UCS)</th>
+            <tr className="border-b border-slate-100">
+              <th className="px-4 py-2 font-black uppercase tracking-widest text-slate-500">REFERÊNCIA</th>
+              <th className="px-4 py-2 font-black uppercase tracking-widest text-slate-500">HISTÓRICO</th>
+              <th className="px-4 py-2 font-black uppercase tracking-widest text-slate-500 text-right">VOLUME (UCS)</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="font-bold uppercase">
             {data.map((row: any, i: number) => (
-              <tr key={i} className="border-b border-slate-100 last:border-0">
-                <td className="px-4 py-3 font-mono">{row.data || row.dist || '-'}</td>
-                <td className="px-4 py-3 text-slate-600 uppercase font-bold">{row.destino || row.plataforma || '-'}</td>
-                <td className={cn("px-4 py-3 text-right font-black", isNegative ? "text-rose-600" : "")}>
-                  {isImei ? (row.valorDebito - row.valorCredito).toLocaleString('pt-BR') : row.valor?.toLocaleString('pt-BR')}
+              <tr key={i} className="border-b border-slate-50">
+                <td className="px-4 py-2 font-mono text-slate-400">{row.data || row.dist || '-'}</td>
+                <td className="px-4 py-2 text-slate-600">{row.destino || row.plataforma || '-'}</td>
+                <td className={cn("px-4 py-2 text-right font-black", isNegative ? "text-rose-600" : "text-slate-900")}>
+                  {row.valor?.toLocaleString('pt-BR')}
                 </td>
               </tr>
             ))}
@@ -392,28 +368,25 @@ function ReportTable({ title, data, isNegative, isImei }: any) {
   );
 }
 
-function StatBox({ label, value, isNegative, isHighlight, isReference, isPending, percentage }: any) {
+function StatBox({ label, value, isNegative, isHighlight, isAmber, isImei }: any) {
   return (
     <div className={cn(
-      "border rounded-2xl p-5 flex flex-col justify-between h-[110px] transition-all",
-      isReference ? "bg-amber-500/10 border-amber-500/20" : 
-      isPending ? "bg-indigo-500/10 border-indigo-500/20" :
-      "bg-[#161B2E] border-white/5"
+      "border rounded-xl p-4 flex flex-col justify-between h-[85px] transition-all bg-[#1E293B]/50",
+      isAmber ? "border-amber-500/30 ring-1 ring-amber-500/10" : "border-white/5",
+      isImei ? "border-indigo-500/30" : ""
     )}>
-      <div className="flex justify-between items-start w-full">
-        <p className={cn(
-          "text-[12px] font-black uppercase tracking-widest leading-none",
-          isReference ? "text-amber-500" : isPending ? "text-indigo-400" : "text-slate-500"
-        )}>
-          {label}
-        </p>
-      </div>
       <p className={cn(
-        "text-[30px] font-black font-mono leading-none tracking-tight",
+        "text-[8px] font-black uppercase tracking-widest leading-none",
+        isAmber ? "text-amber-500" : isImei ? "text-indigo-400" : "text-slate-500"
+      )}>
+        {label}
+      </p>
+      <p className={cn(
+        "text-[18px] font-black font-mono leading-none tracking-tighter truncate",
         isNegative ? "text-rose-500" : 
-        isHighlight ? "text-emerald-400" : 
-        isReference ? "text-amber-500" : 
-        isPending ? "text-indigo-400" :
+        isHighlight ? "text-[#10B981]" : 
+        isAmber ? "text-amber-500" : 
+        isImei ? "text-indigo-400" :
         "text-white"
       )}>
         {value.toLocaleString('pt-BR')}
@@ -422,20 +395,18 @@ function StatBox({ label, value, isNegative, isHighlight, isReference, isPending
   );
 }
 
-function SectionHeader({ title, value, isNegative, onPaste }: any) {
+function SectionHeader({ title, value, onPaste }: any) {
   return (
-    <div className="flex justify-between items-center border-b border-slate-100 pb-5">
-      <div className="flex items-center gap-4">
-        <div className="w-1.5 h-8 bg-[#10B981] rounded-full" />
-        <div>
-          <h3 className="text-[14px] font-black uppercase tracking-widest text-slate-900">{title}</h3>
-          <p className="text-[11px] font-bold uppercase tracking-tighter text-slate-400">
-            TOTAL: <span className="font-black text-primary">{value.toLocaleString('pt-BR')} UCS</span>
-          </p>
-        </div>
+    <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+      <div className="flex items-center gap-3">
+        <div className="w-1 h-6 bg-[#10B981] rounded-full" />
+        <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">{title}</h3>
+        <Badge variant="outline" className="text-[10px] font-black border-[#10B981]/20 text-[#10B981] uppercase rounded-full">
+          TOTAL: {value.toLocaleString('pt-BR')} UCS
+        </Badge>
       </div>
-      <Button variant="outline" onClick={onPaste} className="h-10 px-6 rounded-3xl text-[10px] font-black uppercase gap-2 border-slate-200">
-        <Calculator className="w-4 h-4" /> Colar Dados
+      <Button variant="outline" size="sm" onClick={onPaste} className="h-9 px-4 rounded-xl text-[9px] font-black uppercase gap-2 border-slate-200 hover:bg-slate-50">
+        <Calculator className="w-3.5 h-3.5" /> COLAR DADOS
       </Button>
     </div>
   );
@@ -443,24 +414,24 @@ function SectionHeader({ title, value, isNegative, onPaste }: any) {
 
 function SectionTable({ data, type }: { data: any[], type: string }) {
   return (
-    <div className="rounded-[2.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm mb-12">
+    <div className="rounded-[1.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
       <Table>
         <TableHeader className="bg-slate-50/50">
-          <TableRow>
-            <TableHead className="text-[11px] font-black uppercase tracking-widest">Referência</TableHead>
-            <TableHead className="text-[11px] font-black uppercase tracking-widest">Histórico</TableHead>
-            <TableHead className="text-[11px] font-black uppercase tracking-widest text-right pr-8">Volume (UCS)</TableHead>
+          <TableRow className="h-12 border-b border-slate-100">
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">REFERÊNCIA</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">HISTÓRICO</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right pr-8">VOLUME (UCS)</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.length === 0 ? (
-            <TableRow><TableCell colSpan={3} className="py-12 text-center text-slate-300 font-bold uppercase text-xs">Aguardando dados...</TableCell></TableRow>
+            <TableRow><TableCell colSpan={3} className="py-10 text-center text-slate-300 font-bold uppercase text-[10px]">Aguardando dados estruturados...</TableCell></TableRow>
           ) : (
             data.map((row: any, i: number) => (
-              <TableRow key={i}>
-                <TableCell className="font-mono text-xs">{row.dist || row.data || '-'}</TableCell>
-                <TableCell className="font-bold text-xs uppercase">{row.destino || row.plataforma || '-'}</TableCell>
-                <TableCell className="text-right font-mono font-black pr-8">
+              <TableRow key={i} className="h-12 border-b border-slate-50 hover:bg-slate-50/50">
+                <TableCell className="font-mono text-[11px] text-slate-400">{row.dist || row.data || '-'}</TableCell>
+                <TableCell className="font-bold text-[11px] uppercase text-slate-600">{row.destino || row.plataforma || '-'}</TableCell>
+                <TableCell className="text-right font-mono font-black text-[12px] pr-8 text-slate-900">
                    {type === 'imei' ? (row.valorDebito - row.valorCredito).toLocaleString('pt-BR') : row.valor?.toLocaleString('pt-BR')}
                 </TableCell>
               </TableRow>
