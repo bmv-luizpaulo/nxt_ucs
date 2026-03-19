@@ -13,7 +13,8 @@ import {
   ShieldCheck, 
   Check, 
   Printer,
-  QrCode as QrCodeIcon
+  QrCode as QrCodeIcon,
+  FileText
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { MovementList } from "./MovementList";
@@ -84,7 +85,7 @@ export function OrderTable({
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-14">Data</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-14">Origem</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center h-14">UF</TableHead>
-            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right h-14">Qtd</TableHead>
+            <TableHead className="text-[10px) font-black uppercase tracking-widest text-slate-400 text-right h-14">Qtd</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right h-14">Total</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center h-14">Status</TableHead>
             <TableHead className="w-[100px] pr-8 h-14"></TableHead>
@@ -152,6 +153,7 @@ export function OrderTable({
 function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement, onDeleteMovement }: any) {
   const [hash, setHash] = useState(order.hashPedido || "");
   const [link, setLink] = useState(order.linkNxt || "");
+  const [certLink, setCertLink] = useState(order.linkCertificado || "");
   const firestore = useFirestore();
   const { user } = useUser();
   
@@ -172,8 +174,9 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
     onUpdateOrder(order.id, { 
       hashPedido: hash, 
       linkNxt: link, 
-      auditado: !!(hash && link),
-      status: (hash && link) ? 'ok' : 'pendente'
+      linkCertificado: certLink,
+      auditado: !!(hash && (link || certLink)),
+      status: (hash && (link || certLink)) ? 'ok' : 'pendente'
     });
   };
 
@@ -181,8 +184,8 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
     window.print();
   };
 
-  const qrCodeUrl = link 
-    ? `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(link)}`
+  const qrCodeUrl = (certLink || link) 
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(certLink || link)}`
     : "";
 
   return (
@@ -243,8 +246,8 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
                     <p className="text-slate-400 font-black text-[8px] mb-0.5">VALOR TOTAL DO PEDIDO</p>
                     <p className="text-xl font-black text-slate-900">{order.valorTotal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>
                   </div>
-                  {link && (
-                    <p className="text-[8px] text-blue-600 underline break-all">{link}</p>
+                  {(certLink || link) && (
+                    <p className="text-[8px] text-blue-600 underline break-all">{certLink || link}</p>
                   )}
                 </div>
 
@@ -353,7 +356,7 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
                     <h4 className="text-[11px] font-black uppercase text-primary flex items-center gap-2 tracking-[0.2em]">
                       <LinkIcon className="w-4 h-4" /> VÍNCULO BLOCKCHAIN NXT
                     </h4>
-                    <div className="space-y-8">
+                    <div className="space-y-6">
                       <div className="space-y-3">
                         <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Hash do Pedido</label>
                         <Input 
@@ -368,6 +371,17 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
                         <Input 
                           value={link} 
                           onChange={(e) => setLink(e.target.value)}
+                          placeholder="https://app.tesouroverde.global/#/explorer/..."
+                          className="font-mono text-[13px] bg-white border-slate-200 rounded-[1.25rem] h-14 px-8 focus:ring-primary shadow-sm"
+                        />
+                      </div>
+                      <div className="space-y-3">
+                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+                          <FileText className="w-3 h-3" /> Link do Certificado
+                        </label>
+                        <Input 
+                          value={certLink} 
+                          onChange={(e) => setCertLink(e.target.value)}
                           placeholder="https://app.tesouroverde.global/#/certificate/..."
                           className="font-mono text-[13px] bg-white border-slate-200 rounded-[1.25rem] h-14 px-8 focus:ring-primary shadow-sm"
                         />

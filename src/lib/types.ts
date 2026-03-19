@@ -43,6 +43,7 @@ export interface Pedido {
   valorTotal: number;
   hashPedido: string;
   linkNxt: string;
+  linkCertificado?: string;
   auditado: boolean;
   status: OrderStatus;
   categoria: OrderCategory;
