@@ -11,7 +11,10 @@ import {
   X,
   FileText,
   AlertTriangle,
-  QrCode
+  QrCode,
+  ExternalLink,
+  CheckCircle2,
+  Clock
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -208,6 +211,7 @@ function StatBox({ label, value, isNegative, isHighlight, isAmber, isImei }: any
 function ViewSection({ title, data, type, isNegative, isAmber, isImei, total }: any) {
   const isLegado = type === 'legado';
   const isImeiType = type === 'imei';
+  const isMovimentacao = type === 'movimentacao';
 
   return (
     <div className="space-y-4">
@@ -233,6 +237,9 @@ function ViewSection({ title, data, type, isNegative, isAmber, isImei, total }: 
             <TableRow className="h-10">
               <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 pl-6">REFERÊNCIA</TableHead>
               <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">HISTÓRICO / PLATAFORMA</TableHead>
+              {isMovimentacao && (
+                <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">STATUS PGTO</TableHead>
+              )}
               {isLegado ? (
                 <>
                   <TableHead className="text-[9px] font-black uppercase tracking-widest text-primary text-right">DISPONÍVEL</TableHead>
@@ -255,7 +262,31 @@ function ViewSection({ title, data, type, isNegative, isAmber, isImei, total }: 
             {data.map((row: any, i: number) => (
               <TableRow key={i} className="h-10 border-b border-slate-50 last:border-0">
                 <TableCell className="pl-6 font-mono text-[10px] text-slate-400">{row.dist || row.data || '-'}</TableCell>
-                <TableCell className="font-bold text-[10px] uppercase text-slate-600">{row.destino || row.plataforma || row.nome || '-'}</TableCell>
+                <TableCell className="font-bold text-[10px] uppercase text-slate-600 truncate max-w-[200px]">{row.destino || row.plataforma || row.nome || '-'}</TableCell>
+                
+                {isMovimentacao && (
+                  <TableCell className="text-center">
+                    <div className="flex items-center justify-center gap-3">
+                      <Badge className={cn(
+                        "text-[8px] font-black uppercase px-2 py-0.5 rounded-full border-none flex items-center gap-1",
+                        row.statusAuditoria === 'Pago' ? "bg-emerald-50 text-emerald-600" :
+                        row.statusAuditoria === 'Não Pago' ? "bg-rose-50 text-rose-600" :
+                        "bg-slate-50 text-slate-400"
+                      )}>
+                        {row.statusAuditoria === 'Pago' && <CheckCircle2 className="w-2.5 h-2.5" />}
+                        {row.statusAuditoria === 'Não Pago' && <AlertTriangle className="w-2.5 h-2.5" />}
+                        {(!row.statusAuditoria || row.statusAuditoria === 'Pendente') && <Clock className="w-2.5 h-2.5" />}
+                        {row.statusAuditoria || 'PENDENTE'}
+                      </Badge>
+                      {row.linkComprovante && (
+                        <a href={row.linkComprovante} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="w-3 h-3 text-primary" />
+                        </a>
+                      )}
+                    </div>
+                  </TableCell>
+                )}
+
                 {isLegado ? (
                   <>
                     <TableCell className="text-right font-mono font-black text-primary">{(row.disponivel || 0).toLocaleString('pt-BR')}</TableCell>

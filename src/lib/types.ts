@@ -66,6 +66,7 @@ export interface RegistroTabela {
   bloqueado?: number;
   aposentado?: number;
   statusAuditoria?: AuditoriaStatus | string;
+  linkComprovante?: string;
 }
 
 export interface EntidadeSaldo {

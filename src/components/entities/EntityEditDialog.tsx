@@ -1,10 +1,9 @@
-
 "use client"
 
 import { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { EntidadeSaldo, RegistroTabela } from "@/lib/types";
+import { EntidadeSaldo, RegistroTabela, AuditoriaStatus } from "@/lib/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Printer, 
@@ -14,7 +13,10 @@ import {
   MessageSquare,
   QrCode,
   Plus,
-  Trash2
+  Trash2,
+  ExternalLink,
+  Link as LinkIcon,
+  AlertTriangle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -47,6 +49,14 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     }
   }, [entity]);
 
+  // Monitora status de pagamento das movimentações para auto-setar divergência
+  useEffect(() => {
+    const hasUnpaid = (formData.tabelaMovimentacao || []).some(m => m.statusAuditoria === 'Não Pago');
+    if (hasUnpaid && formData.statusAuditoriaSaldo !== 'inconsistente') {
+      setFormData(prev => ({ ...prev, statusAuditoriaSaldo: 'inconsistente' }));
+    }
+  }, [formData.tabelaMovimentacao, formData.statusAuditoriaSaldo]);
+
   const totals = useMemo(() => {
     const sumVal = (arr?: RegistroTabela[]) => (arr || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
     
@@ -64,7 +74,6 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const legRes = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.reservado || 0), 0);
     const legadoTotal = legDisp + legRes;
 
-    // FÓRMULA SOLICITADA: Originação - Movimentação - Aposentadorias - Bloqueios - Aquisições
     const final = orig - mov - aposentado - bloqueado - aq;
 
     return { 
@@ -108,6 +117,13 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     });
     setNewAq({ data: new Date().getFullYear().toString(), valor: "" });
     setIsAddingAq(false);
+  };
+
+  const handleUpdateItem = (section: string, id: string, updates: Partial<RegistroTabela>) => {
+    const list = (formData[section as keyof EntidadeSaldo] as any[] || []).map(item => 
+      item.id === id ? { ...item, ...updates } : item
+    );
+    setFormData({ ...formData, [section]: list });
   };
 
   const handleRemoveItem = (section: string, id: string) => {
@@ -165,7 +181,8 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             dist: parts[0]?.trim() || '', 
             data: parts[1]?.trim() || '', 
             destino: parts[2]?.trim() || '', 
-            valor: parseVal(parts[parts.length - 1]) 
+            valor: parseVal(parts[parts.length - 1]),
+            statusAuditoria: 'Pendente'
           };
       }
     });
@@ -334,7 +351,12 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
               <div className="space-y-6">
                 <SectionHeader title="02. MOVIMENTAÇÃO" value={totals.mov} isNegative onPaste={() => setPasteData({ section: 'tabelaMovimentacao', raw: '' })} />
-                <SectionTable data={formData.tabelaMovimentacao || []} type="movimentacao" onRemove={(id) => handleRemoveItem('tabelaMovimentacao', id)} />
+                <SectionTable 
+                  data={formData.tabelaMovimentacao || []} 
+                  type="movimentacao" 
+                  onRemove={(id) => handleRemoveItem('tabelaMovimentacao', id)}
+                  onUpdateItem={(id, updates) => handleUpdateItem('tabelaMovimentacao', id, updates)}
+                />
               </div>
 
               <div className="space-y-6">
@@ -455,7 +477,10 @@ function ReportTable({ title, data, isNegative, isLegado, isImei, type }: any) {
                   <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">VOLUME</th>
                 </>
               ) : (
-                <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">VOLUME (UCS)</th>
+                <>
+                  {type === 'movimentacao' && <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">STATUS</th>}
+                  <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">VOLUME (UCS)</th>
+                </>
               )}
             </tr>
           </thead>
@@ -478,9 +503,23 @@ function ReportTable({ title, data, isNegative, isLegado, isImei, type }: any) {
                     <td className="px-2 py-1 text-right font-black text-indigo-600">{((row.valorDebito || 0) - (row.valorCredito || 0)).toLocaleString('pt-BR')}</td>
                   </>
                 ) : (
-                  <td className={cn("px-2 py-1 text-right font-black", isNegative ? "text-rose-600" : "text-slate-900")}>
-                    {(row.valor || 0).toLocaleString('pt-BR')}
-                  </td>
+                  <>
+                    {type === 'movimentacao' && (
+                      <td className="px-2 py-1">
+                        <span className={cn(
+                          "px-1 py-0.5 rounded-sm",
+                          row.statusAuditoria === 'Pago' ? "bg-emerald-50 text-emerald-600" :
+                          row.statusAuditoria === 'Não Pago' ? "bg-rose-50 text-rose-600" :
+                          "bg-slate-50 text-slate-400"
+                        )}>
+                          {row.statusAuditoria || 'PENDENTE'}
+                        </span>
+                      </td>
+                    )}
+                    <td className={cn("px-2 py-1 text-right font-black", isNegative ? "text-rose-600" : "text-slate-900")}>
+                      {(row.valor || 0).toLocaleString('pt-BR')}
+                    </td>
+                  </>
                 )}
               </tr>
             ))}
@@ -548,9 +587,10 @@ function SectionHeader({ title, value, onPaste, onAdd, isNegative, isAmber, isIm
   );
 }
 
-function SectionTable({ data, type, onRemove }: { data: any[], type: string, onRemove?: (id: string) => void }) {
+function SectionTable({ data, type, onRemove, onUpdateItem }: { data: any[], type: string, onRemove?: (id: string) => void, onUpdateItem?: (id: string, updates: Partial<RegistroTabela>) => void }) {
   const isLegado = type === 'legado';
   const isImei = type === 'imei';
+  const isMovimentacao = type === 'movimentacao';
 
   return (
     <div className="rounded-xl border border-slate-100 overflow-hidden bg-white shadow-sm">
@@ -559,6 +599,12 @@ function SectionTable({ data, type, onRemove }: { data: any[], type: string, onR
           <TableRow className="h-10 border-b border-slate-100">
             <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">REFERÊNCIA</TableHead>
             <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">HISTÓRICO / PLATAFORMA</TableHead>
+            {isMovimentacao && (
+              <>
+                <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">STATUS PGTO</TableHead>
+                <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">COMPROVANTE</TableHead>
+              </>
+            )}
             {isLegado ? (
               <>
                 <TableHead className="text-[9px] font-black uppercase tracking-widest text-primary text-right">DISPONÍVEL</TableHead>
@@ -581,7 +627,7 @@ function SectionTable({ data, type, onRemove }: { data: any[], type: string, onR
         <TableBody>
           {data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={isLegado ? 7 : isImei ? 6 : 4} className="py-8 text-center text-slate-300 font-bold uppercase text-[9px] tracking-widest">
+              <TableCell colSpan={isLegado ? 7 : isImei ? 6 : isMovimentacao ? 6 : 4} className="py-8 text-center text-slate-300 font-bold uppercase text-[9px] tracking-widest">
                 Nenhum registro auditado nesta sessão
               </TableCell>
             </TableRow>
@@ -589,7 +635,43 @@ function SectionTable({ data, type, onRemove }: { data: any[], type: string, onR
             data.map((row: any, i: number) => (
               <TableRow key={i} className="h-10 border-b border-slate-50 hover:bg-slate-50/50">
                 <TableCell className="px-4 py-2 font-mono text-[10px] text-slate-400">{row.dist || row.data || '-'}</TableCell>
-                <TableCell className="px-4 py-2 font-bold text-[10px] uppercase text-slate-600">{row.destino || row.plataforma || row.nome || '-'}</TableCell>
+                <TableCell className="px-4 py-2 font-bold text-[10px] uppercase text-slate-600 truncate max-w-[150px]">{row.destino || row.plataforma || row.nome || '-'}</TableCell>
+                
+                {isMovimentacao && (
+                  <>
+                    <TableCell className="text-center px-4 py-2">
+                      <Select 
+                        value={row.statusAuditoria || "Pendente"} 
+                        onValueChange={(v) => onUpdateItem?.(row.id, { statusAuditoria: v as AuditoriaStatus })}
+                      >
+                        <SelectTrigger className="h-8 rounded-lg bg-slate-50 text-[8px] font-black uppercase border-slate-100 min-w-[100px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Pago" className="text-[8px] font-black uppercase text-emerald-600">✓ PAGO (OK)</SelectItem>
+                          <SelectItem value="Pendente" className="text-[8px] font-black uppercase text-amber-500">⚠ AUSENTE</SelectItem>
+                          <SelectItem value="Não Pago" className="text-[8px] font-black uppercase text-rose-500">✗ NÃO PAGO</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell className="text-center px-4 py-2">
+                      <div className="flex items-center gap-2">
+                        <Input 
+                          placeholder="Link do comprovante..." 
+                          value={row.linkComprovante || ""} 
+                          onChange={(e) => onUpdateItem?.(row.id, { linkComprovante: e.target.value })}
+                          className="h-8 bg-slate-50 text-[8px] rounded-lg border-slate-100"
+                        />
+                        {row.linkComprovante && (
+                          <a href={row.linkComprovante} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="w-3 h-3 text-primary" />
+                          </a>
+                        )}
+                      </div>
+                    </TableCell>
+                  </>
+                )}
+
                 {isLegado ? (
                   <>
                     <TableCell className="px-4 py-2 text-right font-mono font-black text-primary">{(row.disponivel || 0).toLocaleString('pt-BR')}</TableCell>
