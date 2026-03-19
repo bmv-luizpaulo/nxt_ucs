@@ -63,7 +63,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const final = orig - mov - aposentado - bloqueado - aq;
 
     return { 
-      orig, mov, aq, imeiPending, legadoTotal, aposentado, bloqueado, final
+      orig, mov, aq, imeiPending, legadoTotal, aposentado, bloqueado, final, imeiCredits, imeiDebits
     };
   }, [formData]);
 
@@ -114,15 +114,16 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             aposentado: parseVal(parts[7]),
           };
         case 'tabelaImei':
-          const valDeb = parseVal(parts[parts.length - 1]);
+          const cred = parseVal(parts[parts.length - 2]);
+          const deb = parseVal(parts[parts.length - 1]);
           return { 
             id: `IMEI-${Math.random().toString(36).substr(2, 5).toUpperCase()}`, 
             dist: parts[0]?.trim() || '', 
             data: parts[1]?.trim() || '', 
             destino: parts[2]?.trim() || '', 
-            valorCredito: 0, 
-            valorDebito: valDeb, 
-            valor: valDeb 
+            valorCredito: cred, 
+            valorDebito: deb, 
+            valor: deb - cred
           };
         case 'tabelaAquisicao':
           return { 
@@ -401,6 +402,12 @@ function ReportTable({ title, data, isNegative, isLegado, isImei, type }: any) {
                   <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">BLOQ.</th>
                   <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">APOS.</th>
                 </>
+              ) : isImei ? (
+                <>
+                  <th className="px-2 py-1 font-black uppercase tracking-widest text-indigo-500 text-right">DÉBITO</th>
+                  <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">CRÉDITO</th>
+                  <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">VOLUME</th>
+                </>
               ) : (
                 <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">VOLUME (UCS)</th>
               )}
@@ -418,10 +425,15 @@ function ReportTable({ title, data, isNegative, isLegado, isImei, type }: any) {
                     <td className="px-2 py-1 text-right text-rose-600">{(row.bloqueado || 0).toLocaleString('pt-BR')}</td>
                     <td className="px-2 py-1 text-right text-slate-400">{(row.aposentado || 0).toLocaleString('pt-BR')}</td>
                   </>
+                ) : isImei ? (
+                  <>
+                    <td className="px-2 py-1 text-right text-indigo-500">{(row.valorDebito || 0).toLocaleString('pt-BR')}</td>
+                    <td className="px-2 py-1 text-right text-slate-400">{(row.valorCredito || 0).toLocaleString('pt-BR')}</td>
+                    <td className="px-2 py-1 text-right font-black text-indigo-600">{((row.valorDebito || 0) - (row.valorCredito || 0)).toLocaleString('pt-BR')}</td>
+                  </>
                 ) : (
                   <td className={cn("px-2 py-1 text-right font-black", isNegative ? "text-rose-600" : "text-slate-900")}>
-                    {type === 'imei' ? ((row.valorDebito || 0) - (row.valorCredito || 0)).toLocaleString('pt-BR') : 
-                     row.valor?.toLocaleString('pt-BR')}
+                    {(row.valor || 0).toLocaleString('pt-BR')}
                   </td>
                 )}
               </tr>
@@ -486,6 +498,7 @@ function SectionHeader({ title, value, onPaste, isNegative, isAmber, isImei }: a
 
 function SectionTable({ data, type }: { data: any[], type: string }) {
   const isLegado = type === 'legado';
+  const isImei = type === 'imei';
 
   return (
     <div className="rounded-xl border border-slate-100 overflow-hidden bg-white shadow-sm">
@@ -501,6 +514,12 @@ function SectionTable({ data, type }: { data: any[], type: string }) {
                 <TableHead className="text-[9px] font-black uppercase tracking-widest text-rose-500 text-right">BLOQUEADO</TableHead>
                 <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">APOSENTADO</TableHead>
               </>
+            ) : isImei ? (
+              <>
+                <TableHead className="text-[9px] font-black uppercase tracking-widest text-indigo-500 text-right">DÉBITO</TableHead>
+                <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">CRÉDITO</TableHead>
+                <TableHead className="text-[9px] font-black uppercase tracking-widest text-indigo-600 text-right pr-6">VOLUME (UCS)</TableHead>
+              </>
             ) : (
               <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-right pr-6">VOLUME (UCS)</TableHead>
             )}
@@ -509,7 +528,7 @@ function SectionTable({ data, type }: { data: any[], type: string }) {
         <TableBody>
           {data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={isLegado ? 6 : 3} className="py-8 text-center text-slate-300 font-bold uppercase text-[9px] tracking-widest">
+              <TableCell colSpan={isLegado ? 6 : isImei ? 5 : 3} className="py-8 text-center text-slate-300 font-bold uppercase text-[9px] tracking-widest">
                 Nenhum registro auditado nesta sessão
               </TableCell>
             </TableRow>
@@ -525,10 +544,17 @@ function SectionTable({ data, type }: { data: any[], type: string }) {
                     <TableCell className="px-4 py-2 text-right font-mono font-black text-rose-500">{(row.bloqueado || 0).toLocaleString('pt-BR')}</TableCell>
                     <TableCell className="px-4 py-2 text-right font-mono font-black text-slate-400">{(row.aposentado || 0).toLocaleString('pt-BR')}</TableCell>
                   </>
+                ) : isImei ? (
+                  <>
+                    <TableCell className="px-4 py-2 text-right font-mono font-black text-indigo-500">{(row.valorDebito || 0).toLocaleString('pt-BR')}</TableCell>
+                    <TableCell className="px-4 py-2 text-right font-mono font-black text-slate-400">{(row.valorCredito || 0).toLocaleString('pt-BR')}</TableCell>
+                    <TableCell className="px-4 py-2 text-right font-mono font-black text-[11px] pr-6 text-indigo-600">
+                      {((row.valorDebito || 0) - (row.valorCredito || 0)).toLocaleString('pt-BR')}
+                    </TableCell>
+                  </>
                 ) : (
                   <TableCell className="px-4 py-2 text-right font-mono font-black text-[11px] pr-6 text-slate-900">
-                    {type === 'imei' ? ((row.valorDebito || 0) - (row.valorCredito || 0)).toLocaleString('pt-BR') : 
-                     row.valor?.toLocaleString('pt-BR')}
+                    {(row.valor || 0).toLocaleString('pt-BR')}
                   </TableCell>
                 )}
               </TableRow>
@@ -539,4 +565,3 @@ function SectionTable({ data, type }: { data: any[], type: string }) {
     </div>
   );
 }
-
