@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react";
@@ -481,18 +482,22 @@ function SectionTable({ data, type }: { data: any[], type: string }) {
         </TableHeader>
         <TableBody>
           {data.length === 0 ? (
-            <TableRow><TableCell colSpan={3} className="py-8 text-center text-slate-300 font-bold uppercase text-[9px] tracking-widest">Nenhum registro auditado nesta sessão</TableCell></TableRow>
+            <TableRow>
+              <TableCell colSpan={3} className="py-8 text-center text-slate-300 font-bold uppercase text-[9px] tracking-widest">
+                Nenhum registro auditado nesta sessão
+              </TableCell>
+            </TableRow>
           ) : (
             data.map((row: any, i: number) => (
               <TableRow key={i} className="h-10 border-b border-slate-50 hover:bg-slate-50/50">
-                <td className="px-4 py-2 font-mono text-[10px] text-slate-400">{row.dist || row.data || '-'}</td>
-                <td className="px-4 py-2 font-bold text-[10px] uppercase text-slate-600">{row.destino || row.plataforma || row.nome || '-'}</td>
-                <td className="px-4 py-2 text-right font-mono font-black text-[11px] pr-6 text-slate-900">
+                <TableCell className="px-4 py-2 font-mono text-[10px] text-slate-400">{row.dist || row.data || '-'}</TableCell>
+                <TableCell className="px-4 py-2 font-bold text-[10px] uppercase text-slate-600">{row.destino || row.plataforma || row.nome || '-'}</TableCell>
+                <TableCell className="px-4 py-2 text-right font-mono font-black text-[11px] pr-6 text-slate-900">
                    {type === 'imei' ? ((row.valorDebito || 0) - (row.valorCredito || 0)).toLocaleString('pt-BR') : 
                     type === 'legado' ? ((row.disponivel || 0) + (row.reservado || 0)).toLocaleString('pt-BR') :
                     row.valor?.toLocaleString('pt-BR')}
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))
           )}
         </TableBody>
