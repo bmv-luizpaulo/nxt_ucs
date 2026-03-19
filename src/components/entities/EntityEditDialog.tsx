@@ -1,9 +1,10 @@
+
 "use client"
 
 import { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { EntidadeSaldo, RegistroTabela, AuditoriaStatus } from "@/lib/types";
+import { EntidadeSaldo, RegistroTabela, AuditoriaStatus, EntityStatus } from "@/lib/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Printer, 
@@ -18,7 +19,10 @@ import {
   AlertTriangle,
   History,
   Lock,
-  UserCheck
+  UserCheck,
+  Ban,
+  UserX,
+  UserCheck2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -64,7 +68,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const sumVal = (arr?: RegistroTabela[]) => (arr || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
     
     const orig = sumVal(formData.tabelaOriginacao);
-    const mov = sumVal(formData.tabelaMovimentacao);
+    const mov = (formData.tabelaMovimentacao || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
     const aq = sumVal(formData.tabelaAquisicao);
     
     const imeiCredits = (formData.tabelaImei || []).reduce((acc, curr) => acc + (curr.valorCredito || 0), 0);
@@ -181,10 +185,8 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
         case 'tabelaLegado':
           return {
             id: `LEG-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
-            data: parts[0]?.trim() || '',
-            plataforma: parts[1]?.trim() || '',
-            nome: parts[2]?.trim() || '',
-            documento: parts[3]?.trim() || '',
+            data: parts[1]?.trim() || '',
+            plataforma: parts[0]?.trim() || '',
             disponivel: parseVal(parts[4]),
             reservado: parseVal(parts[5]),
             bloqueado: parseVal(parts[6]),
@@ -238,7 +240,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
           <DialogTitle>Console de Auditoria de Saldo - {entity.nome}</DialogTitle>
           <DialogDescription>Detalhamento técnico de conformidade e auditoria de UCS.</DialogDescription>
         </DialogHeader>
-        
+
         {/* RELATÓRIO EXECUTIVO A4 PRINT */}
         <div className="printable-audit-report hidden print:block bg-white text-slate-900 p-0 font-body">
           <div className="flex justify-between items-start border-b-2 border-slate-900 pb-3 mb-5">
@@ -262,6 +264,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                 <p className="text-[16px] font-black text-slate-900 leading-none tracking-tighter uppercase">{entity.nome}</p>
                 <div className="text-[8px] space-y-1 font-bold uppercase tracking-tight">
                   <p><strong className="text-slate-400 font-black mr-2">DOCUMENTO REGISTRADO:</strong> {entity.documento}</p>
+                  <p><strong className="text-slate-400 font-black mr-2">STATUS CADASTRAL:</strong> {entity.status?.toUpperCase()}</p>
                   <p><strong className="text-slate-400 font-black mr-2">AUDITOR RESPONSÁVEL:</strong> {user?.email}</p>
                 </div>
               </div>
@@ -326,30 +329,40 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
         {/* CONSOLE UI - INTERFACE TÉCNICA (HIDDEN EM PRINT) */}
         <div className="flex-1 flex flex-col overflow-hidden print:hidden bg-[#0F172A]">
-          <div className="p-6 pb-8 shrink-0 text-white relative">
-            <div className="flex justify-between items-start mb-6">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-5 h-5 bg-[#10B981]/20 rounded-md flex items-center justify-center">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#10B981]" />
+          <div className="p-8 pb-10 shrink-0 text-white relative">
+            <div className="flex justify-between items-start mb-8">
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-6 h-6 bg-[#10B981]/20 rounded-md flex items-center justify-center">
+                    <ShieldCheck className="w-4 h-4 text-[#10B981]" />
                   </div>
-                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#10B981]">AUDITORIA TÉCNICA BMV</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#10B981]">AUDITORIA TÉCNICA BMV</p>
                 </div>
-                <h1 className="text-[24px] font-black tracking-tight uppercase leading-none">{entity.nome}</h1>
-                <p className="text-[11px] font-bold text-slate-500 font-mono tracking-widest">{entity.documento}</p>
+                <h1 className="text-[32px] font-black tracking-tight uppercase leading-none">{entity.nome}</h1>
+                <div className="flex items-center gap-4">
+                  <p className="text-[13px] font-bold text-slate-500 font-mono tracking-widest">{entity.documento}</p>
+                  <Badge className={cn(
+                    "text-[9px] font-black uppercase px-3 py-1 rounded-full",
+                    formData.status === 'disponivel' ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/50" :
+                    formData.status === 'bloqueado' ? "bg-rose-500/20 text-rose-400 border-rose-500/50" :
+                    "bg-amber-500/20 text-amber-400 border-amber-500/50"
+                  )}>
+                    {formData.status === 'disponivel' ? 'APTO / DISPONÍVEL' : formData.status?.toUpperCase()}
+                  </Badge>
+                </div>
               </div>
 
-              <div className="bg-[#1E293B] border border-white/5 rounded-[1.5rem] p-5 min-w-[300px] shadow-2xl flex flex-col items-end relative overflow-hidden">
+              <div className="bg-[#1E293B] border border-white/5 rounded-[2rem] p-6 min-w-[340px] shadow-2xl flex flex-col items-end relative overflow-hidden">
                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#10B981]/10 blur-3xl -mr-16 -mt-16"></div>
-                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 relative z-10">Saldo Final Auditado</p>
+                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 relative z-10">Saldo Final Auditado</p>
                  <div className="flex items-baseline gap-2 relative z-10">
-                    <span className="text-[36px] font-black text-white tracking-tighter">{totals.final.toLocaleString('pt-BR')}</span>
-                    <span className="text-[10px] font-black text-[#10B981] uppercase tracking-widest">UCS</span>
+                    <span className="text-[48px] font-black text-white tracking-tighter leading-none">{totals.final.toLocaleString('pt-BR')}</span>
+                    <span className="text-[12px] font-black text-[#10B981] uppercase tracking-widest">UCS</span>
                  </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-4 md:grid-cols-8 gap-2.5">
+            <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
               <StatBox label="ORIGINAÇÃO" value={totals.orig} />
               <StatBox label="MOVIMENTAÇÃO" value={totals.mov} isNegative />
               <StatBox label="APOSENTADO" value={totals.aposentado} isNegative />
@@ -362,79 +375,103 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
           </div>
 
           <ScrollArea className="flex-1 bg-white">
-            <div className="p-8 space-y-12">
+            <div className="p-10 space-y-14">
               {formData.ajusteRealizado && (
-                <div className="bg-emerald-50/50 border border-emerald-100 rounded-[2rem] p-8 flex items-start justify-between">
-                  <div className="flex gap-5">
-                    <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center shrink-0">
-                      <UserCheck className="w-7 h-7 text-emerald-600" />
+                <div className="bg-emerald-50/50 border border-emerald-100 rounded-[2.5rem] p-10 flex items-start justify-between">
+                  <div className="flex gap-6">
+                    <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center shrink-0">
+                      <UserCheck className="w-8 h-8 text-emerald-600" />
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-3">
-                        <h4 className="text-[12px] font-black uppercase text-emerald-700 tracking-widest">AJUSTE DE GOVERNANÇA ATIVO</h4>
-                        <Badge className="bg-emerald-500 text-white border-none text-[8px] font-black uppercase">Fidedigno ✓</Badge>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-4">
+                        <h4 className="text-[13px] font-black uppercase text-emerald-700 tracking-widest">AJUSTE DE GOVERNANÇA ATIVO</h4>
+                        <Badge className="bg-emerald-500 text-white border-none text-[9px] font-black uppercase px-3 py-1">Fidedigno ✓</Badge>
                       </div>
-                      <p className="text-[14px] font-black text-slate-900">Novo Saldo Consolidado: {formData.valorAjusteManual?.toLocaleString('pt-BR')} UCS</p>
-                      <div className="text-[10px] text-slate-500 font-bold uppercase tracking-tight flex gap-4">
+                      <p className="text-[16px] font-black text-slate-900">Novo Saldo Consolidado: {formData.valorAjusteManual?.toLocaleString('pt-BR')} UCS</p>
+                      <div className="text-[11px] text-slate-500 font-bold uppercase tracking-tight flex gap-6">
                         <span>Autor: {formData.usuarioAjuste}</span>
                         <span>Data: {new Date(formData.dataAjuste!).toLocaleString('pt-BR')}</span>
                       </div>
-                      <p className="text-[11px] text-slate-600 bg-white/50 p-3 rounded-lg border border-emerald-50 italic">
+                      <p className="text-[12px] text-slate-600 bg-white/50 p-4 rounded-xl border border-emerald-50 italic leading-relaxed">
                         "{formData.justificativaAjuste}"
                       </p>
                     </div>
                   </div>
-                  <Button variant="ghost" onClick={handleRemoveAjuste} className="text-rose-500 hover:bg-rose-50 text-[10px] font-black uppercase tracking-widest h-10 px-4">
+                  <Button variant="ghost" onClick={handleRemoveAjuste} className="text-rose-500 hover:bg-rose-50 text-[11px] font-black uppercase tracking-widest h-12 px-6">
                     <Trash2 className="w-4 h-4 mr-2" /> Revogar Ajuste
                   </Button>
                 </div>
               )}
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                 <div className="lg:col-span-2 space-y-3">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                 <div className="lg:col-span-2 space-y-4">
                     <div className="flex items-center gap-2 mb-1">
-                      <MessageSquare className="w-3.5 h-3.5 text-[#10B981]" />
-                      <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-900">APONTAMENTOS DE AUDITORIA</h3>
+                      <MessageSquare className="w-4 h-4 text-[#10B981]" />
+                      <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-900">APONTAMENTOS DE AUDITORIA</h3>
                     </div>
                     <Textarea 
                       value={formData.observacao || ""} 
                       onChange={e => setFormData({...formData, observacao: e.target.value})}
                       placeholder="Descreva aqui divergências, inconsistências ou justificativas técnicas..."
-                      className="min-h-[100px] bg-slate-50 border-slate-100 rounded-xl p-5 text-[11px] font-medium focus:ring-primary shadow-inner resize-none"
+                      className="min-h-[140px] bg-slate-50 border-slate-100 rounded-2xl p-6 text-[12px] font-medium focus:ring-primary shadow-inner resize-none"
                     />
                  </div>
-                 <div className="space-y-4">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">GOVERNANÇA DE SALDO</Label>
-                    <div className="space-y-3">
+                 <div className="space-y-6">
+                    <Label className="text-[11px] font-black uppercase tracking-widest text-slate-400">CONTROLE DE GOVERNANÇA</Label>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label className="text-[9px] font-black uppercase text-slate-400 ml-1">Status do Produtor</Label>
+                        <Select value={formData.status} onValueChange={v => setFormData({...formData, status: v as EntityStatus})}>
+                          <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-slate-100 font-black text-[11px] uppercase tracking-widest">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="disponivel" className="font-bold text-[10px] uppercase">
+                              <div className="flex items-center gap-2"><UserCheck2 className="w-3 h-3 text-emerald-500" /> APTO / DISPONÍVEL</div>
+                            </SelectItem>
+                            <SelectItem value="bloqueado" className="font-bold text-[10px] uppercase">
+                              <div className="flex items-center gap-2"><Ban className="w-3 h-3 text-rose-500" /> BLOQUEADO</div>
+                            </SelectItem>
+                            <SelectItem value="inapto" className="font-bold text-[10px] uppercase">
+                              <div className="flex items-center gap-2"><UserX className="w-3 h-3 text-amber-500" /> INAPTO</div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
                       <Button 
                         onClick={() => setIsAjustando(true)} 
                         variant="outline" 
-                        className="w-full h-14 rounded-xl border-[#734DCC]/20 bg-[#734DCC]/5 text-[#734DCC] font-black uppercase text-[10px] tracking-widest gap-3"
+                        className="w-full h-14 rounded-2xl border-[#734DCC]/20 bg-[#734DCC]/5 text-[#734DCC] font-black uppercase text-[11px] tracking-widest gap-3"
                       >
                         <Lock className="w-4 h-4" /> AJUSTE GERAL (AUTORIZAÇÃO)
                       </Button>
-                      <Select 
-                        value={formData.statusAuditoriaSaldo || "valido"} 
-                        onValueChange={v => setFormData({...formData, statusAuditoriaSaldo: v as any})}
-                      >
-                        <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-slate-100 font-bold text-[10px] uppercase tracking-widest">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="valido" className="font-bold text-[10px] uppercase">✓ SALDO VALIDADO</SelectItem>
-                          <SelectItem value="inconsistente" className="font-bold text-[10px] uppercase text-rose-500">⚠ DIVERGÊNCIA</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      
+                      <div className="space-y-2">
+                         <Label className="text-[9px] font-black uppercase text-slate-400 ml-1">Auditoria de Saldo</Label>
+                         <Select 
+                          value={formData.statusAuditoriaSaldo || "valido"} 
+                          onValueChange={v => setFormData({...formData, statusAuditoriaSaldo: v as any})}
+                        >
+                          <SelectTrigger className="h-14 rounded-2xl bg-slate-50 border-slate-100 font-black text-[11px] uppercase tracking-widest">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="valido" className="font-bold text-[10px] uppercase">✓ SALDO VALIDADO</SelectItem>
+                            <SelectItem value="inconsistente" className="font-bold text-[10px] uppercase text-rose-500">⚠ DIVERGÊNCIA</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                  </div>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <SectionHeader title="01. ORIGINAÇÃO" value={totals.orig} onPaste={() => setPasteData({ section: 'tabelaOriginacao', raw: '' })} />
                 <SectionTable data={formData.tabelaOriginacao || []} type="originacao" onRemove={(id) => handleRemoveItem('tabelaOriginacao', id)} />
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <SectionHeader title="02. MOVIMENTAÇÃO" value={totals.mov} isNegative onPaste={() => setPasteData({ section: 'tabelaMovimentacao', raw: '' })} />
                 <SectionTable 
                   data={formData.tabelaMovimentacao || []} 
@@ -444,32 +481,32 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                 />
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <SectionHeader title="03. SALDO LEGADO" value={totals.legadoTotal} isAmber onPaste={() => setPasteData({ section: 'tabelaLegado', raw: '' })} />
                 <SectionTable data={formData.tabelaLegado || []} type="legado" onRemove={(id) => handleRemoveItem('tabelaLegado', id)} />
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <SectionHeader title="04. AJUSTE IMEI" value={totals.imeiPending} isImei onPaste={() => setPasteData({ section: 'tabelaImei', raw: '' })} />
                 <SectionTable data={formData.tabelaImei || []} type="imei" onRemove={(id) => handleRemoveItem('tabelaImei', id)} />
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <SectionHeader title="05. AQUISIÇÃO" value={totals.aq} isNegative onAdd={() => setIsAddingAq(true)} />
                 <SectionTable data={formData.tabelaAquisicao || []} type="aquisicao" onRemove={(id) => handleRemoveItem('tabelaAquisicao', id)} />
               </div>
             </div>
           </ScrollArea>
 
-          <div className="p-6 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
-            <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[10px] font-black uppercase text-slate-400 tracking-widest hover:text-rose-500 px-6 h-12">
+          <div className="p-8 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
+            <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[11px] font-black uppercase text-slate-400 tracking-widest hover:text-rose-500 px-8 h-14">
               CANCELAR
             </Button>
             <div className="flex gap-4">
-              <Button variant="outline" onClick={handlePrint} className="h-12 px-8 rounded-xl border-slate-100 bg-slate-50/50 font-black uppercase text-[10px] tracking-widest text-slate-700 hover:bg-white transition-all">
+              <Button variant="outline" onClick={handlePrint} className="h-14 px-10 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[11px] tracking-widest text-slate-700 hover:bg-white transition-all shadow-sm">
                 <Printer className="w-4 h-4 mr-2" /> RELATÓRIO EXECUTIVO
               </Button>
-              <Button onClick={handleSave} className="h-12 px-10 rounded-xl bg-[#734DCC] hover:bg-[#633fb9] text-white font-black uppercase text-[10px] tracking-widest shadow-xl shadow-indigo-100 transition-all active:scale-95">
+              <Button onClick={handleSave} className="h-14 px-12 rounded-2xl bg-[#734DCC] hover:bg-[#633fb9] text-white font-black uppercase text-[11px] tracking-widest shadow-xl shadow-indigo-100 transition-all active:scale-95">
                 <Save className="w-4 h-4 mr-2" /> SALVAR NO LEDGER
               </Button>
             </div>
@@ -650,7 +687,9 @@ function ReportTable({ title, data, isNegative, isLegado, isImei, type }: any) {
                       </td>
                     )}
                     <td className={cn("px-2 py-1 text-right font-black", isNegative ? "text-rose-600" : "text-slate-900")}>
-                      {(row.valor || 0).toLocaleString('pt-BR')}
+                      {isLegado ? (row.disponivel + row.reservado).toLocaleString('pt-BR') : 
+                       type === 'imei' ? (row.valorDebito - row.valorCredito).toLocaleString('pt-BR') :
+                       row.valor?.toLocaleString('pt-BR')}
                     </td>
                   </>
                 )}
@@ -665,20 +704,20 @@ function ReportTable({ title, data, isNegative, isLegado, isImei, type }: any) {
 function StatBox({ label, value, isNegative, isHighlight, isAmber, isImei }: any) {
   return (
     <div className={cn(
-      "border rounded-xl p-3 flex flex-col justify-between h-[75px] transition-all bg-[#1E293B]/50",
+      "border rounded-[1.25rem] p-4 flex flex-col justify-between h-[85px] transition-all bg-[#1E293B]/50",
       isAmber ? "border-amber-500/30 ring-1 ring-amber-500/10" : "border-white/5",
       isImei ? "border-indigo-500/30" : ""
     )}>
       <div className="flex justify-between items-start w-full">
         <p className={cn(
-          "text-[7px] font-black uppercase tracking-widest leading-none",
+          "text-[8px] font-black uppercase tracking-widest leading-none",
           isAmber ? "text-amber-500" : isImei ? "text-indigo-400" : "text-slate-500"
         )}>
           {label}
         </p>
       </div>
       <p className={cn(
-        "text-[15px] font-black font-mono leading-none tracking-tighter truncate",
+        "text-[16px] font-black font-mono leading-none tracking-tighter truncate",
         isNegative || (label === 'MOVIMENTAÇÃO' && value !== 0) || (label === 'AQUISIÇÃO' && value !== 0) ? "text-rose-500" : 
         isHighlight ? "text-[#10B981]" : 
         isAmber ? "text-amber-500" : 
@@ -693,27 +732,27 @@ function StatBox({ label, value, isNegative, isHighlight, isAmber, isImei }: any
 
 function SectionHeader({ title, value, onPaste, onAdd, isNegative, isAmber, isImei }: any) {
   return (
-    <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-      <div className="flex items-center gap-3">
+    <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+      <div className="flex items-center gap-4">
         <div className={cn(
-          "w-1 h-5 rounded-full",
+          "w-1.5 h-6 rounded-full",
           isAmber ? "bg-amber-500" : isImei ? "bg-indigo-500" : isNegative ? "bg-rose-500" : "bg-[#10B981]"
         )} />
-        <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-900">{title}</h3>
+        <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">{title}</h3>
         <Badge variant="outline" className={cn(
-          "text-[9px] font-black uppercase rounded-full border-slate-100",
+          "text-[10px] font-black uppercase rounded-full border-slate-100 px-3 py-1",
           isAmber ? "text-amber-500" : isImei ? "text-indigo-500" : isNegative ? "text-rose-500" : "text-[#10B981]"
         )}>
           {(value || 0).toLocaleString('pt-BR')} UCS
         </Badge>
       </div>
       {onAdd ? (
-        <Button variant="outline" size="sm" onClick={onAdd} className="h-8 px-4 rounded-lg text-[8px] font-black uppercase gap-2 border-slate-200 hover:bg-slate-50">
-          <Plus className="w-3 h-3" /> ADICIONAR REGISTRO
+        <Button variant="outline" size="sm" onClick={onAdd} className="h-10 px-6 rounded-xl text-[9px] font-black uppercase gap-2 border-slate-200 hover:bg-slate-50">
+          <Plus className="w-4 h-4" /> ADICIONAR REGISTRO
         </Button>
       ) : (
-        <Button variant="outline" size="sm" onClick={onPaste} className="h-8 px-3 rounded-lg text-[8px] font-black uppercase gap-2 border-slate-200 hover:bg-slate-50">
-          <Calculator className="w-3 h-3" /> COLAR DADOS
+        <Button variant="outline" size="sm" onClick={onPaste} className="h-10 px-6 rounded-xl text-[9px] font-black uppercase gap-2 border-slate-200 hover:bg-slate-50">
+          <Calculator className="w-4 h-4" /> COLAR DADOS
         </Button>
       )}
     </div>
@@ -726,49 +765,49 @@ function SectionTable({ data, type, onRemove, onUpdateItem }: { data: any[], typ
   const isMovimentacao = type === 'movimentacao';
 
   return (
-    <div className="rounded-xl border border-slate-100 overflow-hidden bg-white shadow-sm">
+    <div className="rounded-[1.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
       <Table>
         <TableHeader className="bg-slate-50/50">
-          <TableRow className="h-10 border-b border-slate-100">
-            <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">REFERÊNCIA</TableHead>
-            <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">HISTÓRICO / PLATAFORMA</TableHead>
+          <TableRow className="h-12 border-b border-slate-100">
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-6">REFERÊNCIA</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">HISTÓRICO / PLATAFORMA</TableHead>
             {isMovimentacao && (
               <>
-                <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">STATUS PGTO</TableHead>
-                <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">COMPROVANTE</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">STATUS PGTO</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">COMPROVANTE</TableHead>
               </>
             )}
             {isLegado ? (
               <>
-                <TableHead className="text-[9px] font-black uppercase tracking-widest text-primary text-right">DISPONÍVEL</TableHead>
-                <TableHead className="text-[9px] font-black uppercase tracking-widest text-amber-500 text-right">RESERVADO</TableHead>
-                <TableHead className="text-[9px] font-black uppercase tracking-widest text-rose-500 text-right">BLOQUEADO</TableHead>
-                <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">APOSENTADO</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-primary text-right">DISPONÍVEL</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-amber-500 text-right">RESERVADO</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-rose-500 text-right">BLOQUEADO</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right pr-6">APOSENTADO</TableHead>
               </>
             ) : isImei ? (
               <>
-                <TableHead className="text-[9px] font-black uppercase tracking-widest text-indigo-500 text-right">DÉBITO</TableHead>
-                <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">CRÉDITO</TableHead>
-                <TableHead className="text-[9px] font-black uppercase tracking-widest text-indigo-600 text-right pr-6">VOLUME (UCS)</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-indigo-500 text-right">DÉBITO</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">CRÉDITO</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-indigo-600 text-right pr-6">VOLUME (UCS)</TableHead>
               </>
             ) : (
-              <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-right pr-6">VOLUME (UCS)</TableHead>
+              <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right pr-6">VOLUME (UCS)</TableHead>
             )}
-            <TableHead className="w-[50px]"></TableHead>
+            <TableHead className="w-[60px]"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={isLegado ? 7 : isImei ? 6 : isMovimentacao ? 6 : 4} className="py-8 text-center text-slate-300 font-bold uppercase text-[9px] tracking-widest">
+              <TableCell colSpan={isLegado ? 7 : isImei ? 6 : isMovimentacao ? 6 : 4} className="py-12 text-center text-slate-300 font-bold uppercase text-[10px] tracking-widest">
                 Nenhum registro auditado nesta sessão
               </TableCell>
             </TableRow>
           ) : (
             data.map((row: any, i: number) => (
-              <TableRow key={i} className="h-10 border-b border-slate-50 hover:bg-slate-50/50">
-                <TableCell className="px-4 py-2 font-mono text-[10px] text-slate-400">{row.dist || row.data || '-'}</TableCell>
-                <TableCell className="px-4 py-2 font-bold text-[10px] uppercase text-slate-600 truncate max-w-[150px]">{row.destino || row.plataforma || row.nome || '-'}</TableCell>
+              <TableRow key={i} className="h-12 border-b border-slate-50 hover:bg-slate-50/50">
+                <TableCell className="px-6 py-3 font-mono text-[11px] text-slate-400">{row.dist || row.data || '-'}</TableCell>
+                <TableCell className="px-6 py-3 font-bold text-[11px] uppercase text-slate-600 truncate max-w-[200px]">{row.destino || row.plataforma || row.nome || '-'}</TableCell>
                 
                 {isMovimentacao && (
                   <>
@@ -777,27 +816,27 @@ function SectionTable({ data, type, onRemove, onUpdateItem }: { data: any[], typ
                         value={row.statusAuditoria || "Pendente"} 
                         onValueChange={(v) => onUpdateItem?.(row.id, { statusAuditoria: v as AuditoriaStatus })}
                       >
-                        <SelectTrigger className="h-8 rounded-lg bg-slate-50 text-[8px] font-black uppercase border-slate-100 min-w-[100px]">
+                        <SelectTrigger className="h-10 rounded-xl bg-slate-50 text-[9px] font-black uppercase border-slate-100 min-w-[120px]">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Pago" className="text-[8px] font-black uppercase text-emerald-600">✓ PAGO (OK)</SelectItem>
-                          <SelectItem value="Pendente" className="text-[8px] font-black uppercase text-amber-500">⚠ AUSENTE</SelectItem>
-                          <SelectItem value="Não Pago" className="text-[8px] font-black uppercase text-rose-500">✗ NÃO PAGO</SelectItem>
+                          <SelectItem value="Pago" className="text-[9px] font-black uppercase text-emerald-600">✓ PAGO (OK)</SelectItem>
+                          <SelectItem value="Pendente" className="text-[9px] font-black uppercase text-amber-500">⚠ AUSENTE</SelectItem>
+                          <SelectItem value="Não Pago" className="text-[9px] font-black uppercase text-rose-500">✗ NÃO PAGO</SelectItem>
                         </SelectContent>
                       </Select>
                     </TableCell>
                     <TableCell className="text-center px-4 py-2">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3">
                         <Input 
                           placeholder="Link do comprovante..." 
                           value={row.linkComprovante || ""} 
                           onChange={(e) => onUpdateItem?.(row.id, { linkComprovante: e.target.value })}
-                          className="h-8 bg-slate-50 text-[8px] rounded-lg border-slate-100"
+                          className="h-10 bg-slate-50 text-[10px] rounded-xl border-slate-100"
                         />
                         {row.linkComprovante && (
                           <a href={row.linkComprovante} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="w-3 h-3 text-primary" />
+                            <ExternalLink className="w-4 h-4 text-primary" />
                           </a>
                         )}
                       </div>
@@ -807,28 +846,28 @@ function SectionTable({ data, type, onRemove, onUpdateItem }: { data: any[], typ
 
                 {isLegado ? (
                   <>
-                    <TableCell className="px-4 py-2 text-right font-mono font-black text-primary">{(row.disponivel || 0).toLocaleString('pt-BR')}</TableCell>
-                    <TableCell className="px-4 py-2 text-right font-mono font-black text-amber-500">{(row.reservado || 0).toLocaleString('pt-BR')}</TableCell>
-                    <TableCell className="px-4 py-2 text-right font-mono font-black text-rose-500">{(row.bloqueado || 0).toLocaleString('pt-BR')}</TableCell>
-                    <TableCell className="px-4 py-2 text-right font-mono font-black text-slate-400">{(row.aposentado || 0).toLocaleString('pt-BR')}</TableCell>
+                    <TableCell className="px-4 py-3 text-right font-mono font-black text-primary">{(row.disponivel || 0).toLocaleString('pt-BR')}</TableCell>
+                    <TableCell className="px-4 py-3 text-right font-mono font-black text-amber-500">{(row.reservado || 0).toLocaleString('pt-BR')}</TableCell>
+                    <TableCell className="px-4 py-3 text-right font-mono font-black text-rose-500">{(row.bloqueado || 0).toLocaleString('pt-BR')}</TableCell>
+                    <TableCell className="px-4 py-3 text-right font-mono font-black text-slate-400 pr-6">{(row.aposentado || 0).toLocaleString('pt-BR')}</TableCell>
                   </>
                 ) : isImei ? (
                   <>
-                    <TableCell className="px-4 py-2 text-right font-mono font-black text-indigo-500">{(row.valorDebito || 0).toLocaleString('pt-BR')}</TableCell>
-                    <TableCell className="px-4 py-2 text-right font-mono font-black text-slate-400">{(row.valorCredito || 0).toLocaleString('pt-BR')}</TableCell>
-                    <TableCell className="px-4 py-2 text-right font-mono font-black text-[11px] pr-6 text-indigo-600">
+                    <TableCell className="px-4 py-3 text-right font-mono font-black text-indigo-500">{(row.valorDebito || 0).toLocaleString('pt-BR')}</TableCell>
+                    <TableCell className="px-4 py-3 text-right font-mono font-black text-slate-400">{(row.valorCredito || 0).toLocaleString('pt-BR')}</TableCell>
+                    <TableCell className="px-4 py-3 text-right font-mono font-black text-[12px] pr-6 text-indigo-600">
                       {((row.valorDebito || 0) - (row.valorCredito || 0)).toLocaleString('pt-BR')}
                     </TableCell>
                   </>
                 ) : (
-                  <TableCell className="px-4 py-2 text-right font-mono font-black text-[11px] pr-6 text-slate-900">
+                  <TableCell className="px-4 py-3 text-right font-mono font-black text-[12px] pr-6 text-slate-900">
                     {(row.valor || 0).toLocaleString('pt-BR')}
                   </TableCell>
                 )}
-                <TableCell>
+                <TableCell className="pr-6">
                   {onRemove && (
-                    <Button variant="ghost" size="icon" onClick={() => onRemove(row.id)} className="h-8 w-8 text-slate-200 hover:text-rose-500">
-                      <Trash2 className="w-3.5 h-3.5" />
+                    <Button variant="ghost" size="icon" onClick={() => onRemove(row.id)} className="h-10 w-10 text-slate-200 hover:text-rose-500">
+                      <Trash2 className="w-4 h-4" />
                     </Button>
                   )}
                 </TableCell>

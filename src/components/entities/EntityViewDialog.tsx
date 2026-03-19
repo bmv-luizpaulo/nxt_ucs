@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useMemo } from "react";
@@ -39,7 +40,7 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
     const sumVal = (arr?: RegistroTabela[]) => (arr || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
     
     const orig = sumVal(entity.tabelaOriginacao);
-    const mov = sumVal(entity.tabelaMovimentacao);
+    const mov = (entity.tabelaMovimentacao || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
     const aq = sumVal(entity.tabelaAquisicao);
     
     const imeiCredits = (entity.tabelaImei || []).reduce((acc, curr) => acc + (curr.valorCredito || 0), 0);
@@ -77,30 +78,40 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
         </DialogHeader>
         
         {/* HEADER DASHBOARD STYLE */}
-        <div className="bg-[#0B0F1A] p-8 shrink-0 text-white relative">
-          <div className="flex justify-between items-start mb-8">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-5 h-5 bg-[#10B981]/20 rounded-md flex items-center justify-center">
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#10B981]" />
+        <div className="bg-[#0B0F1A] p-10 shrink-0 text-white relative">
+          <div className="flex justify-between items-start mb-10">
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-6 h-6 bg-[#10B981]/20 rounded-md flex items-center justify-center">
+                  <ShieldCheck className="w-4 h-4 text-[#10B981]" />
                 </div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#10B981]">AUDITORIA TÉCNICA BMV</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#10B981]">AUDITORIA TÉCNICA BMV</p>
               </div>
-              <h1 className="text-[32px] font-black tracking-tight uppercase leading-none">{entity.nome}</h1>
-              <p className="text-[12px] font-bold text-slate-500 font-mono tracking-widest">{entity.documento}</p>
+              <h1 className="text-[36px] font-black tracking-tight uppercase leading-none">{entity.nome}</h1>
+              <div className="flex items-center gap-4">
+                <p className="text-[14px] font-bold text-slate-500 font-mono tracking-widest">{entity.documento}</p>
+                <Badge className={cn(
+                  "text-[10px] font-black uppercase px-4 py-1.5 rounded-full",
+                  entity.status === 'disponivel' ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/50" :
+                  entity.status === 'bloqueado' ? "bg-rose-500/20 text-rose-400 border-rose-500/50" :
+                  "bg-amber-500/20 text-amber-400 border-amber-500/50"
+                )}>
+                  {entity.status === 'disponivel' ? 'APTO / DISPONÍVEL' : entity.status?.toUpperCase()}
+                </Badge>
+              </div>
             </div>
 
-            <div className="bg-[#161B2E] border border-white/5 rounded-[1.5rem] p-6 min-w-[320px] shadow-2xl flex flex-col items-end relative overflow-hidden">
-               <div className="absolute top-0 right-0 w-32 h-32 bg-[#10B981]/10 blur-3xl -mr-16 -mt-16"></div>
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 relative z-10">Saldo Final Auditado</p>
+            <div className="bg-[#161B2E] border border-white/5 rounded-[2.5rem] p-8 min-w-[360px] shadow-2xl flex flex-col items-end relative overflow-hidden">
+               <div className="absolute top-0 right-0 w-40 h-40 bg-[#10B981]/10 blur-3xl -mr-20 -mt-20"></div>
+               <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5 relative z-10">Saldo Final Auditado</p>
                <div className="flex items-baseline gap-2 relative z-10">
-                  <span className="text-[42px] font-black text-white tracking-tighter">{totals.final.toLocaleString('pt-BR')}</span>
-                  <span className="text-[12px] font-black text-[#10B981] uppercase tracking-widest">UCS</span>
+                  <span className="text-[52px] font-black text-white tracking-tighter leading-none">{totals.final.toLocaleString('pt-BR')}</span>
+                  <span className="text-[14px] font-black text-[#10B981] uppercase tracking-widest">UCS</span>
                </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
+          <div className="grid grid-cols-4 md:grid-cols-8 gap-4">
             <StatBox label="ORIGINAÇÃO" value={totals.orig} />
             <StatBox label="MOVIMENTAÇÃO" value={totals.mov} isNegative />
             <StatBox label="APOSENTADO" value={totals.aposentado} isNegative />
@@ -115,21 +126,21 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
         <ScrollArea className="flex-1 bg-white">
           <div className="p-10 space-y-14">
             {entity.ajusteRealizado && (
-              <div className="bg-emerald-50/50 border border-emerald-100 rounded-[2rem] p-8 flex items-start gap-5">
-                <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center shrink-0">
-                  <UserCheck className="w-7 h-7 text-emerald-600" />
+              <div className="bg-emerald-50/50 border border-emerald-100 rounded-[2.5rem] p-10 flex items-start gap-6">
+                <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center shrink-0">
+                  <UserCheck className="w-8 h-8 text-emerald-600" />
                 </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3">
-                    <h4 className="text-[12px] font-black uppercase text-emerald-700 tracking-widest">SALDO AJUSTADO POR GOVERNANÇA</h4>
-                    <Badge className="bg-emerald-500 text-white border-none text-[8px] font-black uppercase">Consolidado ✓</Badge>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-4">
+                    <h4 className="text-[13px] font-black uppercase text-emerald-700 tracking-widest">SALDO AJUSTADO POR GOVERNANÇA</h4>
+                    <Badge className="bg-emerald-500 text-white border-none text-[9px] font-black uppercase px-3 py-1">Consolidado ✓</Badge>
                   </div>
-                  <p className="text-[14px] font-black text-slate-900">Volume Validado: {entity.valorAjusteManual?.toLocaleString('pt-BR')} UCS</p>
-                  <div className="text-[10px] text-slate-500 font-bold uppercase tracking-tight flex gap-4">
+                  <p className="text-[16px] font-black text-slate-900">Volume Validado: {entity.valorAjusteManual?.toLocaleString('pt-BR')} UCS</p>
+                  <div className="text-[11px] text-slate-500 font-bold uppercase tracking-tight flex gap-6">
                     <span>Autorizador: {entity.usuarioAjuste}</span>
                     <span>Data: {new Date(entity.dataAjuste!).toLocaleString('pt-BR')}</span>
                   </div>
-                  <p className="text-[11px] text-slate-600 bg-white/50 p-3 rounded-lg border border-emerald-50 italic">
+                  <p className="text-[12px] text-slate-600 bg-white/50 p-4 rounded-xl border border-emerald-50 italic leading-relaxed">
                     "{entity.justificativaAjuste}"
                   </p>
                 </div>
@@ -140,9 +151,9 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
                <div className="lg:col-span-2 space-y-4">
                   <div className="flex items-center gap-2 mb-2">
                     <FileText className="w-4 h-4 text-[#10B981]" />
-                    <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-900">APONTAMENTOS DE AUDITORIA</h3>
+                    <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">APONTAMENTOS DE AUDITORIA</h3>
                   </div>
-                  <div className="p-6 bg-slate-50/50 rounded-2xl border border-slate-100 min-h-[120px] text-[13px] font-medium text-slate-600 leading-relaxed italic">
+                  <div className="p-8 bg-slate-50/50 rounded-2xl border border-slate-100 min-h-[140px] text-[14px] font-medium text-slate-600 leading-relaxed italic">
                     {entity.observacao || "Nenhum apontamento registrado para este período."}
                   </div>
                </div>
@@ -150,12 +161,12 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
                   <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-400">STATUS DA CONFORMIDADE</h3>
                   <div className="h-16 flex items-center px-8 bg-slate-50 border border-slate-100 rounded-2xl">
                     {entity.statusAuditoriaSaldo === 'valido' ? (
-                      <div className="flex items-center gap-2 text-emerald-600 font-black text-[11px] uppercase tracking-widest">
-                        <ShieldCheck className="w-4 h-4" /> SALDO VALIDADO PELO LEDGER
+                      <div className="flex items-center gap-3 text-emerald-600 font-black text-[12px] uppercase tracking-widest">
+                        <ShieldCheck className="w-5 h-5" /> SALDO VALIDADO PELO LEDGER
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2 text-rose-500 font-black text-[11px] uppercase tracking-widest">
-                        <AlertTriangle className="w-4 h-4" /> DIVERGÊNCIA IDENTIFICADA
+                      <div className="flex items-center gap-3 text-rose-500 font-black text-[12px] uppercase tracking-widest">
+                        <AlertTriangle className="w-5 h-5" /> DIVERGÊNCIA IDENTIFICADA
                       </div>
                     )}
                   </div>
@@ -207,18 +218,18 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
 function StatBox({ label, value, isNegative, isHighlight, isAmber, isImei }: any) {
   return (
     <div className={cn(
-      "border rounded-xl p-4 flex flex-col justify-between h-[85px] transition-all bg-[#161B2E]",
+      "border rounded-[1.25rem] p-4 flex flex-col justify-between h-[90px] transition-all bg-[#161B2E]",
       isAmber ? "border-amber-500/30" : "border-white/5",
       isImei ? "border-indigo-500/30" : ""
     )}>
       <p className={cn(
-        "text-[8px] font-black uppercase tracking-[0.15em] leading-none",
+        "text-[9px] font-black uppercase tracking-[0.15em] leading-none",
         isAmber ? "text-amber-500" : isImei ? "text-indigo-400" : "text-slate-500"
       )}>
         {label}
       </p>
       <p className={cn(
-        "text-[16px] font-black font-mono leading-none tracking-tighter",
+        "text-[18px] font-black font-mono leading-none tracking-tighter",
         isNegative && value !== 0 ? "text-rose-500" : 
         isHighlight ? "text-[#10B981]" : 
         isAmber ? "text-amber-500" : 
@@ -237,16 +248,16 @@ function ViewSection({ title, data, type, isNegative, isAmber, isImei, total }: 
   const isMovimentacao = type === 'movimentacao';
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-        <div className="flex items-center gap-3">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div className="flex items-center gap-4">
           <div className={cn(
-            "w-1 h-5 rounded-full",
+            "w-1.5 h-6 rounded-full",
             isAmber ? "bg-amber-500" : isImei ? "bg-indigo-500" : isNegative ? "bg-rose-500" : "bg-[#10B981]"
           )} />
-          <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-900">{title}</h3>
+          <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">{title}</h3>
           <Badge variant="secondary" className={cn(
-            "text-[10px] font-black uppercase rounded-full bg-slate-100",
+            "text-[11px] font-black uppercase rounded-full bg-slate-100 px-3 py-1",
             isAmber ? "text-amber-500" : isImei ? "text-indigo-500" : isNegative ? "text-rose-500" : "text-[#10B981]"
           )}>
             {(total || 0).toLocaleString('pt-BR')} UCS
@@ -254,56 +265,56 @@ function ViewSection({ title, data, type, isNegative, isAmber, isImei, total }: 
         </div>
       </div>
       
-      <div className="rounded-2xl border border-slate-100 overflow-hidden bg-white shadow-sm">
+      <div className="rounded-[1.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
         <Table>
           <TableHeader className="bg-slate-50/50">
-            <TableRow className="h-10">
-              <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 pl-6">REFERÊNCIA</TableHead>
-              <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">HISTÓRICO / PLATAFORMA</TableHead>
+            <TableRow className="h-12">
+              <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-8">REFERÊNCIA</TableHead>
+              <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">HISTÓRICO / PLATAFORMA</TableHead>
               {isMovimentacao && (
-                <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">STATUS PGTO</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">STATUS PGTO</TableHead>
               )}
               {isLegado ? (
                 <>
-                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-primary text-right">DISPONÍVEL</TableHead>
-                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-amber-500 text-right">RESERVADO</TableHead>
-                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-rose-500 text-right">BLOQUEADO</TableHead>
-                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-right pr-6">APOSENTADO</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-primary text-right">DISPONÍVEL</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-amber-500 text-right">RESERVADO</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-rose-500 text-right">BLOQUEADO</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right pr-8">APOSENTADO</TableHead>
                 </>
               ) : isImeiType ? (
                 <>
-                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-indigo-500 text-right">DÉBITO</TableHead>
-                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">CRÉDITO</TableHead>
-                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-indigo-600 text-right pr-6">VOLUME (UCS)</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-indigo-500 text-right">DÉBITO</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">CRÉDITO</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-indigo-600 text-right pr-8">VOLUME (UCS)</TableHead>
                 </>
               ) : (
-                <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-right pr-6">VOLUME (UCS)</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right pr-8">VOLUME (UCS)</TableHead>
               )}
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.map((row: any, i: number) => (
-              <TableRow key={i} className="h-10 border-b border-slate-50 last:border-0">
-                <TableCell className="pl-6 font-mono text-[10px] text-slate-400">{row.dist || row.data || '-'}</TableCell>
-                <TableCell className="font-bold text-[10px] uppercase text-slate-600 truncate max-w-[200px]">{row.destino || row.plataforma || row.nome || '-'}</TableCell>
+              <TableRow key={i} className="h-12 border-b border-slate-50 last:border-0">
+                <TableCell className="pl-8 font-mono text-[11px] text-slate-400">{row.dist || row.data || '-'}</TableCell>
+                <TableCell className="font-bold text-[11px] uppercase text-slate-600 truncate max-w-[240px]">{row.destino || row.plataforma || row.nome || '-'}</TableCell>
                 
                 {isMovimentacao && (
                   <TableCell className="text-center">
-                    <div className="flex items-center justify-center gap-3">
+                    <div className="flex items-center justify-center gap-4">
                       <Badge className={cn(
-                        "text-[8px] font-black uppercase px-2 py-0.5 rounded-full border-none flex items-center gap-1",
+                        "text-[9px] font-black uppercase px-3 py-1 rounded-full border-none flex items-center gap-1.5",
                         row.statusAuditoria === 'Pago' ? "bg-emerald-50 text-emerald-600" :
                         row.statusAuditoria === 'Não Pago' ? "bg-rose-50 text-rose-600" :
                         "bg-slate-50 text-slate-400"
                       )}>
-                        {row.statusAuditoria === 'Pago' && <CheckCircle2 className="w-2.5 h-2.5" />}
-                        {row.statusAuditoria === 'Não Pago' && <AlertTriangle className="w-2.5 h-2.5" />}
-                        {(!row.statusAuditoria || row.statusAuditoria === 'Pendente') && <Clock className="w-2.5 h-2.5" />}
+                        {row.statusAuditoria === 'Pago' && <CheckCircle2 className="w-3 h-3" />}
+                        {row.statusAuditoria === 'Não Pago' && <AlertTriangle className="w-3 h-3" />}
+                        {(!row.statusAuditoria || row.statusAuditoria === 'Pendente') && <Clock className="w-3 h-3" />}
                         {row.statusAuditoria || 'PENDENTE'}
                       </Badge>
                       {row.linkComprovante && (
                         <a href={row.linkComprovante} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="w-3 h-3 text-primary" />
+                          <ExternalLink className="w-4 h-4 text-primary" />
                         </a>
                       )}
                     </div>
@@ -315,18 +326,18 @@ function ViewSection({ title, data, type, isNegative, isAmber, isImei, total }: 
                     <TableCell className="text-right font-mono font-black text-primary">{(row.disponivel || 0).toLocaleString('pt-BR')}</TableCell>
                     <TableCell className="text-right font-mono font-black text-amber-500">{(row.reservado || 0).toLocaleString('pt-BR')}</TableCell>
                     <TableCell className="text-right font-mono font-black text-rose-500">{(row.bloqueado || 0).toLocaleString('pt-BR')}</TableCell>
-                    <TableCell className="text-right font-mono font-black text-slate-400 pr-6">{(row.aposentado || 0).toLocaleString('pt-BR')}</TableCell>
+                    <TableCell className="text-right font-mono font-black text-slate-400 pr-8">{(row.aposentado || 0).toLocaleString('pt-BR')}</TableCell>
                   </>
                 ) : isImeiType ? (
                   <>
                     <TableCell className="text-right font-mono font-black text-indigo-500">{(row.valorDebito || 0).toLocaleString('pt-BR')}</TableCell>
                     <TableCell className="text-right font-mono font-black text-slate-400">{(row.valorCredito || 0).toLocaleString('pt-BR')}</TableCell>
-                    <TableCell className="text-right font-mono font-black text-[11px] pr-6 text-indigo-600">
+                    <TableCell className="text-right font-mono font-black text-[12px] pr-8 text-indigo-600">
                       {((row.valorDebito || 0) - (row.valorCredito || 0)).toLocaleString('pt-BR')}
                     </TableCell>
                   </>
                 ) : (
-                  <TableCell className={cn("text-right font-mono font-black text-[11px] pr-6", isNegative ? "text-rose-500" : "text-slate-900")}>
+                  <TableCell className={cn("text-right font-mono font-black text-[12px] pr-8", isNegative ? "text-rose-500" : "text-slate-900")}>
                     {(row.valor || 0).toLocaleString('pt-BR')}
                   </TableCell>
                 )}
