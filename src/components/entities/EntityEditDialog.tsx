@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useMemo } from "react";
@@ -61,7 +60,8 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const legRes = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.reservado || 0), 0);
     const legadoTotal = legDisp + legRes + bloqueado + aposentado;
 
-    const final = orig - mov - aq - aposentado - bloqueado;
+    // FÓRMULA SOLICITADA: Originação - Movimentação - Aposentadorias - Bloqueios - Aquisições
+    const final = orig - mov - aposentado - bloqueado - aq;
 
     return { 
       orig, mov, aq, imeiPending, legadoTotal, aposentado, bloqueado, final
@@ -386,7 +386,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   );
 }
 
-function ReportTable({ title, data, isNegative, isLegado, isImei }: any) {
+function ReportTable({ title, data, isNegative, isLegado, isImei, type }: any) {
   return (
     <div className="space-y-1.5">
        <h4 className="text-[7px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 pb-1">{title}</h4>
@@ -405,7 +405,7 @@ function ReportTable({ title, data, isNegative, isLegado, isImei }: any) {
                 <td className="px-2 py-1 text-slate-600 truncate max-w-[250px]">{row.destino || row.plataforma || row.nome || '-'}</td>
                 <td className={cn("px-2 py-1 text-right font-black", isNegative ? "text-rose-600" : "text-slate-900")}>
                   {isLegado ? ((row.disponivel || 0) + (row.reservado || 0)).toLocaleString('pt-BR') : 
-                   isImei ? ((row.valorDebito || 0) - (row.valorCredito || 0)).toLocaleString('pt-BR') :
+                   type === 'imei' ? ((row.valorDebito || 0) - (row.valorCredito || 0)).toLocaleString('pt-BR') :
                    row.valor?.toLocaleString('pt-BR')}
                 </td>
               </tr>
@@ -423,21 +423,23 @@ function StatBox({ label, value, isNegative, isHighlight, isAmber, isImei }: any
       isAmber ? "border-amber-500/30 ring-1 ring-amber-500/10" : "border-white/5",
       isImei ? "border-indigo-500/30" : ""
     )}>
-      <p className={cn(
-        "text-[7px] font-black uppercase tracking-widest leading-none",
-        isAmber ? "text-amber-500" : isImei ? "text-indigo-400" : "text-slate-500"
-      )}>
-        {label}
-      </p>
+      <div className="flex justify-between items-start w-full">
+        <p className={cn(
+          "text-[7px] font-black uppercase tracking-widest leading-none",
+          isAmber ? "text-amber-500" : isImei ? "text-indigo-400" : "text-slate-500"
+        )}>
+          {label}
+        </p>
+      </div>
       <p className={cn(
         "text-[15px] font-black font-mono leading-none tracking-tighter truncate",
-        isNegative ? "text-rose-500" : 
+        isNegative || (label === 'MOVIMENTAÇÃO' && value !== 0) || (label === 'AQUISIÇÃO' && value !== 0) ? "text-rose-500" : 
         isHighlight ? "text-[#10B981]" : 
         isAmber ? "text-amber-500" : 
         isImei ? "text-indigo-400" :
         "text-white"
       )}>
-        {(value || 0).toLocaleString('pt-BR')}
+        {(label === 'MOVIMENTAÇÃO' && value > 0) ? `-${value.toLocaleString('pt-BR')}` : (value || 0).toLocaleString('pt-BR')}
       </p>
     </div>
   );
@@ -483,14 +485,14 @@ function SectionTable({ data, type }: { data: any[], type: string }) {
           ) : (
             data.map((row: any, i: number) => (
               <TableRow key={i} className="h-10 border-b border-slate-50 hover:bg-slate-50/50">
-                <TableCell className="font-mono text-[10px] text-slate-400 py-2">{row.dist || row.data || '-'}</TableCell>
-                <TableCell className="font-bold text-[10px] uppercase text-slate-600 py-2">{row.destino || row.plataforma || row.nome || '-'}</TableCell>
-                <TableCell className="text-right font-mono font-black text-[11px] pr-6 text-slate-900 py-2">
+                <td className="px-4 py-2 font-mono text-[10px] text-slate-400">{row.dist || row.data || '-'}</td>
+                <td className="px-4 py-2 font-bold text-[10px] uppercase text-slate-600">{row.destino || row.plataforma || row.nome || '-'}</td>
+                <td className="px-4 py-2 text-right font-mono font-black text-[11px] pr-6 text-slate-900">
                    {type === 'imei' ? ((row.valorDebito || 0) - (row.valorCredito || 0)).toLocaleString('pt-BR') : 
                     type === 'legado' ? ((row.disponivel || 0) + (row.reservado || 0)).toLocaleString('pt-BR') :
                     row.valor?.toLocaleString('pt-BR')}
-                </TableCell>
-              </TableRow>
+                </td>
+              </tr>
             ))
           )}
         </TableBody>
