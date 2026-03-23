@@ -90,7 +90,7 @@
   /* 🧾 CONTAINER PRINCIPAL */
   .printable-certificate,
   .printable-audit-report {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     display: block !important;
@@ -101,7 +101,8 @@
     background: white !important;
     color: black !important;
     box-sizing: border-box;
-    overflow: hidden;
+    overflow: visible;
+    z-index: 99999;
   }
 
   /* 🚫 ELEMENTOS NÃO PRINT */

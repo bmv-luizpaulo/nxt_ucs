@@ -76,7 +76,106 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
           <DialogTitle>Visualização de Auditoria - {entity.nome}</DialogTitle>
           <DialogDescription>Modo leitura dos dados técnicos de conformidade.</DialogDescription>
         </DialogHeader>
+
+        {/* RELATÓRIO EXECUTIVO A4 PRINT */}
+        <div className="printable-audit-report hidden print:block bg-white text-slate-900 p-0 font-body">
+          <div className="flex justify-between items-start border-b-2 border-slate-900 pb-3 mb-5">
+            <div className="flex items-center gap-0">
+               <div className="relative w-14 h-14">
+                 <Image src="/image/logo_amarelo.png" alt="BMV Logo" fill className="object-contain" />
+               </div>
+               <span className="text-[32px] font-black text-amber-500 leading-none -ml-2">bmv</span>
+            </div>
+            <div className="text-right">
+              <h2 className="text-[14px] font-black uppercase tracking-tight leading-tight">RELATÓRIO EXECUTIVO DE AUDITORIA</h2>
+              <p className="text-[9px] font-black uppercase text-slate-900 tracking-widest mt-0.5">PROTOCOLO DE SALDO: {entity.id}</p>
+              <p className="text-[7px] text-slate-400 font-bold mt-0.5 uppercase">{new Date().toLocaleString("pt-BR")}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-8 mb-6">
+            <div className="space-y-3">
+              <h3 className="text-[8px] font-black text-slate-400 uppercase border-b border-slate-100 pb-1 tracking-[0.2em]">IDENTIFICAÇÃO DA ENTIDADE</h3>
+              <div className="space-y-2">
+                <p className="text-[16px] font-black text-slate-900 leading-none tracking-tighter uppercase">{entity.nome}</p>
+                <div className="text-[8px] space-y-1 font-bold uppercase tracking-tight">
+                  <p><strong className="text-slate-400 font-black mr-2">DOCUMENTO REGISTRADO:</strong> {entity.documento}</p>
+                  <p><strong className="text-slate-400 font-black mr-2">STATUS CADASTRAL:</strong> {entity.status?.toUpperCase()}</p>
+                  <p><strong className="text-slate-400 font-black mr-2">AUDITOR RESPONSÁVEL:</strong> {user?.email}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="text-[8px] font-black text-slate-400 uppercase border-b border-slate-100 pb-1 tracking-[0.2em]">RESUMO DE SALDOS (UCS)</h3>
+              <div className="flex justify-between items-start gap-3">
+                <div className="text-[8px] space-y-2 font-bold uppercase flex-1">
+                  <div>
+                    <p className="text-slate-400 font-black text-[6px] mb-0.5">ORIGINAÇÃO TOTAL</p>
+                    <p className="text-base font-black text-slate-900">{totals.orig.toLocaleString('pt-BR')}</p>
+                  </div>
+                  <div>
+                    <p className="text-slate-400 font-black text-[6px] mb-0.5">MOVIMENTAÇÃO</p>
+                    <p className="text-base font-black text-rose-600">-{totals.mov.toLocaleString('pt-BR')}</p>
+                  </div>
+                  <div>
+                    <p className="text-slate-400 font-black text-[6px] mb-0.5">SALDO FINAL AUDITADO</p>
+                    <p className="text-base font-black text-primary">{totals.final.toLocaleString('pt-BR')}</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center gap-1 bg-slate-50 p-2 rounded-xl border border-slate-100 shrink-0 shadow-sm">
+                  <QrCode className="w-12 h-12 text-slate-200" />
+                  <p className="text-[5px] font-black text-slate-400 uppercase tracking-widest">CONFORMIDADE</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {entity.ajusteRealizado && (
+             <div className="mb-6 bg-emerald-50 border border-emerald-100 p-4 rounded-xl">
+               <h3 className="text-[8px] font-black text-emerald-600 uppercase mb-2 tracking-widest flex items-center gap-2">
+                 <ShieldCheck className="w-3 h-3" /> AJUSTE DE GOVERNANÇA APLICADO
+               </h3>
+               <div className="grid grid-cols-2 gap-4 text-[8px] font-bold uppercase">
+                 <p><span className="text-slate-400">SALDO AJUSTADO:</span> {entity.valorAjusteManual?.toLocaleString('pt-BR')} UCS</p>
+                 <p><span className="text-slate-400">DATA DO AJUSTE:</span> {new Date(entity.dataAjuste!).toLocaleString('pt-BR')}</p>
+                 <p className="col-span-2"><span className="text-slate-400">JUSTIFICATIVA:</span> {entity.justificativaAjuste}</p>
+                 <p className="col-span-2"><span className="text-slate-400">RESPONSÁVEL:</span> {entity.usuarioAjuste}</p>
+               </div>
+             </div>
+          )}
+
+          <div className="space-y-4">
+            <ReportTable title="01. DEMONSTRATIVO DE ORIGINAÇÃO" data={entity.tabelaOriginacao} type="originacao" />
+            <ReportTable title="02. DEMONSTRATIVO DE MOVIMENTAÇÃO" data={entity.tabelaMovimentacao} isNegative type="movimentacao" />
+            <ReportTable title="03. DEMONSTRATIVO DE SALDO LEGADO" data={entity.tabelaLegado} isLegado type="legado" />
+            <ReportTable title="04. AJUSTE IMEI" data={entity.tabelaImei} isImei type="imei" />
+            <ReportTable title="05. AQUISIÇÃO" data={entity.tabelaAquisicao} isNegative type="aquisicao" />
+          </div>
+
+          {entity.observacao && (
+            <div className="mt-6 border border-slate-100 p-4 rounded-xl">
+              <h3 className="text-[8px] font-black text-slate-400 uppercase mb-2 tracking-widest">APONTAMENTOS DE AUDITORIA</h3>
+              <p className="text-[8px] font-medium text-slate-600 italic leading-relaxed">{entity.observacao}</p>
+            </div>
+          )}
+
+          <div className="mt-8 flex justify-between items-end">
+            <div className="text-[8px] text-[#10B981] font-black flex items-center gap-1.5 uppercase tracking-tight">
+              <ShieldCheck className="w-3.5 h-3.5" /> SALDO VALIDADO PELO LEDGERTRUST
+            </div>
+            <div className="text-right">
+              <div className="border-t border-slate-900 w-56 pt-2">
+                <p className="text-[8px] font-black uppercase text-slate-900 tracking-tight">RESPONSÁVEL TÉCNICO BMV</p>
+                <p className="text-[6px] text-slate-400 uppercase font-bold">Assinado digitalmente via LedgerTrust</p>
+              </div>
+            </div>
+          </div>
+        </div>
         
+        {/* CONSOLE UI - INTERFACE DE VISUALIZAÇÃO (HIDDEN EM PRINT) */}
+        <div className="flex-1 flex flex-col overflow-hidden print:hidden">
         {/* HEADER DASHBOARD STYLE */}
         <div className="bg-[#0B0F1A] p-10 shrink-0 text-white relative">
           <div className="flex justify-between items-start mb-10">
@@ -195,7 +294,7 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
         </ScrollArea>
 
         {/* FOOTER MODO LEITURA */}
-        <div className="p-8 border-t border-slate-100 bg-white flex items-center justify-between shrink-0 print:hidden">
+        <div className="p-8 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[11px] font-black uppercase text-slate-400 tracking-widest hover:text-slate-900 px-8 h-14">
             <X className="w-4 h-4 mr-2" /> FECHAR VISUALIZAÇÃO
           </Button>
@@ -209,6 +308,7 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
               </Button>
             )}
           </div>
+        </div>
         </div>
       </DialogContent>
     </Dialog>
@@ -272,7 +372,11 @@ function ViewSection({ title, data, type, isNegative, isAmber, isImei, total }: 
               <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-8">REFERÊNCIA</TableHead>
               <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">HISTÓRICO / PLATAFORMA</TableHead>
               {isMovimentacao && (
-                <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">STATUS PGTO</TableHead>
+                <>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">USUÁRIO DESTINO</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">STATUS PGTO</TableHead>
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">COMPROVANTE</TableHead>
+                </>
               )}
               {isLegado ? (
                 <>
@@ -296,11 +400,14 @@ function ViewSection({ title, data, type, isNegative, isAmber, isImei, total }: 
             {data.map((row: any, i: number) => (
               <TableRow key={i} className="h-12 border-b border-slate-50 last:border-0">
                 <TableCell className="pl-8 font-mono text-[11px] text-slate-400">{row.dist || row.data || '-'}</TableCell>
-                <TableCell className="font-bold text-[11px] uppercase text-slate-600 truncate max-w-[240px]">{row.destino || row.plataforma || row.nome || '-'}</TableCell>
+                <TableCell className="font-bold text-[11px] uppercase text-slate-600 truncate max-w-[240px]">{isMovimentacao ? (row.nome || row.plataforma || '-') : (row.destino || row.plataforma || row.nome || '-')}</TableCell>
+                {isMovimentacao && (
+                  <TableCell className="font-bold text-[11px] uppercase text-slate-600 truncate max-w-[200px]">{row.destino || '-'}</TableCell>
+                )}
                 
                 {isMovimentacao && (
-                  <TableCell className="text-center">
-                    <div className="flex items-center justify-center gap-4">
+                  <>
+                    <TableCell className="text-center">
                       <Badge className={cn(
                         "text-[9px] font-black uppercase px-3 py-1 rounded-full border-none flex items-center gap-1.5",
                         row.statusAuditoria === 'Pago' ? "bg-emerald-50 text-emerald-600" :
@@ -312,13 +419,17 @@ function ViewSection({ title, data, type, isNegative, isAmber, isImei, total }: 
                         {(!row.statusAuditoria || row.statusAuditoria === 'Pendente') && <Clock className="w-3 h-3" />}
                         {row.statusAuditoria || 'PENDENTE'}
                       </Badge>
-                      {row.linkComprovante && (
-                        <a href={row.linkComprovante} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="w-4 h-4 text-primary" />
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {row.linkComprovante ? (
+                        <a href={row.linkComprovante} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase text-primary hover:underline">
+                          <ExternalLink className="w-3.5 h-3.5" /> VER
                         </a>
+                      ) : (
+                        <span className="text-[9px] font-bold uppercase text-slate-300">—</span>
                       )}
-                    </div>
-                  </TableCell>
+                    </TableCell>
+                  </>
                 )}
 
                 {isLegado ? (
@@ -346,6 +457,87 @@ function ViewSection({ title, data, type, isNegative, isAmber, isImei, total }: 
           </TableBody>
         </Table>
       </div>
+    </div>
+  );
+}
+
+function ReportTable({ title, data, isNegative, isLegado, isImei, type }: any) {
+  if (!data || data.length === 0) return null;
+
+  return (
+    <div className="space-y-1.5">
+       <h4 className="text-[7px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 pb-1">{title}</h4>
+       <table className="w-full text-left text-[7px]">
+          <thead className="bg-[#F8FAFC]">
+            <tr className="border-b border-slate-100">
+              <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">REFERÊNCIA</th>
+              <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">HISTÓRICO</th>
+              {isLegado ? (
+                <>
+                  <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">DISP.</th>
+                  <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">RES.</th>
+                  <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">BLOQ.</th>
+                  <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">APOS.</th>
+                </>
+              ) : isImei ? (
+                <>
+                  <th className="px-2 py-1 font-black uppercase tracking-widest text-indigo-500 text-right">DÉBITO</th>
+                  <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">CRÉDITO</th>
+                  <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">VOLUME</th>
+                </>
+              ) : (
+                <>
+                  {type === 'movimentacao' && <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">USUÁRIO DESTINO</th>}
+                  {type === 'movimentacao' && <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">STATUS</th>}
+                  <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">VOLUME (UCS)</th>
+                </>
+              )}
+            </tr>
+          </thead>
+          <tbody className="font-bold uppercase">
+            {data.map((row: any, i: number) => (
+              <tr key={i} className="border-b border-slate-50">
+                <td className="px-2 py-1 font-mono text-slate-400">{row.data || row.dist || '-'}</td>
+                <td className="px-2 py-1 text-slate-600 truncate max-w-[180px]">{type === 'movimentacao' ? (row.nome || row.plataforma || '-') : (row.destino || row.plataforma || row.nome || '-')}</td>
+                {isLegado ? (
+                  <>
+                    <td className="px-2 py-1 text-right text-primary">{(row.disponivel || 0).toLocaleString('pt-BR')}</td>
+                    <td className="px-2 py-1 text-right text-amber-600">{(row.reservado || 0).toLocaleString('pt-BR')}</td>
+                    <td className="px-2 py-1 text-right text-rose-600">{(row.bloqueado || 0).toLocaleString('pt-BR')}</td>
+                    <td className="px-2 py-1 text-right text-slate-400">{(row.aposentado || 0).toLocaleString('pt-BR')}</td>
+                  </>
+                ) : isImei ? (
+                  <>
+                    <td className="px-2 py-1 text-right text-indigo-500">{(row.valorDebito || 0).toLocaleString('pt-BR')}</td>
+                    <td className="px-2 py-1 text-right text-slate-400">{(row.valorCredito || 0).toLocaleString('pt-BR')}</td>
+                    <td className="px-2 py-1 text-right font-black text-indigo-600">{((row.valorDebito || 0) - (row.valorCredito || 0)).toLocaleString('pt-BR')}</td>
+                  </>
+                ) : (
+                  <>
+                    {type === 'movimentacao' && (
+                      <td className="px-2 py-1 text-slate-600 truncate max-w-[180px]">{row.destino || '-'}</td>
+                    )}
+                    {type === 'movimentacao' && (
+                      <td className="px-2 py-1">
+                        <span className={cn(
+                          "px-1 py-0.5 rounded-sm",
+                          row.statusAuditoria === 'Pago' ? "bg-emerald-50 text-emerald-600" :
+                          row.statusAuditoria === 'Não Pago' ? "bg-rose-50 text-rose-600" :
+                          "bg-slate-50 text-slate-400"
+                        )}>
+                          {row.statusAuditoria || 'PENDENTE'}
+                        </span>
+                      </td>
+                    )}
+                    <td className={cn("px-2 py-1 text-right font-black", isNegative ? "text-rose-600" : "text-slate-900")}>
+                      {row.valor?.toLocaleString('pt-BR')}
+                    </td>
+                  </>
+                )}
+              </tr>
+            ))}
+          </tbody>
+       </table>
     </div>
   );
 }

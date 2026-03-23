@@ -14,7 +14,7 @@ export function AuditOverview({ orders }: { orders: Pedido[] }) {
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total de Registros</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total de Registros</p>
               <p className="text-3xl font-black text-slate-900">{total}</p>
             </div>
             <div className="p-3 bg-slate-50 rounded-xl">
@@ -28,14 +28,14 @@ export function AuditOverview({ orders }: { orders: Pedido[] }) {
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Auditados NXT</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Auditados NXT</p>
               <p className="text-3xl font-black text-slate-900">{auditados}</p>
             </div>
             <div className="p-3 bg-primary/10 rounded-xl">
               <CheckCircle2 className="w-6 h-6 text-primary" />
             </div>
           </div>
-          <p className="text-[9px] mt-2 text-slate-400 font-bold uppercase italic">
+          <p className="text-[9px] mt-2 text-emerald-600 font-bold uppercase italic">
             {((auditados / (total || 1)) * 100).toFixed(1)}% de Cobertura
           </p>
         </CardContent>
@@ -45,7 +45,7 @@ export function AuditOverview({ orders }: { orders: Pedido[] }) {
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">Pendentes de Link</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Pendentes de Link</p>
               <p className="text-3xl font-black text-slate-900">{pendentes}</p>
             </div>
             <div className="p-3 bg-amber-50 rounded-xl">
@@ -59,7 +59,7 @@ export function AuditOverview({ orders }: { orders: Pedido[] }) {
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <p className="text-[10px] font-bold text-rose-500 uppercase tracking-widest">Inconsistências</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Inconsistências</p>
               <p className="text-3xl font-black text-slate-900">{inconsistencias}</p>
             </div>
             <div className="p-3 bg-rose-50 rounded-xl">

@@ -82,14 +82,14 @@ export function OrderTable({
                 className="rounded-md border-slate-300"
               />
             </TableHead>
-            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-14">Pedido</TableHead>
-            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-14">Data</TableHead>
-            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-14">Origem</TableHead>
-            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center h-14">UF</TableHead>
-            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right h-14">Qtd</TableHead>
-            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right h-14">Total</TableHead>
-            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center h-14">Status</TableHead>
-            <TableHead className="w-[100px] pr-8 h-14"></TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-10">Pedido</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-10">Data</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-10">Origem</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center h-10">UF</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right h-10">Qtd</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right h-10">Total</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center h-10">Status</TableHead>
+            <TableHead className="w-[100px] pr-8 h-10"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -115,19 +115,19 @@ export function OrderTable({
                     className="rounded-md border-slate-200"
                   />
                 </TableCell>
-                <TableCell className="font-mono font-bold text-xs text-primary">{order.id}</TableCell>
+                <TableCell className="font-mono font-bold text-xs text-slate-700">{order.id}</TableCell>
                 <TableCell className="text-[10px] text-slate-500 whitespace-nowrap">
                   <div className="font-bold text-slate-900">{new Date(order.data).toLocaleDateString('pt-BR')}</div>
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col">
                     <span className="font-bold text-[10px] uppercase truncate max-w-[150px] text-slate-900">{order.empresa}</span>
-                    <span className="text-[9px] text-slate-400 font-mono">{order.cnpj}</span>
+                    <span className="text-[9px] text-slate-500 font-mono">{order.cnpj}</span>
                   </div>
                 </TableCell>
                 <TableCell className="text-center font-bold text-[10px] text-slate-500">{order.uf}</TableCell>
                 <TableCell className="text-right font-mono text-[10px] font-black text-slate-900 whitespace-nowrap">{order.quantidade} UCS</TableCell>
-                <TableCell className="text-right font-mono font-black text-[11px] text-primary whitespace-nowrap">
+                <TableCell className="text-right font-mono font-black text-[11px] text-slate-900 whitespace-nowrap">
                   {order.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                 </TableCell>
                 <TableCell className="text-center">

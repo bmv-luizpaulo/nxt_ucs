@@ -644,6 +644,7 @@ function ReportTable({ title, data, isNegative, isLegado, isImei, type }: any) {
                 </>
               ) : (
                 <>
+                  {type === 'movimentacao' && <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">USUÁRIO DESTINO</th>}
                   {type === 'movimentacao' && <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">STATUS</th>}
                   <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">VOLUME (UCS)</th>
                 </>
@@ -654,7 +655,7 @@ function ReportTable({ title, data, isNegative, isLegado, isImei, type }: any) {
             {data.map((row: any, i: number) => (
               <tr key={i} className="border-b border-slate-50">
                 <td className="px-2 py-1 font-mono text-slate-400">{row.data || row.dist || '-'}</td>
-                <td className="px-2 py-1 text-slate-600 truncate max-w-[180px]">{row.destino || row.plataforma || row.nome || '-'}</td>
+                <td className="px-2 py-1 text-slate-600 truncate max-w-[180px]">{type === 'movimentacao' ? (row.nome || row.plataforma || '-') : (row.destino || row.plataforma || row.nome || '-')}</td>
                 {isLegado ? (
                   <>
                     <td className="px-2 py-1 text-right text-primary">{(row.disponivel || 0).toLocaleString('pt-BR')}</td>
@@ -670,6 +671,9 @@ function ReportTable({ title, data, isNegative, isLegado, isImei, type }: any) {
                   </>
                 ) : (
                   <>
+                    {type === 'movimentacao' && (
+                      <td className="px-2 py-1 text-slate-600 truncate max-w-[180px]">{row.destino || '-'}</td>
+                    )}
                     {type === 'movimentacao' && (
                       <td className="px-2 py-1">
                         <span className={cn(
@@ -769,6 +773,7 @@ function SectionTable({ data, type, onRemove, onUpdateItem }: { data: any[], typ
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">HISTÓRICO / PLATAFORMA</TableHead>
             {isMovimentacao && (
               <>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">USUÁRIO DESTINO</TableHead>
                 <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">STATUS PGTO</TableHead>
                 <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">COMPROVANTE</TableHead>
               </>
@@ -803,10 +808,11 @@ function SectionTable({ data, type, onRemove, onUpdateItem }: { data: any[], typ
             data.map((row: any, i: number) => (
               <TableRow key={i} className="h-12 border-b border-slate-50 hover:bg-slate-50/50">
                 <TableCell className="px-6 py-3 font-mono text-[11px] text-slate-400">{row.dist || row.data || '-'}</TableCell>
-                <TableCell className="px-6 py-3 font-bold text-[11px] uppercase text-slate-600 truncate max-w-[200px]">{row.destino || row.plataforma || row.nome || '-'}</TableCell>
+                <TableCell className="px-6 py-3 font-bold text-[11px] uppercase text-slate-600 truncate max-w-[200px]">{isMovimentacao ? (row.nome || row.plataforma || '-') : (row.destino || row.plataforma || row.nome || '-')}</TableCell>
                 
                 {isMovimentacao && (
                   <>
+                    <TableCell className="px-6 py-3 font-bold text-[11px] uppercase text-slate-600 truncate max-w-[200px]">{row.destino || '-'}</TableCell>
                     <TableCell className="text-center px-4 py-2">
                       <Select 
                         value={row.statusAuditoria || "Pendente"} 
