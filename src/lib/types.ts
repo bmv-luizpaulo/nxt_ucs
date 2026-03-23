@@ -2,7 +2,7 @@ export type OrderStatus = 'pendente' | 'ok' | 'erro';
 export type MovementType = 'gov' | 'cliente' | 'outro';
 export type OrderCategory = 'selo' | 'Saas_Tesouro_Verde' | 'Saas_BMV';
 export type EntityStatus = 'disponivel' | 'bloqueado' | 'inapto';
-export type AuditoriaStatus = 'Pendente' | 'Não Pago' | 'Pago';
+export type AuditoriaStatus = 'Pendente' | 'Cancelado' | 'Concluido';
 export type UserRole = 'admin' | 'auditor' | 'viewer';
 export type UserStatus = 'ativo' | 'suspenso' | 'pendente';
 
@@ -58,6 +58,7 @@ export interface RegistroTabela {
   valor?: number;
   valorCredito?: number;
   valorDebito?: number;
+  nome?: string;
   tipo?: string;
   status?: string;
   prioridade?: number;

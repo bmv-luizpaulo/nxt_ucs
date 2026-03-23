@@ -71,7 +71,7 @@ export function OrderTable({
   };
 
   return (
-    <div className="rounded-[2.5rem] border border-slate-200 bg-white overflow-hidden shadow-sm">
+    <div className="rounded-[2.8rem] border border-slate-200 bg-white overflow-hidden shadow-sm">
       <Table>
         <TableHeader>
           <TableRow className="bg-slate-50/50 hover:bg-slate-50/50 border-b border-slate-100">

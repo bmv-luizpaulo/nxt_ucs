@@ -21,7 +21,9 @@ import {
   UserCheck,
   Ban,
   UserX,
-  UserCheck2
+  UserCheck2,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -49,6 +51,18 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   const [ajusteData, setAjusteData] = useState({ valor: "", justificativa: "" });
   
   const { user } = useUser();
+  const [isCensored, setIsCensored] = useState(false);
+
+  const maskText = (text: string | undefined) => {
+    if (!text || !isCensored) return text || '-';
+    if (text.length <= 4) return "****";
+    return text[0] + "*".repeat(text.length - 2) + text[text.length - 1];
+  };
+
+  const maskDoc = (doc: string | undefined) => {
+    if (!doc || !isCensored) return doc || '-';
+    return doc.replace(/\d/g, "*");
+  };
   
   useEffect(() => {
     if (entity) {
@@ -57,7 +71,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   }, [entity]);
 
   useEffect(() => {
-    const hasUnpaid = (formData.tabelaMovimentacao || []).some(m => m.statusAuditoria === 'Não Pago');
+    const hasUnpaid = (formData.tabelaMovimentacao || []).some(m => m.statusAuditoria === 'Cancelado');
     if (hasUnpaid && formData.statusAuditoriaSaldo !== 'inconsistente') {
       setFormData(prev => ({ ...prev, statusAuditoriaSaldo: 'inconsistente' }));
     }
@@ -211,10 +225,10 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
         default:
           return { 
             id: `MOV-${Math.random().toString(36).substr(2, 5).toUpperCase()}`, 
-            dist: parts[0]?.trim() || '', 
-            data: parts[1]?.trim() || '', 
+            data: parts[0]?.trim() || '', 
+            plataforma: parts[1]?.trim() || '', 
             destino: parts[2]?.trim() || '', 
-            valor: parseVal(parts[parts.length - 1]),
+            valor: parseVal(parts[3] || parts[parts.length - 1]),
             statusAuditoria: 'Pendente'
           };
       }
@@ -304,7 +318,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
           <div className="space-y-4">
             <ReportTable title="01. DEMONSTRATIVO DE ORIGINAÇÃO" data={formData.tabelaOriginacao} type="originacao" />
-            <ReportTable title="02. DEMONSTRATIVO DE MOVIMENTAÇÃO" data={formData.tabelaMovimentacao} isNegative type="movimentacao" />
+            <ReportTable title="02. DEMONSTRATIVO DE MOVIMENTAÇÃO" data={formData.tabelaMovimentacao} isNegative type="movimentacao" maskFn={maskText} />
             <ReportTable title="03. DEMONSTRATIVO DE SALDO LEGADO" data={formData.tabelaLegado} isLegado type="legado" />
             <ReportTable title="04. AJUSTE IMEI" data={formData.tabelaImei} isImei type="imei" />
             <ReportTable title="05. AQUISIÇÃO" data={formData.tabelaAquisicao} isNegative type="aquisicao" />
@@ -315,8 +329,9 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               <ShieldCheck className="w-3.5 h-3.5" /> SALDO VALIDADO PELO LEDGERTRUST
             </div>
             <div className="text-right">
-              <div className="border-t border-slate-900 w-56 pt-2">
+              <div className="border-t border-slate-900 w-56 pt-2 text-center">
                 <p className="text-[8px] font-black uppercase text-slate-900 tracking-tight">RESPONSÁVEL TÉCNICO BMV</p>
+                {user?.email && <p className="text-[7px] font-bold text-slate-600 uppercase mb-0.5">{user.email}</p>}
                 <p className="text-[6px] text-slate-400 uppercase font-bold">Assinado digitalmente via LedgerTrust</p>
               </div>
             </div>
@@ -358,7 +373,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               </div>
             </div>
 
-            <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
+            <div className="grid grid-cols-4 md:grid-cols-7 gap-4">
               <StatBox label="ORIGINAÇÃO" value={totals.orig} />
               <StatBox label="MOVIMENTAÇÃO" value={totals.mov} isNegative />
               <StatBox label="APOSENTADO" value={totals.aposentado} isNegative />
@@ -366,7 +381,6 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               <StatBox label="AQUISIÇÃO" value={totals.aq} isNegative />
               <StatBox label="AJUSTE IMEI" value={totals.imeiPending} isImei />
               <StatBox label="SALDO LEGADO" value={totals.legadoTotal} isAmber />
-              <StatBox label="DISPONÍVEL" value={totals.final} isHighlight />
             </div>
           </div>
 
@@ -474,6 +488,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                   type="movimentacao" 
                   onRemove={(id) => handleRemoveItem('tabelaMovimentacao', id)}
                   onUpdateItem={(id, updates) => handleUpdateItem('tabelaMovimentacao', id, updates)}
+                  maskFn={maskText}
                 />
               </div>
 
@@ -499,6 +514,17 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               CANCELAR
             </Button>
             <div className="flex gap-4">
+              <Button 
+                variant="outline" 
+                onClick={() => setIsCensored(!isCensored)} 
+                className={cn(
+                  "h-14 px-6 rounded-2xl border-slate-200 transition-all font-black uppercase text-[10px] tracking-widest",
+                  isCensored ? "bg-rose-50 text-rose-600 border-rose-200" : "bg-slate-50/50 text-slate-500"
+                )}
+              >
+                {isCensored ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
+                {isCensored ? "MODO CENSURA ATIVO" : "CENSURAR DADOS"}
+              </Button>
               <Button variant="outline" onClick={handlePrint} className="h-14 px-10 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[11px] tracking-widest text-slate-700 hover:bg-white transition-all shadow-sm">
                 <Printer className="w-4 h-4 mr-2" /> RELATÓRIO EXECUTIVO
               </Button>
@@ -618,7 +644,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   );
 }
 
-function ReportTable({ title, data, isNegative, isLegado, isImei, type }: any) {
+function ReportTable({ title, data, isNegative, isLegado, isImei, type, maskFn = (t: any) => t || '-' }: any) {
   if (!data || data.length === 0) return null;
 
   return (
@@ -628,7 +654,7 @@ function ReportTable({ title, data, isNegative, isLegado, isImei, type }: any) {
           <thead className="bg-[#F8FAFC]">
             <tr className="border-b border-slate-100">
               <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">REFERÊNCIA</th>
-              <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">HISTÓRICO</th>
+              <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">HISTÓRICO / PLATAFORMA</th>
               {isLegado ? (
                 <>
                   <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">DISP.</th>
@@ -655,7 +681,7 @@ function ReportTable({ title, data, isNegative, isLegado, isImei, type }: any) {
             {data.map((row: any, i: number) => (
               <tr key={i} className="border-b border-slate-50">
                 <td className="px-2 py-1 font-mono text-slate-400">{row.data || row.dist || '-'}</td>
-                <td className="px-2 py-1 text-slate-600 truncate max-w-[180px]">{type === 'movimentacao' ? (row.nome || row.plataforma || '-') : (row.destino || row.plataforma || row.nome || '-')}</td>
+                <td className="px-2 py-1 text-slate-600 truncate max-w-[180px]">{type === 'movimentacao' ? (maskFn(row.nome || row.plataforma)) : (maskFn(row.destino || row.plataforma || row.nome))}</td>
                 {isLegado ? (
                   <>
                     <td className="px-2 py-1 text-right text-primary">{(row.disponivel || 0).toLocaleString('pt-BR')}</td>
@@ -672,14 +698,14 @@ function ReportTable({ title, data, isNegative, isLegado, isImei, type }: any) {
                 ) : (
                   <>
                     {type === 'movimentacao' && (
-                      <td className="px-2 py-1 text-slate-600 truncate max-w-[180px]">{row.destino || '-'}</td>
+                      <td className="px-2 py-1 text-slate-600 truncate max-w-[180px]">{maskFn(row.destino)}</td>
                     )}
                     {type === 'movimentacao' && (
                       <td className="px-2 py-1">
                         <span className={cn(
                           "px-1 py-0.5 rounded-sm",
-                          row.statusAuditoria === 'Pago' ? "bg-emerald-50 text-emerald-600" :
-                          row.statusAuditoria === 'Não Pago' ? "bg-rose-50 text-rose-600" :
+                          row.statusAuditoria === 'Concluido' ? "bg-emerald-50 text-emerald-600" :
+                          row.statusAuditoria === 'Cancelado' ? "bg-rose-50 text-rose-600" :
                           "bg-slate-50 text-slate-400"
                         )}>
                           {row.statusAuditoria || 'PENDENTE'}
@@ -759,7 +785,7 @@ function SectionHeader({ title, value, onPaste, onAdd, isNegative, isAmber, isIm
   );
 }
 
-function SectionTable({ data, type, onRemove, onUpdateItem }: { data: any[], type: string, onRemove?: (id: string) => void, onUpdateItem?: (id: string, updates: Partial<RegistroTabela>) => void }) {
+function SectionTable({ data, type, onRemove, onUpdateItem, maskFn = (t: any) => t || '-' }: { data: any[], type: string, onRemove?: (id: string) => void, onUpdateItem?: (id: string, updates: Partial<RegistroTabela>) => void, maskFn?: (t: string | undefined) => string }) {
   const isLegado = type === 'legado';
   const isImei = type === 'imei';
   const isMovimentacao = type === 'movimentacao';
@@ -808,11 +834,11 @@ function SectionTable({ data, type, onRemove, onUpdateItem }: { data: any[], typ
             data.map((row: any, i: number) => (
               <TableRow key={i} className="h-12 border-b border-slate-50 hover:bg-slate-50/50">
                 <TableCell className="px-6 py-3 font-mono text-[11px] text-slate-400">{row.dist || row.data || '-'}</TableCell>
-                <TableCell className="px-6 py-3 font-bold text-[11px] uppercase text-slate-600 truncate max-w-[200px]">{isMovimentacao ? (row.nome || row.plataforma || '-') : (row.destino || row.plataforma || row.nome || '-')}</TableCell>
+                <TableCell className="px-6 py-3 font-bold text-[11px] uppercase text-slate-600 truncate max-w-[200px]">{isMovimentacao ? (maskFn(row.nome || row.plataforma)) : (maskFn(row.destino || row.plataforma || row.nome))}</TableCell>
                 
                 {isMovimentacao && (
                   <>
-                    <TableCell className="px-6 py-3 font-bold text-[11px] uppercase text-slate-600 truncate max-w-[200px]">{row.destino || '-'}</TableCell>
+                    <TableCell className="px-6 py-3 font-bold text-[11px] uppercase text-slate-600 truncate max-w-[200px]">{maskFn(row.destino)}</TableCell>
                     <TableCell className="text-center px-4 py-2">
                       <Select 
                         value={row.statusAuditoria || "Pendente"} 
@@ -822,9 +848,9 @@ function SectionTable({ data, type, onRemove, onUpdateItem }: { data: any[], typ
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-white border-slate-200 shadow-xl">
-                          <SelectItem value="Pago" className="text-[9px] font-black uppercase text-emerald-600">✓ PAGO (OK)</SelectItem>
-                          <SelectItem value="Pendente" className="text-[9px] font-black uppercase text-amber-500">⚠ AUSENTE</SelectItem>
-                          <SelectItem value="Não Pago" className="text-[9px] font-black uppercase text-rose-500">✗ NÃO PAGO</SelectItem>
+                          <SelectItem value="Concluido" className="text-[9px] font-black uppercase text-emerald-600">✓ CONCLUÍDO</SelectItem>
+                          <SelectItem value="Pendente" className="text-[9px] font-black uppercase text-amber-500">⚠ PENDENTE</SelectItem>
+                          <SelectItem value="Cancelado" className="text-[9px] font-black uppercase text-rose-500">✗ CANCELADO</SelectItem>
                         </SelectContent>
                       </Select>
                     </TableCell>

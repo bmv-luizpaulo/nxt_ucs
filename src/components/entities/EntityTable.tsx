@@ -64,10 +64,10 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate }: 
     <>
       <div className="rounded-[1.5rem] border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col">
         <ScrollArea className="w-full">
-          <Table className="min-w-[1400px]">
+          <Table className="min-w-[1200px]">
             <TableHeader>
               <TableRow className="bg-slate-50/50 h-14 border-b border-slate-100">
-                <TableHead className="w-[60px] pl-8">
+                <TableHead className="w-[50px] pl-10">
                   <Checkbox 
                     checked={data.length > 0 && selectedIds.length === data.length} 
                     onCheckedChange={toggleAll}
@@ -101,7 +101,7 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate }: 
                       <Checkbox 
                         checked={selectedIds.includes(item.id)} 
                         onCheckedChange={() => toggleOne(item.id)}
-                        className="rounded-md border-slate-200"
+                        className="rounded-md border-slate-300"
                       />
                     </TableCell>
                     <TableCell 

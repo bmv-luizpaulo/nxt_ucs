@@ -1,22 +1,25 @@
 
 "use client"
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { EntidadeSaldo, RegistroTabela } from "@/lib/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  Printer, 
-  ShieldCheck, 
+import {
+  Printer,
+  ShieldCheck,
   X,
   FileText,
   AlertTriangle,
   QrCode,
   ExternalLink,
-  CheckCircle2,
   Clock,
-  UserCheck
+  UserCheck,
+  XCircle,
+  Eye,
+  EyeOff,
+  CheckCircle2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -33,16 +36,28 @@ interface EntityViewDialogProps {
 
 export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityViewDialogProps) {
   const { user } = useUser();
-  
+  const [isCensored, setIsCensored] = useState(false);
+
+  const maskText = (text: string | undefined) => {
+    if (!text || !isCensored) return text || '-';
+    if (text.length <= 4) return "****";
+    return text[0] + "*".repeat(text.length - 2) + text[text.length - 1];
+  };
+
+  const maskDoc = (doc: string | undefined) => {
+    if (!doc || !isCensored) return doc || '-';
+    return doc.replace(/\d/g, "*");
+  };
+
   const totals = useMemo(() => {
     if (!entity) return { orig: 0, mov: 0, aq: 0, imeiPending: 0, legadoTotal: 0, aposentado: 0, bloqueado: 0, final: 0 };
-    
+
     const sumVal = (arr?: RegistroTabela[]) => (arr || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
-    
+
     const orig = sumVal(entity.tabelaOriginacao);
     const mov = (entity.tabelaMovimentacao || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
     const aq = sumVal(entity.tabelaAquisicao);
-    
+
     const imeiCredits = (entity.tabelaImei || []).reduce((acc, curr) => acc + (curr.valorCredito || 0), 0);
     const imeiDebits = (entity.tabelaImei || []).reduce((acc, curr) => acc + (curr.valorDebito || 0), 0);
     const imeiPending = imeiDebits - imeiCredits;
@@ -56,7 +71,7 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
     const finalCalculated = orig - mov - aposentado - bloqueado - aq;
     const final = entity.ajusteRealizado ? entity.valorAjusteManual || 0 : finalCalculated;
 
-    return { 
+    return {
       orig, mov, aq, imeiPending, legadoTotal, aposentado, bloqueado, final
     };
   }, [entity]);
@@ -81,10 +96,10 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
         <div className="printable-audit-report hidden print:block bg-white text-slate-900 p-0 font-body">
           <div className="flex justify-between items-start border-b-2 border-slate-900 pb-3 mb-5">
             <div className="flex items-center gap-0">
-               <div className="relative w-14 h-14">
-                 <Image src="/image/logo_amarelo.png" alt="BMV Logo" fill className="object-contain" />
-               </div>
-               <span className="text-[32px] font-black text-amber-500 leading-none -ml-2">bmv</span>
+              <div className="relative w-14 h-14">
+                <Image src="/image/logo_amarelo.png" alt="BMV Logo" fill className="object-contain" />
+              </div>
+              <span className="text-[32px] font-black text-amber-500 leading-none -ml-2">bmv</span>
             </div>
             <div className="text-right">
               <h2 className="text-[14px] font-black uppercase tracking-tight leading-tight">RELATÓRIO EXECUTIVO DE AUDITORIA</h2>
@@ -133,22 +148,22 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
           </div>
 
           {entity.ajusteRealizado && (
-             <div className="mb-6 bg-emerald-50 border border-emerald-100 p-4 rounded-xl">
-               <h3 className="text-[8px] font-black text-emerald-600 uppercase mb-2 tracking-widest flex items-center gap-2">
-                 <ShieldCheck className="w-3 h-3" /> AJUSTE DE GOVERNANÇA APLICADO
-               </h3>
-               <div className="grid grid-cols-2 gap-4 text-[8px] font-bold uppercase">
-                 <p><span className="text-slate-400">SALDO AJUSTADO:</span> {entity.valorAjusteManual?.toLocaleString('pt-BR')} UCS</p>
-                 <p><span className="text-slate-400">DATA DO AJUSTE:</span> {new Date(entity.dataAjuste!).toLocaleString('pt-BR')}</p>
-                 <p className="col-span-2"><span className="text-slate-400">JUSTIFICATIVA:</span> {entity.justificativaAjuste}</p>
-                 <p className="col-span-2"><span className="text-slate-400">RESPONSÁVEL:</span> {entity.usuarioAjuste}</p>
-               </div>
-             </div>
+            <div className="mb-6 bg-emerald-50 border border-emerald-100 p-4 rounded-xl">
+              <h3 className="text-[8px] font-black text-emerald-600 uppercase mb-2 tracking-widest flex items-center gap-2">
+                <ShieldCheck className="w-3 h-3" /> AJUSTE DE GOVERNANÇA APLICADO
+              </h3>
+              <div className="grid grid-cols-2 gap-4 text-[8px] font-bold uppercase">
+                <p><span className="text-slate-400">SALDO AJUSTADO:</span> {entity.valorAjusteManual?.toLocaleString('pt-BR')} UCS</p>
+                <p><span className="text-slate-400">DATA DO AJUSTE:</span> {new Date(entity.dataAjuste!).toLocaleString('pt-BR')}</p>
+                <p className="col-span-2"><span className="text-slate-400">JUSTIFICATIVA:</span> {entity.justificativaAjuste}</p>
+                <p className="col-span-2"><span className="text-slate-400">RESPONSÁVEL:</span> {entity.usuarioAjuste}</p>
+              </div>
+            </div>
           )}
 
           <div className="space-y-4">
             <ReportTable title="01. DEMONSTRATIVO DE ORIGINAÇÃO" data={entity.tabelaOriginacao} type="originacao" />
-            <ReportTable title="02. DEMONSTRATIVO DE MOVIMENTAÇÃO" data={entity.tabelaMovimentacao} isNegative type="movimentacao" />
+            <ReportTable title="02. DEMONSTRATIVO DE MOVIMENTAÇÃO" data={entity.tabelaMovimentacao} isNegative type="movimentacao" maskFn={maskText} />
             <ReportTable title="03. DEMONSTRATIVO DE SALDO LEGADO" data={entity.tabelaLegado} isLegado type="legado" />
             <ReportTable title="04. AJUSTE IMEI" data={entity.tabelaImei} isImei type="imei" />
             <ReportTable title="05. AQUISIÇÃO" data={entity.tabelaAquisicao} isNegative type="aquisicao" />
@@ -163,91 +178,91 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
 
           <div className="mt-8 flex justify-between items-end">
             <div className="text-[8px] text-[#10B981] font-black flex items-center gap-1.5 uppercase tracking-tight">
-              <ShieldCheck className="w-3.5 h-3.5" /> SALDO VALIDADO PELO LEDGERTRUST
+              <ShieldCheck className="w-3.5 h-3.5" /> OK
             </div>
             <div className="text-right">
-              <div className="border-t border-slate-900 w-56 pt-2">
+              <div className="border-t border-slate-900 w-56 pt-2 text-center">
                 <p className="text-[8px] font-black uppercase text-slate-900 tracking-tight">RESPONSÁVEL TÉCNICO BMV</p>
-                <p className="text-[6px] text-slate-400 uppercase font-bold">Assinado digitalmente via LedgerTrust</p>
+                {user?.email && <p className="text-[7px] font-bold text-slate-600 uppercase mb-0.5">{user.email}</p>}
+                <p className="text-[6px] text-slate-400 uppercase font-bold">Assinado digitalmente</p>
               </div>
             </div>
           </div>
         </div>
-        
+
         {/* CONSOLE UI - INTERFACE DE VISUALIZAÇÃO (HIDDEN EM PRINT) */}
         <div className="flex-1 flex flex-col overflow-hidden print:hidden">
-        {/* HEADER DASHBOARD STYLE */}
-        <div className="bg-[#0B0F1A] p-10 shrink-0 text-white relative">
-          <div className="flex justify-between items-start mb-10">
-            <div className="space-y-2">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-6 h-6 bg-[#10B981]/20 rounded-md flex items-center justify-center">
-                  <ShieldCheck className="w-4 h-4 text-[#10B981]" />
+          {/* HEADER DASHBOARD STYLE */}
+          <div className="bg-[#0B0F1A] p-10 shrink-0 text-white relative">
+            <div className="flex justify-between items-start mb-10">
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-6 h-6 bg-[#10B981]/20 rounded-md flex items-center justify-center">
+                    <ShieldCheck className="w-4 h-4 text-[#10B981]" />
+                  </div>
+                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#10B981]">AUDITORIA TÉCNICA BMV</p>
                 </div>
-                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#10B981]">AUDITORIA TÉCNICA BMV</p>
+                <h1 className="text-[36px] font-black tracking-tight uppercase leading-none">{entity.nome}</h1>
+                <div className="flex items-center gap-4">
+                  <p className="text-[14px] font-bold text-slate-500 font-mono tracking-widest">{entity.documento}</p>
+                  <Badge className={cn(
+                    "text-[10px] font-black uppercase px-4 py-1.5 rounded-full",
+                    entity.status === 'disponivel' ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/50" :
+                      entity.status === 'bloqueado' ? "bg-rose-500/20 text-rose-400 border-rose-500/50" :
+                        "bg-amber-500/20 text-amber-400 border-amber-500/50"
+                  )}>
+                    {entity.status === 'disponivel' ? 'APTO / DISPONÍVEL' : entity.status?.toUpperCase()}
+                  </Badge>
+                </div>
               </div>
-              <h1 className="text-[36px] font-black tracking-tight uppercase leading-none">{entity.nome}</h1>
-              <div className="flex items-center gap-4">
-                <p className="text-[14px] font-bold text-slate-500 font-mono tracking-widest">{entity.documento}</p>
-                <Badge className={cn(
-                  "text-[10px] font-black uppercase px-4 py-1.5 rounded-full",
-                  entity.status === 'disponivel' ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/50" :
-                  entity.status === 'bloqueado' ? "bg-rose-500/20 text-rose-400 border-rose-500/50" :
-                  "bg-amber-500/20 text-amber-400 border-amber-500/50"
-                )}>
-                  {entity.status === 'disponivel' ? 'APTO / DISPONÍVEL' : entity.status?.toUpperCase()}
-                </Badge>
-              </div>
-            </div>
 
-            <div className="bg-[#161B2E] border border-white/5 rounded-[2.5rem] p-8 min-w-[360px] shadow-2xl flex flex-col items-end relative overflow-hidden">
-               <div className="absolute top-0 right-0 w-40 h-40 bg-[#10B981]/10 blur-3xl -mr-20 -mt-20"></div>
-               <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5 relative z-10">Saldo Final Auditado</p>
-               <div className="flex items-baseline gap-2 relative z-10">
+              <div className="bg-[#161B2E] border border-white/5 rounded-[2.5rem] p-8 min-w-[360px] shadow-2xl flex flex-col items-end relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-40 h-40 bg-[#10B981]/10 blur-3xl -mr-20 -mt-20"></div>
+                <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5 relative z-10">Saldo Final Auditado</p>
+                <div className="flex items-baseline gap-2 relative z-10">
                   <span className="text-[52px] font-black text-white tracking-tighter leading-none">{totals.final.toLocaleString('pt-BR')}</span>
                   <span className="text-[14px] font-black text-[#10B981] uppercase tracking-widest">UCS</span>
-               </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-4 md:grid-cols-7 gap-4">
+              <StatBox label="ORIGINAÇÃO" value={totals.orig} />
+              <StatBox label="MOVIMENTAÇÃO" value={totals.mov} isNegative />
+              <StatBox label="APOSENTADO" value={totals.aposentado} isNegative />
+              <StatBox label="BLOQUEADO" value={totals.bloqueado} isNegative />
+              <StatBox label="AQUISIÇÃO" value={totals.aq} isNegative />
+              <StatBox label="AJUSTE IMEI" value={totals.imeiPending} isImei />
+              <StatBox label="SALDO LEGADO" value={totals.legadoTotal} isAmber />
             </div>
           </div>
 
-          <div className="grid grid-cols-4 md:grid-cols-8 gap-4">
-            <StatBox label="ORIGINAÇÃO" value={totals.orig} />
-            <StatBox label="MOVIMENTAÇÃO" value={totals.mov} isNegative />
-            <StatBox label="APOSENTADO" value={totals.aposentado} isNegative />
-            <StatBox label="BLOQUEADO" value={totals.bloqueado} isNegative />
-            <StatBox label="AQUISIÇÃO" value={totals.aq} isNegative />
-            <StatBox label="AJUSTE IMEI" value={totals.imeiPending} isImei />
-            <StatBox label="SALDO LEGADO" value={totals.legadoTotal} isAmber />
-            <StatBox label="DISPONÍVEL" value={totals.final} isHighlight />
-          </div>
-        </div>
-
-        <ScrollArea className="flex-1 bg-white">
-          <div className="p-10 space-y-14">
-            {entity.ajusteRealizado && (
-              <div className="bg-emerald-50/50 border border-emerald-100 rounded-[2.5rem] p-10 flex items-start gap-6">
-                <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center shrink-0">
-                  <UserCheck className="w-8 h-8 text-emerald-600" />
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-4">
-                    <h4 className="text-[13px] font-black uppercase text-emerald-700 tracking-widest">SALDO AJUSTADO POR GOVERNANÇA</h4>
-                    <Badge className="bg-emerald-500 text-white border-none text-[9px] font-black uppercase px-3 py-1">Consolidado ✓</Badge>
+          <ScrollArea className="flex-1 bg-white">
+            <div className="p-10 space-y-14">
+              {entity.ajusteRealizado && (
+                <div className="bg-emerald-50/50 border border-emerald-100 rounded-[2.5rem] p-10 flex items-start gap-6">
+                  <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center shrink-0">
+                    <UserCheck className="w-8 h-8 text-emerald-600" />
                   </div>
-                  <p className="text-[16px] font-black text-slate-900">Volume Validado: {entity.valorAjusteManual?.toLocaleString('pt-BR')} UCS</p>
-                  <div className="text-[11px] text-slate-500 font-bold uppercase tracking-tight flex gap-6">
-                    <span>Autorizador: {entity.usuarioAjuste}</span>
-                    <span>Data: {new Date(entity.dataAjuste!).toLocaleString('pt-BR')}</span>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-4">
+                      <h4 className="text-[13px] font-black uppercase text-emerald-700 tracking-widest">SALDO AJUSTADO POR GOVERNANÇA</h4>
+                      <Badge className="bg-emerald-500 text-white border-none text-[9px] font-black uppercase px-3 py-1">Consolidado ✓</Badge>
+                    </div>
+                    <p className="text-[16px] font-black text-slate-900">Volume Validado: {entity.valorAjusteManual?.toLocaleString('pt-BR')} UCS</p>
+                    <div className="text-[11px] text-slate-500 font-bold uppercase tracking-tight flex gap-6">
+                      <span>Autorizador: {entity.usuarioAjuste}</span>
+                      <span>Data: {new Date(entity.dataAjuste!).toLocaleString('pt-BR')}</span>
+                    </div>
+                    <p className="text-[12px] text-slate-600 bg-white/50 p-4 rounded-xl border border-emerald-50 italic leading-relaxed">
+                      "{entity.justificativaAjuste}"
+                    </p>
                   </div>
-                  <p className="text-[12px] text-slate-600 bg-white/50 p-4 rounded-xl border border-emerald-50 italic leading-relaxed">
-                    "{entity.justificativaAjuste}"
-                  </p>
                 </div>
-              </div>
-            )}
+              )}
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-               <div className="lg:col-span-2 space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                <div className="lg:col-span-2 space-y-4">
                   <div className="flex items-center gap-2 mb-2">
                     <FileText className="w-4 h-4 text-[#10B981]" />
                     <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">APONTAMENTOS DE AUDITORIA</h3>
@@ -255,60 +270,70 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
                   <div className="p-8 bg-slate-50/50 rounded-2xl border border-slate-100 min-h-[140px] text-[14px] font-medium text-slate-600 leading-relaxed italic">
                     {entity.observacao || "Nenhum apontamento registrado para este período."}
                   </div>
-               </div>
-               <div className="space-y-4">
+                </div>
+                <div className="space-y-4">
                   <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-400">STATUS DA CONFORMIDADE</h3>
                   <div className="h-16 flex items-center px-8 bg-slate-50 border border-slate-100 rounded-2xl">
                     {entity.statusAuditoriaSaldo === 'valido' ? (
                       <div className="flex items-center gap-3 text-emerald-600 font-black text-[12px] uppercase tracking-widest">
-                        <ShieldCheck className="w-5 h-5" /> SALDO VALIDADO PELO LEDGER
-                      </div>
+                        <ShieldCheck className="w-5 h-5" /> SALDO VALIDADO</div>
                     ) : (
                       <div className="flex items-center gap-3 text-rose-500 font-black text-[12px] uppercase tracking-widest">
                         <AlertTriangle className="w-5 h-5" /> DIVERGÊNCIA IDENTIFICADA
                       </div>
                     )}
                   </div>
-               </div>
-            </div>
+                </div>
+              </div>
 
-            {/* TABELAS EM MODO LEITURA */}
-            <div className="space-y-12">
-              {entity.tabelaOriginacao && entity.tabelaOriginacao.length > 0 && (
-                <ViewSection title="01. ORIGINAÇÃO" data={entity.tabelaOriginacao} type="originacao" total={totals.orig} />
-              )}
-              {entity.tabelaMovimentacao && entity.tabelaMovimentacao.length > 0 && (
-                <ViewSection title="02. MOVIMENTAÇÃO" data={entity.tabelaMovimentacao} type="movimentacao" isNegative total={totals.mov} />
-              )}
-              {entity.tabelaLegado && entity.tabelaLegado.length > 0 && (
-                <ViewSection title="03. SALDO LEGADO" data={entity.tabelaLegado} type="legado" isAmber total={totals.legadoTotal} />
-              )}
-              {entity.tabelaImei && entity.tabelaImei.length > 0 && (
-                <ViewSection title="04. AJUSTE IMEI" data={entity.tabelaImei} type="imei" isImei total={totals.imeiPending} />
-              )}
-              {entity.tabelaAquisicao && entity.tabelaAquisicao.length > 0 && (
-                <ViewSection title="05. AQUISIÇÃO" data={entity.tabelaAquisicao} type="aquisicao" isNegative total={totals.aq} />
-              )}
+              {/* TABELAS EM MODO LEITURA */}
+              <div className="space-y-12">
+                {entity.tabelaOriginacao && entity.tabelaOriginacao.length > 0 && (
+                  <ViewSection title="01. ORIGINAÇÃO" data={entity.tabelaOriginacao} type="originacao" total={totals.orig} />
+                )}
+                {entity.tabelaMovimentacao && entity.tabelaMovimentacao.length > 0 && (
+                  <ViewSection title="02. MOVIMENTAÇÃO" data={entity.tabelaMovimentacao} type="movimentacao" isNegative total={totals.mov} maskFn={maskText} />
+                )}
+                {entity.tabelaLegado && entity.tabelaLegado.length > 0 && (
+                  <ViewSection title="03. SALDO LEGADO" data={entity.tabelaLegado} type="legado" isAmber total={totals.legadoTotal} />
+                )}
+                {entity.tabelaImei && entity.tabelaImei.length > 0 && (
+                  <ViewSection title="04. AJUSTE IMEI" data={entity.tabelaImei} type="imei" isImei total={totals.imeiPending} />
+                )}
+                {entity.tabelaAquisicao && entity.tabelaAquisicao.length > 0 && (
+                  <ViewSection title="05. AQUISIÇÃO" data={entity.tabelaAquisicao} type="aquisicao" isNegative total={totals.aq} />
+                )}
+              </div>
             </div>
-          </div>
-        </ScrollArea>
+          </ScrollArea>
 
-        {/* FOOTER MODO LEITURA */}
-        <div className="p-8 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[11px] font-black uppercase text-slate-400 tracking-widest hover:text-slate-900 px-8 h-14">
-            <X className="w-4 h-4 mr-2" /> FECHAR VISUALIZAÇÃO
-          </Button>
-          <div className="flex gap-4">
-            <Button variant="outline" onClick={handlePrint} className="h-14 px-10 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[11px] tracking-widest text-slate-700 hover:bg-white transition-all">
-              <Printer className="w-4 h-4 mr-2" /> RELATÓRIO EXECUTIVO
+          {/* FOOTER MODO LEITURA */}
+          <div className="p-8 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
+            <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[11px] font-black uppercase text-slate-400 tracking-widest hover:text-slate-900 px-8 h-14">
+              <X className="w-4 h-4 mr-2" /> FECHAR VISUALIZAÇÃO
             </Button>
-            {onEdit && (
-              <Button onClick={onEdit} className="h-14 px-12 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black uppercase text-[11px] tracking-widest shadow-xl shadow-emerald-100 transition-all active:scale-95">
-                HABILITAR EDIÇÃO
+            <div className="flex gap-4">
+              <Button 
+                variant="outline" 
+                onClick={() => setIsCensored(!isCensored)} 
+                className={cn(
+                  "h-14 px-6 rounded-2xl border-slate-200 transition-all font-black uppercase text-[10px] tracking-widest",
+                  isCensored ? "bg-rose-50 text-rose-600 border-rose-200" : "bg-slate-50/50 text-slate-500"
+                )}
+              >
+                {isCensored ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
+                {isCensored ? "MODO CENSURA ATIVO" : "CENSURAR DADOS"}
               </Button>
-            )}
+              <Button variant="outline" onClick={handlePrint} className="h-14 px-10 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[11px] tracking-widest text-slate-700 hover:bg-white transition-all">
+                <Printer className="w-4 h-4 mr-2" /> RELATÓRIO EXECUTIVO
+              </Button>
+              {onEdit && (
+                <Button onClick={onEdit} className="h-14 px-12 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black uppercase text-[11px] tracking-widest shadow-xl shadow-emerald-100 transition-all active:scale-95">
+                  HABILITAR EDIÇÃO
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
         </div>
       </DialogContent>
     </Dialog>
@@ -330,11 +355,11 @@ function StatBox({ label, value, isNegative, isHighlight, isAmber, isImei }: any
       </p>
       <p className={cn(
         "text-[18px] font-black font-mono leading-none tracking-tighter",
-        isNegative && value !== 0 ? "text-rose-500" : 
-        isHighlight ? "text-[#10B981]" : 
-        isAmber ? "text-amber-500" : 
-        isImei ? "text-indigo-400" :
-        "text-white"
+        isNegative && value !== 0 ? "text-rose-500" :
+          isHighlight ? "text-[#10B981]" :
+            isAmber ? "text-amber-500" :
+              isImei ? "text-indigo-400" :
+                "text-white"
       )}>
         {(isNegative && value > 0) ? `-${value.toLocaleString('pt-BR')}` : (value || 0).toLocaleString('pt-BR')}
       </p>
@@ -342,7 +367,7 @@ function StatBox({ label, value, isNegative, isHighlight, isAmber, isImei }: any
   );
 }
 
-function ViewSection({ title, data, type, isNegative, isAmber, isImei, total }: any) {
+function ViewSection({ title, data, type, isNegative, isAmber, isImei, total, maskFn = (t: any) => t || '-' }: any) {
   const isLegado = type === 'legado';
   const isImeiType = type === 'imei';
   const isMovimentacao = type === 'movimentacao';
@@ -364,7 +389,7 @@ function ViewSection({ title, data, type, isNegative, isAmber, isImei, total }: 
           </Badge>
         </div>
       </div>
-      
+
       <div className="rounded-[1.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
         <Table>
           <TableHeader className="bg-slate-50/50">
@@ -400,23 +425,23 @@ function ViewSection({ title, data, type, isNegative, isAmber, isImei, total }: 
             {data.map((row: any, i: number) => (
               <TableRow key={i} className="h-12 border-b border-slate-50 last:border-0">
                 <TableCell className="pl-8 font-mono text-[11px] text-slate-400">{row.dist || row.data || '-'}</TableCell>
-                <TableCell className="font-bold text-[11px] uppercase text-slate-600 truncate max-w-[240px]">{isMovimentacao ? (row.nome || row.plataforma || '-') : (row.destino || row.plataforma || row.nome || '-')}</TableCell>
+                <TableCell className="font-bold text-[11px] uppercase text-slate-600 truncate max-w-[240px]">{isMovimentacao ? (maskFn(row.nome || row.plataforma)) : (maskFn(row.destino || row.plataforma || row.nome))}</TableCell>
                 {isMovimentacao && (
-                  <TableCell className="font-bold text-[11px] uppercase text-slate-600 truncate max-w-[200px]">{row.destino || '-'}</TableCell>
+                  <TableCell className="font-bold text-[11px] uppercase text-slate-600 truncate max-w-[200px]">{maskFn(row.destino)}</TableCell>
                 )}
-                
+
                 {isMovimentacao && (
                   <>
                     <TableCell className="text-center">
                       <Badge className={cn(
                         "text-[9px] font-black uppercase px-3 py-1 rounded-full border-none flex items-center gap-1.5",
-                        row.statusAuditoria === 'Pago' ? "bg-emerald-50 text-emerald-600" :
-                        row.statusAuditoria === 'Não Pago' ? "bg-rose-50 text-rose-600" :
-                        "bg-slate-50 text-slate-400"
+                        row.statusAuditoria === 'Concluido' ? "bg-emerald-50 text-emerald-600" :
+                          row.statusAuditoria === 'Cancelado' ? "bg-rose-50 text-rose-600" :
+                            "bg-amber-50 text-amber-600"
                       )}>
-                        {row.statusAuditoria === 'Pago' && <CheckCircle2 className="w-3 h-3" />}
-                        {row.statusAuditoria === 'Não Pago' && <AlertTriangle className="w-3 h-3" />}
-                        {(!row.statusAuditoria || row.statusAuditoria === 'Pendente') && <Clock className="w-3 h-3" />}
+                        {row.statusAuditoria === 'Concluido' && <CheckCircle2 className="w-3 h-3" />}
+                        {row.statusAuditoria === 'Cancelado' && <XCircle className="w-3 h-3" />}
+                        {(!row.statusAuditoria || row.statusAuditoria === 'Pendente') && <AlertTriangle className="w-3 h-3" />}
                         {row.statusAuditoria || 'PENDENTE'}
                       </Badge>
                     </TableCell>
@@ -461,83 +486,83 @@ function ViewSection({ title, data, type, isNegative, isAmber, isImei, total }: 
   );
 }
 
-function ReportTable({ title, data, isNegative, isLegado, isImei, type }: any) {
+function ReportTable({ title, data, isNegative, isLegado, isImei, type, maskFn = (t: any) => t || '-' }: any) {
   if (!data || data.length === 0) return null;
 
   return (
     <div className="space-y-1.5">
-       <h4 className="text-[7px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 pb-1">{title}</h4>
-       <table className="w-full text-left text-[7px]">
-          <thead className="bg-[#F8FAFC]">
-            <tr className="border-b border-slate-100">
-              <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">REFERÊNCIA</th>
-              <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">HISTÓRICO</th>
+      <h4 className="text-[7px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 pb-1">{title}</h4>
+      <table className="w-full text-left text-[7px]">
+        <thead className="bg-[#F8FAFC]">
+          <tr className="border-b border-slate-100">
+            <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">REFERÊNCIA</th>
+            <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">HISTÓRICO / PLATAFORMA</th>
+            {isLegado ? (
+              <>
+                <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">DISP.</th>
+                <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">RES.</th>
+                <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">BLOQ.</th>
+                <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">APOS.</th>
+              </>
+            ) : isImei ? (
+              <>
+                <th className="px-2 py-1 font-black uppercase tracking-widest text-indigo-500 text-right">DÉBITO</th>
+                <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">CRÉDITO</th>
+                <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">VOLUME</th>
+              </>
+            ) : (
+              <>
+                {type === 'movimentacao' && <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">USUÁRIO DESTINO</th>}
+                {type === 'movimentacao' && <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">STATUS</th>}
+                <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">VOLUME (UCS)</th>
+              </>
+            )}
+          </tr>
+        </thead>
+        <tbody className="font-bold uppercase">
+          {data.map((row: any, i: number) => (
+            <tr key={i} className="border-b border-slate-50">
+              <td className="px-2 py-1 font-mono text-slate-400">{row.data || row.dist || '-'}</td>
+              <td className="px-2 py-1 text-slate-600 truncate max-w-[180px]">{type === 'movimentacao' ? (maskFn(row.nome || row.plataforma)) : (maskFn(row.destino || row.plataforma || row.nome))}</td>
               {isLegado ? (
                 <>
-                  <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">DISP.</th>
-                  <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">RES.</th>
-                  <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">BLOQ.</th>
-                  <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">APOS.</th>
+                  <td className="px-2 py-1 text-right text-primary">{(row.disponivel || 0).toLocaleString('pt-BR')}</td>
+                  <td className="px-2 py-1 text-right text-amber-600">{(row.reservado || 0).toLocaleString('pt-BR')}</td>
+                  <td className="px-2 py-1 text-right text-rose-600">{(row.bloqueado || 0).toLocaleString('pt-BR')}</td>
+                  <td className="px-2 py-1 text-right text-slate-400">{(row.aposentado || 0).toLocaleString('pt-BR')}</td>
                 </>
               ) : isImei ? (
                 <>
-                  <th className="px-2 py-1 font-black uppercase tracking-widest text-indigo-500 text-right">DÉBITO</th>
-                  <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">CRÉDITO</th>
-                  <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">VOLUME</th>
+                  <td className="px-2 py-1 text-right text-indigo-500">{(row.valorDebito || 0).toLocaleString('pt-BR')}</td>
+                  <td className="px-2 py-1 text-right text-slate-400">{(row.valorCredito || 0).toLocaleString('pt-BR')}</td>
+                  <td className="px-2 py-1 text-right font-black text-indigo-600">{((row.valorDebito || 0) - (row.valorCredito || 0)).toLocaleString('pt-BR')}</td>
                 </>
               ) : (
                 <>
-                  {type === 'movimentacao' && <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">USUÁRIO DESTINO</th>}
-                  {type === 'movimentacao' && <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">STATUS</th>}
-                  <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">VOLUME (UCS)</th>
+                  {type === 'movimentacao' && (
+                    <td className="px-2 py-1 text-slate-600 truncate max-w-[180px]">{maskFn(row.destino)}</td>
+                  )}
+                  {type === 'movimentacao' && (
+                    <td className="px-2 py-1">
+                      <span className={cn(
+                        "px-1 py-0.5 rounded-sm",
+                        row.statusAuditoria === 'Concluido' ? "bg-emerald-50 text-emerald-600" :
+                          row.statusAuditoria === 'Cancelado' ? "bg-rose-50 text-rose-600" :
+                            "bg-amber-50 text-amber-600"
+                      )}>
+                        {row.statusAuditoria || 'PENDENTE'}
+                      </span>
+                    </td>
+                  )}
+                  <td className={cn("px-2 py-1 text-right font-black", isNegative ? "text-rose-600" : "text-slate-900")}>
+                    {row.valor?.toLocaleString('pt-BR')}
+                  </td>
                 </>
               )}
             </tr>
-          </thead>
-          <tbody className="font-bold uppercase">
-            {data.map((row: any, i: number) => (
-              <tr key={i} className="border-b border-slate-50">
-                <td className="px-2 py-1 font-mono text-slate-400">{row.data || row.dist || '-'}</td>
-                <td className="px-2 py-1 text-slate-600 truncate max-w-[180px]">{type === 'movimentacao' ? (row.nome || row.plataforma || '-') : (row.destino || row.plataforma || row.nome || '-')}</td>
-                {isLegado ? (
-                  <>
-                    <td className="px-2 py-1 text-right text-primary">{(row.disponivel || 0).toLocaleString('pt-BR')}</td>
-                    <td className="px-2 py-1 text-right text-amber-600">{(row.reservado || 0).toLocaleString('pt-BR')}</td>
-                    <td className="px-2 py-1 text-right text-rose-600">{(row.bloqueado || 0).toLocaleString('pt-BR')}</td>
-                    <td className="px-2 py-1 text-right text-slate-400">{(row.aposentado || 0).toLocaleString('pt-BR')}</td>
-                  </>
-                ) : isImei ? (
-                  <>
-                    <td className="px-2 py-1 text-right text-indigo-500">{(row.valorDebito || 0).toLocaleString('pt-BR')}</td>
-                    <td className="px-2 py-1 text-right text-slate-400">{(row.valorCredito || 0).toLocaleString('pt-BR')}</td>
-                    <td className="px-2 py-1 text-right font-black text-indigo-600">{((row.valorDebito || 0) - (row.valorCredito || 0)).toLocaleString('pt-BR')}</td>
-                  </>
-                ) : (
-                  <>
-                    {type === 'movimentacao' && (
-                      <td className="px-2 py-1 text-slate-600 truncate max-w-[180px]">{row.destino || '-'}</td>
-                    )}
-                    {type === 'movimentacao' && (
-                      <td className="px-2 py-1">
-                        <span className={cn(
-                          "px-1 py-0.5 rounded-sm",
-                          row.statusAuditoria === 'Pago' ? "bg-emerald-50 text-emerald-600" :
-                          row.statusAuditoria === 'Não Pago' ? "bg-rose-50 text-rose-600" :
-                          "bg-slate-50 text-slate-400"
-                        )}>
-                          {row.statusAuditoria || 'PENDENTE'}
-                        </span>
-                      </td>
-                    )}
-                    <td className={cn("px-2 py-1 text-right font-black", isNegative ? "text-rose-600" : "text-slate-900")}>
-                      {row.valor?.toLocaleString('pt-BR')}
-                    </td>
-                  </>
-                )}
-              </tr>
-            ))}
-          </tbody>
-       </table>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
