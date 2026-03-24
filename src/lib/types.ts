@@ -44,6 +44,9 @@ export interface Pedido {
   hashPedido: string;
   linkNxt: string;
   linkCertificado?: string;
+  origem?: string;
+  origemCnpj?: string;
+  modo?: string;
   auditado: boolean;
   status: OrderStatus;
   categoria: OrderCategory;
@@ -75,8 +78,33 @@ export interface EntidadeSaldo {
   id: string;
   nome: string;
   documento: string;
+  safra: string | number; // Ano da Safra
   
-  // Totais Consolidados
+  // Dados da Propriedade / Originação
+  propriedade?: string;
+  idf?: string;
+  areaTotal?: number;
+  areaVegetacao?: number;
+  nucleo?: string;
+  lat?: string;
+  long?: string;
+  isin?: string;
+  hashOriginacao?: string;
+  dataRegistro?: string;
+
+  // Particionamento e Saldos
+  particionamento?: number; // % do produtor
+  saldoParticionado?: number; // Valor em UCS do produtor
+  
+  associacaoNome?: string;
+  associacaoCnpj?: string;
+  associacaoParticionamento?: number;
+  associacaoSaldo?: number;
+
+  imeiNome?: string;
+  imeiSaldo?: number;
+
+  // Totais Consolidados (Retrocompatibilidade)
   originacao: number;
   movimentacao: number; 
   aposentado: number;
@@ -106,4 +134,22 @@ export interface EntidadeSaldo {
 
   status: EntityStatus;
   createdAt: string;
+
+  // Propriedades Virtuais para Consolidação
+  isGroup?: boolean;
+  volumeContextual?: number;
+}
+
+export interface EntidadeSaldoGroup {
+  id: string;
+  nome: string;
+  isGroup: boolean;
+  volumeTotal: number;
+  items: (EntidadeSaldo & { volumeContextual: number })[];
+  
+  // Propriedades opcionais para compatibilidade de interface
+  safra?: string | number;
+  propriedade?: string;
+  documento?: string;
+  statusAuditoriaSaldo?: 'valido' | 'inconsistente';
 }

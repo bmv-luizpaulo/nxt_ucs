@@ -21,7 +21,10 @@ export function AddOrderDialog({ onAdd }: { onAdd: (order: any) => void }) {
     quantidade: "",
     taxa: "0",
     valorTotal: "",
-    categoria: "selo" as OrderCategory
+    categoria: "selo" as OrderCategory,
+    origem: "",
+    origemCnpj: "",
+    modo: "Fila"
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -51,7 +54,10 @@ export function AddOrderDialog({ onAdd }: { onAdd: (order: any) => void }) {
       quantidade: "",
       taxa: "0",
       valorTotal: "",
-      categoria: "selo"
+      categoria: "selo",
+      origem: "",
+      origemCnpj: "",
+      modo: "Fila"
     });
     setOpen(false);
   };
@@ -155,6 +161,24 @@ export function AddOrderDialog({ onAdd }: { onAdd: (order: any) => void }) {
             />
           </div>
           <div className="space-y-1.5">
+            <Label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Origem do Pedido</Label>
+            <Input 
+              value={formData.origem} 
+              onChange={e => setFormData({...formData, origem: e.target.value})} 
+              placeholder="Ex: IMEI" 
+              className="bg-slate-50 border-slate-200 rounded-xl"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Modo</Label>
+            <Input 
+              value={formData.modo} 
+              onChange={e => setFormData({...formData, modo: e.target.value})} 
+              placeholder="Fila / Customizado" 
+              className="bg-slate-50 border-slate-200 rounded-xl"
+            />
+          </div>
+          <div className="space-y-1.5">
             <Label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Estado (UF)</Label>
             <Input 
               value={formData.uf} 
@@ -162,7 +186,6 @@ export function AddOrderDialog({ onAdd }: { onAdd: (order: any) => void }) {
               placeholder="RJ" 
               maxLength={2}
               className="bg-slate-50 border-slate-200 rounded-xl uppercase"
-              required 
             />
           </div>
           <Button type="submit" className="col-span-1 md:col-span-2 mt-4 font-black uppercase text-[10px] h-12 rounded-2xl shadow-lg shadow-primary/20">

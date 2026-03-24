@@ -19,7 +19,8 @@ import {
   XCircle,
   Eye,
   EyeOff,
-  CheckCircle2
+  CheckCircle2,
+  Database
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -54,22 +55,27 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
 
     const sumVal = (arr?: RegistroTabela[]) => (arr || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
 
-    const orig = sumVal(entity.tabelaOriginacao);
-    const mov = (entity.tabelaMovimentacao || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
-    const aq = sumVal(entity.tabelaAquisicao);
+    // Hybrid Logic: Use table data if present, otherwise use flat fields (Safra 2010 style)
+    // CRITICAL: For "Originação" in the summary box, we want the entity's SHARE, not the gross farm total.
+    const orig = entity.tabelaOriginacao?.length ? sumVal(entity.tabelaOriginacao) : (entity.saldoParticionado || entity.originacao || 0);
+    const mov = entity.tabelaMovimentacao?.length ? (entity.tabelaMovimentacao || []).reduce((acc, curr) => acc + (curr.valor || 0), 0) : Math.abs(entity.movimentacao || 0);
+    const aq = entity.tabelaAquisicao?.length ? sumVal(entity.tabelaAquisicao) : (entity.aquisicao || 0);
 
     const imeiCredits = (entity.tabelaImei || []).reduce((acc, curr) => acc + (curr.valorCredito || 0), 0);
     const imeiDebits = (entity.tabelaImei || []).reduce((acc, curr) => acc + (curr.valorDebito || 0), 0);
+    // CRITICAL: "AJUSTE IMEI" in the summary boxes remains 0 until a real audit entry is made (manual edit)
     const imeiPending = imeiDebits - imeiCredits;
 
-    const aposentado = (entity.tabelaLegado || []).reduce((acc, c) => acc + (c.aposentado || 0), 0);
-    const bloqueado = (entity.tabelaLegado || []).reduce((acc, c) => acc + (c.bloqueado || 0), 0);
-    const legDisp = (entity.tabelaLegado || []).reduce((acc, c) => acc + (c.disponivel || 0), 0);
-    const legRes = (entity.tabelaLegado || []).reduce((acc, c) => acc + (c.reservado || 0), 0);
-    const legadoTotal = legDisp + legRes;
+    const aposentado = entity.tabelaLegado?.length ? (entity.tabelaLegado || []).reduce((acc, c) => acc + (c.aposentado || 0), 0) : (entity.aposentado || 0);
+    const bloqueado = entity.tabelaLegado?.length ? (entity.tabelaLegado || []).reduce((acc, c) => acc + (c.bloqueado || 0), 0) : (entity.bloqueado || 0);
+    
+    // Legado consolidado
+    const legadoTotal = entity.tabelaLegado?.length ? ((entity.tabelaLegado || []).reduce((acc, c) => acc + (c.disponivel || 0), 0) + (entity.tabelaLegado || []).reduce((acc, c) => acc + (c.reservado || 0), 0)) : (entity.saldoLegadoTotal || 0);
 
+    // Final Calculation (Assets - Liabilities/Adjustments)
+    // Note: In Safra context, final is usually just the saldoParticionado minus any movements.
     const finalCalculated = orig - mov - aposentado - bloqueado - aq;
-    const final = entity.ajusteRealizado ? entity.valorAjusteManual || 0 : finalCalculated;
+    const final = entity.ajusteRealizado ? entity.valorAjusteManual || 0 : (entity.tabelaOriginacao?.length ? finalCalculated : (entity.saldoFinalAtual || 0));
 
     return {
       orig, mov, aq, imeiPending, legadoTotal, aposentado, bloqueado, final
@@ -162,10 +168,19 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
           )}
 
           <div className="space-y-4">
-            <ReportTable title="01. DEMONSTRATIVO DE ORIGINAÇÃO" data={entity.tabelaOriginacao} type="originacao" />
+            <ReportTable 
+              title="01. DEMONSTRATIVO DE ORIGINAÇÃO" 
+              data={entity.tabelaOriginacao?.length ? entity.tabelaOriginacao : (entity.originacao > 0 ? [{ data: entity.dataRegistro, destino: entity.propriedade, valor: (entity.saldoParticionado || entity.originacao), plataforma: 'IMPORTAÇÃO SAFRA' }] : [])} 
+              type="originacao" 
+            />
             <ReportTable title="02. DEMONSTRATIVO DE MOVIMENTAÇÃO" data={entity.tabelaMovimentacao} isNegative type="movimentacao" maskFn={maskText} />
             <ReportTable title="03. DEMONSTRATIVO DE SALDO LEGADO" data={entity.tabelaLegado} isLegado type="legado" />
-            <ReportTable title="04. AJUSTE IMEI" data={entity.tabelaImei} isImei type="imei" />
+            <ReportTable 
+              title="04. AJUSTE IMEI" 
+              data={entity.tabelaImei?.length ? entity.tabelaImei : (entity.saldoAjustarImei > 0 ? [{ data: entity.dataRegistro, nome: entity.imeiNome || 'IMEI / DISTRIBUIDOR', valorDebito: entity.saldoAjustarImei, valorCredito: 0 }] : [])} 
+              isImei 
+              type="imei" 
+            />
             <ReportTable title="05. AQUISIÇÃO" data={entity.tabelaAquisicao} isNegative type="aquisicao" />
           </div>
 
@@ -239,6 +254,89 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
 
           <ScrollArea className="flex-1 bg-white">
             <div className="p-10 space-y-14">
+              {/* NOVOS DADOS DE SAFRA E ORIGINAÇÃO */}
+              <div className="bg-slate-50 border border-slate-100 rounded-[2.5rem] p-10">
+                <div className="flex items-center gap-2 mb-8">
+                  <Database className="w-5 h-5 text-primary" />
+                  <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-900">DADOS DA SAFRA E ORIGINAÇÃO TÉCNICA</h3>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-8">
+                  <DetailItem label="SAFRA" value={entity.safra} />
+                  <DetailItem label="PROPRIEDADE" value={entity.propriedade} />
+                  <DetailItem label="IDENTIFICADOR (IDF)" value={entity.idf} />
+                  <DetailItem label="DATA REGISTRO" value={entity.dataRegistro} />
+                  
+                  <DetailItem label="ÁREA TOTAL" value={entity.areaTotal ? `${entity.areaTotal.toLocaleString('pt-BR')} ha` : '-'} />
+                  <DetailItem label="ÁREA VEGETAÇÃO" value={entity.areaVegetacao ? `${entity.areaVegetacao.toLocaleString('pt-BR')} ha` : '-'} />
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Coordenadas</p>
+                    {entity.lat ? (
+                      <a 
+                        href={`https://www.google.com/maps/search/?api=1&query=${String(entity.lat).replace(',', '.')},${String(entity.long).replace(',', '.')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-[12px] font-bold text-primary hover:text-primary/80 transition-colors group"
+                      >
+                        <span>{entity.lat}, {entity.long}</span>
+                        <ExternalLink className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
+                        <span className="text-[8px] font-black uppercase tracking-widest text-slate-400 group-hover:text-primary transition-colors">Ver no Mapa</span>
+                      </a>
+                    ) : (
+                      <p className="text-[12px] font-bold text-slate-900">-</p>
+                    )}
+                  </div>
+                  <DetailItem label="NÚCLEO" value={entity.nucleo} />
+                  
+                  <DetailItem 
+                    label="ORIGINAÇÃO DA FAZENDA (UCS)" 
+                    value={entity.originacao ? entity.originacao.toLocaleString('pt-BR') : '-'} 
+                  />
+                  <DetailItem label="CÓDIGO ISIN" value={entity.isin} isMono />
+                  <DetailItem label="HASH ORIGINAÇÃO" value={entity.hashOriginacao} isMono className="lg:col-span-2" />
+                </div>
+
+                <div className="mt-10 pt-10 border-t border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <a 
+                    href="/produtores" 
+                    onClick={(e) => { e.preventDefault(); onOpenChange(false); window.location.href = '/produtores'; }}
+                    className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-primary/40 hover:shadow-md transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-primary transition-colors">Particionamento Produtor</p>
+                      <ExternalLink className="w-3.5 h-3.5 text-slate-300 group-hover:text-primary transition-colors" />
+                    </div>
+                    <p className="text-lg font-black text-slate-900">{(entity.particionamento || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}% <span className="text-slate-300 mx-2">|</span> {entity.saldoParticionado?.toLocaleString('pt-BR')} UCS</p>
+                  </a>
+                  {entity.associacaoNome && (
+                    <a 
+                      href="/nucleos" 
+                      onClick={(e) => { e.preventDefault(); onOpenChange(false); window.location.href = '/nucleos'; }}
+                      className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-amber-400/40 hover:shadow-md transition-all cursor-pointer group"
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-amber-600 transition-colors">Associação: {entity.associacaoNome}</p>
+                        <ExternalLink className="w-3.5 h-3.5 text-slate-300 group-hover:text-amber-600 transition-colors" />
+                      </div>
+                      <p className="text-lg font-black text-slate-900">{(entity.associacaoParticionamento || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}% <span className="text-slate-300 mx-2">|</span> {entity.associacaoSaldo?.toLocaleString('pt-BR')} UCS</p>
+                    </a>
+                  )}
+                  {entity.imeiSaldo !== undefined && (
+                    <a 
+                      href="/imeis" 
+                      onClick={(e) => { e.preventDefault(); onOpenChange(false); window.location.href = '/imeis'; }}
+                      className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-violet-400/40 hover:shadow-md transition-all cursor-pointer group"
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-violet-600 transition-colors">IMEI (Distribuidor)</p>
+                        <ExternalLink className="w-3.5 h-3.5 text-slate-300 group-hover:text-violet-600 transition-colors" />
+                      </div>
+                      <p className="text-lg font-black text-slate-900">{entity.imeiSaldo?.toLocaleString('pt-BR')} UCS</p>
+                    </a>
+                  )}
+                </div>
+              </div>
+
               {entity.ajusteRealizado && (
                 <div className="bg-emerald-50/50 border border-emerald-100 rounded-[2.5rem] p-10 flex items-start gap-6">
                   <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center shrink-0">
@@ -288,19 +386,30 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
 
               {/* TABELAS EM MODO LEITURA */}
               <div className="space-y-12">
-                {entity.tabelaOriginacao && entity.tabelaOriginacao.length > 0 && (
-                  <ViewSection title="01. ORIGINAÇÃO" data={entity.tabelaOriginacao} type="originacao" total={totals.orig} />
+                {(entity.tabelaOriginacao?.length || entity.originacao > 0) && (
+                  <ViewSection 
+                    title="01. ORIGINAÇÃO" 
+                    data={entity.tabelaOriginacao?.length ? entity.tabelaOriginacao : [{ data: entity.dataRegistro, destino: entity.propriedade, valor: (entity.saldoParticionado || entity.originacao), plataforma: 'IMPORTAÇÃO SAFRA' }]} 
+                    type="originacao" 
+                    total={totals.orig} 
+                  />
                 )}
-                {entity.tabelaMovimentacao && entity.tabelaMovimentacao.length > 0 && (
+                {(entity.tabelaMovimentacao?.length || entity.movimentacao > 0) && (
                   <ViewSection title="02. MOVIMENTAÇÃO" data={entity.tabelaMovimentacao} type="movimentacao" isNegative total={totals.mov} maskFn={maskText} />
                 )}
-                {entity.tabelaLegado && entity.tabelaLegado.length > 0 && (
+                {(entity.tabelaLegado?.length || entity.saldoLegadoTotal > 0) && (
                   <ViewSection title="03. SALDO LEGADO" data={entity.tabelaLegado} type="legado" isAmber total={totals.legadoTotal} />
                 )}
-                {entity.tabelaImei && entity.tabelaImei.length > 0 && (
-                  <ViewSection title="04. AJUSTE IMEI" data={entity.tabelaImei} type="imei" isImei total={totals.imeiPending} />
+                {(entity.tabelaImei?.length || entity.saldoAjustarImei > 0) && (
+                  <ViewSection 
+                    title="04. AJUSTE IMEI" 
+                    data={entity.tabelaImei?.length ? entity.tabelaImei : [{ data: entity.dataRegistro, nome: entity.imeiNome || 'IMEI / DISTRIBUIDOR', valorDebito: entity.saldoAjustarImei, valorCredito: 0 }]} 
+                    type="imei" 
+                    isImei 
+                    total={totals.imeiPending} 
+                  />
                 )}
-                {entity.tabelaAquisicao && entity.tabelaAquisicao.length > 0 && (
+                {(entity.tabelaAquisicao?.length || entity.aquisicao > 0) && (
                   <ViewSection title="05. AQUISIÇÃO" data={entity.tabelaAquisicao} type="aquisicao" isNegative total={totals.aq} />
                 )}
               </div>
@@ -425,7 +534,14 @@ function ViewSection({ title, data, type, isNegative, isAmber, isImei, total, ma
             {data.map((row: any, i: number) => (
               <TableRow key={i} className="h-12 border-b border-slate-50 last:border-0">
                 <TableCell className="pl-8 font-mono text-[11px] text-slate-400">{row.dist || row.data || '-'}</TableCell>
-                <TableCell className="font-bold text-[11px] uppercase text-slate-600 truncate max-w-[240px]">{isMovimentacao ? (maskFn(row.nome || row.plataforma)) : (maskFn(row.destino || row.plataforma || row.nome))}</TableCell>
+                <TableCell className="font-bold text-[11px] uppercase text-slate-600 truncate max-w-[240px]">
+                  <div className="flex flex-col gap-0.5">
+                    <span>{isMovimentacao ? (maskFn(row.nome || row.plataforma)) : (maskFn(row.destino || row.plataforma || row.nome))}</span>
+                    {row.plataforma === 'IMPORTAÇÃO SAFRA' && (
+                      <span className="text-[8px] text-primary font-black tracking-widest leading-none">ORIGINAÇÃO TÉCNICA CONSOLIDADA</span>
+                    )}
+                  </div>
+                </TableCell>
                 {isMovimentacao && (
                   <TableCell className="font-bold text-[11px] uppercase text-slate-600 truncate max-w-[200px]">{maskFn(row.destino)}</TableCell>
                 )}
@@ -563,6 +679,22 @@ function ReportTable({ title, data, isNegative, isLegado, isImei, type, maskFn =
           ))}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+function DetailItem({ label, value, isMono, className }: { label: string, value: any, isMono?: boolean, className?: string }) {
+  if (value === undefined || value === null || value === "") value = "-";
+  
+  return (
+    <div className={cn("space-y-1.5", className)}>
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
+      <p className={cn(
+        "text-[12px] font-bold text-slate-900",
+        isMono ? "font-mono tracking-tight text-[11px] break-all" : ""
+      )}>
+        {value}
+      </p>
     </div>
   );
 }

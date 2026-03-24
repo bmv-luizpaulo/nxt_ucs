@@ -5,7 +5,11 @@ import {
   Database, 
   Settings, 
   LogOut,
-  LayoutGrid
+  LayoutGrid,
+  Calendar,
+  MapPin,
+  Users2,
+  Cpu
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -34,21 +38,63 @@ export function Sidebar() {
       icon: LayoutGrid, 
       label: "PEDIDOS DE CRÉDITO", 
       href: "/dashboard", 
-      tooltip: "Selos & Certificados" 
+      tooltip: "Selos & Certificados",
+      color: "primary"
+    },
+    { 
+      icon: Calendar, 
+      label: "SAFRAS", 
+      href: "/safras", 
+      tooltip: "Portal de Safras",
+      color: "primary"
+    },
+    { 
+      icon: MapPin, 
+      label: "FAZENDAS", 
+      href: "/fazendas", 
+      tooltip: "Propriedades Rurais",
+      color: "teal"
     },
     { 
       icon: ShieldCheck, 
-      label: "SALDOS: PRODUTORES", 
+      label: "PRODUTORES", 
       href: "/produtores", 
-      tooltip: "Auditoria de Produtores" 
+      tooltip: "Cadastro de Produtores",
+      color: "primary"
     },
     { 
-      icon: Database, 
-      label: "SALDOS: ASSOCIAÇÕES", 
-      href: "/associacoes", 
-      tooltip: "Auditoria de Associações" 
+      icon: Users2, 
+      label: "NÚCLEOS / ASSOCIAÇÕES", 
+      href: "/nucleos", 
+      tooltip: "Visão por Núcleo e Associação",
+      color: "amber"
+    },
+    { 
+      icon: Cpu, 
+      label: "IMEIS (ADMINISTRADORA)", 
+      href: "/imeis", 
+      tooltip: "Particionamento IMEI",
+      color: "violet"
     },
   ];
+
+  const getActiveColors = (color: string) => {
+    switch(color) {
+      case 'teal': return "bg-teal-500 text-white shadow-xl shadow-teal-200/50";
+      case 'amber': return "bg-amber-500 text-white shadow-xl shadow-amber-200/50";
+      case 'violet': return "bg-violet-500 text-white shadow-xl shadow-violet-200/50";
+      default: return "bg-primary text-white shadow-xl shadow-primary/30";
+    }
+  };
+
+  const getHoverColors = (color: string) => {
+    switch(color) {
+      case 'teal': return "hover:text-teal-500 hover:bg-teal-50";
+      case 'amber': return "hover:text-amber-500 hover:bg-amber-50";
+      case 'violet': return "hover:text-violet-500 hover:bg-violet-50";
+      default: return "hover:text-primary hover:bg-emerald-50";
+    }
+  };
 
   return (
     <aside className="w-24 bg-white border-r flex flex-col items-center py-10 sticky top-0 h-screen print:hidden shrink-0 z-20">
@@ -60,9 +106,9 @@ export function Sidebar() {
       </Link>
 
       {/* Navigation Section */}
-      <nav className="flex flex-col gap-10 flex-1">
+      <nav className="flex flex-col gap-6 flex-1">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href + '/'));
           const Icon = item.icon;
 
           return (
@@ -72,8 +118,8 @@ export function Sidebar() {
                   className={cn(
                     "w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300",
                     isActive 
-                      ? "bg-primary text-white shadow-xl shadow-primary/30" 
-                      : "bg-slate-50 text-slate-300 hover:text-primary hover:bg-emerald-50"
+                      ? getActiveColors(item.color) 
+                      : `bg-slate-50 text-slate-300 ${getHoverColors(item.color)}`
                   )}
                 >
                   <Icon className={cn("w-6 h-6", isActive && "stroke-[2.5px]")} />

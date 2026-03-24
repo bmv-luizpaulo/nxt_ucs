@@ -10,7 +10,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Raleway', 'sans-serif'],
+        sans: ['Montserrat', 'sans-serif'],
+        body: ['Montserrat', 'sans-serif'],
         headline: ['Raleway', 'sans-serif'],
         code: ['monospace'],
       },

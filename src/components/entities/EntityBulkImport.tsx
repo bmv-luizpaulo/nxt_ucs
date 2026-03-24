@@ -21,7 +21,35 @@ export function EntityBulkImport({ onImport, type }: EntityBulkImportProps) {
 
   const parseNumber = (val: string) => {
     if (!val) return 0;
-    return parseInt(val.replace(/[^\d-]/g, '')) || 0;
+    const clean = val.replace(/[^\d,.-]/g, '').trim();
+    if (!clean) return 0;
+
+    // Identifica o último separador (ponto ou vírgula)
+    const lastComma = clean.lastIndexOf(',');
+    const lastDot = clean.lastIndexOf('.');
+    
+    // Se não houver separadores, é um inteiro
+    if (lastComma === -1 && lastDot === -1) return parseFloat(clean) || 0;
+
+    // Define qual é o separador decimal (o último que aparecer)
+    const decimalIdx = Math.max(lastComma, lastDot);
+    const decimalSeparator = clean[decimalIdx];
+    
+    // Regra de Resolução de Ambiguidade para Brasil:
+    // Se houver apenas um "." e ele tiver exatamente 3 dígitos depois, tratamos como milhar (1.000 -> 1000)
+    // Exceto se houver uma vírgula em algum lugar.
+    if (decimalSeparator === '.' && lastComma === -1) {
+      const fractionalPart = clean.substring(decimalIdx + 1);
+      if (fractionalPart.length === 3) {
+        return parseFloat(clean.replace(/\./g, '')) || 0;
+      }
+    }
+    
+    // Caso contrário, seguimos a regra do último separador ser decimal
+    const integerPart = clean.substring(0, decimalIdx).replace(/[,.]/g, '');
+    const fractionalPart = clean.substring(decimalIdx + 1);
+    
+    return parseFloat(`${integerPart}.${fractionalPart}`) || 0;
   };
 
   const parseTSV = (text: string) => {
@@ -30,34 +58,85 @@ export function EntityBulkImport({ onImport, type }: EntityBulkImportProps) {
     const lines = text.split('\n').filter(l => l.trim());
     const results: any[] = [];
     
-    const startIdx = (lines[0]?.toLowerCase().includes('usuário') || lines[0]?.toLowerCase().includes('documento')) ? 1 : 0;
+    const isSafraFormat = lines[0]?.toLowerCase().includes('safra');
+    const headers = lines[0].toLowerCase().split('\t');
+    const getIdx = (patterns: string[]) => headers.findIndex(h => patterns.some(p => h.includes(p.toLowerCase())));
 
+    const idx = {
+      safra: getIdx(['safra']),
+      data: getIdx(['data registro', 'data']),
+      idf: getIdx(['idf']),
+      prop: getIdx(['propriedade']),
+      produtor: getIdx(['produtor']),
+      doc: getIdx(['cpf', 'cnpj']),
+      ucs: getIdx(['ucs', 'unidade']),
+      partProd: getIdx(['saldo do (particionado)', 'saldo particionado']),
+      assocNome: getIdx(['associação']),
+      assocSaldo: getIdx(['saldo da associação', 'saldo assoc']),
+      imeiNome: getIdx(['imei']),
+      imeiSaldo: getIdx(['saldo da imei', 'saldo imei']),
+    };
+    const startIdx = 1;
     for (let i = startIdx; i < lines.length; i++) {
       const parts = lines[i].split('\t');
       if (parts.length < 5) continue;
 
-      results.push({
-        id: `ID-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
-        nome: parts[0]?.trim() || "N/A",
-        documento: parts[1]?.trim() || "N/A",
-        originacao: parseNumber(parts[2]),
-        debito: parseNumber(parts[3]),
-        aposentadas: parseNumber(parts[4]),
-        bloqueadas: parseNumber(parts[5]),
-        aquisicao: parseNumber(parts[6]),
-        transferenciaImei: parseNumber(parts[7]),
-        estornoImei: parseNumber(parts[8]),
-        saldoAjustarImei: parseNumber(parts[9]),
-        saldoLegado: parseNumber(parts[10]),
-        cprs: parts[11]?.trim() || "",
-        bmtca: parts[12]?.trim() || "",
-        statusBmtca: parts[13]?.trim() || "",
-        desmate: parts[14]?.trim() || "",
-        saldoFinal: parseNumber(parts[15]),
-        valorAjustar: parseNumber(parts[16]),
-        status: (parts[17]?.trim().toLowerCase() as EntityStatus) || 'disponivel',
-        createdAt: new Date().toISOString()
-      });
+      if (isSafraFormat) {
+        // Fallbacks para índices não encontrados ou formatos variáveis
+        const safeGet = (index: number, fallback: string = "") => (index !== -1 ? parts[index]?.trim() : fallback);
+
+        const doc = (safeGet(idx.doc) || `ID-${Math.random().toString(36).substr(2, 5)}`).replace(/[^\d.xXyY-]/g, '');
+        const safra = safeGet(idx.safra) || "2010";
+        const produtorNome = safeGet(idx.produtor) || safeGet(idx.prop) || "Sem Nome";
+
+        results.push({
+          id: `${doc}_${safra}`.replace(/[^\w]/g, '_'),
+          nome: produtorNome,
+          documento: doc,
+          safra: safra,
+          propriedade: safeGet(idx.prop),
+          idf: safeGet(idx.idf),
+          originacao: parseNumber(safeGet(idx.ucs)),
+          dataRegistro: safeGet(idx.data),
+          
+          associacaoNome: safeGet(idx.assocNome),
+          associacaoSaldo: parseNumber(safeGet(idx.assocSaldo)),
+          
+          imeiNome: safeGet(idx.imeiNome),
+          imeiSaldo: parseNumber(safeGet(idx.imeiSaldo)),
+
+          // Consolidados e Saldos de Referência
+          saldoParticionado: parseNumber(safeGet(idx.partProd)), 
+          saldoFinalAtual: parseNumber(safeGet(idx.partProd)),
+          status: 'disponivel',
+          createdAt: new Date().toISOString(),
+          
+          // Campos técnicos adicionais (opcionais na planilha)
+          nucleo: safeGet(getIdx(['núcleo', 'região'])),
+          lat: safeGet(getIdx(['lat'])),
+          long: safeGet(getIdx(['long'])),
+          isin: safeGet(getIdx(['isin'])),
+          hashOriginacao: safeGet(getIdx(['hash'])),
+        });
+      } else {
+        // Formato Padrão
+        results.push({
+          id: `ID-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
+          nome: parts[0]?.trim() || "N/A",
+          documento: parts[1]?.trim() || "N/A",
+          safra: "N/A",
+          originacao: parseNumber(parts[2]),
+          movimentacao: parseNumber(parts[3]) * -1,
+          aposentado: parseNumber(parts[4]),
+          bloqueado: parseNumber(parts[5]),
+          aquisicao: parseNumber(parts[6]),
+          saldoAjustarImei: parseNumber(parts[9]),
+          saldoLegadoTotal: parseNumber(parts[10]),
+          saldoFinalAtual: parseNumber(parts[15]),
+          status: (parts[17]?.trim().toLowerCase() as EntityStatus) || 'disponivel',
+          createdAt: new Date().toISOString()
+        });
+      }
     }
     return results;
   };
@@ -129,7 +208,7 @@ export function EntityBulkImport({ onImport, type }: EntityBulkImportProps) {
                         preview.map((p, i) => (
                           <TableRow key={i} className="border-b border-slate-50">
                             <TableCell className="font-bold text-[10px] uppercase truncate max-w-[150px]">{p.nome}</TableCell>
-                            <TableCell className="text-right font-mono font-black text-primary">{p.saldoFinal.toLocaleString('pt-BR')} UCS</TableCell>
+                            <TableCell className="text-right font-mono font-black text-primary">{(p.saldoFinalAtual || 0).toLocaleString('pt-BR')} UCS</TableCell>
                           </TableRow>
                         ))
                       )}

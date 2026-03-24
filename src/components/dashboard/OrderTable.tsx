@@ -85,17 +85,21 @@ export function OrderTable({
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-10">Pedido</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-10">Data</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-10">Origem</TableHead>
-            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center h-10">UF</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-10">Cliente</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-10">CNPJ</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right h-10">Qtd</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right h-10">Taxa</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right h-10">Total</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center h-10">Modo</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-10">Nxt</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center h-10">Status</TableHead>
-            <TableHead className="w-[100px] pr-8 h-10"></TableHead>
+            <TableHead className="w-[80px] pr-8 h-10"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {orders.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={9} className="h-48 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest">
+              <TableCell colSpan={13} className="h-48 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest">
                 Nenhum pedido registrado nesta categoria
               </TableCell>
             </TableRow>
@@ -119,16 +123,35 @@ export function OrderTable({
                 <TableCell className="text-[10px] text-slate-500 whitespace-nowrap">
                   <div className="font-bold text-slate-900">{new Date(order.data).toLocaleDateString('pt-BR')}</div>
                 </TableCell>
-                <TableCell>
-                  <div className="flex flex-col">
-                    <span className="font-bold text-[10px] uppercase truncate max-w-[150px] text-slate-900">{order.empresa}</span>
-                    <span className="text-[9px] text-slate-500 font-mono">{order.cnpj}</span>
-                  </div>
+                <TableCell title={order.origem || order.programa}>
+                  <span className="text-[9px] font-black text-primary uppercase truncate max-w-[100px] block">
+                    {order.origem || order.programa || "-"}
+                  </span>
                 </TableCell>
-                <TableCell className="text-center font-bold text-[10px] text-slate-500">{order.uf}</TableCell>
+                <TableCell>
+                  <span className="font-bold text-[10px] uppercase truncate max-w-[150px] text-slate-900 leading-tight">
+                    {order.empresa}
+                  </span>
+                </TableCell>
+                <TableCell className="font-mono text-[9px] text-slate-500">
+                  {order.cnpj || "-"}
+                </TableCell>
                 <TableCell className="text-right font-mono text-[10px] font-black text-slate-900 whitespace-nowrap">{order.quantidade} UCS</TableCell>
+                <TableCell className="text-right font-mono text-[10px] text-slate-500">
+                  {order.taxa.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                </TableCell>
                 <TableCell className="text-right font-mono font-black text-[11px] text-slate-900 whitespace-nowrap">
                   {order.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                </TableCell>
+                <TableCell className="text-center font-bold text-[9px] text-slate-500 uppercase tracking-widest whitespace-nowrap">
+                  {order.modo || "-"}
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-col gap-0.5 max-w-[120px]">
+                    <span className="text-[8px] font-mono text-slate-400 truncate" title={order.hashPedido || order.linkNxt}>
+                      {order.hashPedido || order.linkNxt || "-"}
+                    </span>
+                  </div>
                 </TableCell>
                 <TableCell className="text-center">
                   <StatusBadge status={order.status} />
@@ -229,7 +252,7 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
                   <p><strong className="text-slate-400 font-black mr-2">DATA DO PROTOCOLO:</strong> {new Date(order.data).toLocaleDateString()}</p>
                   <p className="leading-tight"><strong className="text-slate-400 font-black mr-2">ENTIDADE ADQUIRENTE:</strong> {order.empresa}</p>
                   <p><strong className="text-slate-400 font-black mr-2">REGISTRO CNPJ:</strong> {order.cnpj}</p>
-                  <p><strong className="text-slate-400 font-black mr-2">PROJETO DE ORIGEM:</strong> {order.programa} ({order.uf})</p>
+                  <p><strong className="text-slate-400 font-black mr-2">{order.uf ? "PROJETO DE ORIGEM:" : "ORIGEM:"}</strong> {order.programa} {order.uf ? `(${order.uf})` : ""}</p>
                 </div>
               </div>
             </div>
@@ -343,9 +366,9 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
             <StatBox label="TAXA APLICADA" value={order.taxa} isCurrency />
             <StatBox label="VALOR AUDITADO" value={order.valorTotal} isCurrency isHighlight />
             <StatBox label="STATUS" value={order.status.toUpperCase()} isStatus />
-            <StatBox label="UF ORIGEM" value={order.uf} isStatus />
+            <StatBox label={order.uf ? "UF ORIGEM" : "MODO"} value={order.uf || order.modo || "-"} isStatus />
             <StatBox label="CATEGORIA" value={order.categoria.replace(/_/g, ' ')} isStatus isAccent />
-            <StatBox label="D.O" value={order.do ? 'SIM' : 'NÃO'} isStatus />
+            <StatBox label={order.uf ? "D.O" : "ORIGEM"} value={order.uf ? (order.do ? 'SIM' : 'NÃO') : (order.origem || "-")} isStatus />
           </div>
         </div>
 

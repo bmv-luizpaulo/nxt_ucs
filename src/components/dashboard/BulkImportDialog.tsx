@@ -82,14 +82,43 @@ export function BulkImportDialog({ onImport, category }: BulkImportDialogProps) 
       const parts = parsedRows[i];
       if (parts.length < 5) continue;
 
-      const id = parts[0].trim();
-      const dataStr = parts[1].trim();
-      const originRaw = parts[2].trim();
-      const programa = parts[3]?.trim() || "";
-      const uf = parts[4]?.trim() || "";
-      const doFlag = parts[5]?.trim().toLowerCase() === 'sim' || parts[5]?.trim().toLowerCase() === 's';
+      // Heurística para detectar a nova estrutura: 
+      // Se a coluna 5 (index 4) contiver "UCS", é a nova estrutura
+      // Ou se houver o cabeçalho "Cliente"
+      const isNewStructure = parts[4]?.toLowerCase().includes('ucs') || 
+                            parsedRows[0]?.some(h => h.toLowerCase().includes('cliente'));
+
+      let id, dataStr, originRaw, clienteRaw, programa, uf, doFlag, quantidadeStr, taxaRaw, totalRaw, modo, linkNxt;
+
+      if (isNewStructure) {
+        // Nova Estrutura: Pedido(0), Data(1), Origem(2), Cliente(3), Quantidade(4), Taxa(5), Total(6), Modo(7), Nxt(8)
+        id = parts[0].trim();
+        dataStr = parts[1].trim();
+        originRaw = parts[2].trim();
+        clienteRaw = parts[3].trim();
+        programa = originRaw; // Mapeamos Origem para Programa para retrocompatibilidade
+        uf = ""; // Não tem na nova estrutura
+        doFlag = false; 
+        quantidadeStr = parts[4]?.replace(/[^\d]/g, '') || "0";
+        taxaRaw = parts[5];
+        totalRaw = parts[6];
+        modo = parts[7]?.trim();
+        linkNxt = parts[8]?.trim() || "";
+      } else {
+        // Estrutura Padrão: Pedido(0), Data(1), Empresa(2), Prog(3), UF(4), D.O(5), Qtd(6), Taxa(7), Total(8)
+        id = parts[0].trim();
+        dataStr = parts[1].trim();
+        clienteRaw = parts[2].trim();
+        programa = parts[3]?.trim() || "";
+        uf = parts[4]?.trim() || "";
+        doFlag = parts[5]?.trim().toLowerCase() === 'sim' || parts[5]?.trim().toLowerCase() === 's';
+        quantidadeStr = parts[6]?.replace(/[^\d]/g, '') || "0";
+        taxaRaw = parts[7];
+        totalRaw = parts[8];
+        modo = "Fila";
+        linkNxt = "";
+      }
       
-      const quantidadeStr = parts[6]?.replace(/[^\d]/g, '') || "0";
       const quantidade = parseInt(quantidadeStr);
       
       const parseBRL = (val: string) => {
@@ -97,13 +126,30 @@ export function BulkImportDialog({ onImport, category }: BulkImportDialogProps) 
         return parseFloat(val.replace(/[R$\s.]/g, '').replace(',', '.')) || 0;
       };
 
-      const taxa = parseBRL(parts[7]);
-      const total = parseBRL(parts[8]);
+      const taxa = parseBRL(taxaRaw);
+      const total = parseBRL(totalRaw);
 
-      // Extração inteligente de Empresa e CNPJ
-      const originLines = originRaw.split(/\n/);
-      const empresa = originLines[0]?.trim() || originRaw;
-      const cnpj = originLines.length > 1 ? originLines[originLines.length - 1]?.trim() : "";
+      // Extração inteligente de Empresa e CNPJ (Cliente)
+      const clienteLines = clienteRaw.split(/\n/);
+      let empresa = clienteLines[0]?.trim() || clienteRaw;
+      let cnpj = "";
+
+      const cnpjMatch = clienteRaw.match(/\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/);
+      if (cnpjMatch) {
+        cnpj = cnpjMatch[0];
+        empresa = empresa.replace(cnpj, '').trim();
+      } else if (clienteLines.length > 1) {
+        cnpj = clienteLines[clienteLines.length - 1]?.trim();
+      }
+
+      // Extração inteligente de Origem e CNPJ
+      let finalOrigem = originRaw || "";
+      let originCnpj = "";
+      const oCnpjMatch = (originRaw || "").match(/\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/);
+      if (oCnpjMatch) {
+        originCnpj = oCnpjMatch[0];
+        finalOrigem = finalOrigem.replace(originCnpj, '').trim();
+      }
 
       let isoDate = new Date().toISOString();
       try {
@@ -125,8 +171,11 @@ export function BulkImportDialog({ onImport, category }: BulkImportDialogProps) 
         data: isoDate,
         empresa,
         cnpj,
-        programa,
+        programa: finalOrigem, // Guardamos o nome limpo aqui também
         uf,
+        origem: finalOrigem,
+        origemCnpj: originCnpj,
+        modo,
         do: doFlag,
         quantidade,
         taxa,
@@ -134,7 +183,7 @@ export function BulkImportDialog({ onImport, category }: BulkImportDialogProps) 
         auditado: false,
         status: 'pendente',
         hashPedido: "",
-        linkNxt: "",
+        linkNxt: linkNxt,
         categoria: category,
         createdAt: new Date().toISOString()
       });
