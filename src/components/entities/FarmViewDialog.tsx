@@ -332,11 +332,11 @@ export function FarmViewDialog({ entity, open, onOpenChange, allData }: FarmView
             <X className="w-4 h-4 mr-2" /> Fechar
           </Button>
           <div className="flex gap-3">
-             <Button variant="outline" onClick={handlePrintExecutive} className="h-11 px-6 rounded-xl font-black uppercase text-[10px] tracking-widest gap-2 bg-slate-50 text-slate-700 hover:bg-slate-100 border-slate-200">
-                <Printer className="w-4 h-4" /> EXECUTIVO
+             <Button variant="outline" onClick={handlePrintExecutive} title="Relatório de Auditoria Padrão" className="h-11 px-6 rounded-xl border-slate-200 bg-slate-50/50 font-black uppercase text-[10px] tracking-widest text-slate-700 hover:bg-white transition-all shadow-sm">
+                <Printer className="w-4 h-4 mr-2" /> EXECUTIVO
              </Button>
-             <Button variant="outline" onClick={handlePrintJuridico} className="h-11 px-6 rounded-xl font-black uppercase text-[10px] tracking-widest gap-2 bg-slate-50 text-[#734DCC] hover:bg-slate-100 border-slate-200">
-                <Scale className="w-4 h-4" /> JURÍDICO
+             <Button variant="outline" onClick={handlePrintJuridico} title="Relatório Detalhado para Contraprova Jurídica" className="h-11 px-6 rounded-xl border-slate-200 bg-slate-50/50 font-black uppercase text-[10px] tracking-widest text-[#734DCC] hover:bg-white transition-all shadow-sm">
+                <Scale className="w-4 h-4 mr-2" /> CONTRAPROVA JURÍDICA
              </Button>
           </div>
         </div>

@@ -298,11 +298,11 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
                 {isCensored ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
                 {isCensored ? "MODO CENSURA ATIVO" : "CENSURAR DADOS"}
               </Button>
-              <Button variant="outline" onClick={handlePrintExecutive} className="h-14 px-8 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[10px] tracking-widest text-slate-700 hover:bg-white transition-all">
+              <Button variant="outline" onClick={handlePrintExecutive} title="Relatório de Auditoria Padrão" className="h-11 px-6 rounded-xl border-slate-200 bg-slate-50/50 font-black uppercase text-[10px] tracking-widest text-slate-700 hover:bg-white transition-all shadow-sm">
                 <Printer className="w-4 h-4 mr-2" /> EXECUTIVO
               </Button>
-              <Button variant="outline" onClick={handlePrintJuridico} className="h-14 px-8 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[10px] tracking-widest text-[#734DCC] hover:bg-white transition-all">
-                <Scale className="w-4 h-4 mr-2" /> JURÍDICO
+              <Button variant="outline" onClick={handlePrintJuridico} title="Relatório Detalhado para Contraprova Jurídica" className="h-11 px-6 rounded-xl border-slate-200 bg-slate-50/50 font-black uppercase text-[10px] tracking-widest text-[#734DCC] hover:bg-white transition-all shadow-sm">
+                <Scale className="w-4 h-4 mr-2" /> CONTRAPROVA JURÍDICA
               </Button>
               {onEdit && (
                 <Button onClick={onEdit} className="h-14 px-12 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black uppercase text-[11px] tracking-widest shadow-xl shadow-emerald-100 transition-all active:scale-95">

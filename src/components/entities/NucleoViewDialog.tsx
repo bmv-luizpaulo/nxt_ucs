@@ -234,11 +234,11 @@ export function NucleoViewDialog({ entity, open, onOpenChange, allData }: Nucleo
                 {isCensored ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
                 {isCensored ? "Censura Ativa" : "Censurar"}
               </Button>
-              <Button variant="outline" onClick={handlePrintExecutive} className="h-12 px-6 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[10px] tracking-widest text-slate-700">
+              <Button variant="outline" onClick={handlePrintExecutive} title="Relatório de Auditoria Padrão" className="h-11 px-6 rounded-xl border-slate-200 bg-slate-50/50 font-black uppercase text-[10px] tracking-widest text-slate-700 hover:bg-white transition-all shadow-sm">
                 <Printer className="w-4 h-4 mr-2" /> EXECUTIVO
               </Button>
-              <Button variant="outline" onClick={handlePrintJuridico} className="h-12 px-6 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[10px] tracking-widest text-amber-600">
-                <Scale className="w-4 h-4 mr-2" /> JURÍDICO
+              <Button variant="outline" onClick={handlePrintJuridico} title="Relatório Detalhado para Contraprova Jurídica" className="h-11 px-6 rounded-xl border-slate-200 bg-slate-50/50 font-black uppercase text-[10px] tracking-widest text-[#734DCC] hover:bg-white transition-all shadow-sm">
+                <Scale className="w-4 h-4 mr-2" /> CONTRAPROVA JURÍDICA
               </Button>
             </div>
           </div>

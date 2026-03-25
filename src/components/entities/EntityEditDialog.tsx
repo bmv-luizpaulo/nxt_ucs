@@ -5,16 +5,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { EntidadeSaldo, RegistroTabela, AuditoriaStatus, EntityStatus } from "@/lib/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
+import {
   Database as DatabaseIcon,
-  Printer, 
-  Calculator, 
-  ShieldCheck, 
-  Save, 
+  Printer,
+  Calculator,
+  ShieldCheck,
+  Save,
   MessageSquare,
   QrCode,
-  Plus, 
-  Trash2, 
+  Plus,
+  Trash2,
   ExternalLink,
   AlertTriangle,
   History,
@@ -56,7 +56,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   const [newAq, setNewAq] = useState({ data: new Date().getFullYear().toString(), valor: "" });
   const [ajusteData, setAjusteData] = useState({ valor: "", justificativa: "" });
   const [reportType, setReportType] = useState<'executive' | 'juridico'>('executive');
-  
+
   const { user } = useUser();
   const [isCensored, setIsCensored] = useState(false);
   const [hasAutoSynced, setHasAutoSynced] = useState(false);
@@ -71,18 +71,18 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     if (!doc || !isCensored) return doc || '-';
     return doc.replace(/\d/g, "*");
   };
-  
+
   useEffect(() => {
     if (entity) {
       const data = { ...entity };
       // The farm total is stored in originacaoFazendaTotal, or falls back to originacao
       const farmTotal = data.originacaoFazendaTotal || data.originacao || 0;
-      
+
       // Ensure originacao reflects the farm total for the UI
       if (!data.originacaoFazendaTotal && data.originacao) {
         data.originacaoFazendaTotal = data.originacao;
       }
-      
+
       // Auto-recalculate partitioned balances based on the FARM TOTAL
       if (data.particionamento && data.particionamento > 0) {
         data.saldoParticionado = Math.round(farmTotal * (data.particionamento / 100));
@@ -124,7 +124,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
   const totals = useMemo(() => {
     const sumVal = (arr?: RegistroTabela[]) => (arr || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
-    
+
     // Current table sum (always considered as PRODUCER share in Section 01)
     const hasTableOrig = formData.tabelaOriginacao && formData.tabelaOriginacao.length > 0;
     const tableOrigSum = hasTableOrig ? sumVal(formData.tabelaOriginacao) : 0;
@@ -138,31 +138,31 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
       ? Math.round(tableOrigSum / (formData.particionamento / 100))
       : (formData.originacao || 0);
 
-    const mov = (formData.tabelaMovimentacao && formData.tabelaMovimentacao.length > 0) 
+    const mov = (formData.tabelaMovimentacao && formData.tabelaMovimentacao.length > 0)
       ? (formData.tabelaMovimentacao || []).reduce((acc, curr) => acc + (curr.valor || 0), 0)
       : (formData.movimentacao || 0);
 
-    const aq = (formData.tabelaAquisicao && formData.tabelaAquisicao.length > 0) 
-      ? sumVal(formData.tabelaAquisicao) 
+    const aq = (formData.tabelaAquisicao && formData.tabelaAquisicao.length > 0)
+      ? sumVal(formData.tabelaAquisicao)
       : (formData.aquisicao || 0);
-    
+
     const imeiCredits = (formData.tabelaImei || []).reduce((acc, curr) => acc + (curr.valorCredito || 0), 0);
     const imeiDebits = (formData.tabelaImei || []).reduce((acc, curr) => acc + (curr.valorDebito || 0), 0);
-    const imeiPending = (formData.tabelaImei && formData.tabelaImei.length > 0) 
-      ? imeiDebits - imeiCredits 
+    const imeiPending = (formData.tabelaImei && formData.tabelaImei.length > 0)
+      ? imeiDebits - imeiCredits
       : (formData.saldoAjustarImei || 0);
 
-    const aposentado = (formData.tabelaLegado && formData.tabelaLegado.length > 0) 
+    const aposentado = (formData.tabelaLegado && formData.tabelaLegado.length > 0)
       ? (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.aposentado || 0), 0)
       : (formData.aposentado || 0);
 
-    const bloqueado = (formData.tabelaLegado && formData.tabelaLegado.length > 0) 
+    const bloqueado = (formData.tabelaLegado && formData.tabelaLegado.length > 0)
       ? (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.bloqueado || 0), 0)
       : (formData.bloqueado || 0);
 
     const legDisp = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.disponivel || 0), 0);
     const legRes = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.reservado || 0), 0);
-    const legadoTotal = (formData.tabelaLegado && formData.tabelaLegado.length > 0) 
+    const legadoTotal = (formData.tabelaLegado && formData.tabelaLegado.length > 0)
       ? (legDisp + legRes)
       : (formData.saldoLegadoTotal || 0);
 
@@ -170,7 +170,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const finalCalculated = origProdutor - mov - aposentado - bloqueado - aq;
     const final = formData.ajusteRealizado ? (formData.valorAjusteManual || 0) : finalCalculated;
 
-    return { 
+    return {
       origFazenda, origProdutor, mov, aq, imeiPending, legadoTotal, aposentado, bloqueado, final
     };
   }, [formData]);
@@ -213,7 +213,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
   const handleConfirmAjuste = () => {
     if (!ajusteData.valor || !ajusteData.justificativa || !user) return;
-    
+
     setFormData({
       ...formData,
       ajusteRealizado: true,
@@ -223,7 +223,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
       dataAjuste: new Date().toISOString(),
       statusAuditoriaSaldo: 'valido'
     });
-    
+
     setIsAjustando(false);
     setAjusteData({ valor: "", justificativa: "" });
   };
@@ -256,7 +256,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   };
 
   const handleUpdateItem = (section: string, id: string, updates: Partial<RegistroTabela>) => {
-    const list = (formData[section as keyof EntidadeSaldo] as any[] || []).map(item => 
+    const list = (formData[section as keyof EntidadeSaldo] as any[] || []).map(item =>
       item.id === id ? { ...item, ...updates } : item
     );
     setFormData({ ...formData, [section]: list });
@@ -270,7 +270,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   const handleProcessPaste = () => {
     if (!pasteData) return;
     const lines = pasteData.raw.split('\n').filter(l => l.trim());
-    
+
     const newRows: RegistroTabela[] = lines.map(line => {
       const parts = line.split('\t');
       const parseVal = (str: string | undefined) => {
@@ -299,22 +299,22 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
         case 'tabelaImei':
           const credImei = parseVal(parts[parts.length - 2]);
           const debImei = parseVal(parts[parts.length - 1]);
-          return { 
-            id: `IMEI-${Math.random().toString(36).substr(2, 5).toUpperCase()}`, 
-            dist: parts[0]?.trim() || '', 
-            data: cleanData(parts[1]), 
-            plataforma: parts[2]?.trim() || '', 
-            valorCredito: credImei, 
-            valorDebito: debImei, 
+          return {
+            id: `IMEI-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
+            dist: parts[0]?.trim() || '',
+            data: cleanData(parts[1]),
+            plataforma: parts[2]?.trim() || '',
+            valorCredito: credImei,
+            valorDebito: debImei,
             valor: debImei - credImei
           };
         case 'tabelaOriginacao':
-          return { 
-            id: `ORIG-${Math.random().toString(36).substr(2, 5).toUpperCase()}`, 
-            dist: parts[0]?.trim() || '', 
-            data: cleanData(parts[1]), 
+          return {
+            id: `ORIG-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
+            dist: parts[0]?.trim() || '',
+            data: cleanData(parts[1]),
             plataforma: parts[2]?.trim() || '', // Use parts[2] as plataforma/nome
-            valor: parseVal(parts[parts.length - 1]) 
+            valor: parseVal(parts[parts.length - 1])
           };
         default: // tabelaMovimentacao
           // Smart Scanning for complex Ledger formats
@@ -358,12 +358,12 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             }
           });
 
-          return { 
-            id: `MOV-${Math.random().toString(36).substr(2, 5).toUpperCase()}`, 
-            dist: parts[0]?.trim() || '', 
-            data: cleanData(parts[1]), 
-            plataforma: parts[2]?.trim() || '', 
-            destino: parts[3]?.trim() || '', 
+          return {
+            id: `MOV-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
+            dist: parts[0]?.trim() || '',
+            data: cleanData(parts[1]),
+            plataforma: parts[2]?.trim() || '',
+            destino: parts[3]?.trim() || '',
             valor: valor || parseVal(parts[parts.length - 1]),
             statusAuditoria,
             linkComprovante,
@@ -372,9 +372,9 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
       }
     });
 
-    setFormData({ 
-      ...formData, 
-      [pasteData.section]: [...(formData[pasteData.section as keyof EntidadeSaldo] as any[] || []), ...newRows] 
+    setFormData({
+      ...formData,
+      [pasteData.section]: [...(formData[pasteData.section as keyof EntidadeSaldo] as any[] || []), ...newRows]
     });
     setPasteData(null);
   };
@@ -390,15 +390,15 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
         </DialogHeader>
 
         {/* RELATÓRIO EXECUTIVO E JURÍDICO A4 PRINT */}
-        <EntityAuditReport 
-          entity={formData as EntidadeSaldo} 
+        <EntityAuditReport
+          entity={formData as EntidadeSaldo}
           totals={{
             orig: totals.origProdutor || totals.origFazenda || 0,
             mov: totals.mov || 0,
             final: totals.final || 0
-          }} 
-          reportType={reportType} 
-          userEmail={user?.email || "SYSTEM_AUDITOR"} 
+          }}
+          reportType={reportType}
+          userEmail={user?.email || "SYSTEM_AUDITOR"}
           isCensored={isCensored}
         />
 
@@ -419,8 +419,8 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                   <Badge className={cn(
                     "text-[8px] font-black uppercase px-2 py-0.5 rounded-md border-white/10",
                     formData.status === 'disponivel' ? "bg-emerald-500/10 text-emerald-400" :
-                    formData.status === 'bloqueado' ? "bg-rose-500/10 text-rose-400" :
-                    "bg-amber-500/10 text-amber-400"
+                      formData.status === 'bloqueado' ? "bg-rose-500/10 text-rose-400" :
+                        "bg-amber-500/10 text-amber-400"
                   )}>
                     {formData.status === 'disponivel' ? 'APTO / DISPONÍVEL' : formData.status?.toUpperCase()}
                   </Badge>
@@ -428,12 +428,12 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               </div>
 
               <div className="bg-[#1E293B] border border-white/10 rounded-2xl p-4 min-w-[280px] shadow-2xl flex flex-col items-end relative overflow-hidden group hover:border-[#10B981]/30 transition-all">
-                 <div className="absolute top-0 right-0 w-24 h-24 bg-[#10B981]/10 blur-3xl -mr-12 -mt-12 group-hover:bg-[#10B981]/20 transition-all"></div>
-                 <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 relative z-10">SALDO FINAL AUDITADO</p>
-                 <div className="flex items-baseline gap-2 relative z-10">
-                    <span className="text-[34px] font-black text-white tracking-tighter leading-none">{totals.final.toLocaleString('pt-BR')}</span>
-                    <span className="text-[10px] font-black text-[#10B981] uppercase tracking-widest pl-1">UCS</span>
-                 </div>
+                <div className="absolute top-0 right-0 w-24 h-24 bg-[#10B981]/10 blur-3xl -mr-12 -mt-12 group-hover:bg-[#10B981]/20 transition-all"></div>
+                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 relative z-10">SALDO FINAL AUDITADO</p>
+                <div className="flex items-baseline gap-2 relative z-10">
+                  <span className="text-[34px] font-black text-white tracking-tighter leading-none">{totals.final.toLocaleString('pt-BR')}</span>
+                  <span className="text-[10px] font-black text-[#10B981] uppercase tracking-widest pl-1">UCS</span>
+                </div>
               </div>
             </div>
 
@@ -498,21 +498,21 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-5 relative z-10">
                       <div className="space-y-1.5">
                         <Label className="text-[8px] font-black uppercase tracking-widest text-slate-400 ml-1">Originação (Total)</Label>
-                        <Input 
+                        <Input
                           type="number"
                           value={formData.originacao ?? ""}
                           onChange={e => {
                             const val = e.target.value;
                             const orig = val === "" ? 0 : parseInt(val) || 0;
                             const newSaldo = Math.round(orig * ((formData.particionamento ?? 0) / 100));
-                            
+
                             let newTable = formData.tabelaOriginacao;
                             if (newTable && newTable.length === 1 && newTable[0].id?.startsWith("auto-orig-")) {
                               newTable = [{ ...newTable[0], valor: newSaldo }];
                             }
 
                             setFormData({
-                              ...formData, 
+                              ...formData,
                               originacao: val === "" ? undefined : orig,
                               saldoParticionado: newSaldo,
                               tabelaOriginacao: newTable
@@ -523,7 +523,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-[8px] font-black uppercase tracking-widest text-emerald-600 ml-1">Quota (%)</Label>
-                        <Input 
+                        <Input
                           type="number"
                           step="0.01"
                           value={formData.particionamento ?? ""}
@@ -535,7 +535,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                             }
                             const p = parseFloat(val) || 0;
                             const newSaldo = Math.round((formData.originacao ?? 0) * (p / 100));
-                            
+
                             // If table has only the auto-record, update it too
                             let newTable = formData.tabelaOriginacao;
                             if (newTable && newTable.length === 1 && newTable[0].id?.startsWith("auto-orig-")) {
@@ -543,7 +543,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                             }
 
                             setFormData({
-                              ...formData, 
+                              ...formData,
                               particionamento: p,
                               saldoParticionado: newSaldo,
                               tabelaOriginacao: newTable
@@ -554,10 +554,10 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-[8px] font-black uppercase tracking-widest text-emerald-600 ml-1">Saldo (Produtor)</Label>
-                        <Input 
+                        <Input
                           type="number"
                           value={formData.saldoParticionado ?? ""}
-                          onChange={e => setFormData({...formData, saldoParticionado: e.target.value === "" ? undefined : parseInt(e.target.value) || 0})}
+                          onChange={e => setFormData({ ...formData, saldoParticionado: e.target.value === "" ? undefined : parseInt(e.target.value) || 0 })}
                           className="h-10 rounded-xl bg-emerald-50 border-emerald-100 font-bold text-[12px] text-emerald-700 shadow-sm focus:ring-emerald-500"
                         />
                       </div>
@@ -572,18 +572,18 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                         <div className="space-y-3">
                           <div className="space-y-1.5">
                             <Label className="text-[8px] font-black uppercase text-amber-600/70 ml-1">Nome</Label>
-                            <Input 
+                            <Input
                               value={formData.associacaoNome || ""}
-                              onChange={e => setFormData({...formData, associacaoNome: e.target.value})}
+                              onChange={e => setFormData({ ...formData, associacaoNome: e.target.value })}
                               placeholder="NOME"
                               className="h-9 rounded-lg bg-white border-slate-200 font-bold text-[11px] shadow-sm"
                             />
                           </div>
                           <div className="space-y-1.5">
                             <Label className="text-[8px] font-black uppercase text-amber-600/70 ml-1">CNPJ</Label>
-                            <Input 
+                            <Input
                               value={formData.associacaoCnpj || ""}
-                              onChange={e => setFormData({...formData, associacaoCnpj: e.target.value})}
+                              onChange={e => setFormData({ ...formData, associacaoCnpj: e.target.value })}
                               placeholder="CNPJ"
                               className="h-9 rounded-lg bg-white border-slate-200 font-bold text-[11px] shadow-sm"
                             />
@@ -591,7 +591,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                           <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-1.5">
                               <Label className="text-[8px] font-black uppercase text-amber-600 ml-1">Quota (%)</Label>
-                              <Input 
+                              <Input
                                 type="number"
                                 step="0.01"
                                 value={formData.associacaoParticionamento ?? ""}
@@ -603,7 +603,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                                   }
                                   const p = parseFloat(val) || 0;
                                   setFormData({
-                                    ...formData, 
+                                    ...formData,
                                     associacaoParticionamento: p,
                                     associacaoSaldo: Math.round((formData.originacao || 0) * (p / 100))
                                   });
@@ -613,10 +613,10 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                             </div>
                             <div className="space-y-2">
                               <Label className="text-[9px] font-black uppercase text-amber-600 ml-1">Saldo (UCS)</Label>
-                              <Input 
+                              <Input
                                 type="number"
                                 value={formData.associacaoSaldo ?? ""}
-                                onChange={e => setFormData({...formData, associacaoSaldo: e.target.value === "" ? undefined : parseInt(e.target.value) || 0})}
+                                onChange={e => setFormData({ ...formData, associacaoSaldo: e.target.value === "" ? undefined : parseInt(e.target.value) || 0 })}
                                 className="h-10 rounded-xl bg-white border-amber-100 font-bold text-[11px] text-amber-800"
                               />
                             </div>
@@ -632,18 +632,18 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                         <div className="space-y-3">
                           <div className="space-y-1.5">
                             <Label className="text-[8px] font-black uppercase text-indigo-500/70 ml-1">Nome</Label>
-                            <Input 
+                            <Input
                               value={formData.imeiNome || "IMEI (PLATAFORMA)"}
-                              onChange={e => setFormData({...formData, imeiNome: e.target.value})}
+                              onChange={e => setFormData({ ...formData, imeiNome: e.target.value })}
                               placeholder="NOME"
                               className="h-9 rounded-lg bg-white border-slate-200 font-bold text-[11px] shadow-sm"
                             />
                           </div>
                           <div className="space-y-1.5">
                             <Label className="text-[8px] font-black uppercase text-indigo-500/70 ml-1">CNPJ</Label>
-                            <Input 
+                            <Input
                               value={formData.imeiCnpj || ""}
-                              onChange={e => setFormData({...formData, imeiCnpj: e.target.value})}
+                              onChange={e => setFormData({ ...formData, imeiCnpj: e.target.value })}
                               placeholder="CNPJ"
                               className="h-9 rounded-lg bg-white border-slate-200 font-bold text-[11px] shadow-sm"
                             />
@@ -651,7 +651,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                           <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                               <Label className="text-[9px] font-black uppercase text-indigo-500 ml-1">Quota (%)</Label>
-                              <Input 
+                              <Input
                                 type="number"
                                 step="0.01"
                                 value={formData.imeiParticionamento ?? ""}
@@ -663,7 +663,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                                   }
                                   const p = parseFloat(val) || 0;
                                   setFormData({
-                                    ...formData, 
+                                    ...formData,
                                     imeiParticionamento: p,
                                     imeiSaldo: Math.round((formData.originacao || 0) * (p / 100))
                                   });
@@ -673,10 +673,10 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                             </div>
                             <div className="space-y-2">
                               <Label className="text-[9px] font-black uppercase text-indigo-500 ml-1">Saldo (UCS)</Label>
-                              <Input 
+                              <Input
                                 type="number"
                                 value={formData.imeiSaldo ?? ""}
-                                onChange={e => setFormData({...formData, imeiSaldo: e.target.value === "" ? undefined : parseInt(e.target.value) || 0})}
+                                onChange={e => setFormData({ ...formData, imeiSaldo: e.target.value === "" ? undefined : parseInt(e.target.value) || 0 })}
                                 className="h-10 rounded-xl bg-white border-indigo-100 font-bold text-[11px] text-indigo-800"
                               />
                             </div>
@@ -689,9 +689,9 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                           <DatabaseIcon className="w-3 h-3 text-slate-500" />
                           <span className="text-[9px] font-black uppercase text-slate-600 tracking-wider">Notas da Propriedade</span>
                         </div>
-                        <textarea 
+                        <textarea
                           value={formData.observacaoFazenda || ""}
-                          onChange={e => setFormData({...formData, observacaoFazenda: e.target.value})}
+                          onChange={e => setFormData({ ...formData, observacaoFazenda: e.target.value })}
                           className="w-full h-32 rounded-lg bg-white border border-slate-200 p-3 text-[11px] font-bold text-slate-700 shadow-sm focus:ring-1 focus:ring-primary outline-none resize-none"
                           placeholder="Notas técnicas..."
                         />
@@ -701,19 +701,19 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
                   <div className="space-y-8 pt-2">
                     <div className="space-y-6">
-                      <SectionHeader 
-                        title="01. ORIGINAÇÃO (VOL. PRODUTOR)" 
-                        value={totals.origProdutor} 
-                        onPaste={() => setPasteData({ section: 'tabelaOriginacao', raw: '' })} 
+                      <SectionHeader
+                        title="01. ORIGINAÇÃO (VOL. PRODUTOR)"
+                        value={totals.origProdutor}
+                        onPaste={() => setPasteData({ section: 'tabelaOriginacao', raw: '' })}
                       />
                       <SectionTable data={formData.tabelaOriginacao || []} type="originacao" onRemove={(id) => handleRemoveItem('tabelaOriginacao', id)} />
                     </div>
 
                     <div className="space-y-6">
                       <SectionHeader title="02. MOVIMENTAÇÃO" value={totals.mov} isNegative onPaste={() => setPasteData({ section: 'tabelaMovimentacao', raw: '' })} />
-                      <SectionTable 
-                        data={formData.tabelaMovimentacao || []} 
-                        type="movimentacao" 
+                      <SectionTable
+                        data={formData.tabelaMovimentacao || []}
+                        type="movimentacao"
                         onRemove={(id) => handleRemoveItem('tabelaMovimentacao', id)}
                         onUpdateItem={(id, updates) => handleUpdateItem('tabelaMovimentacao', id, updates)}
                         maskFn={maskText}
@@ -746,9 +746,9 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                           <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
                           <h3 className="text-[9px] font-black uppercase tracking-widest text-slate-500">APONTAMENTOS DE AUDITORIA</h3>
                         </div>
-                        <Textarea 
-                          value={formData.observacao || ""} 
-                          onChange={e => setFormData({...formData, observacao: e.target.value})}
+                        <Textarea
+                          value={formData.observacao || ""}
+                          onChange={e => setFormData({ ...formData, observacao: e.target.value })}
                           placeholder="Divergências ou justificativas técnicas..."
                           className="min-h-[140px] bg-slate-50/50 border-slate-100 rounded-xl p-4 text-[11px] font-medium focus:ring-primary shadow-inner resize-none leading-relaxed"
                         />
@@ -758,11 +758,11 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                         <div className="px-1">
                           <Label className="text-[9px] font-black uppercase tracking-widest text-slate-300">GOVERNANÇA & STATUS</Label>
                         </div>
-                        
+
                         <div className="space-y-4 bg-slate-50/50 p-4 rounded-xl border border-slate-100 relative overflow-hidden">
                           <div className="space-y-1.5">
                             <Label className="text-[8px] font-black uppercase text-slate-400 ml-1">Status do Produtor</Label>
-                            <Select value={formData.status} onValueChange={v => setFormData({...formData, status: v as EntityStatus})}>
+                            <Select value={formData.status} onValueChange={v => setFormData({ ...formData, status: v as EntityStatus })}>
                               <SelectTrigger className="h-10 rounded-lg bg-white border-slate-200 font-black text-[9px] uppercase tracking-widest shadow-sm">
                                 <SelectValue />
                               </SelectTrigger>
@@ -780,19 +780,19 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                             </Select>
                           </div>
 
-                          <Button 
-                            onClick={() => setIsAjustando(true)} 
-                            variant="outline" 
+                          <Button
+                            onClick={() => setIsAjustando(true)}
+                            variant="outline"
                             className="w-full h-10 rounded-lg border-[#734DCC]/20 bg-[#734DCC]/5 text-[#734DCC] font-black uppercase text-[9px] tracking-widest gap-2 hover:bg-[#734DCC]/10 transition-all"
                           >
                             <LockIcon className="w-3.5 h-3.5" /> AJUSTE DE GOVERNANÇA
                           </Button>
-                          
+
                           <div className="space-y-1.5">
                             <Label className="text-[8px] font-black uppercase text-slate-400 ml-1">Auditoria de Saldo</Label>
-                            <Select 
-                              value={formData.statusAuditoriaSaldo || "valido"} 
-                              onValueChange={v => setFormData({...formData, statusAuditoriaSaldo: v as any})}
+                            <Select
+                              value={formData.statusAuditoriaSaldo || "valido"}
+                              onValueChange={v => setFormData({ ...formData, statusAuditoriaSaldo: v as any })}
                             >
                               <SelectTrigger className="h-10 rounded-lg bg-white border-slate-200 font-black text-[9px] uppercase tracking-widest shadow-sm">
                                 <SelectValue />
@@ -804,14 +804,14 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                             </Select>
                           </div>
 
-                        <div className="pt-4 border-t border-slate-200/60 mt-2">
-                          <p className="text-[9px] font-semibold text-slate-400 uppercase leading-relaxed">
-                            Última atualização por:<br/>
-                            <span className="text-slate-600 font-black">{user?.email || "AUDITOR"}</span>
-                          </p>
+                          <div className="pt-4 border-t border-slate-200/60 mt-2">
+                            <p className="text-[9px] font-semibold text-slate-400 uppercase leading-relaxed">
+                              Última atualização por:<br />
+                              <span className="text-slate-600 font-black">{user?.email || "AUDITOR"}</span>
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
                     </div>
                   </div>
                 </aside>
@@ -824,9 +824,9 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               CANCELAR
             </Button>
             <div className="flex gap-4">
-              <Button 
-                variant="outline" 
-                onClick={() => setIsCensored(!isCensored)} 
+              <Button
+                variant="outline"
+                onClick={() => setIsCensored(!isCensored)}
                 className={cn(
                   "h-11 px-6 rounded-xl border-slate-200 transition-all font-black uppercase text-[10px] tracking-widest",
                   isCensored ? "bg-rose-50 text-rose-600 border-rose-200" : "bg-slate-50/50 text-slate-500"
@@ -861,19 +861,19 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             <div className="space-y-6">
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Novo Saldo Final (UCS)</Label>
-                <Input 
+                <Input
                   type="number"
-                  value={ajusteData.valor} 
-                  onChange={e => setAjusteData({...ajusteData, valor: e.target.value})}
+                  value={ajusteData.valor}
+                  onChange={e => setAjusteData({ ...ajusteData, valor: e.target.value })}
                   placeholder="EX: 493262"
                   className="h-16 rounded-2xl border-slate-100 bg-slate-50 font-black text-center text-2xl text-[#734DCC]"
                 />
               </div>
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Justificativa da Auditoria</Label>
-                <Textarea 
-                  value={ajusteData.justificativa} 
-                  onChange={e => setAjusteData({...ajusteData, justificativa: e.target.value})}
+                <Textarea
+                  value={ajusteData.justificativa}
+                  onChange={e => setAjusteData({ ...ajusteData, justificativa: e.target.value })}
                   placeholder="Descreva o motivo técnico para o ajuste manual deste saldo..."
                   className="min-h-[120px] rounded-2xl border-slate-100 bg-slate-50 p-5 font-medium"
                 />
@@ -908,19 +908,19 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Referência (Ano)</Label>
-                <Input 
-                  value={newAq.data} 
-                  onChange={e => setNewAq({...newAq, data: e.target.value})}
+                <Input
+                  value={newAq.data}
+                  onChange={e => setNewAq({ ...newAq, data: e.target.value })}
                   placeholder="EX: 2018"
                   className="h-14 rounded-xl border-slate-100 bg-slate-50 font-black text-center text-lg"
                 />
               </div>
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Volume (UCS)</Label>
-                <Input 
+                <Input
                   type="number"
-                  value={newAq.valor} 
-                  onChange={e => setNewAq({...newAq, valor: e.target.value})}
+                  value={newAq.valor}
+                  onChange={e => setNewAq({ ...newAq, valor: e.target.value })}
                   placeholder="0"
                   className="h-14 rounded-xl border-slate-100 bg-slate-50 font-black text-center text-lg text-primary"
                 />
@@ -942,8 +942,8 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                 </DialogTitle>
                 <DialogDescription className="sr-only">Colagem de dados para processamento de auditoria.</DialogDescription>
               </DialogHeader>
-              <Textarea 
-                value={pasteData.raw} 
+              <Textarea
+                value={pasteData.raw}
                 onChange={e => setPasteData({ ...pasteData, raw: e.target.value })}
                 placeholder="Cole aqui as colunas do Excel/Google Sheets para processamento automático..."
                 className="min-h-[250px] font-mono text-[10px] bg-slate-50 border-slate-100 rounded-2xl p-6 shadow-inner"
@@ -962,88 +962,88 @@ function ReportTable({ title, data, isNegative, isLegado, isImei, type, maskFn =
 
   return (
     <div className="space-y-2">
-       <h4 className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-900 border-b border-slate-200 pb-1.5">{title}</h4>
-       <table className="w-full text-left text-[9px]">
-          <thead className="bg-[#F8FAFC]">
-            <tr className="border-b border-slate-200">
-              <th className="px-3 py-2 font-black uppercase tracking-widest text-slate-400 text-[8px]">DATA</th>
-              <th className="px-3 py-2 font-black uppercase tracking-widest text-primary text-[8px]">DISTRIBUIÇÃO</th>
-              <th className="px-3 py-2 font-black uppercase tracking-widest text-slate-400 text-[8px]">PLATAFORMA / HISTÓRICO</th>
+      <h4 className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-900 border-b border-slate-200 pb-1.5">{title}</h4>
+      <table className="w-full text-left text-[9px]">
+        <thead className="bg-[#F8FAFC]">
+          <tr className="border-b border-slate-200">
+            <th className="px-3 py-2 font-black uppercase tracking-widest text-slate-400 text-[8px]">DATA</th>
+            <th className="px-3 py-2 font-black uppercase tracking-widest text-primary text-[8px]">DISTRIBUIÇÃO</th>
+            <th className="px-3 py-2 font-black uppercase tracking-widest text-slate-400 text-[8px]">PLATAFORMA / HISTÓRICO</th>
+            {isLegado ? (
+              <>
+                <th className="px-3 py-2 font-black uppercase tracking-widest text-slate-900 text-right text-[8px]">DISP.</th>
+                <th className="px-3 py-2 font-black uppercase tracking-widest text-amber-600 text-right text-[8px]">RES.</th>
+                <th className="px-3 py-2 font-black uppercase tracking-widest text-rose-500 text-right text-[8px]">BLOQ.</th>
+                <th className="px-3 py-2 font-black uppercase tracking-widest text-slate-400 text-right text-[8px]">APOS.</th>
+              </>
+            ) : isImei ? (
+              <>
+                <th className="px-3 py-2 font-black uppercase tracking-widest text-indigo-500 text-right text-[8px]">DÉBITO</th>
+                <th className="px-3 py-2 font-black uppercase tracking-widest text-slate-400 text-right text-[8px]">CRÉDITO</th>
+                <th className="px-3 py-2 font-black uppercase tracking-widest text-slate-900 text-right text-[8px]">VOLUME</th>
+              </>
+            ) : (
+              <>
+                {type === 'movimentacao' && <th className="px-3 py-2 font-black uppercase tracking-widest text-slate-400 text-[8px]">DESTINO</th>}
+                {type === 'movimentacao' && <th className="px-3 py-2 font-black uppercase tracking-widest text-slate-400 text-[8px] text-center">STATUS</th>}
+                {type === 'movimentacao' && <th className="px-3 py-2 font-black uppercase tracking-widest text-[#734DCC] text-[8px] text-center">NXT</th>}
+                <th className="px-3 py-2 font-black uppercase tracking-widest text-slate-900 text-right text-[8px]">VOLUME (UCS)</th>
+              </>
+            )}
+          </tr>
+        </thead>
+        <tbody className="font-bold uppercase bg-white">
+          {data.map((row: any, i: number) => (
+            <tr key={i} className="border-b border-slate-100 last:border-0 h-10">
+              <td className="px-3 py-1.5 font-mono text-slate-400 truncate max-w-[60px]">{row.data || '-'}</td>
+              <td className="px-3 py-1.5 font-mono text-primary truncate max-w-[80px]">{row.dist || '-'}</td>
+              <td className="px-3 py-1.5 text-slate-600 truncate max-w-[180px]">{type === 'movimentacao' ? (maskFn(row.nome || row.plataforma)) : (maskFn(row.destino || row.plataforma || row.nome))}</td>
               {isLegado ? (
                 <>
-                  <th className="px-3 py-2 font-black uppercase tracking-widest text-slate-900 text-right text-[8px]">DISP.</th>
-                  <th className="px-3 py-2 font-black uppercase tracking-widest text-amber-600 text-right text-[8px]">RES.</th>
-                  <th className="px-3 py-2 font-black uppercase tracking-widest text-rose-500 text-right text-[8px]">BLOQ.</th>
-                  <th className="px-3 py-2 font-black uppercase tracking-widest text-slate-400 text-right text-[8px]">APOS.</th>
+                  <td className="px-3 py-1.5 text-right text-slate-900 font-black">{(row.disponivel || 0).toLocaleString('pt-BR')}</td>
+                  <td className="px-3 py-1.5 text-right text-amber-600">{(row.reservado || 0).toLocaleString('pt-BR')}</td>
+                  <td className="px-3 py-1.5 text-right text-rose-600">{(row.bloqueado || 0).toLocaleString('pt-BR')}</td>
+                  <td className="px-3 py-1.5 text-right text-slate-300">{(row.aposentado || 0).toLocaleString('pt-BR')}</td>
                 </>
               ) : isImei ? (
                 <>
-                  <th className="px-3 py-2 font-black uppercase tracking-widest text-indigo-500 text-right text-[8px]">DÉBITO</th>
-                  <th className="px-3 py-2 font-black uppercase tracking-widest text-slate-400 text-right text-[8px]">CRÉDITO</th>
-                  <th className="px-3 py-2 font-black uppercase tracking-widest text-slate-900 text-right text-[8px]">VOLUME</th>
+                  <td className="px-3 py-1.5 text-right text-indigo-500">{(row.valorDebito || 0).toLocaleString('pt-BR')}</td>
+                  <td className="px-3 py-1.5 text-right text-slate-300">{(row.valorCredito || 0).toLocaleString('pt-BR')}</td>
+                  <td className="px-3 py-1.5 text-right font-black text-slate-900">{((row.valorDebito || 0) - (row.valorCredito || 0)).toLocaleString('pt-BR')}</td>
                 </>
               ) : (
                 <>
-                  {type === 'movimentacao' && <th className="px-3 py-2 font-black uppercase tracking-widest text-slate-400 text-[8px]">DESTINO</th>}
-                  {type === 'movimentacao' && <th className="px-3 py-2 font-black uppercase tracking-widest text-slate-400 text-[8px] text-center">STATUS</th>}
-                  {type === 'movimentacao' && <th className="px-3 py-2 font-black uppercase tracking-widest text-[#734DCC] text-[8px] text-center">NXT</th>}
-                  <th className="px-3 py-2 font-black uppercase tracking-widest text-slate-900 text-right text-[8px]">VOLUME (UCS)</th>
+                  {type === 'movimentacao' && (
+                    <td className="px-3 py-1.5 text-slate-600 truncate max-w-[120px]">{maskFn(row.destino)}</td>
+                  )}
+                  {type === 'movimentacao' && (
+                    <td className="px-3 py-1.5 text-center">
+                      <span className={cn(
+                        "px-2 py-0.5 rounded text-[7px] font-black uppercase tracking-widest",
+                        row.statusAuditoria === 'Concluido' ? "bg-emerald-50 text-emerald-600" :
+                          row.statusAuditoria === 'Cancelado' ? "bg-rose-50 text-rose-600" :
+                            "bg-slate-100 text-slate-400"
+                      )}>
+                        {row.statusAuditoria || 'PENDENTE'}
+                      </span>
+                    </td>
+                  )}
+                  {type === 'movimentacao' && (
+                    <td className="px-3 py-1.5 text-center text-[8px] font-black text-[#734DCC]">
+                      {row.linkNxt ? "HASH ✓" : "-"}
+                    </td>
+                  )}
+                  <td className={cn("px-3 py-1.5 text-right font-black", isNegative ? "text-rose-600" : "text-slate-900")}>
+                    {(isLegado ? ((row.disponivel || 0) + (row.reservado || 0)) :
+                      type === 'imei' ? ((row.valorDebito || 0) - (row.valorCredito || 0)) :
+                        (row.valor || 0)).toLocaleString('pt-BR')}
+                  </td>
                 </>
               )}
             </tr>
-          </thead>
-          <tbody className="font-bold uppercase bg-white">
-            {data.map((row: any, i: number) => (
-              <tr key={i} className="border-b border-slate-100 last:border-0 h-10">
-                <td className="px-3 py-1.5 font-mono text-slate-400 truncate max-w-[60px]">{row.data || '-'}</td>
-                <td className="px-3 py-1.5 font-mono text-primary truncate max-w-[80px]">{row.dist || '-'}</td>
-                <td className="px-3 py-1.5 text-slate-600 truncate max-w-[180px]">{type === 'movimentacao' ? (maskFn(row.nome || row.plataforma)) : (maskFn(row.destino || row.plataforma || row.nome))}</td>
-                {isLegado ? (
-                  <>
-                    <td className="px-3 py-1.5 text-right text-slate-900 font-black">{(row.disponivel || 0).toLocaleString('pt-BR')}</td>
-                    <td className="px-3 py-1.5 text-right text-amber-600">{(row.reservado || 0).toLocaleString('pt-BR')}</td>
-                    <td className="px-3 py-1.5 text-right text-rose-600">{(row.bloqueado || 0).toLocaleString('pt-BR')}</td>
-                    <td className="px-3 py-1.5 text-right text-slate-300">{(row.aposentado || 0).toLocaleString('pt-BR')}</td>
-                  </>
-                ) : isImei ? (
-                  <>
-                    <td className="px-3 py-1.5 text-right text-indigo-500">{(row.valorDebito || 0).toLocaleString('pt-BR')}</td>
-                    <td className="px-3 py-1.5 text-right text-slate-300">{(row.valorCredito || 0).toLocaleString('pt-BR')}</td>
-                    <td className="px-3 py-1.5 text-right font-black text-slate-900">{((row.valorDebito || 0) - (row.valorCredito || 0)).toLocaleString('pt-BR')}</td>
-                  </>
-                ) : (
-                  <>
-                    {type === 'movimentacao' && (
-                      <td className="px-3 py-1.5 text-slate-600 truncate max-w-[120px]">{maskFn(row.destino)}</td>
-                    )}
-                    {type === 'movimentacao' && (
-                      <td className="px-3 py-1.5 text-center">
-                        <span className={cn(
-                          "px-2 py-0.5 rounded text-[7px] font-black uppercase tracking-widest",
-                          row.statusAuditoria === 'Concluido' ? "bg-emerald-50 text-emerald-600" :
-                          row.statusAuditoria === 'Cancelado' ? "bg-rose-50 text-rose-600" :
-                          "bg-slate-100 text-slate-400"
-                        )}>
-                          {row.statusAuditoria || 'PENDENTE'}
-                        </span>
-                      </td>
-                    )}
-                    {type === 'movimentacao' && (
-                      <td className="px-3 py-1.5 text-center text-[8px] font-black text-[#734DCC]">
-                        {row.linkNxt ? "HASH ✓" : "-"}
-                      </td>
-                    )}
-                    <td className={cn("px-3 py-1.5 text-right font-black", isNegative ? "text-rose-600" : "text-slate-900")}>
-                      {(isLegado ? ((row.disponivel || 0) + (row.reservado || 0)) : 
-                        type === 'imei' ? ((row.valorDebito || 0) - (row.valorCredito || 0)) :
-                        (row.valor || 0)).toLocaleString('pt-BR')}
-                    </td>
-                  </>
-                )}
-              </tr>
-            ))}
-          </tbody>
-       </table>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
@@ -1063,11 +1063,11 @@ function StatBox({ label, value, isNegative, isHighlight, isAmber, isImei }: any
       </p>
       <p className={cn(
         "text-[14px] font-black font-mono leading-none tracking-tight truncate",
-        isNegative || (label === 'MOVIMENTAÇÃO' && value !== 0) || (label === 'AQUISIÇÃO' && value !== 0) ? "text-rose-400" : 
-        isHighlight ? "text-[#10B981]" : 
-        isAmber ? "text-amber-500" : 
-        isImei ? "text-indigo-400" :
-        "text-white"
+        isNegative || (label === 'MOVIMENTAÇÃO' && value !== 0) || (label === 'AQUISIÇÃO' && value !== 0) ? "text-rose-400" :
+          isHighlight ? "text-[#10B981]" :
+            isAmber ? "text-amber-500" :
+              isImei ? "text-indigo-400" :
+                "text-white"
       )}>
         {(label === 'MOVIMENTAÇÃO' && value > 0) ? `-${value.toLocaleString('pt-BR')}` : (value || 0).toLocaleString('pt-BR')}
       </p>
@@ -1158,42 +1158,42 @@ function SectionTable({ data, type, onRemove, onUpdateItem, maskFn = (t: any) =>
             data.map((row: any, i: number) => (
               <TableRow key={i} className="h-9 border-b border-slate-50 hover:bg-slate-50/50">
                 <TableCell className="px-4 py-1">
-                  <Input 
-                    value={row.data || ""} 
+                  <Input
+                    value={row.data || ""}
                     onChange={e => onUpdateItem?.(row.id, { data: e.target.value })}
                     className="h-7 w-24 bg-slate-50/50 border-slate-100 text-[9px] font-mono font-bold text-slate-500 rounded-lg focus:bg-white"
                   />
                 </TableCell>
                 <TableCell className="px-4 py-1">
-                  <Input 
-                    value={row.dist || ""} 
+                  <Input
+                    value={row.dist || ""}
                     onChange={e => onUpdateItem?.(row.id, { dist: e.target.value })}
                     placeholder="Distribuição"
                     className="h-7 bg-slate-50/50 border-slate-100 text-[9px] font-mono font-bold text-primary focus:ring-primary rounded-lg focus:bg-white"
                   />
                 </TableCell>
                 <TableCell className="px-4 py-1">
-                  <Input 
-                    value={row.plataforma || row.nome || ""} 
+                  <Input
+                    value={row.plataforma || row.nome || ""}
                     onChange={e => onUpdateItem?.(row.id, { plataforma: e.target.value })}
                     placeholder="Histórico / Plataforma"
                     className="h-7 bg-slate-50/50 border-slate-100 text-[9px] font-bold text-slate-600 rounded-lg uppercase focus:bg-white"
                   />
                 </TableCell>
-                
+
                 {isMovimentacao && (
                   <>
                     <TableCell className="px-4 py-1 min-w-[150px]">
-                      <Input 
-                        value={row.destino || ""} 
+                      <Input
+                        value={row.destino || ""}
                         onChange={e => onUpdateItem?.(row.id, { destino: e.target.value })}
                         placeholder="Destino"
                         className="h-7 bg-slate-50/50 border-slate-100 text-[9px] font-bold text-slate-600 rounded-lg uppercase min-w-[150px] focus:bg-white"
                       />
                     </TableCell>
                     <TableCell className="text-center px-4 py-1">
-                      <Select 
-                        value={row.statusAuditoria || "Pendente"} 
+                      <Select
+                        value={row.statusAuditoria || "Pendente"}
                         onValueChange={(v) => onUpdateItem?.(row.id, { statusAuditoria: v as AuditoriaStatus })}
                       >
                         <SelectTrigger className="h-7 rounded-lg bg-slate-50/50 text-[8px] font-black uppercase border-slate-100 min-w-[130px] focus:bg-white">
@@ -1207,25 +1207,25 @@ function SectionTable({ data, type, onRemove, onUpdateItem, maskFn = (t: any) =>
                       </Select>
                     </TableCell>
                     <TableCell className="text-center px-4 py-1">
-                      <Input 
-                        value={row.dataPagamento || ""} 
+                      <Input
+                        value={row.dataPagamento || ""}
                         onChange={e => onUpdateItem?.(row.id, { dataPagamento: e.target.value })}
                         placeholder="Ex: 01/01/2025"
                         className="h-7 bg-slate-50/50 border-slate-100 text-[9px] font-bold text-slate-600 rounded-lg text-center min-w-[110px] focus:bg-white"
                       />
                     </TableCell>
                     <TableCell className="text-center px-4 py-1">
-                      <Input 
+                      <Input
                         type="number"
-                        value={row.valorPago ?? ""} 
+                        value={row.valorPago ?? ""}
                         onChange={e => onUpdateItem?.(row.id, { valorPago: e.target.value === "" ? 0 : parseFloat(e.target.value) || 0 })}
                         placeholder="R$ 0,00"
                         className="h-7 bg-emerald-50/50 border-emerald-100 text-[9px] font-bold text-emerald-700 rounded-lg text-right min-w-[110px] focus:bg-white"
                       />
                     </TableCell>
                     <TableCell className="text-center px-4 py-1 min-w-[200px]">
-                      <Input 
-                        value={row.observacaoTransacao || ""} 
+                      <Input
+                        value={row.observacaoTransacao || ""}
                         onChange={e => onUpdateItem?.(row.id, { observacaoTransacao: e.target.value })}
                         placeholder="Detalhes..."
                         className="h-7 bg-slate-50/50 border-slate-100 text-[9px] font-bold text-slate-600 rounded-lg min-w-[200px] focus:bg-white"
@@ -1233,9 +1233,9 @@ function SectionTable({ data, type, onRemove, onUpdateItem, maskFn = (t: any) =>
                     </TableCell>
                     <TableCell className="text-center px-4 py-1 min-w-[150px]">
                       <div className="flex items-center gap-3">
-                        <Input 
-                          placeholder="Link do comprovante..." 
-                          value={row.linkComprovante || ""} 
+                        <Input
+                          placeholder="Link do comprovante..."
+                          value={row.linkComprovante || ""}
                           onChange={(e) => onUpdateItem?.(row.id, { linkComprovante: e.target.value })}
                           className="h-7 bg-slate-50/50 text-[9px] rounded-lg border-slate-100 min-w-[140px] focus:bg-white"
                         />
@@ -1247,10 +1247,10 @@ function SectionTable({ data, type, onRemove, onUpdateItem, maskFn = (t: any) =>
                       </div>
                     </TableCell>
                     <TableCell className="text-center px-4 py-1 min-w-[140px]">
-                       <div className="flex items-center gap-3">
-                        <Input 
-                          placeholder="Link NXT / Hash..." 
-                          value={row.linkNxt || ""} 
+                      <div className="flex items-center gap-3">
+                        <Input
+                          placeholder="Link NXT / Hash..."
+                          value={row.linkNxt || ""}
                           onChange={(e) => onUpdateItem?.(row.id, { linkNxt: e.target.value })}
                           className="h-7 bg-slate-50/50 text-[9px] rounded-lg border-slate-100 border-[#734DCC]/10 min-w-[130px] focus:bg-white"
                         />
@@ -1267,33 +1267,33 @@ function SectionTable({ data, type, onRemove, onUpdateItem, maskFn = (t: any) =>
                 {isLegado ? (
                   <>
                     <TableCell className="px-4 py-1">
-                      <Input 
+                      <Input
                         type="number"
-                        value={row.disponivel ?? ""} 
+                        value={row.disponivel ?? ""}
                         onChange={e => onUpdateItem?.(row.id, { disponivel: e.target.value === "" ? 0 : parseFloat(e.target.value) || 0 })}
                         className="h-7 bg-slate-50/50 border-slate-100 text-[9px] font-mono font-bold text-primary text-right rounded-lg focus:bg-white"
                       />
                     </TableCell>
                     <TableCell className="px-4 py-1">
-                      <Input 
+                      <Input
                         type="number"
-                        value={row.reservado ?? ""} 
+                        value={row.reservado ?? ""}
                         onChange={e => onUpdateItem?.(row.id, { reservado: e.target.value === "" ? 0 : parseFloat(e.target.value) || 0 })}
                         className="h-7 bg-slate-50/50 border-slate-100 text-[9px] font-mono font-bold text-amber-500 text-right rounded-lg focus:bg-white"
                       />
                     </TableCell>
                     <TableCell className="px-4 py-1">
-                      <Input 
+                      <Input
                         type="number"
-                        value={row.bloqueado ?? ""} 
+                        value={row.bloqueado ?? ""}
                         onChange={e => onUpdateItem?.(row.id, { bloqueado: e.target.value === "" ? 0 : parseFloat(e.target.value) || 0 })}
                         className="h-7 bg-slate-50/50 border-slate-100 text-[9px] font-mono font-bold text-rose-500 text-right rounded-lg focus:bg-white"
                       />
                     </TableCell>
                     <TableCell className="px-4 py-1 pr-6">
-                      <Input 
+                      <Input
                         type="number"
-                        value={row.aposentado ?? ""} 
+                        value={row.aposentado ?? ""}
                         onChange={e => onUpdateItem?.(row.id, { aposentado: e.target.value === "" ? 0 : parseFloat(e.target.value) || 0 })}
                         className="h-7 bg-slate-50/50 border-slate-100 text-[9px] font-mono font-bold text-slate-400 text-right rounded-lg focus:bg-white"
                       />
@@ -1302,17 +1302,17 @@ function SectionTable({ data, type, onRemove, onUpdateItem, maskFn = (t: any) =>
                 ) : isImei ? (
                   <>
                     <TableCell className="px-4 py-1">
-                      <Input 
+                      <Input
                         type="number"
-                        value={row.valorDebito ?? ""} 
+                        value={row.valorDebito ?? ""}
                         onChange={e => onUpdateItem?.(row.id, { valorDebito: e.target.value === "" ? 0 : parseFloat(e.target.value) || 0 })}
                         className="h-7 bg-slate-50/50 border-slate-100 text-[9px] font-mono font-bold text-indigo-500 text-right rounded-lg focus:bg-white"
                       />
                     </TableCell>
                     <TableCell className="px-4 py-1">
-                      <Input 
+                      <Input
                         type="number"
-                        value={row.valorCredito ?? ""} 
+                        value={row.valorCredito ?? ""}
                         onChange={e => onUpdateItem?.(row.id, { valorCredito: e.target.value === "" ? 0 : parseFloat(e.target.value) || 0 })}
                         className="h-7 bg-slate-50/50 border-slate-100 text-[9px] font-mono font-bold text-slate-400 text-right rounded-lg focus:bg-white"
                       />
@@ -1323,9 +1323,9 @@ function SectionTable({ data, type, onRemove, onUpdateItem, maskFn = (t: any) =>
                   </>
                 ) : (
                   <TableCell className="px-4 py-1 pr-6">
-                    <Input 
+                    <Input
                       type="number"
-                      value={row.valor ?? ""} 
+                      value={row.valor ?? ""}
                       onChange={e => onUpdateItem?.(row.id, { valor: e.target.value === "" ? 0 : parseFloat(e.target.value) || 0 })}
                       className="h-7 bg-slate-50/50 border-slate-100 text-[10px] font-mono font-black text-right rounded-lg focus:bg-white"
                     />

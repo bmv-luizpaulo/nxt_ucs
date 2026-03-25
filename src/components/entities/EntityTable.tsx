@@ -97,9 +97,28 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate, gr
   const formatUCS = (val?: number) => (val ?? 0).toLocaleString('pt-BR');
 
   const renderStatus = (item: EntidadeSaldo) => {
-    const status = item.statusAuditoriaSaldo;
+    const auditStatus = item.statusAuditoriaSaldo;
+    const cadastralStatus = item.status;
     
-    if (status === 'valido') {
+    // Prioridade 1: Bloqueio (Crítico)
+    if (cadastralStatus === 'bloqueado') {
+      return (
+        <Badge className="bg-rose-100 text-rose-700 border-rose-200 text-[9px] font-black uppercase px-3 py-1.5 rounded-full flex items-center justify-center gap-1.5 w-fit mx-auto shadow-sm">
+          <AlertTriangle className="w-3 h-3 animate-pulse" /> BLOQUEADO
+        </Badge>
+      );
+    }
+
+    if (cadastralStatus === 'inapto') {
+      return (
+        <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-[9px] font-black uppercase px-3 py-1.5 rounded-full flex items-center justify-center gap-1.5 w-fit mx-auto">
+          <AlertTriangle className="w-3 h-3" /> INAPTO
+        </Badge>
+      );
+    }
+
+    // Prioridade 2: Status da Auditoria de Saldo
+    if (auditStatus === 'valido') {
       return (
         <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 text-[9px] font-black uppercase px-3 py-1.5 rounded-full flex items-center justify-center gap-1.5 w-fit mx-auto">
           <CheckCircle2 className="w-3 h-3" /> Válido
@@ -107,7 +126,7 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate, gr
       );
     }
     
-    if (status === 'inconsistente') {
+    if (auditStatus === 'inconsistente') {
       return (
         <Badge className="bg-rose-50 text-rose-500 border-rose-100 text-[9px] font-black uppercase px-3 py-1.5 rounded-full flex items-center justify-center gap-1.5 w-fit mx-auto">
           <AlertTriangle className="w-3 h-3" /> Divergente
@@ -258,11 +277,11 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate, gr
                                   {getEntitySub(item) && (
                                     <span className="text-[9px] text-slate-400 font-normal ml-auto">({getEntitySub(item)})</span>
                                   )}
-                                  {(item.statusAuditoriaSaldo === 'inconsistente' || item.saldoFinalAtual < 1000) && (
-                                    <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
+                                  {(item.statusAuditoriaSaldo === 'inconsistente' || item.status === 'bloqueado' || item.saldoFinalAtual < 1000) && (
+                                    <AlertTriangle className={cn("w-3.5 h-3.5", item.status === 'bloqueado' ? "text-rose-600" : "text-rose-500")} />
                                   )}
                                   {item.observacao && (
-                                    <MessageSquare className="w-3 h-3 text-slate-300" />
+                                    <MessageSquare className="w-3 h-3 text-slate-400" />
                                   )}
                                 </div>
                                 <div className="flex items-center gap-2 text-[8px] text-slate-400 font-mono tracking-tighter">

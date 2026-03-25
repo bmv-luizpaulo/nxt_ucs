@@ -55,7 +55,16 @@ export function EntityAuditReport({ entity, totals, reportType, userEmail, isCen
           <div className="flex gap-12">
             <div className="space-y-1 text-[9px] uppercase font-bold text-slate-500">
               <p>DOCUMENTO REGISTRADO: <span className="text-slate-900 font-black ml-1">{isCensored ? entity.documento?.replace(/\d/g, '*') : entity.documento}</span></p>
-              <p>STATUS CADASTRAL: <span className="text-slate-900 font-black ml-1">ATIVO / VERIFICADO</span></p>
+              <p>STATUS CADASTRAL: <span className={cn(
+                "font-black ml-1",
+                entity.status === 'bloqueado' ? "text-rose-600" : 
+                entity.status === 'inapto' ? "text-amber-600" : 
+                "text-emerald-600"
+              )}>
+                {entity.status === 'bloqueado' ? 'BLOQUEADO' : 
+                 entity.status === 'inapto' ? 'INAPTO / DIVERGENTE' : 
+                 'ATIVO / VERIFICADO'}
+              </span></p>
               <p>PROPRIEDADE / LOCAL: <span className="text-slate-900 font-black ml-1">{entity.propriedade || 'NÃO INFORMADA'}</span></p>
               <p>AUDITOR RESPONSÁVEL: <span className="text-slate-900 font-black ml-1">{userEmail || "BMV_VALIDATOR_V4"}</span></p>
             </div>
@@ -83,9 +92,21 @@ export function EntityAuditReport({ entity, totals, reportType, userEmail, isCen
                 <p>MOVIMENTAÇÃO</p>
                 <p className="text-[14px] text-rose-600 font-black">-{formatUCS(totals.mov)}</p>
               </div>
-              <div>
-                <p className="text-emerald-700">SALDO FINAL AUDITADO</p>
-                <p className="text-[16px] text-emerald-700 font-black">{formatUCS(totals.final)}</p>
+              {entity.ajusteRealizado && (
+                <div>
+                  <p className="text-indigo-600">AJUSTE GOVERNANÇA</p>
+                  <p className="text-[14px] text-indigo-600 font-black">{formatUCS(entity.valorAjusteManual)}</p>
+                </div>
+              )}
+              {entity.bloqueado > 0 && (
+                <div>
+                  <p className="text-rose-400">SALDO BLOQUEADO</p>
+                  <p className="text-[12px] text-rose-400 font-black">{formatUCS(entity.bloqueado)}</p>
+                </div>
+              )}
+              <div className="pt-2 border-t border-slate-200 mt-2">
+                <p className="text-emerald-700 font-black uppercase text-[8px]">SALDO FINAL AUDITADO</p>
+                <p className="text-[20px] text-emerald-700 font-black leading-none">{formatUCS(totals.final)}</p>
               </div>
             </div>
             <div className="w-16 h-16 border rounded bg-slate-50 flex items-center justify-center border-slate-200 p-2">
@@ -94,6 +115,48 @@ export function EntityAuditReport({ entity, totals, reportType, userEmail, isCen
           </div>
         </div>
       </div>
+
+      {/* AUDIT OBSERVATIONS (THE MOST IMPORTANT ADDITION) */}
+      {(entity.observacao || entity.ajusteRealizado) && (
+        <div className="mb-10 bg-slate-50 border-l-4 border-slate-900 p-6 rounded-r-xl page-break-inside-avoid">
+          <h2 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-slate-900" /> 00. PARECER TÉCNICO DE AUDITORIA
+          </h2>
+          
+          <div className="space-y-4">
+            {entity.observacao && (
+              <div className="space-y-1">
+                <p className="text-[7px] font-black uppercase text-slate-400">NOTAS DA AUDITORIA:</p>
+                <p className="text-[12px] font-medium text-slate-800 leading-relaxed whitespace-pre-wrap">
+                  {entity.observacao}
+                </p>
+              </div>
+            )}
+            
+            {entity.ajusteRealizado && (
+              <div className="p-4 bg-indigo-50/50 rounded-lg border border-indigo-100 mt-4">
+                <p className="text-[8px] font-black uppercase text-indigo-600 mb-1">DETALHES DO AJUSTE DE GOVERNANÇA:</p>
+                <div className="grid grid-cols-2 gap-4 mb-3">
+                  <div>
+                    <span className="text-[7px] font-bold text-slate-500 block">NOVO SALDO FIXADO:</span>
+                    <span className="text-[12px] font-black text-indigo-700 font-mono">{formatUCS(entity.valorAjusteManual)} UCS</span>
+                  </div>
+                  <div>
+                    <span className="text-[7px] font-bold text-slate-500 block">AUTORIZADO POR:</span>
+                    <span className="text-[9px] font-black text-slate-700 uppercase">{entity.usuarioAjuste} ({new Date(entity.dataAjuste!).toLocaleDateString('pt-BR')})</span>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[7px] font-bold text-slate-500 block">JUSTIFICATIVA TÉCNICA:</span>
+                  <p className="text-[10px] font-bold text-indigo-900 italic leading-relaxed">
+                    "{entity.justificativaAjuste}"
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* TABLES */}
       <div className="space-y-8">
