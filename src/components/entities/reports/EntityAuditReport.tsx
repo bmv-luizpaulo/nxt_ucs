@@ -1,7 +1,7 @@
 "use client"
 
-import { EntidadeSaldo, RegistroTabela } from "@/lib/types";
-import { ShieldCheck, QrCode, History, Database, FileText } from "lucide-react";
+import { EntidadeSaldo } from "@/lib/types";
+import { ShieldCheck, QrCode, History, Database } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -25,7 +25,7 @@ export function EntityAuditReport({ entity, totals, reportType, userEmail, isCen
   };
 
   return (
-    <div className="printable-audit-report hidden print:block bg-white text-slate-900 p-0 font-sans premium-report transition-all duration-500">
+    <div className="is-printable hidden print:block bg-white text-slate-900 p-0 font-sans premium-report">
       {reportType === 'executive' ? (
         <div className="px-12 py-12">
            <header className="flex justify-between items-start border-b-4 border-slate-900 pb-8 mb-12">
@@ -145,7 +145,7 @@ export function EntityAuditReport({ entity, totals, reportType, userEmail, isCen
               <div className="bg-slate-950 p-12 rounded-[4rem] border-4 border-slate-800 flex flex-col items-center text-center shadow-2xl scale-105">
                  <p className="text-[12px] font-black text-slate-500 uppercase tracking-widest mb-3">Saldo Final Verificado</p>
                  <p className="text-[46px] font-black text-amber-500 font-mono tracking-tighter leading-none mb-1">{formatUCS(totals.final)}</p>
-                 <p className="text-[12px] text-amber-500/40 font-black tracking-[0.2em] uppercase">Unidades Custodiadas</p>
+                 <p className="text-[12px] text-amber-500/40 font-black tracking-[0.2em] uppercase">Unidades Verificadas</p>
               </div>
            </div>
 

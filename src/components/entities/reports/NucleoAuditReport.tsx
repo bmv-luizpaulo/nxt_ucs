@@ -1,7 +1,7 @@
 "use client"
 
 import { EntidadeSaldo } from "@/lib/types";
-import { ShieldCheck, QrCode, Landmark, Scale } from "lucide-react";
+import { QrCode, Landmark, Scale } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -36,7 +36,7 @@ export function NucleoAuditReport({ entity, linkedProducers, stats, reportType, 
   const assocCnpj = entity.associacaoCnpj || '';
 
   return (
-    <div className="printable-audit-report hidden print:block bg-white text-slate-900 p-0 font-sans premium-report transition-all duration-500">
+    <div className="is-printable hidden print:block bg-white text-slate-900 p-0 font-sans premium-report">
       {reportType === 'executive' ? (
         <div className="px-12 py-12">
           <div className="flex justify-between items-start border-b-4 border-amber-500 pb-8 mb-12">

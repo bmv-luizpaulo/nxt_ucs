@@ -1,10 +1,9 @@
 "use client"
 
 import { EntidadeSaldo } from "@/lib/types";
-import { ShieldCheck, QrCode, History } from "lucide-react";
+import { ShieldCheck, QrCode } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface FarmAuditReportProps {
@@ -19,7 +18,7 @@ export function FarmAuditReport({ entity, participants, farmTotals, reportType, 
   const formatUCS = (val?: number) => (val ?? 0).toLocaleString('pt-BR');
 
   return (
-    <div className="printable-audit-report hidden print:block bg-white text-slate-900 p-0 font-sans premium-report transition-all duration-500">
+    <div className="is-printable hidden print:block bg-white text-slate-900 p-0 font-sans premium-report">
       {reportType === 'executive' ? (
         <div className="px-12 py-12">
            <header className="flex justify-between items-start border-b-4 border-slate-900 pb-8 mb-12">

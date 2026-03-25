@@ -1,7 +1,7 @@
 "use client"
 
 import { EntidadeSaldo } from "@/lib/types";
-import { ShieldCheck, QrCode, Cpu, Scale } from "lucide-react";
+import { QrCode, Cpu, Scale } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +34,7 @@ export function ImeiAuditReport({ entity, linkedProducers, stats, reportType, us
   const imeiName = entity.imeiNome || 'Sem IMEI';
 
   return (
-    <div className="printable-audit-report hidden print:block bg-white text-slate-900 p-0 font-sans premium-report transition-all duration-500">
+    <div className="is-printable hidden print:block bg-white text-slate-900 p-0 font-sans premium-report">
       {reportType === 'executive' ? (
         <div className="px-12 py-12">
           <div className="flex justify-between items-start border-b-4 border-violet-500 pb-8 mb-12">
@@ -169,7 +169,7 @@ export function ImeiAuditReport({ entity, linkedProducers, stats, reportType, us
             <div className="bg-slate-50 p-12 rounded-[4rem] border-4 border-slate-100 flex flex-col items-center text-center shadow-sm">
               <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest mb-3">Produtores Ativos</p>
               <p className="text-[42px] font-black text-slate-900 font-mono tracking-tighter leading-none mb-1">{stats.uniqueProducers}</p>
-              <p className="text-[11px] text-slate-300 font-black tracking-widest uppercase">Membros Vinculados</p>
+              <p className="text-[11px] text-slate-300 font-black tracking-widest uppercase">Membros Ativos</p>
             </div>
             <div className="bg-slate-50 p-12 rounded-[4rem] border-4 border-slate-100 flex flex-col items-center text-center shadow-sm">
               <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest mb-3">Originação Assistida</p>
