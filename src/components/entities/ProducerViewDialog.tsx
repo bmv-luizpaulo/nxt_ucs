@@ -10,7 +10,7 @@ import {
   ExternalLink, Eye, EyeOff, Database, MapPin, Layers, Building2, QrCode, FileText as FileIcon, Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ProducerAuditReport } from "./reports/ProducerAuditReport";
+import { EntityAuditReport } from "./reports/EntityAuditReport";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
@@ -83,6 +83,36 @@ export function ProducerViewDialog({ entity, open, onOpenChange, onEdit, allData
     setReportType('juridico');
     setTimeout(() => handlePrint(), 500);
   };
+
+  const aggregatedEntity = useMemo(() => {
+    if (!entity) return null;
+    return {
+      ...entity,
+      tabelaOriginacao: relatedFarms.length > 0 ? relatedFarms.map(f => ({
+        id: f.id,
+        data: f.safra || f.dataRegistro || "-",
+        plataforma: f.propriedade || "FAZENDA",
+        valor: f.saldoParticionado || 0,
+        dist: "ORIGINAÇÃO"
+      })) : (entity.tabelaOriginacao || []),
+      tabelaMovimentacao: relatedFarms.flatMap(f => f.tabelaMovimentacao || []),
+      tabelaAquisicao: relatedFarms.flatMap(f => f.tabelaAquisicao || []),
+      tabelaLegado: relatedFarms.flatMap(f => f.tabelaLegado || []),
+      tabelaImei: relatedFarms.flatMap(f => f.tabelaImei || [])
+    } as EntidadeSaldo;
+  }, [entity, relatedFarms]);
+
+  const reportTotals = useMemo(() => ({
+    origProdutor: consolidated.orig,
+    origFazenda: consolidated.origFazenda,
+    mov: consolidated.mov,
+    aq: consolidated.aq,
+    imeiPending: consolidated.imei,
+    legadoTotal: consolidated.legado,
+    aposentado: consolidated.apo,
+    bloqueado: consolidated.bloq,
+    final: consolidated.final
+  }), [consolidated]);
 
   if (!entity) return null;
 
@@ -308,15 +338,16 @@ export function ProducerViewDialog({ entity, open, onOpenChange, onEdit, allData
           </div>
         </div>
 
-        {/* PRINTABLE AREA (V6) */}
-        <ProducerAuditReport 
-          entity={entity} 
-          relatedFarms={relatedFarms} 
-          consolidated={consolidated} 
-          reportType={reportType} 
-          userEmail={user?.email || "SYSTEM_AUDITOR"} 
-          isCensored={isCensored}
-        />
+        {/* PRINTABLE AREA (UNIFIED REPORT) */}
+        {aggregatedEntity && (
+          <EntityAuditReport 
+            entity={aggregatedEntity} 
+            totals={reportTotals} 
+            reportType={reportType} 
+            userEmail={user?.email || "SYSTEM_AUDITOR"} 
+            isCensored={isCensored}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

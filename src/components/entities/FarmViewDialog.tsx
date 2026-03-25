@@ -10,7 +10,7 @@ import {
   Building2, Users, PieChart, Info, MapPin, ExternalLink, Calendar, Scale, History, Link2, QrCode, Database, Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { FarmAuditReport } from "./reports/FarmAuditReport";
+import { EntityAuditReport } from "./reports/EntityAuditReport";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
@@ -117,6 +117,38 @@ export function FarmViewDialog({ entity, open, onOpenChange, allData }: FarmView
     setReportType('juridico');
     setTimeout(() => handlePrint(), 500);
   };
+
+  const aggregatedEntity = useMemo(() => {
+    if (!entity) return null;
+    return {
+      ...entity,
+      tabelaOriginacao: participants.length > 0 ? participants.map(p => ({
+        id: p.id,
+        data: p.safra || "-",
+        plataforma: p.nome || "PRODUTOR",
+        valor: (p.particionamento && p.particionamento > 0)
+          ? Math.round(farmTotals.totalOrig * (p.particionamento / 100))
+          : (p.saldoParticionado || p.saldoFinalAtual || 0),
+        dist: "PARTICIONAMENTO"
+      })) : (entity.tabelaOriginacao || []),
+      tabelaMovimentacao: participants.flatMap(p => p.tabelaMovimentacao || []),
+      tabelaAquisicao: participants.flatMap(p => p.tabelaAquisicao || []),
+      tabelaImei: participants.flatMap(p => p.tabelaImei || []),
+      tabelaLegado: participants.flatMap(p => p.tabelaLegado || []),
+    } as EntidadeSaldo;
+  }, [entity, participants, farmTotals]);
+
+  const reportTotals = useMemo(() => ({
+    origProdutor: farmTotals.totalProdutores,
+    origFazenda: farmTotals.totalOrig,
+    mov: farmTotals.totalMov,
+    aq: participants.reduce((sum, p) => sum + (p.aquisicao || 0), 0),
+    imeiPending: farmTotals.totalImei,
+    legadoTotal: participants.reduce((sum, p) => sum + (p.saldoLegadoTotal || 0), 0),
+    aposentado: participants.reduce((sum, p) => sum + (p.aposentado || 0), 0),
+    bloqueado: participants.reduce((sum, p) => sum + (p.bloqueado || 0), 0),
+    final: farmTotals.totalFinal
+  }), [farmTotals, participants]);
 
   if (!entity) return null;
 
@@ -341,14 +373,16 @@ export function FarmViewDialog({ entity, open, onOpenChange, allData }: FarmView
           </div>
         </div>
 
-        {/* ÁREA DE IMPRESSÃO (V6) */}
-        <FarmAuditReport 
-          entity={entity} 
-          participants={participants} 
-          farmTotals={farmTotals} 
-          reportType={reportType} 
-          userEmail={user?.email || "SYSTEM_AUDITOR"} 
-        />
+        {/* ÁREA DE IMPRESSÃO (UNIFIED REPORT) */}
+        {aggregatedEntity && (
+          <EntityAuditReport 
+            entity={aggregatedEntity} 
+            totals={reportTotals} 
+            reportType={reportType} 
+            userEmail={user?.email || "SYSTEM_AUDITOR"} 
+            isCensored={false}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

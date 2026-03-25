@@ -1,7 +1,7 @@
 "use client"
 
 import { EntidadeSaldo } from "@/lib/types";
-import { ShieldCheck, QrCode, History, Database, Link2, ExternalLink } from "lucide-react";
+import { ShieldCheck, QrCode, History, Database, Link2, ExternalLink, MapPin } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -158,17 +158,80 @@ export function EntityAuditReport({ entity, totals, reportType, userEmail, isCen
         </div>
       )}
 
+      {/* SECTION 01: SAFRA TÉCNICA (COMPACTA) */}
+      {isJuridico && (
+        <div className="mb-8 page-break-inside-avoid">
+          <h4 className="text-[10px] font-black uppercase tracking-widest text-[#734DCC] mb-3 border-b-2 border-[#734DCC]/10 pb-1 flex items-center gap-2">
+            <ShieldCheck className="w-3.5 h-3.5" /> 01. ESPECIFICAÇÕES TÉCNICAS DA SAFRA (ORIGINAÇÃO BRUTA)
+          </h4>
+          
+          <div className="bg-slate-50 rounded-xl border border-slate-200 overflow-hidden">
+            {/* Header com Dados da Propriedade */}
+            <div className="flex gap-8 p-4 border-b border-slate-200 bg-white/50">
+              <div className="flex-[2] space-y-0.5 min-w-0">
+                <p className="text-[6px] font-black text-slate-400 uppercase tracking-tighter">PROPRIEDADE / MATRIZ</p>
+                <p className="text-[10px] font-black text-slate-900 uppercase leading-tight">{entity.propriedade || '-'}</p>
+              </div>
+              <div className="flex-1 space-y-0.5 whitespace-nowrap">
+                <p className="text-[6px] font-black text-slate-400 uppercase tracking-tighter">SAFRA / ANO</p>
+                <p className="text-[10px] font-black text-slate-900 uppercase">{entity.safra || '-'}</p>
+              </div>
+              <div className="flex-1 space-y-0.5">
+                <p className="text-[6px] font-black text-slate-400 uppercase tracking-tighter">NÚCLEO REGIONAL</p>
+                <p className="text-[10px] font-black text-slate-900 uppercase">{entity.nucleo || '-'}</p>
+              </div>
+              <div className="flex-[1.5] space-y-0.5 text-right whitespace-nowrap">
+                <p className="text-[6px] font-black text-[#734DCC] uppercase tracking-tighter">VOL. BRUTO ORIGINADO</p>
+                <p className="text-[16px] font-black text-[#734DCC] leading-none">{formatUCS(totals.origFazenda)} <span className="text-[8px] opacity-40">UCS</span></p>
+              </div>
+            </div>
+
+            {/* Coordenadas e Participação */}
+            <div className="p-4 space-y-4">
+              <div className="flex gap-10 items-center justify-between">
+                 <div className="flex gap-4 items-center shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+                      <MapPin className="w-4 h-4 text-slate-400" />
+                    </div>
+                    <div>
+                      <p className="text-[6px] font-black text-slate-400 uppercase">COORDENADAS GEORREFERENCIADAS</p>
+                      <p className="text-[10px] font-mono font-black text-slate-700">{entity.lat || '-'}, {entity.long || '-'}</p>
+                    </div>
+                 </div>
+                 
+                 <div className="flex-1 flex gap-8 justify-end items-center">
+                    <div className="text-right">
+                      <p className="text-[6px] font-black text-emerald-600 uppercase">QUOTA PRODUTOR</p>
+                      <p className="text-[11px] font-black text-emerald-700">{formatUCS(totals.origProdutor || totals.orig)} <span className="text-[7px] opacity-40">({entity.particionamento || 0}%)</span></p>
+                    </div>
+                    <div className="w-px h-8 bg-slate-200"></div>
+                    <div className="text-right">
+                      <p className="text-[6px] font-black text-amber-600 uppercase">ASSOCIAÇÃO</p>
+                      <p className="text-[11px] font-black text-amber-700">{formatUCS(entity.associacaoSaldo)} <span className="text-[7px] opacity-40">({entity.associacaoParticionamento || 0}%)</span></p>
+                    </div>
+                    <div className="w-px h-8 bg-slate-200"></div>
+                    <div className="text-right">
+                      <p className="text-[6px] font-black text-indigo-600 uppercase">IMEI / PLATAFORMA</p>
+                      <p className="text-[11px] font-black text-indigo-700">{formatUCS(entity.imeiSaldo)} <span className="text-[7px] opacity-40">({entity.imeiParticionamento || 0}%)</span></p>
+                    </div>
+                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* TABLES */}
       <div className="space-y-8">
         <ReportTable
-          title="01. DEMONSTRATIVO DE ORIGINAÇÃO"
+          title={isJuridico ? "02. DEMONSTRATIVO DE ORIGINAÇÃO" : "01. DEMONSTRATIVO DE ORIGINAÇÃO"}
           data={entity.tabelaOriginacao || []}
           type="originacao"
         />
 
         {isJuridico ? (
           <div className="space-y-4">
-            <h4 className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2 border-b border-slate-200 pb-1">02. DEMONSTRATIVO DE MOVIMENTAÇÃO (RASTREABILIDADE DETALHADA)</h4>
+            <h4 className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2 border-b border-slate-200 pb-1">03. DEMONSTRATIVO DE MOVIMENTAÇÃO (RASTREABILIDADE DETALHADA)</h4>
             {(!entity.tabelaMovimentacao || entity.tabelaMovimentacao.length === 0) ? (
               <p className="text-[10px] font-bold text-slate-400 uppercase">NENHUMA MOVIMENTAÇÃO REGISTRADA.</p>
             ) : (
@@ -211,41 +274,35 @@ export function EntityAuditReport({ entity, totals, reportType, userEmail, isCen
                       </div>
                     </div>
 
-                    <div className="flex gap-6 items-start">
-                      {/* NXT HASH COM QR CODE */}
-                      <div className="flex-1 bg-slate-50 p-3 rounded-lg border border-slate-100 flex items-start gap-4">
-                        <div className="bg-white p-1 rounded border border-slate-200 shrink-0">
-                          {mov.linkNxt ? (
-                             <QRCode value={mov.linkNxt} size={48} bgColor="#ffffff" fgColor="#000000" level="L" />
-                          ) : (
-                             <div className="w-12 h-12 flex items-center justify-center bg-slate-100 text-[8px] font-bold text-slate-400 text-center uppercase">SEM NXT</div>
-                          )}
-                        </div>
-                        <div className="space-y-1 overflow-hidden">
-                           <p className="text-[7px] font-black uppercase tracking-widest text-[#734DCC] flex items-center gap-1"><Link2 className="w-2.5 h-2.5" /> NXT BLOCKCHAIN HASH</p>
-                           {mov.linkNxt ? (
-                             <a href={mov.linkNxt} target="_blank" className="text-[8px] font-mono text-slate-600 truncate block hover:text-[#734DCC]">{mov.linkNxt}</a>
-                           ) : (
-                             <p className="text-[8px] font-bold text-slate-400 italic">Hash não disponibilizado</p>
-                           )}
-                           <p className="text-[6px] text-slate-400 uppercase font-bold mt-1">Escaneie o QR Code para auditar a transação na rede NXT.</p>
-                        </div>
-                      </div>
-
-                      {/* COMPROVANTE */}
-                      <div className="w-[40%] bg-slate-50 p-3 rounded-lg border border-slate-100">
-                        <p className="text-[7px] font-black uppercase tracking-widest text-primary flex items-center gap-1 mb-1"><ExternalLink className="w-2.5 h-2.5" /> COMPROVANTE DE PAGAMENTO</p>
-                        {mov.linkComprovante ? (
-                          <div className="flex items-center gap-2">
-                            <span className="text-[9px] font-mono font-bold text-slate-600 truncate">ANEXO_PAGAMENTO.PDF</span>
-                            <Badge className="bg-emerald-100 text-emerald-700 text-[6px] px-1 py-0 border-none hover:bg-emerald-100">VALIDADO</Badge>
+                    {(mov.linkNxt || mov.linkComprovante) && (
+                      <div className="flex gap-6 items-stretch">
+                        {/* NXT HASH COM QR CODE */}
+                        {mov.linkNxt && (
+                          <div className="flex-1 bg-slate-50 p-3 rounded-lg border border-slate-100 flex items-start gap-4">
+                            <div className="bg-white p-1 rounded border border-slate-200 shrink-0">
+                               <QRCode value={mov.linkNxt} size={48} bgColor="#ffffff" fgColor="#000000" level="L" />
+                            </div>
+                            <div className="space-y-1 overflow-hidden">
+                               <p className="text-[7px] font-black uppercase tracking-widest text-[#734DCC] flex items-center gap-1"><Link2 className="w-2.5 h-2.5" /> NXT BLOCKCHAIN HASH</p>
+                               <a href={mov.linkNxt} target="_blank" className="text-[8px] font-mono text-slate-600 truncate block hover:text-[#734DCC]">{mov.linkNxt}</a>
+                               <p className="text-[6px] text-slate-400 uppercase font-bold mt-1">Escaneie o QR Code para auditar a transação na rede NXT.</p>
+                            </div>
                           </div>
-                        ) : (
-                          <p className="text-[8px] font-bold text-slate-400 italic">Nenhum comprovante anexado</p>
                         )}
-                        <p className="text-[6px] text-slate-400 uppercase font-bold mt-1">Acervo digital armazenado no LedgerTrust.</p>
+
+                        {/* COMPROVANTE */}
+                        {mov.linkComprovante && (
+                          <div className={cn("bg-slate-50 p-3 rounded-lg border border-slate-100", mov.linkNxt ? "w-[40%]" : "flex-1")}>
+                            <p className="text-[7px] font-black uppercase tracking-widest text-primary flex items-center gap-1 mb-1"><ExternalLink className="w-2.5 h-2.5" /> COMPROVANTE DE PAGAMENTO</p>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[9px] font-mono font-bold text-slate-600 truncate">ANEXO_PAGAMENTO.PDF</span>
+                              <Badge className="bg-emerald-100 text-emerald-700 text-[6px] px-1 py-0 border-none hover:bg-emerald-100">VALIDADO</Badge>
+                            </div>
+                            <p className="text-[6px] text-slate-400 uppercase font-bold mt-1">Acervo digital armazenado no LedgerTrust.</p>
+                          </div>
+                        )}
                       </div>
-                    </div>
+                    )}
                   </div>
                  );
               })
@@ -261,7 +318,7 @@ export function EntityAuditReport({ entity, totals, reportType, userEmail, isCen
         )}
 
         <ReportTable
-          title="03. DEMONSTRATIVO DE SALDO LEGADO"
+          title={isJuridico ? "04. DEMONSTRATIVO DE SALDO LEGADO" : "03. DEMONSTRATIVO DE SALDO LEGADO"}
           data={entity.tabelaLegado || []}
           type="legado"
         />

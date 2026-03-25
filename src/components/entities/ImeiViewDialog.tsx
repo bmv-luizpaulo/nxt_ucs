@@ -16,7 +16,7 @@ import Link from "next/link";
 import { getLinkWithFilter } from "./EntityFilters";
 import { useUser, useFirestore, useMemoFirebase, useCollection } from "@/firebase";
 import { collection, query, where } from "firebase/firestore";
-import { ImeiAuditReport } from "./reports/ImeiAuditReport";
+import { EntityAuditReport } from "./reports/EntityAuditReport";
 
 interface ImeiViewDialogProps {
   entity: EntidadeSaldo | null;
@@ -76,6 +76,36 @@ export function ImeiViewDialog({ entity, open, onOpenChange, allData }: ImeiView
   const handlePrint = () => { if (typeof window !== 'undefined') window.print(); };
   const handlePrintExecutive = () => { setReportType('executive'); setTimeout(() => handlePrint(), 500); };
   const handlePrintJuridico = () => { setReportType('juridico'); setTimeout(() => handlePrint(), 500); };
+
+  const aggregatedEntity = useMemo(() => {
+    if (!entity) return null;
+    return {
+      ...entity,
+      tabelaOriginacao: linkedProducers.length > 0 ? linkedProducers.map(p => ({
+        id: p.id,
+        data: p.safra || "-",
+        plataforma: p.nome || "PRODUTOR",
+        valor: p.imeiSaldo || 0,
+        dist: "PARTICIONAMENTO"
+      })) : (entity.tabelaOriginacao || []),
+      tabelaMovimentacao: linkedProducers.flatMap(p => p.tabelaMovimentacao || []),
+      tabelaAquisicao: linkedProducers.flatMap(p => p.tabelaAquisicao || []),
+      tabelaImei: linkedProducers.flatMap(p => p.tabelaImei || []),
+      tabelaLegado: linkedProducers.flatMap(p => p.tabelaLegado || []),
+    } as EntidadeSaldo;
+  }, [entity, linkedProducers]);
+
+  const reportTotals = useMemo(() => ({
+    origProdutor: stats.totalSaldoProd,
+    origFazenda: stats.totalOriginacao,
+    mov: linkedProducers.reduce((sum, p) => sum + (p.movimentacao || 0), 0),
+    aq: linkedProducers.reduce((sum, p) => sum + (p.aquisicao || 0), 0),
+    imeiPending: stats.totalSaldoImei,
+    legadoTotal: 0,
+    aposentado: linkedProducers.reduce((sum, p) => sum + (p.aposentado || 0), 0),
+    bloqueado: linkedProducers.reduce((sum, p) => sum + (p.bloqueado || 0), 0),
+    final: stats.totalSaldoImei
+  }), [stats, linkedProducers]);
 
   if (!entity) return null;
 
@@ -235,15 +265,16 @@ export function ImeiViewDialog({ entity, open, onOpenChange, allData }: ImeiView
           </div>
         </div>
 
-        {/* ÁREA DE IMPRESSÃO (V6) */}
-        <ImeiAuditReport
-          entity={entity}
-          linkedProducers={linkedProducers}
-          stats={stats}
-          reportType={reportType}
-          userEmail={user?.email || "SYSTEM_AUDITOR"}
-          isCensored={isCensored}
-        />
+        {/* ÁREA DE IMPRESSÃO (UNIFIED REPORT) */}
+        {aggregatedEntity && (
+          <EntityAuditReport
+            entity={aggregatedEntity}
+            totals={reportTotals as any}
+            reportType={reportType}
+            userEmail={user?.email || "SYSTEM_AUDITOR"}
+            isCensored={isCensored}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

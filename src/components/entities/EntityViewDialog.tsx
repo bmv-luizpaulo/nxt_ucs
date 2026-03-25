@@ -52,34 +52,48 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
   };
 
   const totals = useMemo(() => {
-    if (!entity) return { orig: 0, mov: 0, aq: 0, imeiPending: 0, legadoTotal: 0, aposentado: 0, bloqueado: 0, final: 0 };
-
+    if (!entity) return { origProdutor: 0, origFazenda: 0, mov: 0, aq: 0, imeiPending: 0, legadoTotal: 0, aposentado: 0, bloqueado: 0, final: 0 };
     const sumVal = (arr?: RegistroTabela[]) => (arr || []).reduce((acc, curr) => acc + (curr.valor || 0), 0);
 
-    // Hybrid Logic: Use table data if present, otherwise use flat fields (Safra 2010 style)
-    // CRITICAL: For "Originação" in the summary box, we want the entity's SHARE, not the gross farm total.
-    const orig = entity.tabelaOriginacao?.length ? sumVal(entity.tabelaOriginacao) : (entity.saldoParticionado || entity.originacao || 0);
-    const mov = entity.tabelaMovimentacao?.length ? (entity.tabelaMovimentacao || []).reduce((acc, curr) => acc + (curr.valor || 0), 0) : Math.abs(entity.movimentacao || 0);
-    const aq = entity.tabelaAquisicao?.length ? sumVal(entity.tabelaAquisicao) : (entity.aquisicao || 0);
+    const hasTableOrig = entity.tabelaOriginacao && entity.tabelaOriginacao.length > 0;
+    const tableOrigSum = hasTableOrig ? sumVal(entity.tabelaOriginacao) : 0;
+
+    const origProdutor = hasTableOrig ? tableOrigSum : (entity.saldoParticionado || 0);
+    const origFazenda = (hasTableOrig && entity.particionamento && entity.particionamento > 0)
+      ? Math.round(tableOrigSum / (entity.particionamento / 100))
+      : (entity.originacao || 0);
+
+    const mov = (entity.tabelaMovimentacao && entity.tabelaMovimentacao.length > 0)
+      ? (entity.tabelaMovimentacao || []).reduce((acc, curr) => acc + (curr.valor || 0), 0)
+      : (entity.movimentacao || 0);
+
+    const aq = (entity.tabelaAquisicao && entity.tabelaAquisicao.length > 0)
+      ? sumVal(entity.tabelaAquisicao)
+      : (entity.aquisicao || 0);
 
     const imeiCredits = (entity.tabelaImei || []).reduce((acc, curr) => acc + (curr.valorCredito || 0), 0);
     const imeiDebits = (entity.tabelaImei || []).reduce((acc, curr) => acc + (curr.valorDebito || 0), 0);
-    // CRITICAL: "AJUSTE IMEI" in the summary boxes remains 0 until a real audit entry is made (manual edit)
-    const imeiPending = imeiDebits - imeiCredits;
+    const imeiPending = (entity.tabelaImei && entity.tabelaImei.length > 0)
+      ? imeiDebits - imeiCredits
+      : (entity.saldoAjustarImei || 0);
 
-    const aposentado = entity.tabelaLegado?.length ? (entity.tabelaLegado || []).reduce((acc, c) => acc + (c.aposentado || 0), 0) : (entity.aposentado || 0);
-    const bloqueado = entity.tabelaLegado?.length ? (entity.tabelaLegado || []).reduce((acc, c) => acc + (c.bloqueado || 0), 0) : (entity.bloqueado || 0);
+    const aposentado = (entity.tabelaLegado && entity.tabelaLegado.length > 0)
+      ? (entity.tabelaLegado || []).reduce((acc, c) => acc + (c.aposentado || 0), 0)
+      : (entity.aposentado || 0);
+
+    const bloqueado = (entity.tabelaLegado && entity.tabelaLegado.length > 0)
+      ? (entity.tabelaLegado || []).reduce((acc, c) => acc + (c.bloqueado || 0), 0)
+      : (entity.bloqueado || 0);
     
-    // Legado consolidado
-    const legadoTotal = entity.tabelaLegado?.length ? ((entity.tabelaLegado || []).reduce((acc, c) => acc + (c.disponivel || 0), 0) + (entity.tabelaLegado || []).reduce((acc, c) => acc + (c.reservado || 0), 0)) : (entity.saldoLegadoTotal || 0);
+    const legadoTotal = (entity.tabelaLegado && entity.tabelaLegado.length > 0)
+      ? ((entity.tabelaLegado || []).reduce((acc, c) => acc + (c.disponivel || 0), 0) + (entity.tabelaLegado || []).reduce((acc, c) => acc + (c.reservado || 0), 0)) 
+      : (entity.saldoLegadoTotal || 0);
 
-    // Final Calculation (Assets - Liabilities/Adjustments)
-    // Note: In Safra context, final is usually just the saldoParticionado minus any movements.
-    const finalCalculated = orig - mov - aposentado - bloqueado - aq;
-    const final = entity.ajusteRealizado ? entity.valorAjusteManual || 0 : (entity.tabelaOriginacao?.length ? finalCalculated : (entity.saldoFinalAtual || 0));
+    const finalCalculated = origProdutor - mov - aposentado - bloqueado - aq;
+    const final = entity.ajusteRealizado ? entity.valorAjusteManual || 0 : (hasTableOrig ? finalCalculated : (entity.saldoFinalAtual || 0));
 
     return {
-      orig, mov, aq, imeiPending, legadoTotal, aposentado, bloqueado, final
+      origProdutor, origFazenda, mov, aq, imeiPending, legadoTotal, aposentado, bloqueado, final
     };
   }, [entity]);
 
@@ -155,7 +169,7 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
             </div>
 
             <div className="grid grid-cols-4 md:grid-cols-7 gap-4">
-              <StatBox label="ORIGINAÇÃO" value={totals.orig} />
+              <StatBox label="ORIGINAÇÃO" value={totals.origProdutor} />
               <StatBox label="MOVIMENTAÇÃO" value={totals.mov} isNegative />
               <StatBox label="APOSENTADO" value={totals.aposentado} isNegative />
               <StatBox label="BLOQUEADO" value={totals.bloqueado} isNegative />
@@ -268,7 +282,7 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
                     title="01. ORIGINAÇÃO" 
                     data={entity.tabelaOriginacao?.length ? entity.tabelaOriginacao : [{ data: entity.dataRegistro, destino: entity.propriedade, valor: (entity.saldoParticionado || entity.originacao), plataforma: 'IMPORTAÇÃO SAFRA' }]} 
                     type="originacao" 
-                    total={totals.orig} 
+                    total={totals.origProdutor} 
                   />
                 )}
                 {(entity.tabelaMovimentacao?.length || entity.movimentacao > 0) && (
