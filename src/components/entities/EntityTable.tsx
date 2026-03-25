@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { EntidadeSaldo, EntidadeSaldoGroup } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -11,6 +11,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { EntityEditDialog } from "./EntityEditDialog";
 import { EntityViewDialog } from "./EntityViewDialog";
 import { ProducerViewDialog } from "./ProducerViewDialog";
+import { FarmViewDialog } from "./FarmViewDialog";
 import { NucleoViewDialog } from "./NucleoViewDialog";
 import { ImeiViewDialog } from "./ImeiViewDialog";
 import { Button } from "@/components/ui/button";
@@ -22,17 +23,40 @@ interface EntityTableProps {
   onUpdate?: (id: string, updates: Partial<EntidadeSaldo>) => void;
   groupByPropriedade?: boolean;
   viewMode?: 'fazenda' | 'produtor' | 'associacao' | 'imei' | 'nucleo';
+  allData?: EntidadeSaldo[];
 }
 
-export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate, groupByPropriedade, viewMode }: EntityTableProps) {
+export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate, groupByPropriedade, viewMode, allData }: EntityTableProps) {
   const [editingEntity, setEditingEntity] = useState<EntidadeSaldo | null>(null);
   const [viewingEntity, setViewingEntity] = useState<EntidadeSaldo | null>(null);
+
+  // Keep viewing/editing entity in sync with latest data from Firestore
+  const sourceData = allData || (data as EntidadeSaldo[]);
+  useEffect(() => {
+    if (viewingEntity) {
+      const fresh = sourceData.find(e => e.id === viewingEntity.id);
+      if (fresh && fresh !== viewingEntity) {
+        setViewingEntity(fresh);
+      }
+    }
+    if (editingEntity) {
+      const fresh = sourceData.find(e => e.id === editingEntity.id);
+      if (fresh && fresh !== editingEntity) {
+        setEditingEntity(fresh);
+      }
+    }
+  }, [sourceData]);
 
   const isDetailMode = viewMode === 'produtor' || viewMode === 'fazenda' || viewMode === 'imei';
 
   const groupedData = useMemo(() => {
     if (viewMode === 'fazenda') {
-      return { "Lançamentos Individuais": data };
+      return data.reduce((acc, item: any) => {
+        const key = item.propriedade || "Sem Propriedade";
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(item);
+        return acc;
+      }, {} as Record<string, any[]>);
     }
 
     return data.reduce((acc, item: any) => {
@@ -70,7 +94,7 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate, gr
     else onSelectionChange([...selectedIds, id]);
   };
 
-  const formatUCS = (val: number) => (val || 0).toLocaleString('pt-BR');
+  const formatUCS = (val?: number) => (val ?? 0).toLocaleString('pt-BR');
 
   const renderStatus = (item: EntidadeSaldo) => {
     const status = item.statusAuditoriaSaldo;
@@ -100,7 +124,7 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate, gr
 
   // Helper: resolve o nome principal baseado no viewMode
   const getEntityName = (item: any) => {
-    if (viewMode === 'fazenda') return item.propriedade || item.nome || "Sem Identificação";
+    if (viewMode === 'fazenda') return item.nome || item.propriedade || "Sem Identificação";
     if (viewMode === 'imei') return item.imeiNome || item.nome || "Sem IMEI";
     if (viewMode === 'produtor') return item.nome || item.propriedade || "Sem Nome";
     if (viewMode === 'nucleo') return item.nucleo || item.associacaoNome || "Sem Núcleo";
@@ -110,7 +134,7 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate, gr
 
   // Helper: resolve o sub-texto
   const getEntitySub = (item: any) => {
-    if (viewMode === 'fazenda' && item.propriedade) return item.nome;
+    if (viewMode === 'fazenda' && item.propriedade) return item.propriedade;
     if (viewMode === 'imei') return item.nome;
     if (viewMode === 'nucleo' && item.associacaoNome && item.nucleo) return `Assoc: ${item.associacaoNome}`;
     return null;
@@ -134,7 +158,7 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate, gr
                   <>
                     <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Safra</TableHead>
                     <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                      {viewMode === 'fazenda' ? 'Propriedade / Fazenda' : viewMode === 'imei' ? 'IMEI / Registro' : 'Produtor / Registro'}
+                      {viewMode === 'fazenda' ? 'Detentor / Produtor' : viewMode === 'imei' ? 'IMEI / Registro' : 'Produtor / Registro'}
                     </TableHead>
                     <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Documento</TableHead>
                     <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Originação</TableHead>
@@ -172,23 +196,46 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate, gr
                   </TableCell>
                 </TableRow>
               ) : (
-                Object.entries(groupedData).map(([groupKey, items]: [string, any[]]) => (
-                  <React.Fragment key={groupKey}>
-                    <TableRow className="bg-slate-50/30 border-y border-slate-100/50 hover:bg-slate-50/30">
-                      <TableCell colSpan={14} className="py-3 px-8">
-                        <div className="flex items-center gap-2">
-                          <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse",
-                            viewMode === 'nucleo' ? "bg-amber-500" : viewMode === 'imei' ? "bg-violet-500" : "bg-primary"
-                          )} />
-                          <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{viewLabels[viewMode || 'produtor']}:</span>
-                          <span className="text-[11px] font-black uppercase text-slate-900">{groupKey}</span>
-                          <Badge variant="outline" className="ml-2 text-[9px] font-bold border-slate-200 text-slate-400 rounded-full px-2 py-0">
-                            {items.length} {items.length === 1 ? 'LANÇAMENTO' : 'LANÇAMENTOS'}
-                          </Badge>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                    {items.map((item: any) => (
+                Object.entries(groupedData).map(([groupKey, items]: [string, any[]]) => {
+                  // Calcula o saldo total da fazenda (wallet da fazenda)
+                  // Normalmente o originacaoFazendaTotal estará preenchido no primeiro registro do grupo
+                  const totalFazenda = viewMode === 'fazenda' 
+                    ? (items[0].originacaoFazendaTotal || items.reduce((sum, i) => sum + (i.originacao || 0), 0))
+                    : items.reduce((sum, i) => sum + (i.saldoFinalAtual || 0), 0);
+
+                  return (
+                    <React.Fragment key={groupKey}>
+                      <TableRow className="bg-slate-50/30 border-y border-slate-100/50 hover:bg-slate-50/30">
+                        <TableCell colSpan={14} className="py-3 px-8">
+                          <div className="flex items-center justify-between w-full">
+                            <div className="flex items-center gap-2">
+                              <div className={cn("w-2 h-2 rounded-full animate-pulse",
+                                viewMode === 'nucleo' ? "bg-amber-500" : viewMode === 'imei' ? "bg-violet-500" : "bg-primary"
+                              )} />
+                              <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{viewLabels[viewMode || 'produtor']}:</span>
+                              <span className="text-[12px] font-black uppercase text-slate-900">{groupKey}</span>
+                              <Badge variant="outline" className="ml-2 text-[8px] font-bold border-slate-200 text-slate-400 rounded-full px-2 py-0">
+                                {items.length} {items.length === 1 ? 'PRODUTOR' : 'PRODUTORES'}
+                              </Badge>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                              <div className="flex flex-col items-end">
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                                  {viewMode === 'fazenda' ? 'FARM WALLET (TOTAL)' : 'SALDO CONSOLIDADO'}
+                                </span>
+                                <span className={cn(
+                                  "text-[13px] font-black tracking-tighter",
+                                  viewMode === 'fazenda' ? "text-primary" : "text-slate-900"
+                                )}>
+                                  {totalFazenda.toLocaleString('pt-BR')} <span className="text-[9px] font-bold">UCS</span>
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                      {items.map((item: any) => (
                       <TableRow key={item.id} className={`group border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors ${selectedIds.includes(item.id) ? 'bg-emerald-50/20' : ''}`}>
                         <TableCell className="pl-8">
                           <Checkbox 
@@ -289,8 +336,9 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate, gr
                       </TableRow>
                     ))}
                   </React.Fragment>
-                ))
-              )}
+                );
+              })
+            )}
             </TableBody>
           </Table>
           <ScrollBar orientation="horizontal" />
@@ -298,7 +346,7 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate, gr
       </div>
 
       {/* DIALOG DE VISUALIZAÇÃO — Contextual por viewMode */}
-      {(viewMode === 'produtor' || viewMode === 'fazenda') && (
+      {viewMode === 'produtor' && (
         <ProducerViewDialog 
           entity={viewingEntity}
           open={!!viewingEntity}
@@ -307,7 +355,16 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate, gr
             setEditingEntity(viewingEntity);
             setViewingEntity(null);
           }}
-          allData={data as EntidadeSaldo[]}
+          allData={allData || (data as EntidadeSaldo[])}
+        />
+      )}
+
+      {viewMode === 'fazenda' && (
+        <FarmViewDialog 
+          entity={viewingEntity}
+          open={!!viewingEntity}
+          onOpenChange={(open) => !open && setViewingEntity(null)}
+          allData={allData || (data as EntidadeSaldo[])}
         />
       )}
       {viewMode === 'nucleo' && (

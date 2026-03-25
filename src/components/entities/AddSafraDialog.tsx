@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar, Rocket } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useFirebase } from "@/firebase";
+import { setDoc, doc } from "firebase/firestore";
 
 interface AddSafraDialogProps {
   open: boolean;
@@ -16,11 +18,27 @@ export function AddSafraDialog({ open, onOpenChange }: AddSafraDialogProps) {
   const [year, setYear] = useState("");
   const router = useRouter();
 
-  const handleCreate = () => {
-    if (!year) return;
-    onOpenChange(false);
-    // Redireciona para a página da safra, onde o usuário poderá importar os dados
-    router.push(`/safras/${year}`);
+  const { firestore: db } = useFirebase();
+
+  const handleCreate = async () => {
+    if (!year || !db) return;
+    
+    try {
+      // Cria o documento oficial da safra na coleção 'safras'
+      await setDoc(doc(db, "safras", year), {
+        id: year,
+        year: year,
+        status: 'ativo',
+        criadoEm: new Date().toISOString(),
+        totalProdutores: 0,
+        totalUCS: 0
+      }, { merge: true });
+
+      onOpenChange(false);
+      router.push(`/safras/${year}`);
+    } catch (error) {
+      console.error("Erro ao criar safra:", error);
+    }
   };
 
   return (

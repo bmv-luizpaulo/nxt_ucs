@@ -1,20 +1,22 @@
 "use client"
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { EntidadeSaldo } from "@/lib/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   X, ShieldCheck, AlertTriangle, Users, ExternalLink,
-  Landmark, Building2, Eye, EyeOff, Printer
+  Landmark, Building2, Eye, EyeOff, Printer, Scale, QrCode, Database
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import Image from "next/image";
 import { getLinkWithFilter } from "./EntityFilters";
 import { useUser } from "@/firebase";
+import { NucleoAuditReport } from "./reports/NucleoAuditReport";
 
 interface NucleoViewDialogProps {
   entity: EntidadeSaldo | null;
@@ -26,6 +28,7 @@ interface NucleoViewDialogProps {
 export function NucleoViewDialog({ entity, open, onOpenChange, allData }: NucleoViewDialogProps) {
   const { user } = useUser();
   const [isCensored, setIsCensored] = useState(false);
+  const [reportType, setReportType] = useState<'executive' | 'juridico'>('executive');
 
   // Encontra todos os produtores vinculados a este núcleo/associação
   const linkedProducers = useMemo(() => {
@@ -40,13 +43,13 @@ export function NucleoViewDialog({ entity, open, onOpenChange, allData }: Nucleo
 
   // Consolidação
   const stats = useMemo(() => {
-    const uniqueProducers = new Set(linkedProducers.map(p => p.documento)).size;
-    const uniqueFarms = new Set(linkedProducers.map(p => p.propriedade || p.idf)).size;
-    const totalOriginacao = linkedProducers.reduce((s, p) => s + (p.originacao || 0), 0);
-    const totalSaldoAssoc = linkedProducers.reduce((s, p) => s + (p.associacaoSaldo || 0), 0);
-    const totalSaldoProd = linkedProducers.reduce((s, p) => s + (p.saldoParticionado || 0), 0);
+    const uniqueProducers = new Set(linkedProducers.map((p: EntidadeSaldo) => p.documento)).size;
+    const uniqueFarms = new Set(linkedProducers.map((p: EntidadeSaldo) => p.propriedade || p.idf)).size;
+    const totalOriginacao = linkedProducers.reduce((s: number, p: EntidadeSaldo) => s + (p.originacao || 0), 0);
+    const totalSaldoAssoc = linkedProducers.reduce((s: number, p: EntidadeSaldo) => s + (p.associacaoSaldo || 0), 0);
+    const totalSaldoProd = linkedProducers.reduce((s: number, p: EntidadeSaldo) => s + (p.saldoParticionado || 0), 0);
     const avgPart = linkedProducers.length > 0 
-      ? linkedProducers.reduce((s, p) => s + (p.associacaoParticionamento || 0), 0) / linkedProducers.length 
+      ? linkedProducers.reduce((s: number, p: EntidadeSaldo) => s + (p.associacaoParticionamento || 0), 0) / linkedProducers.length 
       : 0;
       
     return { uniqueProducers, uniqueFarms, totalOriginacao, totalSaldoAssoc, totalSaldoProd, avgPart };
@@ -58,6 +61,10 @@ export function NucleoViewDialog({ entity, open, onOpenChange, allData }: Nucleo
     if (text.length <= 4) return "****";
     return text[0] + "*".repeat(text.length - 2) + text[text.length - 1];
   };
+
+  const handlePrint = () => { if (typeof window !== 'undefined') window.print(); };
+  const handlePrintExecutive = () => { setReportType('executive'); setTimeout(() => handlePrint(), 500); };
+  const handlePrintJuridico = () => { setReportType('juridico'); setTimeout(() => handlePrint(), 500); };
 
   if (!entity) return null;
 
@@ -73,7 +80,7 @@ export function NucleoViewDialog({ entity, open, onOpenChange, allData }: Nucleo
           <DialogDescription>Visão consolidada dos produtores vinculados ao núcleo/associação.</DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden print:hidden">
           {/* HEADER — Amber theme */}
           <div className="bg-[#0B0F1A] p-10 shrink-0 text-white relative">
             <div className="flex justify-between items-start mb-10">
@@ -97,7 +104,7 @@ export function NucleoViewDialog({ entity, open, onOpenChange, allData }: Nucleo
                 <div className="absolute top-0 right-0 w-40 h-40 bg-amber-500/10 blur-3xl -mr-20 -mt-20"></div>
                 <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5 relative z-10">Saldo Total Associação</p>
                 <div className="flex items-baseline gap-2 relative z-10">
-                  <span className="text-[48px] font-black text-white tracking-tighter leading-none font-headline">{formatUCS(stats.totalSaldoAssoc)}</span>
+                  <span className="text-[48px] font-black text-white tracking-tighter leading-none font-headline font-mono">{formatUCS(stats.totalSaldoAssoc)}</span>
                   <span className="text-[14px] font-black text-amber-500 uppercase tracking-widest">UCS</span>
                 </div>
               </div>
@@ -173,6 +180,7 @@ export function NucleoViewDialog({ entity, open, onOpenChange, allData }: Nucleo
                               Ver Particionamento <ExternalLink className="w-3 h-3" />
                             </Link>
                           </TableCell>
+                          <TableCell className="text-right font-mono text-[11px] font-black text-amber-600 pr-6">{formatUCS(p.associacaoSaldo)}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -205,7 +213,7 @@ export function NucleoViewDialog({ entity, open, onOpenChange, allData }: Nucleo
           </ScrollArea>
 
           {/* FOOTER */}
-          <div className="p-6 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
+          <div className="p-6 border-t border-slate-100 bg-white flex items-center justify-between shrink-0 no-print">
             <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[11px] font-black uppercase text-slate-400 tracking-widest hover:text-slate-900 px-8 h-12">
               <X className="w-4 h-4 mr-2" /> Fechar
             </Button>
@@ -221,9 +229,25 @@ export function NucleoViewDialog({ entity, open, onOpenChange, allData }: Nucleo
                 {isCensored ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
                 {isCensored ? "Censura Ativa" : "Censurar"}
               </Button>
+              <Button variant="outline" onClick={handlePrintExecutive} className="h-12 px-6 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[10px] tracking-widest text-slate-700">
+                <Printer className="w-4 h-4 mr-2" /> EXECUTIVO
+              </Button>
+              <Button variant="outline" onClick={handlePrintJuridico} className="h-12 px-6 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[10px] tracking-widest text-amber-600">
+                <Scale className="w-4 h-4 mr-2" /> JURÍDICO
+              </Button>
             </div>
           </div>
         </div>
+
+        {/* PRINTABLE AREA */}
+        <NucleoAuditReport
+          entity={entity}
+          linkedProducers={linkedProducers}
+          stats={stats}
+          reportType={reportType}
+          userEmail={user?.email || "SYSTEM_AUDITOR"}
+          isCensored={isCensored}
+        />
       </DialogContent>
     </Dialog>
   );

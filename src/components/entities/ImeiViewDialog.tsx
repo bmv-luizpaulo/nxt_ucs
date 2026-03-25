@@ -7,7 +7,7 @@ import { EntidadeSaldo } from "@/lib/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   X, ShieldCheck, AlertTriangle, Users, Cpu,
-  Eye, EyeOff, Building2, ExternalLink
+  Eye, EyeOff, Building2, ExternalLink, Printer, Scale, QrCode, Database
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { getLinkWithFilter } from "./EntityFilters";
 import { useUser } from "@/firebase";
+import { ImeiAuditReport } from "./reports/ImeiAuditReport";
 
 interface ImeiViewDialogProps {
   entity: EntidadeSaldo | null;
@@ -26,6 +27,7 @@ interface ImeiViewDialogProps {
 export function ImeiViewDialog({ entity, open, onOpenChange, allData }: ImeiViewDialogProps) {
   const { user } = useUser();
   const [isCensored, setIsCensored] = useState(false);
+  const [reportType, setReportType] = useState<'executive' | 'juridico'>('executive');
 
   // Encontra todos os produtores vinculados a este IMEI
   const linkedProducers = useMemo(() => {
@@ -54,6 +56,10 @@ export function ImeiViewDialog({ entity, open, onOpenChange, allData }: ImeiView
     return text[0] + "*".repeat(text.length - 2) + text[text.length - 1];
   };
 
+  const handlePrint = () => { if (typeof window !== 'undefined') window.print(); };
+  const handlePrintExecutive = () => { setReportType('executive'); setTimeout(() => handlePrint(), 500); };
+  const handlePrintJuridico = () => { setReportType('juridico'); setTimeout(() => handlePrint(), 500); };
+
   if (!entity) return null;
 
   const imeiName = entity.imeiNome || 'Sem IMEI';
@@ -66,7 +72,7 @@ export function ImeiViewDialog({ entity, open, onOpenChange, allData }: ImeiView
           <DialogDescription>Distribuição IMEI entre produtores vinculados.</DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden print:hidden">
           {/* HEADER — Violet theme */}
           <div className="bg-[#0B0F1A] p-10 shrink-0 text-white relative">
             <div className="flex justify-between items-start mb-10">
@@ -84,7 +90,7 @@ export function ImeiViewDialog({ entity, open, onOpenChange, allData }: ImeiView
                 <div className="absolute top-0 right-0 w-40 h-40 bg-violet-500/10 blur-3xl -mr-20 -mt-20"></div>
                 <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5 relative z-10">Saldo Total IMEI</p>
                 <div className="flex items-baseline gap-2 relative z-10">
-                  <span className="text-[48px] font-black text-white tracking-tighter leading-none font-headline">{formatUCS(stats.totalSaldoImei)}</span>
+                  <span className="text-[48px] font-black text-white tracking-tighter font-mono leading-none">{formatUCS(stats.totalSaldoImei)}</span>
                   <span className="text-[14px] font-black text-violet-400 uppercase tracking-widest">UCS</span>
                 </div>
               </div>
@@ -136,7 +142,6 @@ export function ImeiViewDialog({ entity, open, onOpenChange, allData }: ImeiView
                         <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">Documento</TableHead>
                         <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">Propriedade</TableHead>
                         <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">Safra</TableHead>
-                        <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">Núcleo</TableHead>
                         <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">Originação</TableHead>
                         <TableHead className="text-[9px] font-black uppercase tracking-widest text-primary text-right">Saldo Produtor</TableHead>
                         <TableHead className="text-[9px] font-black uppercase tracking-widest text-violet-600 text-right pr-6">Saldo IMEI</TableHead>
@@ -149,7 +154,6 @@ export function ImeiViewDialog({ entity, open, onOpenChange, allData }: ImeiView
                           <TableCell className="font-mono text-[10px] text-slate-400">{maskText(p.documento)}</TableCell>
                           <TableCell className="text-[10px] text-slate-600 truncate max-w-[120px]">{p.propriedade || '—'}</TableCell>
                           <TableCell className="text-[10px] font-bold text-primary">{p.safra}</TableCell>
-                          <TableCell className="text-[10px] text-amber-600 font-bold truncate max-w-[100px]">{p.nucleo || '—'}</TableCell>
                           <TableCell className="text-right font-mono text-[10px] font-bold text-slate-600">{formatUCS(p.originacao)}</TableCell>
                           <TableCell className="text-right">
                              <Link 
@@ -157,7 +161,7 @@ export function ImeiViewDialog({ entity, open, onOpenChange, allData }: ImeiView
                                 onClick={() => onOpenChange(false)}
                                 className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase text-violet-600 hover:text-violet-700 transition-colors"
                              >
-                               Ver Particionamento <ExternalLink className="w-3 h-3" />
+                                Ver Particionamento <ExternalLink className="w-3 h-3" />
                              </Link>
                            </TableCell>
                           <TableCell className="text-right font-mono text-[11px] font-black text-violet-600 pr-6">{formatUCS(p.imeiSaldo)}</TableCell>
@@ -193,23 +197,41 @@ export function ImeiViewDialog({ entity, open, onOpenChange, allData }: ImeiView
           </ScrollArea>
 
           {/* FOOTER */}
-          <div className="p-6 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
+          <div className="p-6 border-t border-slate-100 bg-white flex items-center justify-between shrink-0 no-print">
             <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[11px] font-black uppercase text-slate-400 tracking-widest hover:text-slate-900 px-8 h-12">
               <X className="w-4 h-4 mr-2" /> Fechar
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => setIsCensored(!isCensored)} 
-              className={cn(
-                "h-12 px-5 rounded-2xl border-slate-200 transition-all font-black uppercase text-[10px] tracking-widest",
-                isCensored ? "bg-rose-50 text-rose-600 border-rose-200" : "bg-slate-50/50 text-slate-500"
-              )}
-            >
-              {isCensored ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
-              {isCensored ? "Censura Ativa" : "Censurar"}
-            </Button>
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                onClick={() => setIsCensored(!isCensored)} 
+                className={cn(
+                  "h-12 px-5 rounded-2xl border-slate-200 transition-all font-black uppercase text-[10px] tracking-widest",
+                  isCensored ? "bg-rose-50 text-rose-600 border-rose-200" : "bg-slate-50/50 text-slate-500"
+                )}
+              >
+                {isCensored ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
+                {isCensored ? "Censura Ativa" : "Censurar"}
+              </Button>
+              <Button variant="outline" onClick={handlePrintExecutive} className="h-12 px-6 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[10px] tracking-widest text-slate-700">
+                <Printer className="w-4 h-4 mr-2" /> EXECUTIVO
+              </Button>
+              <Button variant="outline" onClick={handlePrintJuridico} className="h-12 px-6 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[10px] tracking-widest text-violet-600">
+                <Scale className="w-4 h-4 mr-2" /> JURÍDICO
+              </Button>
+            </div>
           </div>
         </div>
+
+        {/* PRINTABLE AREA */}
+        <ImeiAuditReport
+          entity={entity}
+          linkedProducers={linkedProducers}
+          stats={stats}
+          reportType={reportType}
+          userEmail={user?.email || "SYSTEM_AUDITOR"}
+          isCensored={isCensored}
+        />
       </DialogContent>
     </Dialog>
   );

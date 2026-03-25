@@ -1,0 +1,262 @@
+"use client"
+
+import { EntidadeSaldo, RegistroTabela } from "@/lib/types";
+import { ShieldCheck, QrCode, History } from "lucide-react";
+import Image from "next/image";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+interface ProducerAuditReportProps {
+  entity: EntidadeSaldo;
+  relatedFarms: any[];
+  consolidated: {
+    orig: number;
+    mov: number;
+    final: number;
+  };
+  reportType: 'executive' | 'juridico';
+  userEmail?: string;
+  isCensored?: boolean;
+}
+
+export function ProducerAuditReport({ entity, relatedFarms, consolidated, reportType, userEmail, isCensored }: ProducerAuditReportProps) {
+  const formatUCS = (val?: number) => (val ?? 0).toLocaleString('pt-BR');
+
+  const maskText = (text: string | undefined) => {
+    if (!text || !isCensored) return text || '-';
+    if (text.length <= 4) return "****";
+    return text[0] + "*".repeat(text.length - 2) + text[text.length - 1];
+  };
+
+  return (
+    <div className="printable-audit-report hidden print:block bg-white text-slate-900 p-0 font-sans premium-report transition-all duration-500">
+      {reportType === 'executive' ? (
+        <div className="px-12 py-12">
+          <div className="flex justify-between items-start border-b-4 border-slate-900 pb-8 mb-12">
+            <div className="flex items-center gap-4">
+              <div className="relative w-16 h-16">
+                <Image src="/image/logo_amarelo.png" alt="BMV Logo" fill className="object-contain" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[42px] font-black text-amber-500 leading-none tracking-tighter">bmv</span>
+                <span className="text-[14px] font-black text-slate-400 uppercase tracking-[0.3em] leading-none mt-1">Audit Global</span>
+              </div>
+            </div>
+            <div className="text-right">
+              <h2 className="text-[22px] font-black uppercase tracking-tight leading-tight text-slate-900">Relatório Executivo de Auditoria</h2>
+              <p className="text-[10px] font-black text-slate-400 uppercase mt-2 tracking-widest">Protocolo Consolidado: #{entity.id?.substring(0, 12).toUpperCase()}</p>
+              <p className="text-[9px] font-bold text-slate-300 uppercase mt-1">Emissão: {new Date().toLocaleString("pt-BR")}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-12 mb-16">
+            <div className="space-y-8">
+              <h3 className="text-[12px] font-black text-slate-400 uppercase border-b-2 border-slate-100 pb-3 tracking-[0.2em]">IDENTIFICAÇÃO DO TITULAR</h3>
+              <div className="space-y-5">
+                <h4 className="text-[32px] font-black text-slate-900 leading-none uppercase tracking-tighter">{entity.nome}</h4>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-1">
+                    <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">CPF / CNPJ</p>
+                    <p className="text-[14px] font-black text-slate-600 font-mono italic">{entity.documento}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Portfólio</p>
+                    <p className="text-[14px] font-black text-slate-600 uppercase">{relatedFarms.length} Fazendas Ativas</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-slate-50/50 rounded-[3rem] p-10 border-2 border-slate-100 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-3xl -mr-16 -mt-16"></div>
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-8">SUMÁRIOS DE UCS CONCERTADAS</h3>
+              <div className="space-y-6">
+                <div className="flex justify-between items-end border-b border-slate-200 pb-4">
+                  <p className="text-slate-400 font-black text-[9px] uppercase tracking-widest leading-none">Originação Bruta</p>
+                  <p className="text-[26px] font-black text-slate-900 font-mono tracking-tighter">{formatUCS(consolidated.orig)}</p>
+                </div>
+                <div className="flex justify-between items-center pt-2">
+                  <div>
+                    <p className="text-primary font-black text-[11px] uppercase tracking-[0.3em] mb-1 leading-none">Saldo Líquido Certificado</p>
+                    <p className="text-[46px] font-black text-primary font-headline leading-none">
+                      {formatUCS(consolidated.final)} <span className="text-[18px] text-primary/40 leading-none">UCS</span>
+                    </p>
+                  </div>
+                  <div className="w-20 h-20 bg-white rounded-2xl border border-slate-100 flex items-center justify-center p-2 shadow-sm">
+                    <QrCode className="w-full h-full text-slate-200" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <section className="space-y-6">
+            <div className="flex items-center justify-between border-b-2 border-slate-950 pb-4">
+              <h3 className="text-[14px] font-black text-slate-950 uppercase tracking-[0.2em]">01. Demonstração de Propriedades Auditadas</h3>
+              <span className="legal-verify-badge">Original Ledger ✓</span>
+            </div>
+            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white">
+              <Table>
+                <TableHeader className="bg-slate-50/50">
+                  <TableRow className="border-b-2 border-slate-200">
+                    <TableHead className="text-[11px] font-black uppercase text-slate-500 py-4 pl-10">Unidade de Conservação</TableHead>
+                    <TableHead className="text-[11px] font-black uppercase text-slate-500 py-4">Matrícula IDF</TableHead>
+                    <TableHead className="text-[11px] font-black uppercase text-slate-500 py-4 text-right pr-10">Disponível (UCS)</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {relatedFarms.map(f => (
+                    <TableRow key={f.id} className="border-b border-slate-100 h-16">
+                      <TableCell className="text-[12px] font-black uppercase pl-10 text-slate-900">{f.propriedade}</TableCell>
+                      <TableCell className="text-[12px] font-mono font-bold text-slate-400">{f.idf || f.id}</TableCell>
+                      <TableCell className="text-[13px] font-black text-right pr-10 text-slate-950 font-mono tracking-tighter">{formatUCS(f.saldoParticionado)}</TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow className="bg-slate-950 text-white h-20">
+                    <TableCell colSpan={2} className="text-[13px] font-black uppercase pl-10 tracking-[0.2em]">Patrimônio em Ativos Reais Ativos</TableCell>
+                    <TableCell className="text-[24px] font-black text-right pr-10 text-amber-500 font-mono tracking-tighter">{formatUCS(consolidated.orig)}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          </section>
+
+          <footer className="mt-24 pt-12 border-t-4 border-slate-100 flex justify-between items-end">
+            <div className="space-y-6">
+              <div className="bg-emerald-50 px-6 py-4 rounded-2xl border-2 border-emerald-100 flex items-center gap-4 w-fit shadow-sm">
+                <ShieldCheck className="w-8 h-8 text-emerald-600" />
+                <div className="flex flex-col">
+                  <span className="text-[12px] font-black text-emerald-800 uppercase tracking-widest leading-none">Auditado LedgerTrust</span>
+                  <span className="text-[9px] text-emerald-600 font-black uppercase mt-1">Sincronizado Blockchain NXT</span>
+                </div>
+              </div>
+              <p className="text-[9px] text-slate-400 uppercase leading-relaxed max-w-sm font-bold tracking-wide opacity-60">
+                A tecnologia LedgerTrust BMV assegura a imutabilidade absoluta deste registro. Emitido via NXT Portal v4.2.0 para fins de auditoria.
+              </p>
+            </div>
+            <div className="text-right border-t-4 border-slate-900 w-64 pt-6 text-center shadow-[0_-8px_16px_rgba(0,0,0,0.02)]">
+              <p className="text-[11px] font-black uppercase text-slate-900 tracking-widest leading-none">Responsabilidade Técnica</p>
+              <p className="text-[10px] font-black text-slate-400 uppercase mt-2 leading-none">{userEmail || "SYSTEM_AUDITOR"}</p>
+            </div>
+          </footer>
+        </div>
+      ) : (
+        <div className="px-16 py-16">
+          <header className="flex justify-between items-start mb-20 border-b-8 border-slate-900 pb-12">
+            <div className="space-y-8">
+              <div className="flex items-center gap-4">
+                <div className="w-20 h-20 bg-amber-500 rounded-3xl flex items-center justify-center shadow-xl p-4">
+                  <ShieldCheck className="w-full h-full text-slate-900" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[14px] font-black text-slate-400 uppercase tracking-[0.5em] leading-none mb-2">Protocolo de Evidência</span>
+                  <h1 className="text-[52px] font-black text-slate-950 tracking-tighter leading-none uppercase">{entity.nome}</h1>
+                </div>
+              </div>
+              <div className="flex items-center gap-6">
+                <div className="legal-verify-badge">Rastreabilidade Certificada</div>
+                <span className="text-[20px] font-black text-slate-300 font-mono tracking-[0.2em]">{entity.documento}</span>
+              </div>
+            </div>
+            <div className="gold-seal relative">
+              <div className="absolute inset-0 flex items-center justify-center p-6">
+                <Image src="/image/logo_amarelo.png" alt="BMV" width={60} height={60} className="object-contain opacity-40 grayscale contrast-200" />
+              </div>
+            </div>
+          </header>
+
+          <div className="grid grid-cols-3 gap-10 mb-20">
+            <div className="bg-slate-50 p-12 rounded-[4rem] border-4 border-slate-100 flex flex-col items-center text-center shadow-sm">
+              <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest mb-3">Patrimônio Gerado</p>
+              <p className="text-[42px] font-black text-slate-900 font-mono tracking-tighter leading-none mb-1">{formatUCS(consolidated.orig)}</p>
+              <p className="text-[11px] text-slate-300 font-black tracking-widest uppercase">Volume em Custódia</p>
+            </div>
+            <div className="bg-rose-50 p-12 rounded-[4rem] border-4 border-rose-100 flex flex-col items-center text-center shadow-sm">
+              <p className="text-[12px] font-black text-rose-400 uppercase tracking-widest mb-3">Circulação de Ativos</p>
+              <p className="text-[42px] font-black text-rose-600 font-mono tracking-tighter leading-none mb-1">-{formatUCS(consolidated.mov)}</p>
+              <p className="text-[11px] text-rose-300 font-black tracking-widest uppercase">Saídas Processadas</p>
+            </div>
+            <div className="bg-slate-950 p-12 rounded-[4rem] border-4 border-slate-800 flex flex-col items-center text-center shadow-2xl scale-105">
+              <p className="text-[12px] font-black text-slate-500 uppercase tracking-widest mb-3">Saldo Disponível Atual</p>
+              <p className="text-[46px] font-black text-amber-500 font-mono tracking-tighter leading-none mb-1">{formatUCS(consolidated.final)}</p>
+              <p className="text-[12px] text-amber-500/40 font-black tracking-[0.2em] uppercase">Unidades Verificadas</p>
+            </div>
+          </div>
+
+          <section className="space-y-16">
+            <div className="flex items-center justify-between border-b-2 border-slate-300 pb-6 mb-4">
+              <h3 className="text-[18px] font-black text-slate-900 uppercase tracking-[0.4em] flex items-center gap-6">
+                <History className="w-8 h-8 text-primary" /> Cronograma de Custódia
+              </h3>
+              <div className="flex gap-4">
+                <Badge className="bg-slate-950 text-white border-none font-black text-[10px] uppercase px-6 py-2 shadow-lg">Blockchain Proof</Badge>
+              </div>
+            </div>
+            
+            <div className="space-y-10">
+              {relatedFarms.flatMap(f => (f.tabelaMovimentacao || []).map((m: any) => ({...m, farm: f.propriedade}))).length > 0 ? (
+                relatedFarms.flatMap(f => (f.tabelaMovimentacao || []).map((m: any) => ({...m, farm: f.propriedade})))
+                  .sort((a,b) => b.data.localeCompare(a.data))
+                  .map((mov, idx) => (
+                    <div key={idx} className="relative bg-white border-4 border-slate-100 rounded-[3.5rem] p-12 flex items-center justify-between shadow-sm page-break-inside-avoid">
+                      <div className="flex gap-12 items-center">
+                        <div className="w-24 h-24 bg-slate-950 rounded-[2rem] flex items-center justify-center font-black text-amber-500 text-3xl shadow-2xl">
+                          {String(idx + 1).padStart(2, '0')}
+                        </div>
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-6">
+                            <span className="text-[16px] font-black text-primary uppercase tracking-[0.4em]">{mov.data}</span>
+                            <Badge className="bg-slate-50 text-slate-400 border-none font-black text-[10px] uppercase px-5 py-2 rounded-full border border-slate-200">{mov.farm}</Badge>
+                          </div>
+                          <h4 className="text-[28px] font-black text-slate-950 uppercase tracking-tighter leading-none">{maskText(mov.destino)}</h4>
+                          <div className="flex items-center gap-4">
+                            <p className="text-[13px] font-black text-slate-300 uppercase tracking-widest italic">{mov.plataforma}</p>
+                            <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                            <p className="text-[13px] font-black text-emerald-600 uppercase tracking-widest">Liquidado e Verificado</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-16">
+                        {mov.linkNxt && (
+                          <div className="flex flex-col items-end gap-3 grayscale opacity-40">
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Proof Hash</span>
+                            <QrCode className="w-16 h-16" />
+                          </div>
+                        )}
+                        <div className="text-right min-w-[200px] bg-slate-50 p-8 rounded-[2.5rem] border-2 border-slate-100">
+                          <p className="text-[11px] font-black text-slate-400 uppercase mb-2 tracking-[0.2em]">Fluxo de Saída</p>
+                          <p className="text-[40px] font-black text-rose-500 font-mono leading-none tracking-tighter">-{formatUCS(mov.valor)}</p>
+                          <p className="text-[13px] font-black text-rose-300 uppercase mt-2">UCS AUDITADAS</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+              ) : (
+                <div className="text-center py-32 bg-slate-50/50 rounded-[5rem] border-4 border-dashed border-slate-200">
+                  <h4 className="text-[16px] font-black text-slate-300 uppercase tracking-[0.6em]">Arquivo de Custódia Vazio</h4>
+                </div>
+              )}
+            </div>
+          </section>
+
+          <footer className="mt-40 pt-20 border-t-8 border-slate-950 flex justify-between items-start grayscale hover:grayscale-0 transition-all">
+            <div className="space-y-8 max-w-xl">
+              <div className="flex items-center gap-6 text-slate-950 font-black text-[22px] uppercase tracking-[0.4em]">
+                <ShieldCheck className="w-10 h-10 text-primary" /> Conformidade BMV
+              </div>
+              <p className="text-[12px] text-slate-500 font-black uppercase leading-relaxed tracking-wider">
+                A tecnologia LedgerTrust BMV assegura a imutabilidade absoluta deste registro.
+              </p>
+            </div>
+            <div className="flex flex-col items-end gap-10">
+              <div className="text-center w-96 pt-10 border-t-4 border-slate-950">
+                <p className="text-[16px] font-black uppercase text-slate-950 tracking-[0.4em]">Chief Compliance Officer</p>
+                <p className="text-[12px] font-black text-slate-400 mt-3 uppercase tracking-widest">{userEmail || "BMV_VALIDATOR_V4"}</p>
+              </div>
+            </div>
+          </footer>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -72,6 +72,7 @@ export interface RegistroTabela {
   aposentado?: number;
   statusAuditoria?: AuditoriaStatus | string;
   linkComprovante?: string;
+  linkNxt?: string;
 }
 
 export interface EntidadeSaldo {
@@ -102,8 +103,12 @@ export interface EntidadeSaldo {
   associacaoSaldo?: number;
 
   imeiNome?: string;
+  imeiCnpj?: string;
+  imeiParticionamento?: number;
   imeiSaldo?: number;
-
+  originacaoFazendaTotal?: number; // Volume total da fazenda antes do particionamento
+  observacaoFazenda?: string; // Observações da fazenda (global)
+  
   // Totais Consolidados (Retrocompatibilidade)
   originacao: number;
   movimentacao: number; 

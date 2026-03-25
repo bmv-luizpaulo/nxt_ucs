@@ -79,45 +79,64 @@
     print-color-adjust: exact !important;
   }
 
-  /* 🧠 ESCONDE TUDO */
-  body * {
-    visibility: hidden;
+  /* 🧠 ESCONDE TUDO EXETO PORTAL */
+  body > *:not([data-radix-portal]) {
+    display: none !important;
   }
 
-  /* ✅ MOSTRA APENAS CERTIFICADO OU RELATÓRIO */
-  .printable-certificate,
-  .printable-certificate *,
-  .printable-audit-report,
-  .printable-audit-report * {
-    visibility: visible;
+  /* ✅ MOSTRA APENAS O QUE IMPORTA */
+  [data-radix-portal], 
+  .radix-portal,
+  #radix-portal {
+    display: block !important;
+    visibility: visible !important;
+    position: static !important;
+    height: auto !important;
+    width: 100% !important;
   }
 
-  /* 🧾 CONTAINER PRINCIPAL */
+  [role="dialog"] {
+    position: static !important;
+    visibility: visible !important;
+    overflow: visible !important;
+    display: block !important;
+    background: white !important;
+    box-shadow: none !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
   .printable-certificate,
   .printable-audit-report {
-    position: fixed;
-    top: 0;
-    left: 0;
+    visibility: visible !important;
     display: block !important;
-    width: 100%;
-    max-width: 190mm;
-    margin: 0 auto;
-    padding: 0 !important;
+    position: relative !important;
+    width: 210mm !important; /* A4 Width */
+    min-height: 297mm !important; /* A4 Height */
+    margin: 0 auto !important;
+    padding: 15mm !important;
     background: white !important;
     color: black !important;
-    box-sizing: border-box;
-    overflow: visible;
-    z-index: 99999;
+    box-sizing: border-box !important;
+    z-index: 9999 !important;
+    overflow: visible !important;
   }
 
-  /* 🚫 ELEMENTOS NÃO PRINT */
+  /* 🚫 ESCONDE TUDO QUE NÃO É RELATÓRIO */
   .no-print,
+  .print-hidden,
+  .print\:hidden,
   header,
   aside,
   button,
-  .print-hidden,
-  [role="dialog"] > button {
+  nav,
+  [role="dialog"] > *:not(.printable-audit-report):not(.printable-certificate) {
     display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
 
   /* 📊 TABELAS */
@@ -147,6 +166,58 @@
     font-family: 'Raleway', sans-serif;
   }
 
+  /* 💎 LUXURY CERTIFICATE STYLES */
+  .premium-report {
+    border: 15px solid transparent;
+    border-image: linear-gradient(to bottom right, #B8860B, #FFD700, #DAA520, #FFD700, #B8860B) 1;
+    position: relative;
+    overflow: visible !important;
+  }
+
+  .premium-report::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('/image/logo_amarelo.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 60%;
+    opacity: 0.03;
+    z-index: -1;
+  }
+
+  .gold-seal {
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, #FFD700 0%, #DAA520 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border: 2px solid #B8860B;
+    margin: 0 auto;
+  }
+
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 0.4; }
+  }
+
+  .legal-verify-badge {
+    background: #000;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border-radius: 4px;
+  }
+
   h1, h2, h3 {
     font-family: 'Raleway', sans-serif !important;
     font-weight: 800;
@@ -155,4 +226,17 @@
   p, span, strong, td, th {
     font-family: 'Montserrat', sans-serif !important;
   }
+}
+
+/* Base styles for the report to look good on screen TOO when toggled */
+.printable-audit-report {
+  --report-bg: #ffffff;
+  --report-text: #0f172a;
+  --report-accent: #10b981;
+}
+
+.dark-report {
+  --report-bg: #0b0f1a;
+  --report-text: #ffffff;
+  --report-accent: #34d399;
 }

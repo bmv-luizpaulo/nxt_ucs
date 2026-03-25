@@ -11,33 +11,54 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { AddSafraDialog } from "@/components/entities/AddSafraDialog";
 import { useState } from "react";
+interface SafraMetadata {
+  id: string;
+  year: string;
+  status: string;
+  totalProdutores?: number;
+  totalUCS?: number;
+}
 
 export default function SafrasPage() {
   const [isAddSafraOpen, setIsAddSafraOpen] = useState(false);
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
 
-  const allProdutoresQuery = useMemoFirebase(() => {
+  // Busca a coleção oficial de safras (mais performático que varrer todos os produtores)
+  const safrasQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    return query(collection(firestore, "produtores"), orderBy("safra", "desc"));
+    return query(collection(firestore, "safras"), orderBy("year", "desc"));
   }, [firestore, user]);
 
-  const { data: allProdutores, isLoading } = useCollection<EntidadeSaldo>(allProdutoresQuery);
+  const { data: safrasDb, isLoading } = useCollection<SafraMetadata>(safrasQuery);
+
+  // Busca rápida para detecção de safras sem documento (retrocompatibilidade)
+  const allProdutoresQuery = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return query(collection(firestore, "produtores"));
+  }, [firestore, user]);
+
+  const { data: allProdutores } = useCollection<EntidadeSaldo>(allProdutoresQuery);
 
   const safras = useMemo(() => {
-    if (!allProdutores) return [];
-    const uniqueSafras = Array.from(new Set(allProdutores.map(p => p.safra).filter(Boolean)));
-    
-    return uniqueSafras.sort((a, b) => String(b).localeCompare(String(a))).map(year => {
-      const yearProdutores = allProdutores.filter(p => p.safra === year);
-      const totalUCS = yearProdutores.reduce((acc, p) => acc + (p.saldoFinalAtual || 0), 0);
+    const listFromDb = safrasDb || [];
+    const listFromProdutores = Array.from(new Set((allProdutores || []).map(p => p.safra).filter(Boolean)));
+
+    // Mesclar as duas fontes para não perder dados legados
+    const combinedYears = Array.from(new Set([...listFromDb.map(s => s.year), ...listFromProdutores])).sort((a, b) => String(b).localeCompare(String(a)));
+
+    return combinedYears.map(year => {
+      const dbEntry = listFromDb.find(s => s.year === year);
+      const producersOfYear = (allProdutores || []).filter(p => p.safra === year);
+      
       return {
         year,
-        count: yearProdutores.length,
-        totalUCS
+        count: producersOfYear.length || dbEntry?.totalProdutores || 0,
+        totalUCS: producersOfYear.reduce((sum, p) => sum + (p.saldoFinalAtual || 0), 0) || dbEntry?.totalUCS || 0,
+        status: dbEntry?.status || 'ativo'
       };
     });
-  }, [allProdutores]);
+  }, [safrasDb, allProdutores]);
 
   if (isUserLoading || !user) {
     return (
@@ -123,7 +144,7 @@ export default function SafrasPage() {
                   <Plus className="w-8 h-8" />
                 </div>
                 <div>
-                  <h3 className="text-[14px] font-black text-slate-900 uppercase tracking-widest mb-1">Cadastrar Nova Harvest</h3>
+                  <h3 className="text-[14px] font-black text-slate-900 uppercase tracking-widest mb-1">Cadastrar Nova SAFRA</h3>
                   <p className="text-[11px] font-bold text-slate-400 px-4">Inicie o registro de originação de um novo ciclo produtivo.</p>
                 </div>
               </div>

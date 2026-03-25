@@ -6,16 +6,18 @@ import { Button } from "@/components/ui/button";
 import { EntidadeSaldo } from "@/lib/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  Printer, ShieldCheck, X, FileText, AlertTriangle,
-  ExternalLink, Eye, EyeOff, Database, MapPin, Layers, Building2
+  Printer, ShieldCheck, X, FileText, AlertTriangle, Scale, History, Link2,
+  ExternalLink, Eye, EyeOff, Database, MapPin, Layers, Building2, QrCode, FileText as FileIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ProducerAuditReport } from "./reports/ProducerAuditReport";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useUser, useFirebase } from "@/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { getLinkWithFilter } from "./EntityFilters";
 import Link from "next/link";
+import Image from "next/image";
 
 interface ProducerViewDialogProps {
   entity: EntidadeSaldo | null;
@@ -29,6 +31,7 @@ export function ProducerViewDialog({ entity, open, onOpenChange, onEdit, allData
   const { user } = useUser();
   const { firestore: db } = useFirebase();
   const [isCensored, setIsCensored] = useState(false);
+  const [reportType, setReportType] = useState<'executive' | 'juridico'>('executive');
   const [relatedFarms, setRelatedFarms] = useState<EntidadeSaldo[]>([]);
 
   // Busca todas as fazendas do mesmo produtor (mesmo documento)
@@ -77,6 +80,16 @@ export function ProducerViewDialog({ entity, open, onOpenChange, onEdit, allData
   }, [relatedFarms]);
 
   const handlePrint = () => { if (typeof window !== 'undefined') window.print(); };
+
+  const handlePrintExecutive = () => {
+    setReportType('executive');
+    setTimeout(() => handlePrint(), 500);
+  };
+
+  const handlePrintJuridico = () => {
+    setReportType('juridico');
+    setTimeout(() => handlePrint(), 500);
+  };
 
   if (!entity) return null;
 
@@ -271,17 +284,104 @@ export function ProducerViewDialog({ entity, open, onOpenChange, onEdit, allData
                 </div>
               </div>
 
-              {/* SEÇÃO: TABELAS DE MOVIMENTAÇÕES — Placeholder para futuro */}
-              <div className="text-center py-8 text-slate-300 border border-dashed border-slate-200 rounded-[2rem]">
-                <Database className="w-8 h-8 mx-auto mb-3 text-slate-200" />
-                <p className="text-[11px] font-black uppercase tracking-widest">Tabelas de Movimentação, Legado, IMEI e Aquisição</p>
-                <p className="text-[9px] text-slate-400 mt-1">Dados disponíveis conforme lançamentos forem registrados</p>
-              </div>
+              {/* SEÇÃO: TABELAS DE AUDITORIA */}
+              {(() => {
+                const allOrig = relatedFarms.flatMap(f => f.tabelaOriginacao || []);
+                const allMov = relatedFarms.flatMap(f => f.tabelaMovimentacao || []);
+                const allLegado = relatedFarms.flatMap(f => f.tabelaLegado || []);
+                const allImei = relatedFarms.flatMap(f => f.tabelaImei || []);
+                const allAq = relatedFarms.flatMap(f => f.tabelaAquisicao || []);
+                const hasAnyData = allOrig.length > 0 || allMov.length > 0 || allLegado.length > 0 || allImei.length > 0 || allAq.length > 0;
+
+                if (!hasAnyData) {
+                  return (
+                    <div className="text-center py-8 text-slate-300 border border-dashed border-slate-200 rounded-[2rem]">
+                      <Database className="w-8 h-8 mx-auto mb-3 text-slate-200" />
+                      <p className="text-[11px] font-black uppercase tracking-widest">Tabelas de Movimentação, Legado, IMEI e Aquisição</p>
+                      <p className="text-[9px] text-slate-400 mt-1">Dados disponíveis conforme lançamentos forem registrados</p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="space-y-10">
+                    {/* ORIGINAÇÃO */}
+                    {allOrig.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-1.5 h-6 bg-[#10B981] rounded-full" />
+                          <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">01. Originação (Vol. Produtor)</h3>
+                          <Badge variant="outline" className="text-[10px] font-black uppercase rounded-full border-slate-100 px-3 py-1 text-[#10B981]">
+                            {allOrig.reduce((s, r) => s + (r.valor || 0), 0).toLocaleString('pt-BR')} UCS
+                          </Badge>
+                        </div>
+                        <ReadOnlyTable data={allOrig} type="originacao" isCensored={isCensored} />
+                      </div>
+                    )}
+
+                    {/* MOVIMENTAÇÃO */}
+                    {allMov.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-1.5 h-6 bg-rose-500 rounded-full" />
+                          <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">02. Movimentação</h3>
+                          <Badge variant="outline" className="text-[10px] font-black uppercase rounded-full border-slate-100 px-3 py-1 text-rose-500">
+                            {allMov.reduce((s, r) => s + (r.valor || 0), 0).toLocaleString('pt-BR')} UCS
+                          </Badge>
+                        </div>
+                        <ReadOnlyTable data={allMov} type="movimentacao" isCensored={isCensored} />
+                      </div>
+                    )}
+
+                    {/* SALDO LEGADO */}
+                    {allLegado.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-1.5 h-6 bg-amber-500 rounded-full" />
+                          <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">03. Saldo Legado</h3>
+                          <Badge variant="outline" className="text-[10px] font-black uppercase rounded-full border-slate-100 px-3 py-1 text-amber-500">
+                            {allLegado.reduce((s, r) => s + (r.disponivel || 0) + (r.reservado || 0), 0).toLocaleString('pt-BR')} UCS
+                          </Badge>
+                        </div>
+                        <ReadOnlyTable data={allLegado} type="legado" isCensored={isCensored} />
+                      </div>
+                    )}
+
+                    {/* AJUSTE IMEI */}
+                    {allImei.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-1.5 h-6 bg-indigo-500 rounded-full" />
+                          <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">04. Ajuste IMEI</h3>
+                          <Badge variant="outline" className="text-[10px] font-black uppercase rounded-full border-slate-100 px-3 py-1 text-indigo-500">
+                            {allImei.reduce((s, r) => s + ((r.valorDebito || 0) - (r.valorCredito || 0)), 0).toLocaleString('pt-BR')} UCS
+                          </Badge>
+                        </div>
+                        <ReadOnlyTable data={allImei} type="imei" isCensored={isCensored} />
+                      </div>
+                    )}
+
+                    {/* AQUISIÇÃO */}
+                    {allAq.length > 0 && (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-1.5 h-6 bg-rose-500 rounded-full" />
+                          <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900">05. Aquisição</h3>
+                          <Badge variant="outline" className="text-[10px] font-black uppercase rounded-full border-slate-100 px-3 py-1 text-rose-500">
+                            {allAq.reduce((s, r) => s + (r.valor || 0), 0).toLocaleString('pt-BR')} UCS
+                          </Badge>
+                        </div>
+                        <ReadOnlyTable data={allAq} type="aquisicao" isCensored={isCensored} />
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </ScrollArea>
 
           {/* FOOTER */}
-          <div className="p-6 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
+          <div className="p-6 border-t border-slate-100 bg-white flex items-center justify-between shrink-0 no-print">
             <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[11px] font-black uppercase text-slate-400 tracking-widest hover:text-slate-900 px-8 h-12">
               <X className="w-4 h-4 mr-2" /> Fechar
             </Button>
@@ -297,8 +397,11 @@ export function ProducerViewDialog({ entity, open, onOpenChange, onEdit, allData
                 {isCensored ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
                 {isCensored ? "Censura Ativa" : "Censurar"}
               </Button>
-              <Button variant="outline" onClick={handlePrint} className="h-12 px-8 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[10px] tracking-widest text-slate-700">
-                <Printer className="w-4 h-4 mr-2" /> Relatório
+              <Button variant="outline" onClick={handlePrintExecutive} className="h-12 px-6 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[10px] tracking-widest text-slate-700">
+                <Printer className="w-4 h-4 mr-2" /> EXECUTIVO
+              </Button>
+              <Button variant="outline" onClick={handlePrintJuridico} className="h-12 px-6 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[10px] tracking-widest text-[#734DCC]">
+                <Scale className="w-4 h-4 mr-2" /> JURÍDICO
               </Button>
               {onEdit && (
                 <Button onClick={onEdit} className="h-12 px-10 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black uppercase text-[10px] tracking-widest shadow-xl shadow-emerald-100 transition-all active:scale-95">
@@ -308,6 +411,16 @@ export function ProducerViewDialog({ entity, open, onOpenChange, onEdit, allData
             </div>
           </div>
         </div>
+
+        {/* PRINTABLE AREA */}
+        <ProducerAuditReport 
+          entity={entity} 
+          relatedFarms={relatedFarms} 
+          consolidated={consolidated} 
+          reportType={reportType} 
+          userEmail={user?.email || "SYSTEM_AUDITOR"} 
+          isCensored={isCensored}
+        />
       </DialogContent>
     </Dialog>
   );
@@ -347,3 +460,132 @@ function DetailItem({ label, value, isMono, className }: { label: string, value:
     </div>
   );
 }
+
+function ReadOnlyTable({ data, type, isCensored }: { data: any[], type: string, isCensored: boolean }) {
+  const isLegado = type === 'legado';
+  const isImei = type === 'imei';
+  const isMovimentacao = type === 'movimentacao';
+
+  const maskText = (text: string | undefined) => {
+    if (!text || !isCensored) return text || '-';
+    if (text.length <= 4) return "****";
+    return text[0] + "*".repeat(text.length - 2) + text[text.length - 1];
+  };
+
+  return (
+    <div className="rounded-[1.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
+      <Table>
+        <TableHeader className="bg-slate-50/50">
+          <TableRow className="h-12 border-b border-slate-100">
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-[#10B981] w-[110px] pl-6">DATA INÍCIO</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-primary w-[90px]">DIST.</TableHead>
+            
+            {isMovimentacao ? (
+              <>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">CATEGORIA</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">DESTINO</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-rose-500 text-right">DÉBITO (UCS)</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">SITUAÇÃO</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-emerald-600 text-center">DATA PGTO</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-emerald-600 text-center">COMPR.</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-emerald-600 text-center">NXT</TableHead>
+              </>
+            ) : (
+              <>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">HISTÓRICO / PLATAFORMA</TableHead>
+                {isLegado ? (
+                  <>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-primary text-right">DISPONÍVEL</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-amber-500 text-right">RESERVADO</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-rose-500 text-right">BLOQUEADO</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right pr-6">APOSENTADO</TableHead>
+                  </>
+                ) : isImei ? (
+                  <>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-indigo-500 text-right">DÉBITO</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">CRÉDITO</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-indigo-600 text-right pr-6">SALDO</TableHead>
+                  </>
+                ) : (
+                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right pr-6">VOLUME (UCS)</TableHead>
+                )}
+              </>
+            )}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.map((row: any, i: number) => (
+            <TableRow key={i} className="h-12 border-b border-slate-50 hover:bg-slate-50/50">
+              <TableCell className="pl-6 py-3 font-mono text-[11px] text-slate-400 text-center">{row.data || '-'}</TableCell>
+              <TableCell className="px-6 py-3 font-mono text-[10px] font-bold text-primary">{row.dist || '-'}</TableCell>
+              
+              {isMovimentacao ? (
+                <>
+                  <TableCell className="px-6 py-3 font-bold text-[11px] uppercase text-slate-600 truncate max-w-[120px]">
+                    {maskText(row.nome || row.plataforma)}
+                  </TableCell>
+                  <TableCell className="px-6 py-3 font-bold text-[11px] uppercase text-slate-600 truncate max-w-[120px]">{maskText(row.destino)}</TableCell>
+                  <TableCell className="text-right font-mono font-black text-rose-500 text-[11px]">
+                    {(row.valor || 0).toLocaleString('pt-BR')}
+                  </TableCell>
+                  <TableCell className="text-center px-4 py-2">
+                    <Badge className={cn(
+                      "text-[8px] font-black uppercase px-2 py-1 rounded-full",
+                      row.statusAuditoria === 'Pago' || row.statusAuditoria === 'Concluido' ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
+                      row.statusAuditoria === 'Cancelado' ? "bg-rose-50 text-rose-500 border-rose-100" :
+                      "bg-amber-50 text-amber-500 border-amber-100"
+                    )}>
+                      {row.statusAuditoria === 'Pago' || row.statusAuditoria === 'Concluido' ? '✓ PAGO' : row.statusAuditoria === 'Cancelado' ? '✕ CANCELADO' : '⚠ CONFERIR'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-center font-mono text-[9px] text-slate-400">{row.dataPagamento || '-'}</TableCell>
+                  <TableCell className="text-center">
+                    {row.linkComprovante ? (
+                      <a href={row.linkComprovante} target="_blank" rel="noopener noreferrer" className="text-emerald-500 hover:text-emerald-700">
+                        <ExternalLink className="w-3.5 h-3.5 mx-auto" />
+                      </a>
+                    ) : '-'}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {row.linkNxt ? (
+                      <a href={row.linkNxt} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:text-emerald-800">
+                        <Link2 className="w-3.5 h-3.5 mx-auto" />
+                      </a>
+                    ) : '-'}
+                  </TableCell>
+                </>
+              ) : (
+                <>
+                  <TableCell className="px-6 py-3 font-bold text-[11px] uppercase text-slate-600 truncate max-w-[200px]">
+                    {row.plataforma || row.nome || '-'}
+                  </TableCell>
+                  {isLegado ? (
+                    <>
+                      <TableCell className="px-4 py-3 text-right font-mono font-black text-primary">{(row.disponivel || 0).toLocaleString('pt-BR')}</TableCell>
+                      <TableCell className="px-4 py-3 text-right font-mono font-black text-amber-500">{(row.reservado || 0).toLocaleString('pt-BR')}</TableCell>
+                      <TableCell className="px-4 py-3 text-right font-mono font-black text-rose-500">{(row.bloqueado || 0).toLocaleString('pt-BR')}</TableCell>
+                      <TableCell className="px-4 py-3 text-right font-mono font-black text-slate-400 pr-6">{(row.aposentado || 0).toLocaleString('pt-BR')}</TableCell>
+                    </>
+                  ) : isImei ? (
+                    <>
+                      <TableCell className="px-4 py-3 text-right font-mono font-black text-indigo-500">{(row.valorDebito || 0).toLocaleString('pt-BR')}</TableCell>
+                      <TableCell className="px-4 py-3 text-right font-mono font-black text-slate-400">{(row.valorCredito || 0).toLocaleString('pt-BR')}</TableCell>
+                      <TableCell className="px-4 py-3 text-right font-mono font-black text-indigo-600 pr-6">
+                        {((row.valorDebito || 0) - (row.valorCredito || 0)).toLocaleString('pt-BR')}
+                      </TableCell>
+                    </>
+                  ) : (
+                    <TableCell className="px-4 py-3 text-right font-mono font-black text-[12px] pr-6 text-slate-900">
+                      {(row.valor || 0).toLocaleString('pt-BR')}
+                    </TableCell>
+                  )}
+                </>
+              )}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+

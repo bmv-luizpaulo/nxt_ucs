@@ -56,7 +56,7 @@ interface SafraRecord {
   createdAt: string;
 }
 
-// Mapeamento de colunas da planilha
+// Mapeamento de colunas da planilha (25 campos)
 const COLUMN_MAP = [
   { key: 'safra',                     label: 'Safra',                 type: 'text' },    // 0
   { key: 'dataRegistro',              label: 'Data Registro',         type: 'text' },    // 1
@@ -78,10 +78,11 @@ const COLUMN_MAP = [
   { key: 'associacaoNome',            label: 'Associação',            type: 'text' },    // 17
   { key: 'associacaoCnpj',            label: 'CNPJ Assoc.',           type: 'text' },    // 18
   { key: 'associacaoParticionamento', label: 'Part. Assoc. %',        type: 'number' },  // 19
-  { key: 'imeiNome',                  label: 'IMEI',                  type: 'text' },    // 20
-  { key: 'saldoFinalAtual',           label: 'Saldo Produtor Part.',  type: 'number' },  // 21
-  { key: 'associacaoSaldo',           label: 'Saldo Assoc. Part.',    type: 'number' },  // 22
-  { key: 'imeiSaldo',                 label: 'Saldo IMEI Part.',      type: 'number' },  // 23
+  { key: 'imeiCnpj',                  label: 'IMEI (CNPJ)',           type: 'text' },    // 20
+  { key: 'imeiNome',                   label: 'Sistema',               type: 'text' },    // 21
+  { key: 'saldoFinalAtual',           label: 'Saldo Produtor Part.',  type: 'number' },  // 22
+  { key: 'associacaoSaldo',           label: 'Saldo Assoc. Part.',    type: 'number' },  // 23
+  { key: 'imeiSaldo',                 label: 'Saldo IMEI Part.',      type: 'number' },  // 24
 ];
 
 const parseNumber = (val: string): number => {
@@ -144,6 +145,12 @@ export function SafraBulkImport({ onImport, safraId }: SafraBulkImportProps) {
       const safra = get(0) || safraId || 'N/A';
       const propriedade = get(5);
       const idf = get(2);
+      const origFazenda = getNum(9);
+      const partPct = getNum(15);
+      const assocPct = getNum(19);
+      
+      // Calcula IMEI particionamento como o restante (100% - produtor% - associação%)
+      const imeiPct = (partPct > 0 && assocPct > 0) ? Math.round((100 - partPct - assocPct) * 10000) / 10000 : 0;
       
       // Gera um ID determinístico baseado no documento + safra + IDF para evitar duplicação
       const idBase = `${documento}_${safra}_${idf || propriedade || i}`.replace(/[^\w]/g, '_');
@@ -159,22 +166,25 @@ export function SafraBulkImport({ onImport, safraId }: SafraBulkImportProps) {
         nucleo: get(6),
         lat: get(7),
         long: get(8),
-        originacao: getNum(9),
+        originacao: origFazenda,
+        originacaoFazendaTotal: origFazenda,
         isin: get(10),
         hashOriginacao: get(11),
         nome: produtor,
         cnpj,
         cpf,
         documento,
-        particionamento: getNum(15),
+        particionamento: partPct,
         saldoParticionado: getNum(16),
         associacaoNome: get(17),
         associacaoCnpj: get(18),
-        associacaoParticionamento: getNum(19),
-        imeiNome: get(20),
-        saldoFinalAtual: getNum(21),
-        associacaoSaldo: getNum(22),
-        imeiSaldo: getNum(23),
+        associacaoParticionamento: assocPct,
+        imeiCnpj: get(20),
+        imeiNome: get(21),
+        imeiParticionamento: imeiPct,
+        saldoFinalAtual: getNum(22),
+        associacaoSaldo: getNum(23),
+        imeiSaldo: getNum(24),
         // Compatibilidade — campos zerados por padrão
         movimentacao: 0,
         aposentado: 0,
@@ -184,7 +194,7 @@ export function SafraBulkImport({ onImport, safraId }: SafraBulkImportProps) {
         saldoLegadoTotal: 0,
         status: 'disponivel',
         createdAt: new Date().toISOString(),
-      });
+      } as any);
     }
     return results;
   };
@@ -289,7 +299,7 @@ export function SafraBulkImport({ onImport, safraId }: SafraBulkImportProps) {
             <div className="p-6 border-r border-slate-100 flex flex-col gap-4 overflow-hidden">
               {/* Mapa de colunas esperadas */}
               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-3">Mapeamento de Colunas (24 campos):</p>
+                <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-3">Mapeamento de Colunas (25 campos):</p>
                 <div className="grid grid-cols-4 gap-1.5">
                   {COLUMN_MAP.map((col, i) => (
                     <div key={i} className={cn(

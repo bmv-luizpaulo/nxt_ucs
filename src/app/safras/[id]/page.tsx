@@ -81,21 +81,25 @@ export default function SafraDetailPage() {
   const preparedData = useMemo(() => {
     let data = filteredData;
 
+    if (viewMode === 'fazenda') {
+      return [...data].sort((a, b) => {
+        const propA = (a.propriedade || "").toLowerCase();
+        const propB = (b.propriedade || "").toLowerCase();
+        return propA.localeCompare(propB);
+      });
+    }
+
     if (viewMode === 'imei') {
-      // No modo IMEI, filtramos apenas quem tem particionamento IMEI
-      // E definimos o volume contextual como o saldo do IMEI
       return data
         .filter(item => (item.imeiSaldo || 0) > 0)
         .map(item => ({ ...item, volumeContextual: item.imeiSaldo || 0 }));
     }
 
     if (viewMode === 'nucleo') {
-      // No modo Núcleo, o volume contextual é o saldo da associação
       return data.map(item => ({ ...item, volumeContextual: item.associacaoSaldo || 0 }));
     }
 
     if (viewMode === 'produtor') {
-      // No modo Produtor, o volume contextual é o saldo total (já que o grupo é o produtor)
       return data.map(item => ({ ...item, volumeContextual: item.saldoFinalAtual || 0 }));
     }
 
@@ -205,7 +209,7 @@ export default function SafraDetailPage() {
                         <TabsTrigger value="fazenda" className="rounded-full text-[10px] font-black uppercase tracking-widest px-6 h-10 data-[state=active]:bg-primary data-[state=active]:text-white">Fazendas</TabsTrigger>
                         <TabsTrigger value="produtor" className="rounded-full text-[10px] font-black uppercase tracking-widest px-6 h-10 data-[state=active]:bg-primary data-[state=active]:text-white">Produtores</TabsTrigger>
                         <TabsTrigger value="nucleo" className="rounded-full text-[10px] font-black uppercase tracking-widest px-6 h-10 data-[state=active]:bg-primary data-[state=active]:text-white">Núcleos / Assoc.</TabsTrigger>
-                        <TabsTrigger value="imei" className="rounded-full text-[10px] font-black uppercase tracking-widest px-6 h-10 data-[state=active]:bg-primary data-[state=active]:text-white">IMEIs (Administradora)</TabsTrigger>
+                        <TabsTrigger value="imei" className="rounded-full text-[10px] font-black uppercase tracking-widest px-6 h-10 data-[state=active]:bg-primary data-[state=active]:text-white">IMEI</TabsTrigger>
                       </TabsList>
                     </Tabs>
                     <div className="w-px h-8 bg-slate-200 mx-2" />
@@ -240,6 +244,7 @@ export default function SafraDetailPage() {
 
                 <EntityTable 
                   data={paginated} 
+                  allData={produtorData || []}
                   selectedIds={selectedIds} 
                   onSelectionChange={setSelectedIds} 
                   onUpdate={handleUpdate}

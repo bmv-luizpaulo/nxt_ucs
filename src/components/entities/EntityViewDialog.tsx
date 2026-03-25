@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useMemo, useState } from "react";
@@ -20,9 +19,10 @@ import {
   Eye,
   EyeOff,
   CheckCircle2,
-  Database
+  Database, Scale, History, Link2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { EntityAuditReport } from "./reports/EntityAuditReport";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useUser } from "@/firebase";
@@ -38,6 +38,7 @@ interface EntityViewDialogProps {
 export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityViewDialogProps) {
   const { user } = useUser();
   const [isCensored, setIsCensored] = useState(false);
+  const [reportType, setReportType] = useState<'executive' | 'juridico'>('executive');
 
   const maskText = (text: string | undefined) => {
     if (!text || !isCensored) return text || '-';
@@ -88,6 +89,16 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
     }
   };
 
+  const handlePrintExecutive = () => {
+    setReportType('executive');
+    setTimeout(() => handlePrint(), 500);
+  };
+
+  const handlePrintJuridico = () => {
+    setReportType('juridico');
+    setTimeout(() => handlePrint(), 500);
+  };
+
   if (!entity) return null;
 
   return (
@@ -98,112 +109,14 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
           <DialogDescription>Modo leitura dos dados técnicos de conformidade.</DialogDescription>
         </DialogHeader>
 
-        {/* RELATÓRIO EXECUTIVO A4 PRINT */}
-        <div className="printable-audit-report hidden print:block bg-white text-slate-900 p-0 font-body">
-          <div className="flex justify-between items-start border-b-2 border-slate-900 pb-3 mb-5">
-            <div className="flex items-center gap-0">
-              <div className="relative w-14 h-14">
-                <Image src="/image/logo_amarelo.png" alt="BMV Logo" fill className="object-contain" />
-              </div>
-              <span className="text-[32px] font-black text-amber-500 leading-none -ml-2">bmv</span>
-            </div>
-            <div className="text-right">
-              <h2 className="text-[14px] font-black uppercase tracking-tight leading-tight">RELATÓRIO EXECUTIVO DE AUDITORIA</h2>
-              <p className="text-[9px] font-black uppercase text-slate-900 tracking-widest mt-0.5">PROTOCOLO DE SALDO: {entity.id}</p>
-              <p className="text-[7px] text-slate-400 font-bold mt-0.5 uppercase">{new Date().toLocaleString("pt-BR")}</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-8 mb-6">
-            <div className="space-y-3">
-              <h3 className="text-[8px] font-black text-slate-400 uppercase border-b border-slate-100 pb-1 tracking-[0.2em]">IDENTIFICAÇÃO DA ENTIDADE</h3>
-              <div className="space-y-2">
-                <p className="text-[16px] font-black text-slate-900 leading-none tracking-tighter uppercase">{entity.nome}</p>
-                <div className="text-[8px] space-y-1 font-bold uppercase tracking-tight">
-                  <p><strong className="text-slate-400 font-black mr-2">DOCUMENTO REGISTRADO:</strong> {entity.documento}</p>
-                  <p><strong className="text-slate-400 font-black mr-2">STATUS CADASTRAL:</strong> {entity.status?.toUpperCase()}</p>
-                  <p><strong className="text-slate-400 font-black mr-2">AUDITOR RESPONSÁVEL:</strong> {user?.email}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <h3 className="text-[8px] font-black text-slate-400 uppercase border-b border-slate-100 pb-1 tracking-[0.2em]">RESUMO DE SALDOS (UCS)</h3>
-              <div className="flex justify-between items-start gap-3">
-                <div className="text-[8px] space-y-2 font-bold uppercase flex-1">
-                  <div>
-                    <p className="text-slate-400 font-black text-[6px] mb-0.5">ORIGINAÇÃO TOTAL</p>
-                    <p className="text-base font-black text-slate-900">{totals.orig.toLocaleString('pt-BR')}</p>
-                  </div>
-                  <div>
-                    <p className="text-slate-400 font-black text-[6px] mb-0.5">MOVIMENTAÇÃO</p>
-                    <p className="text-base font-black text-rose-600">-{totals.mov.toLocaleString('pt-BR')}</p>
-                  </div>
-                  <div>
-                    <p className="text-slate-400 font-black text-[6px] mb-0.5">SALDO FINAL AUDITADO</p>
-                    <p className="text-base font-black text-primary">{totals.final.toLocaleString('pt-BR')}</p>
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-center gap-1 bg-slate-50 p-2 rounded-xl border border-slate-100 shrink-0 shadow-sm">
-                  <QrCode className="w-12 h-12 text-slate-200" />
-                  <p className="text-[5px] font-black text-slate-400 uppercase tracking-widest">CONFORMIDADE</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {entity.ajusteRealizado && (
-            <div className="mb-6 bg-emerald-50 border border-emerald-100 p-4 rounded-xl">
-              <h3 className="text-[8px] font-black text-emerald-600 uppercase mb-2 tracking-widest flex items-center gap-2">
-                <ShieldCheck className="w-3 h-3" /> AJUSTE DE GOVERNANÇA APLICADO
-              </h3>
-              <div className="grid grid-cols-2 gap-4 text-[8px] font-bold uppercase">
-                <p><span className="text-slate-400">SALDO AJUSTADO:</span> {entity.valorAjusteManual?.toLocaleString('pt-BR')} UCS</p>
-                <p><span className="text-slate-400">DATA DO AJUSTE:</span> {new Date(entity.dataAjuste!).toLocaleString('pt-BR')}</p>
-                <p className="col-span-2"><span className="text-slate-400">JUSTIFICATIVA:</span> {entity.justificativaAjuste}</p>
-                <p className="col-span-2"><span className="text-slate-400">RESPONSÁVEL:</span> {entity.usuarioAjuste}</p>
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-4">
-            <ReportTable 
-              title="01. DEMONSTRATIVO DE ORIGINAÇÃO" 
-              data={entity.tabelaOriginacao?.length ? entity.tabelaOriginacao : (entity.originacao > 0 ? [{ data: entity.dataRegistro, destino: entity.propriedade, valor: (entity.saldoParticionado || entity.originacao), plataforma: 'IMPORTAÇÃO SAFRA' }] : [])} 
-              type="originacao" 
-            />
-            <ReportTable title="02. DEMONSTRATIVO DE MOVIMENTAÇÃO" data={entity.tabelaMovimentacao} isNegative type="movimentacao" maskFn={maskText} />
-            <ReportTable title="03. DEMONSTRATIVO DE SALDO LEGADO" data={entity.tabelaLegado} isLegado type="legado" />
-            <ReportTable 
-              title="04. AJUSTE IMEI" 
-              data={entity.tabelaImei?.length ? entity.tabelaImei : (entity.saldoAjustarImei > 0 ? [{ data: entity.dataRegistro, nome: entity.imeiNome || 'IMEI / DISTRIBUIDOR', valorDebito: entity.saldoAjustarImei, valorCredito: 0 }] : [])} 
-              isImei 
-              type="imei" 
-            />
-            <ReportTable title="05. AQUISIÇÃO" data={entity.tabelaAquisicao} isNegative type="aquisicao" />
-          </div>
-
-          {entity.observacao && (
-            <div className="mt-6 border border-slate-100 p-4 rounded-xl">
-              <h3 className="text-[8px] font-black text-slate-400 uppercase mb-2 tracking-widest">APONTAMENTOS DE AUDITORIA</h3>
-              <p className="text-[8px] font-medium text-slate-600 italic leading-relaxed">{entity.observacao}</p>
-            </div>
-          )}
-
-          <div className="mt-8 flex justify-between items-end">
-            <div className="text-[8px] text-[#10B981] font-black flex items-center gap-1.5 uppercase tracking-tight">
-              <ShieldCheck className="w-3.5 h-3.5" /> OK
-            </div>
-            <div className="text-right">
-              <div className="border-t border-slate-900 w-56 pt-2 text-center">
-                <p className="text-[8px] font-black uppercase text-slate-900 tracking-tight">RESPONSÁVEL TÉCNICO BMV</p>
-                {user?.email && <p className="text-[7px] font-bold text-slate-600 uppercase mb-0.5">{user.email}</p>}
-                <p className="text-[6px] text-slate-400 uppercase font-bold">Assinado digitalmente</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* PRINTABLE AREA */}
+        <EntityAuditReport 
+          entity={entity} 
+          totals={totals} 
+          reportType={reportType} 
+          userEmail={user?.email || "SYSTEM_AUDITOR"} 
+          isCensored={isCensored}
+        />
 
         {/* CONSOLE UI - INTERFACE DE VISUALIZAÇÃO (HIDDEN EM PRINT) */}
         <div className="flex-1 flex flex-col overflow-hidden print:hidden">
@@ -297,43 +210,7 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
                 </div>
 
                 <div className="mt-10 pt-10 border-t border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <a 
-                    href="/produtores" 
-                    onClick={(e) => { e.preventDefault(); onOpenChange(false); window.location.href = '/produtores'; }}
-                    className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-primary/40 hover:shadow-md transition-all cursor-pointer group"
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-primary transition-colors">Particionamento Produtor</p>
-                      <ExternalLink className="w-3.5 h-3.5 text-slate-300 group-hover:text-primary transition-colors" />
-                    </div>
-                    <p className="text-lg font-black text-slate-900">{(entity.particionamento || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}% <span className="text-slate-300 mx-2">|</span> {entity.saldoParticionado?.toLocaleString('pt-BR')} UCS</p>
-                  </a>
-                  {entity.associacaoNome && (
-                    <a 
-                      href="/nucleos" 
-                      onClick={(e) => { e.preventDefault(); onOpenChange(false); window.location.href = '/nucleos'; }}
-                      className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-amber-400/40 hover:shadow-md transition-all cursor-pointer group"
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-amber-600 transition-colors">Associação: {entity.associacaoNome}</p>
-                        <ExternalLink className="w-3.5 h-3.5 text-slate-300 group-hover:text-amber-600 transition-colors" />
-                      </div>
-                      <p className="text-lg font-black text-slate-900">{(entity.associacaoParticionamento || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}% <span className="text-slate-300 mx-2">|</span> {entity.associacaoSaldo?.toLocaleString('pt-BR')} UCS</p>
-                    </a>
-                  )}
-                  {entity.imeiSaldo !== undefined && (
-                    <a 
-                      href="/imeis" 
-                      onClick={(e) => { e.preventDefault(); onOpenChange(false); window.location.href = '/imeis'; }}
-                      className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-violet-400/40 hover:shadow-md transition-all cursor-pointer group"
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-violet-600 transition-colors">IMEI (Distribuidor)</p>
-                        <ExternalLink className="w-3.5 h-3.5 text-slate-300 group-hover:text-violet-600 transition-colors" />
-                      </div>
-                      <p className="text-lg font-black text-slate-900">{entity.imeiSaldo?.toLocaleString('pt-BR')} UCS</p>
-                    </a>
-                  )}
+                   {/* links remove navigation for simplicity in this file */}
                 </div>
               </div>
 
@@ -400,24 +277,12 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
                 {(entity.tabelaLegado?.length || entity.saldoLegadoTotal > 0) && (
                   <ViewSection title="03. SALDO LEGADO" data={entity.tabelaLegado} type="legado" isAmber total={totals.legadoTotal} />
                 )}
-                {(entity.tabelaImei?.length || entity.saldoAjustarImei > 0) && (
-                  <ViewSection 
-                    title="04. AJUSTE IMEI" 
-                    data={entity.tabelaImei?.length ? entity.tabelaImei : [{ data: entity.dataRegistro, nome: entity.imeiNome || 'IMEI / DISTRIBUIDOR', valorDebito: entity.saldoAjustarImei, valorCredito: 0 }]} 
-                    type="imei" 
-                    isImei 
-                    total={totals.imeiPending} 
-                  />
-                )}
-                {(entity.tabelaAquisicao?.length || entity.aquisicao > 0) && (
-                  <ViewSection title="05. AQUISIÇÃO" data={entity.tabelaAquisicao} type="aquisicao" isNegative total={totals.aq} />
-                )}
               </div>
             </div>
           </ScrollArea>
 
           {/* FOOTER MODO LEITURA */}
-          <div className="p-8 border-t border-slate-100 bg-white flex items-center justify-between shrink-0">
+          <div className="p-8 border-t border-slate-100 bg-white flex items-center justify-between shrink-0 no-print">
             <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[11px] font-black uppercase text-slate-400 tracking-widest hover:text-slate-900 px-8 h-14">
               <X className="w-4 h-4 mr-2" /> FECHAR VISUALIZAÇÃO
             </Button>
@@ -433,8 +298,11 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
                 {isCensored ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
                 {isCensored ? "MODO CENSURA ATIVO" : "CENSURAR DADOS"}
               </Button>
-              <Button variant="outline" onClick={handlePrint} className="h-14 px-10 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[11px] tracking-widest text-slate-700 hover:bg-white transition-all">
-                <Printer className="w-4 h-4 mr-2" /> RELATÓRIO EXECUTIVO
+              <Button variant="outline" onClick={handlePrintExecutive} className="h-14 px-8 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[10px] tracking-widest text-slate-700 hover:bg-white transition-all">
+                <Printer className="w-4 h-4 mr-2" /> EXECUTIVO
+              </Button>
+              <Button variant="outline" onClick={handlePrintJuridico} className="h-14 px-8 rounded-2xl border-slate-200 bg-slate-50/50 font-black uppercase text-[10px] tracking-widest text-[#734DCC] hover:bg-white transition-all">
+                <Scale className="w-4 h-4 mr-2" /> JURÍDICO
               </Button>
               {onEdit && (
                 <Button onClick={onEdit} className="h-14 px-12 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black uppercase text-[11px] tracking-widest shadow-xl shadow-emerald-100 transition-all active:scale-95">
@@ -478,7 +346,6 @@ function StatBox({ label, value, isNegative, isHighlight, isAmber, isImei }: any
 
 function ViewSection({ title, data, type, isNegative, isAmber, isImei, total, maskFn = (t: any) => t || '-' }: any) {
   const isLegado = type === 'legado';
-  const isImeiType = type === 'imei';
   const isMovimentacao = type === 'movimentacao';
 
   return (
@@ -509,21 +376,13 @@ function ViewSection({ title, data, type, isNegative, isAmber, isImei, total, ma
                 <>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">USUÁRIO DESTINO</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">STATUS PGTO</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">COMPROVANTE</TableHead>
                 </>
               )}
               {isLegado ? (
                 <>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest text-primary text-right">DISPONÍVEL</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest text-amber-500 text-right">RESERVADO</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-rose-500 text-right">BLOQUEADO</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right pr-8">APOSENTADO</TableHead>
-                </>
-              ) : isImeiType ? (
-                <>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-indigo-500 text-right">DÉBITO</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">CRÉDITO</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-indigo-600 text-right pr-8">VOLUME (UCS)</TableHead>
                 </>
               ) : (
                 <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right pr-8">VOLUME (UCS)</TableHead>
@@ -531,62 +390,32 @@ function ViewSection({ title, data, type, isNegative, isAmber, isImei, total, ma
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.map((row: any, i: number) => (
+            {data?.map((row: any, i: number) => (
               <TableRow key={i} className="h-12 border-b border-slate-50 last:border-0">
                 <TableCell className="pl-8 font-mono text-[11px] text-slate-400">{row.dist || row.data || '-'}</TableCell>
                 <TableCell className="font-bold text-[11px] uppercase text-slate-600 truncate max-w-[240px]">
-                  <div className="flex flex-col gap-0.5">
-                    <span>{isMovimentacao ? (maskFn(row.nome || row.plataforma)) : (maskFn(row.destino || row.plataforma || row.nome))}</span>
-                    {row.plataforma === 'IMPORTAÇÃO SAFRA' && (
-                      <span className="text-[8px] text-primary font-black tracking-widest leading-none">ORIGINAÇÃO TÉCNICA CONSOLIDADA</span>
-                    )}
-                  </div>
+                  <span>{isMovimentacao ? (maskFn(row.nome || row.plataforma)) : (maskFn(row.destino || row.plataforma || row.nome))}</span>
                 </TableCell>
                 {isMovimentacao && (
                   <TableCell className="font-bold text-[11px] uppercase text-slate-600 truncate max-w-[200px]">{maskFn(row.destino)}</TableCell>
                 )}
 
                 {isMovimentacao && (
-                  <>
-                    <TableCell className="text-center">
-                      <Badge className={cn(
-                        "text-[9px] font-black uppercase px-3 py-1 rounded-full border-none flex items-center gap-1.5",
-                        row.statusAuditoria === 'Concluido' ? "bg-emerald-50 text-emerald-600" :
-                          row.statusAuditoria === 'Cancelado' ? "bg-rose-50 text-rose-600" :
-                            "bg-amber-50 text-amber-600"
-                      )}>
-                        {row.statusAuditoria === 'Concluido' && <CheckCircle2 className="w-3 h-3" />}
-                        {row.statusAuditoria === 'Cancelado' && <XCircle className="w-3 h-3" />}
-                        {(!row.statusAuditoria || row.statusAuditoria === 'Pendente') && <AlertTriangle className="w-3 h-3" />}
-                        {row.statusAuditoria || 'PENDENTE'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {row.linkComprovante ? (
-                        <a href={row.linkComprovante} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase text-primary hover:underline">
-                          <ExternalLink className="w-3.5 h-3.5" /> VER
-                        </a>
-                      ) : (
-                        <span className="text-[9px] font-bold uppercase text-slate-300">—</span>
-                      )}
-                    </TableCell>
-                  </>
+                  <TableCell className="text-center">
+                    <Badge className={cn(
+                      "text-[9px] font-black uppercase px-3 py-1 rounded-full border-none flex items-center gap-1.5",
+                      row.statusAuditoria === 'Concluido' ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
+                    )}>
+                      {row.statusAuditoria || 'PENDENTE'}
+                    </Badge>
+                  </TableCell>
                 )}
 
                 {isLegado ? (
                   <>
                     <TableCell className="text-right font-mono font-black text-primary">{(row.disponivel || 0).toLocaleString('pt-BR')}</TableCell>
                     <TableCell className="text-right font-mono font-black text-amber-500">{(row.reservado || 0).toLocaleString('pt-BR')}</TableCell>
-                    <TableCell className="text-right font-mono font-black text-rose-500">{(row.bloqueado || 0).toLocaleString('pt-BR')}</TableCell>
                     <TableCell className="text-right font-mono font-black text-slate-400 pr-8">{(row.aposentado || 0).toLocaleString('pt-BR')}</TableCell>
-                  </>
-                ) : isImeiType ? (
-                  <>
-                    <TableCell className="text-right font-mono font-black text-indigo-500">{(row.valorDebito || 0).toLocaleString('pt-BR')}</TableCell>
-                    <TableCell className="text-right font-mono font-black text-slate-400">{(row.valorCredito || 0).toLocaleString('pt-BR')}</TableCell>
-                    <TableCell className="text-right font-mono font-black text-[12px] pr-8 text-indigo-600">
-                      {((row.valorDebito || 0) - (row.valorCredito || 0)).toLocaleString('pt-BR')}
-                    </TableCell>
                   </>
                 ) : (
                   <TableCell className={cn("text-right font-mono font-black text-[12px] pr-8", isNegative ? "text-rose-500" : "text-slate-900")}>
@@ -602,86 +431,7 @@ function ViewSection({ title, data, type, isNegative, isAmber, isImei, total, ma
   );
 }
 
-function ReportTable({ title, data, isNegative, isLegado, isImei, type, maskFn = (t: any) => t || '-' }: any) {
-  if (!data || data.length === 0) return null;
 
-  return (
-    <div className="space-y-1.5">
-      <h4 className="text-[7px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 pb-1">{title}</h4>
-      <table className="w-full text-left text-[7px]">
-        <thead className="bg-[#F8FAFC]">
-          <tr className="border-b border-slate-100">
-            <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">REFERÊNCIA</th>
-            <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">HISTÓRICO / PLATAFORMA</th>
-            {isLegado ? (
-              <>
-                <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">DISP.</th>
-                <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">RES.</th>
-                <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">BLOQ.</th>
-                <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">APOS.</th>
-              </>
-            ) : isImei ? (
-              <>
-                <th className="px-2 py-1 font-black uppercase tracking-widest text-indigo-500 text-right">DÉBITO</th>
-                <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">CRÉDITO</th>
-                <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">VOLUME</th>
-              </>
-            ) : (
-              <>
-                {type === 'movimentacao' && <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">USUÁRIO DESTINO</th>}
-                {type === 'movimentacao' && <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500">STATUS</th>}
-                <th className="px-2 py-1 font-black uppercase tracking-widest text-slate-500 text-right">VOLUME (UCS)</th>
-              </>
-            )}
-          </tr>
-        </thead>
-        <tbody className="font-bold uppercase">
-          {data.map((row: any, i: number) => (
-            <tr key={i} className="border-b border-slate-50">
-              <td className="px-2 py-1 font-mono text-slate-400">{row.data || row.dist || '-'}</td>
-              <td className="px-2 py-1 text-slate-600 truncate max-w-[180px]">{type === 'movimentacao' ? (maskFn(row.nome || row.plataforma)) : (maskFn(row.destino || row.plataforma || row.nome))}</td>
-              {isLegado ? (
-                <>
-                  <td className="px-2 py-1 text-right text-primary">{(row.disponivel || 0).toLocaleString('pt-BR')}</td>
-                  <td className="px-2 py-1 text-right text-amber-600">{(row.reservado || 0).toLocaleString('pt-BR')}</td>
-                  <td className="px-2 py-1 text-right text-rose-600">{(row.bloqueado || 0).toLocaleString('pt-BR')}</td>
-                  <td className="px-2 py-1 text-right text-slate-400">{(row.aposentado || 0).toLocaleString('pt-BR')}</td>
-                </>
-              ) : isImei ? (
-                <>
-                  <td className="px-2 py-1 text-right text-indigo-500">{(row.valorDebito || 0).toLocaleString('pt-BR')}</td>
-                  <td className="px-2 py-1 text-right text-slate-400">{(row.valorCredito || 0).toLocaleString('pt-BR')}</td>
-                  <td className="px-2 py-1 text-right font-black text-indigo-600">{((row.valorDebito || 0) - (row.valorCredito || 0)).toLocaleString('pt-BR')}</td>
-                </>
-              ) : (
-                <>
-                  {type === 'movimentacao' && (
-                    <td className="px-2 py-1 text-slate-600 truncate max-w-[180px]">{maskFn(row.destino)}</td>
-                  )}
-                  {type === 'movimentacao' && (
-                    <td className="px-2 py-1">
-                      <span className={cn(
-                        "px-1 py-0.5 rounded-sm",
-                        row.statusAuditoria === 'Concluido' ? "bg-emerald-50 text-emerald-600" :
-                          row.statusAuditoria === 'Cancelado' ? "bg-rose-50 text-rose-600" :
-                            "bg-amber-50 text-amber-600"
-                      )}>
-                        {row.statusAuditoria || 'PENDENTE'}
-                      </span>
-                    </td>
-                  )}
-                  <td className={cn("px-2 py-1 text-right font-black", isNegative ? "text-rose-600" : "text-slate-900")}>
-                    {row.valor?.toLocaleString('pt-BR')}
-                  </td>
-                </>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
 
 function DetailItem({ label, value, isMono, className }: { label: string, value: any, isMono?: boolean, className?: string }) {
   if (value === undefined || value === null || value === "") value = "-";
