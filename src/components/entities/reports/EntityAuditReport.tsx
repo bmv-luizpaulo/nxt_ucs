@@ -4,7 +4,6 @@ import { EntidadeSaldo } from "@/lib/types";
 import { ShieldCheck, QrCode, History, Database } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface EntityAuditReportProps {
   entity: EntidadeSaldo;
@@ -25,7 +24,7 @@ export function EntityAuditReport({ entity, totals, reportType, userEmail, isCen
 
   return (
     <div className={cn(
-      "is-printable hidden print:block bg-white text-slate-900 p-0 font-sans premium-report",
+      "is-printable bg-white text-slate-900 font-sans premium-report",
       reportType === 'juridico' ? "juridico-theme" : ""
     )}>
       {reportType === 'executive' ? (
@@ -109,7 +108,7 @@ export function EntityAuditReport({ entity, totals, reportType, userEmail, isCen
            </footer>
         </div>
       ) : (
-        <div className="report-page px-16 py-16">
+        <div className="report-page">
            <header className="flex justify-between items-start mb-20 border-b-8 border-slate-900 pb-12">
               <div className="space-y-8">
                  <div className="flex items-center gap-4">

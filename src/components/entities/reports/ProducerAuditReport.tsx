@@ -28,7 +28,7 @@ export function ProducerAuditReport({ entity, relatedFarms, consolidated, report
   };
 
   return (
-    <div className="is-printable hidden print:block bg-white text-slate-900 p-0 font-sans premium-report">
+    <div className="is-printable bg-white text-slate-900 font-sans premium-report">
       {reportType === 'executive' ? (
         <div className="report-page">
           <header className="flex justify-between items-start border-b-4 border-slate-900 pb-8 mb-12">
@@ -37,7 +37,7 @@ export function ProducerAuditReport({ entity, relatedFarms, consolidated, report
                 <img src="/image/logo_amarelo.png" alt="BMV Logo" className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[42px] font-black text-amber-500 leading-none tracking-tighter uppercase">bmv</span>
+                <span className="text-[42px] font-black text-amber-500 leading-none tracking-tighter">bmv</span>
                 <span className="text-[14px] font-black text-slate-400 uppercase tracking-[0.3em] leading-none mt-1">Audit Global</span>
               </div>
             </div>
@@ -139,7 +139,7 @@ export function ProducerAuditReport({ entity, relatedFarms, consolidated, report
           </footer>
         </div>
       ) : (
-        <div className="report-page px-16 py-16">
+        <div className="report-page">
           <header className="flex justify-between items-start mb-20 border-b-8 border-slate-900 pb-12">
             <div className="space-y-8">
               <div className="flex items-center gap-4">

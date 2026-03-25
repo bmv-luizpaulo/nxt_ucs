@@ -32,7 +32,7 @@ export function ImeiAuditReport({ entity, linkedProducers, stats, reportType, us
   const imeiName = entity.imeiNome || 'Sem IMEI';
 
   return (
-    <div className="is-printable hidden print:block bg-white text-slate-900 p-0 font-sans premium-report">
+    <div className="is-printable bg-white text-slate-900 font-sans premium-report">
       {reportType === 'executive' ? (
         <div className="report-page">
           <header className="flex justify-between items-start border-b-4 border-violet-500 pb-8 mb-12">
@@ -139,7 +139,7 @@ export function ImeiAuditReport({ entity, linkedProducers, stats, reportType, us
           </footer>
         </div>
       ) : (
-        <div className="report-page px-16 py-16">
+        <div className="report-page">
            <header className="flex justify-between items-start mb-20 border-b-8 border-slate-900 pb-12">
             <div className="space-y-8">
               <div className="flex items-center gap-4">

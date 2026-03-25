@@ -17,7 +17,7 @@ export function FarmAuditReport({ entity, participants, farmTotals, reportType, 
   const formatUCS = (val?: number) => (val ?? 0).toLocaleString('pt-BR');
 
   return (
-    <div className="is-printable hidden print:block bg-white text-slate-900 p-0 font-sans premium-report">
+    <div className="is-printable bg-white text-slate-900 font-sans premium-report">
       {reportType === 'executive' ? (
         <div className="report-page">
            <header className="flex justify-between items-start border-b-4 border-slate-900 pb-8 mb-12">
@@ -91,16 +91,16 @@ export function FarmAuditReport({ entity, participants, farmTotals, reportType, 
                     </thead>
                     <tbody>
                        {participants.map(p => (
-                          <TableRow key={p.id} className="border-b border-slate-100 h-16">
-                             <TableCell className="text-[12px] font-black uppercase pl-10 text-slate-900">{p.nome}</TableCell>
-                             <TableCell className="text-[12px] font-black text-center text-slate-400">{(p.particionamento || 0).toLocaleString('pt-BR')}%</TableCell>
-                             <TableCell className="text-[13px] font-black text-right pr-10 text-slate-950 font-mono tracking-tighter">{formatUCS(p.saldoParticionado || p.saldoFinalAtual)}</TableCell>
-                          </TableRow>
+                          <tr key={p.id} className="border-b border-slate-100 h-16">
+                             <td className="text-[12px] font-black uppercase pl-10 text-slate-900">{p.nome}</td>
+                             <td className="text-[12px] font-black text-center text-slate-400">{(p.particionamento || 0).toLocaleString('pt-BR')}%</td>
+                             <td className="text-[13px] font-black text-right pr-10 text-slate-950 font-mono tracking-tighter">{formatUCS(p.saldoParticionado || p.saldoFinalAtual)}</td>
+                          </tr>
                        ))}
-                       <TableRow className="bg-slate-950 text-white h-20">
+                       <tr className="bg-slate-950 text-white h-20">
                           <td colSpan={2} className="text-[13px] font-black uppercase pl-10 tracking-[0.2em]">Total Garantido pela Propriedade</td>
                           <td className="text-[24px] font-black text-right pr-10 text-amber-500 font-mono tracking-tighter">{formatUCS(farmTotals.totalOrig)}</td>
-                       </TableRow>
+                       </tr>
                     </tbody>
                  </table>
               </div>
@@ -126,7 +126,7 @@ export function FarmAuditReport({ entity, participants, farmTotals, reportType, 
            </footer>
         </div>
       ) : (
-        <div className="report-page px-16 py-16">
+        <div className="report-page">
            <header className="flex justify-between items-start mb-20 border-b-8 border-slate-900 pb-12">
               <div className="space-y-8">
                  <div className="flex items-center gap-4">
@@ -180,8 +180,4 @@ export function FarmAuditReport({ entity, participants, farmTotals, reportType, 
       )}
     </div>
   );
-}
-
-function TableCell({ children, className }: any) {
-  return <td className={cn("px-4 py-3", className)}>{children}</td>;
 }
