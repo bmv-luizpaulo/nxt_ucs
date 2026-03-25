@@ -26,7 +26,7 @@ export function EntityAuditReport({ entity, totals, reportType, userEmail, audit
   };
 
   const isJuridico = reportType === 'juridico';
-  const reportTitle = isJuridico ? "RELATÓRIO JURÍDICO DE AUDITORIA" : "RELATÓRIO EXECUTIVO DE AUDITORIA";
+  const reportTitle = isJuridico ? "Certidão de histórico de transações" : "Certidão de histórico de transações";
 
   return (
     <div className={cn(
@@ -319,9 +319,9 @@ export function EntityAuditReport({ entity, totals, reportType, userEmail, audit
         </div>
         <div className="text-right text-[8px] uppercase font-bold text-slate-900">
           <p className="text-[10px] font-black">{auditor?.cargo || "RESPONSÁVEL TÉCNICO BMV"}</p>
-          <p className="text-[11px] font-black">{auditor?.nome || userEmail || "LUIZPAULO.JESUS"}</p>
+          <p className="text-[11px] font-black">{auditor?.nome || userEmail || "LUIZ PAULO GONÇALVES MIGUEL DE JESUS"}</p>
           {auditor?.cpf && <p className="text-[8px] opacity-60">CPF: {auditor.cpf}</p>}
-          <p className="text-slate-400 mt-1 uppercase text-[7px]">ASSINADO DIGITALMENTE EM CONFORMIDADE COM PROTOCOLO LEDGERTRUST</p>
+          <p className="text-slate-400 mt-1 uppercase text-[7px]">ASSINADO DIGITALMENTE</p>
         </div>
       </footer>
     </div>
