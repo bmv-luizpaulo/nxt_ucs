@@ -9,7 +9,8 @@ import {
   Calendar,
   MapPin,
   Users2,
-  Cpu
+  Cpu,
+  FileText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -76,6 +77,13 @@ export function Sidebar() {
       tooltip: "Particionamento IMEI",
       color: "violet"
     },
+    { 
+      icon: FileText, 
+      label: "RELATÓRIOS", 
+      href: "/reports", 
+      tooltip: "Audit Report Center",
+      color: "emerald"
+    },
   ];
 
   const getActiveColors = (color: string) => {
@@ -83,6 +91,7 @@ export function Sidebar() {
       case 'teal': return "bg-teal-500 text-white shadow-xl shadow-teal-200/50";
       case 'amber': return "bg-amber-500 text-white shadow-xl shadow-amber-200/50";
       case 'violet': return "bg-violet-500 text-white shadow-xl shadow-violet-200/50";
+      case 'emerald': return "bg-emerald-600 text-white shadow-xl shadow-emerald-200/50";
       default: return "bg-primary text-white shadow-xl shadow-primary/30";
     }
   };
@@ -92,6 +101,7 @@ export function Sidebar() {
       case 'teal': return "hover:text-teal-500 hover:bg-teal-50";
       case 'amber': return "hover:text-amber-500 hover:bg-amber-50";
       case 'violet': return "hover:text-violet-500 hover:bg-violet-50";
+      case 'emerald': return "hover:text-emerald-600 hover:bg-emerald-50";
       default: return "hover:text-primary hover:bg-emerald-50";
     }
   };

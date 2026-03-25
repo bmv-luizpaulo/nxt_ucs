@@ -158,3 +158,15 @@ export interface EntidadeSaldoGroup {
   documento?: string;
   statusAuditoriaSaldo?: 'valido' | 'inconsistente';
 }
+
+export type ReportType = 'executive' | 'juridico' | 'consolidated';
+export type ReportFormat = 'A4_PDF' | 'CSV' | 'JSON';
+
+export interface AuditReportMetadata {
+  id: string;
+  title: string;
+  description: string;
+  icon: any;
+  category: 'audit' | 'compliance' | 'operational';
+  template: ReportType;
+}
