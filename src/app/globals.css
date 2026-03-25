@@ -53,49 +53,49 @@
   }
 }
 
-/* ============================= */
-/* 🧾 PRINT SYSTEM V3 (STABLE)   */
-/* ============================= */
+/* ========================================= */
+/* 🧾 SISTEMA DE RELATÓRIOS A4 (PRINT V4)    */
+/* ========================================= */
 @media print {
-  /* 1. RESET GLOBAL */
   @page {
     size: A4;
     margin: 0;
   }
 
+  /* Reset Global */
   html, body {
-    height: auto !important;
-    overflow: visible !important;
-    background: #fff !important;
     width: 210mm !important;
+    height: auto !important;
+    background: #fff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
-  /* 2. OCULTA INTERFACE DO APP */
-  body > *:not([data-radix-portal]) {
+  /* Oculta toda a interface do sistema */
+  body > *:not([data-radix-portal]),
+  [role="presentation"],
+  .no-print {
     display: none !important;
   }
 
-  /* 3. CONFIGURA PORTAL RADIX */
+  /* Forza o Portal do Radix (onde mora o Modal) a ser o container principal */
   [data-radix-portal] {
     position: absolute !important;
     top: 0 !important;
     left: 0 !important;
     width: 100% !important;
     display: block !important;
+    visibility: visible !important;
   }
 
-  /* OCULTA OVERLAY ESCURO */
-  [data-radix-portal] [role="presentation"] {
-    display: none !important;
-    background: transparent !important;
-  }
-
-  /* 4. FORÇA DIALOG A SER O CONTEÚDO PRINCIPAL */
+  /* Remove estilos de Modal do Dialog para parecer uma folha de papel */
   [role="dialog"] {
     position: static !important;
     display: block !important;
     width: 100% !important;
-    height: auto !important;
     max-width: none !important;
     max-height: none !important;
     background: #fff !important;
@@ -107,42 +107,40 @@
     overflow: visible !important;
   }
 
-  /* 5. OCULTA ELEMENTOS DE UI DENTRO DO MODAL */
+  /* Oculta o conteúdo técnico do Modal (botões, inputs, etc) */
   [role="dialog"] > *:not(.is-printable) {
     display: none !important;
   }
 
-  /* 6. ESTILIZAÇÃO DO RELATÓRIO A4 */
+  /* Estilização Final do Relatório A4 */
   .is-printable {
     display: block !important;
     visibility: visible !important;
     width: 210mm !important;
     min-height: 297mm !important;
     margin: 0 auto !important;
-    padding: 15mm !important;
+    padding: 20mm !important;
     background: #fff !important;
     color: #000 !important;
     box-sizing: border-box !important;
-    page-break-after: always;
     position: relative !important;
+    page-break-after: always;
   }
 
-  /* WATERMARK */
-  .is-printable::before {
-    content: "DOCUMENTO OFICIAL LEDGERTRUST";
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-45deg);
-    font-size: 60px;
-    font-weight: 900;
-    color: rgba(0, 0, 0, 0.03);
-    white-space: nowrap;
-    pointer-events: none;
-    z-index: 0;
+  /* Estilos específicos de PDF */
+  .is-printable table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .is-printable tr {
+    page-break-inside: avoid !important;
   }
 
-  /* Tabelas */
-  table { width: 100%; border-collapse: collapse; }
-  tr, td, th { page-break-inside: avoid !important; }
+  .is-printable .legal-verify-badge {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #10b981 !important;
+    -webkit-print-color-adjust: exact;
+  }
 }
