@@ -73,6 +73,9 @@ export interface RegistroTabela {
   statusAuditoria?: AuditoriaStatus | string;
   linkComprovante?: string;
   linkNxt?: string;
+  observacaoTransacao?: string;
+  dataPagamento?: string;
+  valorPago?: number;
 }
 
 export interface EntidadeSaldo {

@@ -79,29 +79,31 @@
     print-color-adjust: exact;
   }
 
-  /* Oculta absolutamente tudo na árvore principal exceto os portais */
-  body > *:not([data-radix-portal]) {
-    display: none !important;
-  }
+  /* 
+   * 1. O app de fundo "#app-print-root" agora se esconde sozinho com 'print:hidden'.
+   * 2. Removemos a trava do body que apagava o portal se a versão do Radix faltasse o atributo.
+   */
 
-  /* Expõe o Portal do Modal e neutraliza o comportamento de 'diálogo' */
-  [data-radix-portal] {
-    display: block !important;
+  /* Garante que o Modal fique solto na página física A4 e neutraliza sua centralização fixa */
+  [role="dialog"] {
     position: static !important;
-    z-index: auto !important;
-  }
-
-  /* Remove o fundo escuro (overlay) e as restrições de centralização do ShadCN */
-  [data-radix-portal] > div {
+    transform: none !important;
+    inset: auto !important;
     display: block !important;
-    position: static !important;
-    background: transparent !important;
-    padding: 0 !important;
+    background: white !important;
+    box-shadow: none !important;
     margin: 0 !important;
+    padding: 0 !important;
     width: 100% !important;
     height: auto !important;
-    transform: none !important;
+    max-height: none !important;
     overflow: visible !important;
+    border: none !important;
+  }
+
+  /* Oculta o Overlay (background preto semi-transparente do Dialog) que geralmente fica adjacente */
+  [data-state="open"]:not([role="dialog"]) {
+    display: none !important;
   }
 
   /* O DialogContent deve se tornar um container simples e transparente */

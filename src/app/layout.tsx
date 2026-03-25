@@ -22,7 +22,9 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased bg-background text-foreground min-h-screen">
         <FirebaseClientProvider>
-          {children}
+          <div id="app-print-root" className="print:hidden">
+            {children}
+          </div>
           <Toaster />
         </FirebaseClientProvider>
       </body>
