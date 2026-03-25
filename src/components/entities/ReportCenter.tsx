@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 import { EntityAuditReport } from "./reports/EntityAuditReport";
 import { FarmAuditReport } from "./reports/FarmAuditReport";
 import { useAuditor } from "@/hooks/use-auditor";
+import { PrintPortal } from "@/components/ui/print-portal";
 
 const AVAILABLE_REPORTS: AuditReportMetadata[] = [
   {
@@ -108,7 +109,7 @@ export function ReportCenter() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 h-full overflow-hidden">
       {/* SELEÇÃO DE DADOS (ESQUERDA) */}
-      <div className="lg:col-span-4 flex flex-col gap-8 overflow-hidden">
+      <div className="lg:col-span-4 flex flex-col gap-8 overflow-hidden no-print">
         <div className="space-y-4">
           <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">1. Selecionar Alvo da Auditoria</h3>
           <div className="relative">
@@ -170,7 +171,7 @@ export function ReportCenter() {
 
       {/* CONFIGURAÇÃO DO RELATÓRIO (CENTRO/DIREITA) */}
       <div className="lg:col-span-8 flex flex-col gap-8 overflow-hidden">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 shrink-0">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 shrink-0 no-print">
           <div className="space-y-4">
             <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">2. Escolher Template</h3>
             <div className="grid grid-cols-1 gap-3">
@@ -237,7 +238,7 @@ export function ReportCenter() {
                   </>
                 ) : (
                   <>
-                    <Printer className="w-4 h-4 mr-2" /> GERAR DOCUMENTO OFICIAL
+                    <Printer className="w-4 h-4 mr-2" /> GERAR CERTIFICADO PDF
                   </>
                 )}
               </Button>
@@ -246,7 +247,7 @@ export function ReportCenter() {
         </div>
 
         {/* ÁREA DE PREVIEW (ABAIXO) */}
-        <div className="flex-1 flex flex-col gap-4 overflow-hidden">
+        <div className="flex-1 flex flex-col gap-4 overflow-hidden no-print">
           <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">4. Visualização Prévia do Documento</h3>
           <Card className="flex-1 rounded-[2.5rem] border-2 border-dashed border-slate-200 bg-slate-50/50 overflow-hidden relative group">
             {selectedEntity ? (
@@ -301,29 +302,31 @@ export function ReportCenter() {
         </div>
       </div>
 
-      {/* COMPONENTES DE IMPRESSÃO REAIS (HIDDEN) */}
+      {/* COMPONENTES DE IMPRESSÃO REAIS (PORTAL) */}
       {selectedEntity && selectedReport && (
-        <div className="hidden">
-          {selectedReport.template === 'consolidated' ? (
-            <FarmAuditReport 
-              entity={selectedEntity} 
-              participants={[selectedEntity]} 
-              farmTotals={{ totalOrig: selectedEntity.originacao, totalFinal: selectedEntity.saldoFinalAtual }}
-              reportType="executive"
-              userEmail={user?.email || ""}
-              auditor={auditor}
-            />
-          ) : (
-            <EntityAuditReport 
-              entity={selectedEntity} 
-              totals={totals}
-              reportType={selectedReport.template as any}
-              userEmail={user?.email || ""}
-              auditor={auditor}
-              isCensored={false}
-            />
-          )}
-        </div>
+        <PrintPortal>
+          <div className="is-printable-wrapper">
+            {selectedReport.template === 'consolidated' ? (
+              <FarmAuditReport 
+                entity={selectedEntity} 
+                participants={[selectedEntity]} 
+                farmTotals={{ totalOrig: selectedEntity.originacao, totalFinal: selectedEntity.saldoFinalAtual }}
+                reportType="executive"
+                userEmail={user?.email || ""}
+                auditor={auditor}
+              />
+            ) : (
+              <EntityAuditReport 
+                entity={selectedEntity} 
+                totals={totals}
+                reportType={selectedReport.template as any}
+                userEmail={user?.email || ""}
+                auditor={auditor}
+                isCensored={false}
+              />
+            )}
+          </div>
+        </PrintPortal>
       )}
     </div>
   );
