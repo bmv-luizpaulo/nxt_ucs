@@ -11,9 +11,10 @@ interface FarmAuditReportProps {
   farmTotals: any;
   reportType: 'executive' | 'juridico';
   userEmail?: string;
+  auditor?: any;
 }
 
-export function FarmAuditReport({ entity, participants, farmTotals, reportType, userEmail }: FarmAuditReportProps) {
+export function FarmAuditReport({ entity, participants, farmTotals, reportType, userEmail, auditor }: FarmAuditReportProps) {
   const formatUCS = (val?: number) => (val ?? 0).toLocaleString('pt-BR');
 
   return (
@@ -120,8 +121,9 @@ export function FarmAuditReport({ entity, participants, farmTotals, reportType, 
                  </p>
               </div>
               <div className="text-right border-t-4 border-slate-900 w-64 pt-6 text-center">
-                 <p className="text-[11px] font-black uppercase text-slate-900 tracking-widest leading-none">Responsabilidade Técnica</p>
-                 <p className="text-[10px] font-black text-slate-400 uppercase mt-2 leading-none">{userEmail || "BMV_VALIDATOR_V4"}</p>
+                 <p className="text-[11px] font-black uppercase text-slate-900 tracking-widest leading-none">{auditor?.cargo || "Responsabilidade Técnica"}</p>
+                 <p className="text-[10px] font-black text-slate-900 uppercase mt-2 leading-none">{auditor?.nome || userEmail || "BMV_VALIDATOR_V4"}</p>
+                 {auditor?.cpf && <p className="text-[8px] font-bold text-slate-400 mt-1">CPF: {auditor.cpf}</p>}
               </div>
            </footer>
         </div>

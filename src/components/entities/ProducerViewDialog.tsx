@@ -172,7 +172,7 @@ export function ProducerViewDialog({ entity, open, onOpenChange, onEdit, allData
               <StatBox label="MOVIMENTAÇÃO" value={consolidated.mov} isNegative />
               <StatBox label="APOSENTADO" value={consolidated.apo} isNegative />
               <StatBox label="BLOQUEADO" value={consolidated.bloq} isNegative />
-              <StatBox label="AQUISIÇÃO" value={consolidated.aq} isNegative />
+              <StatBox label="AQUISIÇÃO" value={consolidated.aq} />
               <StatBox label="AJUSTE IMEI" value={consolidated.imei} isImei />
               <StatBox label="SALDO LEGADO" value={consolidated.legado} isAmber />
             </div>

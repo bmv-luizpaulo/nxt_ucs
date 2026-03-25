@@ -138,11 +138,11 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
       ? Math.round(tableOrigSum / (formData.particionamento / 100))
       : (formData.originacao || 0);
 
-    const mov = (formData.tabelaMovimentacao && formData.tabelaMovimentacao.length > 0)
+    const mov = (formData.tabelaMovimentacao !== undefined)
       ? (formData.tabelaMovimentacao || []).reduce((acc, curr) => acc + (curr.valor || 0), 0)
       : (formData.movimentacao || 0);
 
-    const aq = (formData.tabelaAquisicao && formData.tabelaAquisicao.length > 0)
+    const aq = (formData.tabelaAquisicao !== undefined)
       ? sumVal(formData.tabelaAquisicao)
       : (formData.aquisicao || 0);
 
@@ -162,11 +162,12 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
 
     const legDisp = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.disponivel || 0), 0);
     const legRes = (formData.tabelaLegado || []).reduce((acc, c) => acc + (c.reservado || 0), 0);
-    const legadoTotal = (formData.tabelaLegado && formData.tabelaLegado.length > 0)
+    const legadoTotal = (formData.tabelaLegado !== undefined)
       ? (legDisp + legRes)
       : (formData.saldoLegadoTotal || 0);
 
     // Final calculation always uses PRODUCER origination
+    // Aquisicao is now SUBTRACTED as per user latest instruction
     const finalCalculated = origProdutor - mov - aposentado - bloqueado - aq;
     const final = formData.ajusteRealizado ? (formData.valorAjusteManual || 0) : finalCalculated;
 
@@ -331,16 +332,16 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               id: `MOV-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
               dist: parts[0]?.trim() || '',
               data: cleanData(parts[1]),
-              plataforma: parts[2]?.trim() || '',
-              destino: parts[3]?.trim() || '',
-              usuarioDestino: parts[4]?.trim() || '',
-              valor: parseVal(parts[7]),
+              plataforma: parts[2]?.trim() || '', // Destino (Propriedade)
+              destino: parts[3]?.trim() || '',    // Usuário Destino
+              usuarioDestino: parts[4]?.trim() || '', // .
+              valor: parseVal(parts[6]),          // Débito (UCS) - Corrigido para index 6
               statusAuditoria,
-              dataPagamento: parts[10]?.trim() || '',
-              linkComprovante: parts[11]?.trim() || '',
-              valorPago: parseVal(parts[12]),
-              linkNxt: parts[13]?.trim() || '',
-              observacaoTransacao: parts[14]?.trim() || ''
+              dataPagamento: parts[9]?.trim() || '',
+              linkComprovante: parts[10]?.trim() || '',
+              valorPago: parseVal(parts[11]),
+              linkNxt: parts[12]?.trim() || '',
+              observacaoTransacao: parts[13]?.trim() || ''
             };
           }
 
@@ -466,7 +467,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               <StatBox label="MOVIMENTAÇÃO" value={totals.mov} isNegative />
               <StatBox label="APOSENTADO" value={totals.aposentado} isNegative />
               <StatBox label="BLOQUEADO" value={totals.bloqueado} isNegative />
-              <StatBox label="AQUISIÇÃO" value={totals.aq} isNegative />
+              <StatBox label="AQUISIÇÃO" value={totals.aq} />
               <StatBox label="AJUSTE IMEI" value={totals.imeiPending} isImei />
               <StatBox label="SALDO LEGADO" value={totals.legadoTotal} isAmber />
             </div>

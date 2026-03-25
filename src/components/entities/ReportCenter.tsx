@@ -30,6 +30,7 @@ import { EntidadeSaldo, ReportType, AuditReportMetadata } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { EntityAuditReport } from "./reports/EntityAuditReport";
 import { FarmAuditReport } from "./reports/FarmAuditReport";
+import { useAuditor } from "@/hooks/use-auditor";
 
 const AVAILABLE_REPORTS: AuditReportMetadata[] = [
   {
@@ -60,6 +61,7 @@ const AVAILABLE_REPORTS: AuditReportMetadata[] = [
 
 export function ReportCenter() {
   const { user } = useUser();
+  const auditor = useAuditor();
   const firestore = useFirestore();
   const [searchTerm, setSearchQuery] = useState("");
   const [selectedEntity, setSelectedEntity] = useState<EntidadeSaldo | null>(null);
@@ -203,9 +205,18 @@ export function ReportCenter() {
             <Card className="p-6 rounded-[2rem] border-none shadow-sm bg-white space-y-6">
               <div className="space-y-2">
                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Auditor Responsável</label>
-                <div className="h-12 px-5 bg-slate-50 rounded-xl flex items-center gap-3 border border-slate-100">
-                  <ShieldCheck className="w-4 h-4 text-primary" />
-                  <span className="text-[11px] font-black text-slate-600 uppercase">{user?.email}</span>
+                <div className="h-14 px-5 bg-slate-50 rounded-xl flex items-center gap-3 border border-slate-100">
+                  <ShieldCheck className="w-5 h-5 text-primary shrink-0" />
+                  <div className="flex flex-col overflow-hidden">
+                    <span className="text-[11px] font-black text-slate-600 uppercase truncate">
+                      {auditor?.nome || user?.email?.split('@')[0]}
+                    </span>
+                    {auditor?.cpf && (
+                      <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest truncate">
+                        {auditor.cpf} <span className="text-slate-200">|</span> {auditor.cargo || "Auditor"}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="space-y-2">
@@ -300,6 +311,7 @@ export function ReportCenter() {
               farmTotals={{ totalOrig: selectedEntity.originacao, totalFinal: selectedEntity.saldoFinalAtual }}
               reportType="executive"
               userEmail={user?.email || ""}
+              auditor={auditor}
             />
           ) : (
             <EntityAuditReport 
@@ -307,6 +319,7 @@ export function ReportCenter() {
               totals={totals}
               reportType={selectedReport.template as any}
               userEmail={user?.email || ""}
+              auditor={auditor}
               isCensored={false}
             />
           )}
