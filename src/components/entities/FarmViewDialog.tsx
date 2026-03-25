@@ -7,14 +7,17 @@ import { EntidadeSaldo } from "@/lib/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Printer, ShieldCheck, X, FileText, AlertTriangle,
-  Building2, Users, PieChart, Info, MapPin, ExternalLink, Calendar, Scale, History, Link2, QrCode, Database
+  Building2, Users, PieChart, Info, MapPin, ExternalLink, Calendar, Scale, History, Link2, QrCode, Database, Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FarmAuditReport } from "./reports/FarmAuditReport";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
-import { useUser } from "@/firebase";
+import { useUser, useFirestore, useMemoFirebase, useCollection } from "@/firebase";
+import { collection, query, where } from "firebase/firestore";
+import Link from "next/link";
+import { getLinkWithFilter } from "./EntityFilters";
 
 interface FarmViewDialogProps {
   entity: EntidadeSaldo | null;
@@ -25,33 +28,42 @@ interface FarmViewDialogProps {
 
 export function FarmViewDialog({ entity, open, onOpenChange, allData }: FarmViewDialogProps) {
   const { user } = useUser();
+  const firestore = useFirestore();
   const [reportType, setReportType] = useState<'executive' | 'juridico'>('executive');
   const formatUCS = (val: number | undefined) => (val || 0).toLocaleString('pt-BR');
 
-  // Filtra todos os registros (produtores) que pertencem a esta mesma fazenda
-  const participants = useMemo(() => {
-    if (!entity || !allData) return [];
+  // Consulta DIRETA ao banco para garantir precisão de auditoria (todos os registros da fazenda na safra)
+  const participantsQuery = useMemoFirebase(() => {
+    if (!firestore || !entity || !open) return null;
     
-    const normalize = (s: string | undefined) => (s || "").trim().toLowerCase();
-    const entityProp = normalize(entity.propriedade);
-    const entityIdf = entity.idf;
+    // Se tiver IDF, é a chave primária técnica da fazenda
+    if (entity.idf) {
+      return query(
+        collection(firestore, "produtores"),
+        where("safra", "==", entity.safra),
+        where("idf", "==", entity.idf)
+      );
+    }
     
-    // Filtro por Propriedade ou IDF (Inscrição da Fazenda)
-    const filtered = allData.filter(e => {
-      if (e.safra !== entity.safra) return false;
-      
-      // Se houver IDF, o match por IDF é o mais seguro
-      if (entityIdf && e.idf && entityIdf === e.idf) return true;
-      
-      // Fallback para nome da propriedade
-      return normalize(e.propriedade) === entityProp;
-    });
+    // Fallback por nome da propriedade
+    return query(
+      collection(firestore, "produtores"),
+      where("safra", "==", entity.safra),
+      where("propriedade", "==", entity.propriedade)
+    );
+  }, [firestore, entity, open]);
 
-    // Remove duplicados (caso o mesmo produtor apareça duas vezes em documentos diferentes por erro de importação)
-    const unique = Array.from(new Map(filtered.map(item => [item.id, item])).values());
+  const { data: dbParticipants, isLoading: isFetching } = useCollection<EntidadeSaldo>(participantsQuery);
+
+  // Consolidação Baseada em Dados Reais do Banco
+  const participants = useMemo(() => {
+    if (isFetching) return [];
+    if (dbParticipants && dbParticipants.length > 0) return dbParticipants;
     
-    return unique;
-  }, [entity, allData]);
+    // Fallback para os dados passados por prop caso a query ainda não tenha retornado ou falhado
+    if (!entity || !allData) return [];
+    return allData.filter(e => e.safra === entity.safra && (e.idf === entity.idf || e.propriedade === entity.propriedade));
+  }, [dbParticipants, isFetching, entity, allData]);
 
   // Totais da Fazenda (Global Wallet)
   const farmTotals = useMemo(() => {
@@ -62,18 +74,14 @@ export function FarmViewDialog({ entity, open, onOpenChange, allData }: FarmView
 
     if (participants.length === 0) return defaultData;
     
-    // Farm total: use originacaoFazendaTotal if available, otherwise fall back to originacao
     const totalOrig = participants[0]?.originacaoFazendaTotal || participants[0]?.originacao || 0;
     const totalMov = participants.reduce((sum, p) => sum + (p.movimentacao || 0), 0);
 
-    // Dados consolidados (pegamos de qualquer registro que tenha preenchido)
     const imeiCnpj = participants.find(p => p.imeiCnpj)?.imeiCnpj || "-";
     const imeiParticionamento = participants.find(p => p.imeiParticionamento)?.imeiParticionamento || 0;
     const associacaoCnpj = participants.find(p => p.associacaoCnpj)?.associacaoCnpj || "-";
     const associacaoParticionamento = participants.find(p => p.associacaoParticionamento)?.associacaoParticionamento || 0;
 
-    // RECALCULATE partitioned values from percentages instead of trusting stored values
-    // Produtor: use saldoParticionado if it looks correct, otherwise recalculate from percentage
     const totalProdutores = participants.reduce((sum, p) => {
       if (p.particionamento && p.particionamento > 0) {
         return sum + Math.round(totalOrig * (p.particionamento / 100));
@@ -81,18 +89,15 @@ export function FarmViewDialog({ entity, open, onOpenChange, allData }: FarmView
       return sum + (p.saldoParticionado || p.originacao || 0);
     }, 0);
 
-    // Associação: recalculate from farm total × percentage
     const totalAssoc = associacaoParticionamento > 0 
       ? Math.round(totalOrig * (associacaoParticionamento / 100))
       : participants.reduce((sum, p) => sum + (p.associacaoSaldo || 0), 0);
     
-    // IMEI: recalculate from farm total × percentage  
     const totalImei = imeiParticionamento > 0
       ? Math.round(totalOrig * (imeiParticionamento / 100))
       : participants.reduce((sum, p) => sum + (p.imeiSaldo || 0), 0);
     
     const diff = totalOrig - (totalProdutores + totalAssoc + totalImei);
-
     const totalFinal = participants.reduce((sum, p) => sum + (p.saldoFinalAtual || 0), 0);
     
     return { 
@@ -134,7 +139,7 @@ export function FarmViewDialog({ entity, open, onOpenChange, allData }: FarmView
                   <Building2 className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-primary">Carteira · Fazenda</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-primary">Auditoria de Precisão · Fazenda</p>
                   <h1 className="text-[26px] font-black tracking-tight uppercase leading-tight font-headline">
                     {entity.propriedade || "Sem Nome"}
                   </h1>
@@ -152,11 +157,16 @@ export function FarmViewDialog({ entity, open, onOpenChange, allData }: FarmView
                        <span className="text-[11px] font-bold text-slate-300 uppercase font-mono">IDF: {entity.idf}</span>
                     </div>
                  )}
+                 {isFetching && (
+                   <div className="flex items-center gap-2 text-[10px] font-bold text-primary animate-pulse">
+                     <Loader2 className="w-3 h-3 animate-spin" /> Sincronizando Banco...
+                   </div>
+                 )}
               </div>
             </div>
 
             <div className="text-right">
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Saldo Total da Safra (Original)</p>
+               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Saldo Total da Safra (Database)</p>
                <div className="flex items-baseline justify-end gap-2">
                   <span className="text-[42px] font-black text-primary tracking-tighter leading-none">
                     {formatUCS(farmTotals.totalOrig)}
@@ -169,12 +179,11 @@ export function FarmViewDialog({ entity, open, onOpenChange, allData }: FarmView
 
         <ScrollArea className="flex-1 bg-white relative z-20 print:hidden">
           <div className="p-8 pt-10 space-y-10">
-            {/* GRID DE DETALHES TÉCNICOS DA FAZENDA */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
                <div className="space-y-1">
                  <div className="flex items-center gap-1.5">
                    <Calendar className="w-3 h-3 text-slate-400" />
-                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Data de Registro Safra</p>
+                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Data de Registro</p>
                  </div>
                  <p className="text-[11px] font-bold text-slate-900">{entity.dataRegistro || "-"}</p>
                </div>
@@ -204,7 +213,6 @@ export function FarmViewDialog({ entity, open, onOpenChange, allData }: FarmView
                </div>
             </div>
 
-            {/* SEÇÃO DE PARTICIONAMENTO (PRODUTORES) */}
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -213,7 +221,7 @@ export function FarmViewDialog({ entity, open, onOpenChange, allData }: FarmView
                   </div>
                   <div>
                     <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-900 font-headline">Participantes e Particionamento</h3>
-                    <p className="text-[10px] text-slate-400 font-medium">Distribuição do saldo entre os detentores da fazenda.</p>
+                    <p className="text-[10px] text-slate-400 font-medium">Reconciliação total extraída diretamente do Ledger.</p>
                   </div>
                 </div>
               </div>
@@ -222,11 +230,11 @@ export function FarmViewDialog({ entity, open, onOpenChange, allData }: FarmView
                 <Table>
                   <TableHeader className="bg-slate-50">
                     <TableRow className="hover:bg-transparent border-b border-slate-100 h-12">
-                      <TableHead className="text-[9px] font-black uppercase tracking-widest pl-6">Usuário Destino</TableHead>
+                      <TableHead className="text-[9px] font-black uppercase tracking-widest pl-6">Titular Auditado</TableHead>
                       <TableHead className="text-[9px] font-black uppercase tracking-widest">Documento</TableHead>
-                      <TableHead className="text-[9px] font-black uppercase tracking-widest text-center">Proporção (%)</TableHead>
+                      <TableHead className="text-[9px] font-black uppercase tracking-widest text-center">Quota (%)</TableHead>
                       <TableHead className="text-[9px] font-black uppercase tracking-widest text-right">Saldo (UCS)</TableHead>
-                      <TableHead className="text-[9px] font-black uppercase tracking-widest text-center pr-6 w-[100px]">Status</TableHead>
+                      <TableHead className="text-[9px] font-black uppercase tracking-widest text-center pr-6 w-[100px]">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -245,30 +253,28 @@ export function FarmViewDialog({ entity, open, onOpenChange, allData }: FarmView
                           )} UCS
                         </TableCell>
                         <TableCell className="pr-6 text-center">
-                          {p.saldoParticionado && p.saldoParticionado > 0 ? (
-                            <Badge className="bg-emerald-100 text-emerald-700 border-none text-[8px] font-black uppercase rounded-full px-4 py-1">CONCLUÍDO</Badge>
-                          ) : (
-                            <Badge variant="outline" className="text-slate-300 border-slate-100 text-[8px] font-black uppercase rounded-full">PENDENTE</Badge>
-                          )}
+                           <Link 
+                              href={getLinkWithFilter("/produtores", p.documento || p.nome)}
+                              onClick={() => onOpenChange(false)}
+                              className="text-primary hover:text-primary/80"
+                           >
+                             <ExternalLink className="w-4 h-4 mx-auto" />
+                           </Link>
                         </TableCell>
                       </TableRow>
                     ))}
 
-                    {/* LINHAS DE RETENÇÃO (ASSOCIAÇÃO E IMEI) */}
                     {(farmTotals.totalAssoc > 0) && (
                       <TableRow className="h-14 bg-amber-50/20 border-b border-amber-100/50">
                         <TableCell className="pl-6 font-black text-[11px] text-amber-700 uppercase">
-                          ({participants[0]?.associacaoNome || 'NÚCLEO'})
+                          ({participants[0]?.associacaoNome || 'ASSOCIAÇÃO / NÚCLEO'})
                         </TableCell>
                         <TableCell className="text-amber-600 font-mono text-[10px]">{farmTotals.associacaoCnpj}</TableCell>
                         <TableCell className="text-center font-black text-[11px] text-amber-600">
                           {farmTotals.associacaoParticionamento > 0 ? `${farmTotals.associacaoParticionamento.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}%` : "-"}
                         </TableCell>
-                        <TableCell className="text-right font-black text-[11px] text-amber-800">
+                        <TableCell className="text-right font-black text-[11px] text-amber-800" colSpan={2}>
                           {formatUCS(farmTotals.totalAssoc)} UCS
-                        </TableCell>
-                        <TableCell className="pr-6 text-center">
-                          <Badge className="bg-emerald-100 text-emerald-700 border-none text-[8px] font-black uppercase rounded-full px-4 py-1">CONCLUÍDO</Badge>
                         </TableCell>
                       </TableRow>
                     )}
@@ -276,17 +282,14 @@ export function FarmViewDialog({ entity, open, onOpenChange, allData }: FarmView
                     {(farmTotals.totalImei > 0) && (
                       <TableRow className="h-14 bg-indigo-50/20 border-b border-indigo-100/50">
                         <TableCell className="pl-6 font-black text-[11px] text-indigo-700 uppercase">
-                          IMEI (PLATAFORMA)
+                          IMEI / PLATAFORMA
                         </TableCell>
                         <TableCell className="text-indigo-600 font-mono text-[10px]">{farmTotals.imeiCnpj}</TableCell>
                         <TableCell className="text-center font-black text-[11px] text-indigo-600">
                           {farmTotals.imeiParticionamento > 0 ? `${farmTotals.imeiParticionamento.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}%` : "-"}
                         </TableCell>
-                        <TableCell className="text-right font-black text-[11px] text-indigo-800">
+                        <TableCell className="text-right font-black text-[11px] text-indigo-800" colSpan={2}>
                           {formatUCS(farmTotals.totalImei)} UCS
-                        </TableCell>
-                        <TableCell className="pr-6 text-center">
-                          <Badge className="bg-emerald-100 text-emerald-700 border-none text-[8px] font-black uppercase rounded-full px-4 py-1">CONCLUÍDO</Badge>
                         </TableCell>
                       </TableRow>
                     )}
@@ -296,7 +299,7 @@ export function FarmViewDialog({ entity, open, onOpenChange, allData }: FarmView
 
               <div className="flex justify-end gap-10 px-8 py-6 rounded-2xl bg-slate-50 border border-slate-100">
                  <div className="text-right">
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Alocado</p>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Saldo Auditado Consolidado</p>
                     <p className="text-[12px] font-black text-slate-900">{formatUCS(farmTotals.totalProdutores + farmTotals.totalAssoc + farmTotals.totalImei)} UCS</p>
                  </div>
                  <div className="text-right border-l border-slate-200 pl-10">
@@ -311,14 +314,13 @@ export function FarmViewDialog({ entity, open, onOpenChange, allData }: FarmView
               </div>
             </div>
 
-            {/* SEÇÃO: APONTAMENTOS DE AUDITORIA */}
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4 text-slate-400" />
-                <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-900">Observações de Auditoria Global</h3>
+                <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-900">Observações Técnicas da Safra</h3>
               </div>
               <div className="p-6 bg-slate-50/30 rounded-2xl border border-slate-100 text-[12px] text-slate-500 font-medium italic min-h-[80px]">
-                {entity.observacaoFazenda || "Nenhuma observação global registrada para esta propriedade."}
+                {entity.observacaoFazenda || "Nenhuma observação técnica registrada para esta propriedade."}
               </div>
             </div>
           </div>
@@ -327,7 +329,7 @@ export function FarmViewDialog({ entity, open, onOpenChange, allData }: FarmView
         {/* FOOTER */}
         <div className="p-6 border-t border-slate-100 bg-white flex items-center justify-between shrink-0 no-print transition-all">
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-[10px] font-black uppercase text-slate-400 hover:text-slate-900 px-6 h-11">
-            <X className="w-4 h-4 mr-2" /> Fechar Visualização
+            <X className="w-4 h-4 mr-2" /> Fechar
           </Button>
           <div className="flex gap-3">
              <Button variant="outline" onClick={handlePrintExecutive} className="h-11 px-6 rounded-xl font-black uppercase text-[10px] tracking-widest gap-2 bg-slate-50 text-slate-700 hover:bg-slate-100 border-slate-200">
@@ -339,7 +341,7 @@ export function FarmViewDialog({ entity, open, onOpenChange, allData }: FarmView
           </div>
         </div>
 
-        {/* PRINTABLE AREA */}
+        {/* ÁREA DE IMPRESSÃO (V6) */}
         <FarmAuditReport 
           entity={entity} 
           participants={participants} 

@@ -7,14 +7,15 @@ import { EntidadeSaldo } from "@/lib/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   X, ShieldCheck, AlertTriangle, Users, Cpu,
-  Eye, EyeOff, Building2, ExternalLink, Printer, Scale, QrCode, Database
+  Eye, EyeOff, Building2, ExternalLink, Printer, Scale, QrCode, Database, Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { getLinkWithFilter } from "./EntityFilters";
-import { useUser } from "@/firebase";
+import { useUser, useFirestore, useMemoFirebase, useCollection } from "@/firebase";
+import { collection, query, where } from "firebase/firestore";
 import { ImeiAuditReport } from "./reports/ImeiAuditReport";
 
 interface ImeiViewDialogProps {
@@ -26,25 +27,41 @@ interface ImeiViewDialogProps {
 
 export function ImeiViewDialog({ entity, open, onOpenChange, allData }: ImeiViewDialogProps) {
   const { user } = useUser();
+  const firestore = useFirestore();
   const [isCensored, setIsCensored] = useState(false);
   const [reportType, setReportType] = useState<'executive' | 'juridico'>('executive');
 
-  // Encontra todos os produtores vinculados a este IMEI
-  const linkedProducers = useMemo(() => {
-    if (!entity || !allData) return [];
+  // Consulta DIRETA ao banco para garantir precisão de auditoria (todos os produtores vinculados a este IMEI)
+  const imeiQuery = useMemoFirebase(() => {
+    if (!firestore || !entity || !open) return null;
     const imeiName = entity.imeiNome;
-    if (!imeiName) return [entity];
+    if (!imeiName) return null;
     
+    return query(
+      collection(firestore, "produtores"),
+      where("imeiNome", "==", imeiName)
+    );
+  }, [firestore, entity, open]);
+
+  const { data: dbLinked, isLoading: isFetching } = useCollection<EntidadeSaldo>(imeiQuery);
+
+  const linkedProducers = useMemo(() => {
+    if (isFetching) return [];
+    if (dbLinked && dbLinked.length > 0) return dbLinked;
+    
+    // Fallback para dados locais
+    if (!entity || !allData) return [entity].filter(Boolean) as EntidadeSaldo[];
+    const imeiName = entity.imeiNome;
     return allData.filter(e => e.imeiNome === imeiName);
-  }, [entity, allData]);
+  }, [dbLinked, isFetching, entity, allData]);
 
   // Consolidação
   const stats = useMemo(() => {
     const uniqueProducers = new Set(linkedProducers.map(p => p.documento)).size;
     const uniqueFarms = new Set(linkedProducers.map(p => p.propriedade || p.idf)).size;
-    const totalOriginacao = linkedProducers.reduce((s, p) => s + (p.originacao || 0), 0);
+    const totalOriginacao = linkedProducers.reduce((s, p) => s + (p.originacaoFazendaTotal || p.originacao || 0), 0);
     const totalSaldoImei = linkedProducers.reduce((s, p) => s + (p.imeiSaldo || 0), 0);
-    const totalSaldoProd = linkedProducers.reduce((s, p) => s + (p.saldoParticionado || 0), 0);
+    const totalSaldoProd = linkedProducers.reduce((s, p) => s + (p.saldoFinalAtual || 0), 0);
       
     return { uniqueProducers, uniqueFarms, totalOriginacao, totalSaldoImei, totalSaldoProd };
   }, [linkedProducers]);
@@ -81,14 +98,21 @@ export function ImeiViewDialog({ entity, open, onOpenChange, allData }: ImeiView
                   <div className="w-6 h-6 bg-violet-500/20 rounded-md flex items-center justify-center">
                     <Cpu className="w-4 h-4 text-violet-400" />
                   </div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-violet-400">IMEI / Distribuidor</p>
+                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-violet-400">Auditoria de Precisão · IMEI</p>
                 </div>
                 <h1 className="text-[32px] font-black tracking-tight uppercase leading-none font-headline">{imeiName}</h1>
+                <div className="flex items-center gap-4">
+                  {isFetching && (
+                    <div className="flex items-center gap-2 text-[10px] font-bold text-violet-400 animate-pulse">
+                      <Loader2 className="w-3 h-3 animate-spin" /> Sincronizando Registros...
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="bg-[#161B2E] border border-violet-500/20 rounded-[2.5rem] p-8 min-w-[360px] shadow-2xl flex flex-col items-end relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-40 h-40 bg-violet-500/10 blur-3xl -mr-20 -mt-20"></div>
-                <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5 relative z-10">Saldo Total IMEI</p>
+                <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1.5 relative z-10">Saldo Total IMEI (Ledger)</p>
                 <div className="flex items-baseline gap-2 relative z-10">
                   <span className="text-[48px] font-black text-white tracking-tighter font-mono leading-none">{formatUCS(stats.totalSaldoImei)}</span>
                   <span className="text-[14px] font-black text-violet-400 uppercase tracking-widest">UCS</span>
@@ -98,25 +122,25 @@ export function ImeiViewDialog({ entity, open, onOpenChange, allData }: ImeiView
 
             <div className="grid grid-cols-4 gap-4">
               <div className="border border-white/5 rounded-[1rem] p-4 bg-[#161B2E] flex flex-col justify-between h-[80px]">
-                <p className="text-[8px] font-black uppercase tracking-[0.12em] text-slate-500">Produtores Vinculados</p>
+                <p className="text-[8px] font-black uppercase tracking-[0.12em] text-slate-500">Membros Vinculados</p>
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-violet-400" />
                   <p className="text-[20px] font-black text-white tracking-tighter font-mono">{stats.uniqueProducers}</p>
                 </div>
               </div>
               <div className="border border-white/5 rounded-[1rem] p-4 bg-[#161B2E] flex flex-col justify-between h-[80px]">
-                <p className="text-[8px] font-black uppercase tracking-[0.12em] text-slate-500">Fazendas</p>
+                <p className="text-[8px] font-black uppercase tracking-[0.12em] text-slate-500">Unidades Fundiárias</p>
                 <div className="flex items-center gap-2">
                   <Building2 className="w-4 h-4 text-teal-400" />
                   <p className="text-[20px] font-black text-white tracking-tighter font-mono">{stats.uniqueFarms}</p>
                 </div>
               </div>
               <div className="border border-white/5 rounded-[1rem] p-4 bg-[#161B2E] flex flex-col justify-between h-[80px]">
-                <p className="text-[8px] font-black uppercase tracking-[0.12em] text-teal-400">Originação Total</p>
+                <p className="text-[8px] font-black uppercase tracking-[0.12em] text-teal-400">UCS Originação Total</p>
                 <p className="text-[18px] font-black text-white tracking-tighter font-mono">{formatUCS(stats.totalOriginacao)}</p>
               </div>
               <div className="border border-violet-500/20 rounded-[1rem] p-4 bg-[#161B2E] flex flex-col justify-between h-[80px]">
-                <p className="text-[8px] font-black uppercase tracking-[0.12em] text-violet-400">Saldo Produtores</p>
+                <p className="text-[8px] font-black uppercase tracking-[0.12em] text-violet-400">Saldo Detentores</p>
                 <p className="text-[18px] font-black text-violet-400 tracking-tighter font-mono">{formatUCS(stats.totalSaldoProd)}</p>
               </div>
             </div>
@@ -124,13 +148,12 @@ export function ImeiViewDialog({ entity, open, onOpenChange, allData }: ImeiView
 
           <ScrollArea className="flex-1 bg-white">
             <div className="p-10 space-y-10">
-              {/* TABELA DE PRODUTORES */}
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
                   <div className="w-1.5 h-6 rounded-full bg-violet-500" />
-                  <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-900 font-headline">Produtores com IMEI</h3>
+                  <h3 className="text-[13px] font-black uppercase tracking-widest text-slate-900 font-headline">Registros Vinculados ao IMEI</h3>
                   <Badge variant="secondary" className="text-[10px] font-black uppercase rounded-full bg-violet-50 text-violet-600 px-3 py-1">
-                    {linkedProducers.length} Registros
+                    {linkedProducers.length} Entidades Identificadas
                   </Badge>
                 </div>
 
@@ -141,10 +164,9 @@ export function ImeiViewDialog({ entity, open, onOpenChange, allData }: ImeiView
                         <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 pl-6">Produtor</TableHead>
                         <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">Documento</TableHead>
                         <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">Propriedade</TableHead>
-                        <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">Safra</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">Safra</TableHead>
                         <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">Originação</TableHead>
-                        <TableHead className="text-[9px] font-black uppercase tracking-widest text-primary text-right">Saldo Produtor</TableHead>
-                        <TableHead className="text-[9px] font-black uppercase tracking-widest text-violet-600 text-right pr-6">Saldo IMEI</TableHead>
+                        <TableHead className="text-[9px] font-black uppercase tracking-widest text-primary text-right pr-6">Saldo IMEI</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -153,17 +175,8 @@ export function ImeiViewDialog({ entity, open, onOpenChange, allData }: ImeiView
                           <TableCell className="pl-6 font-black text-[10px] uppercase text-slate-900 truncate max-w-[180px]">{maskText(p.nome)}</TableCell>
                           <TableCell className="font-mono text-[10px] text-slate-400">{maskText(p.documento)}</TableCell>
                           <TableCell className="text-[10px] text-slate-600 truncate max-w-[120px]">{p.propriedade || '—'}</TableCell>
-                          <TableCell className="text-[10px] font-bold text-primary">{p.safra}</TableCell>
+                          <TableCell className="text-center text-[10px] font-bold text-primary">{p.safra}</TableCell>
                           <TableCell className="text-right font-mono text-[10px] font-bold text-slate-600">{formatUCS(p.originacao)}</TableCell>
-                          <TableCell className="text-right">
-                             <Link 
-                                href={getLinkWithFilter("/produtores", p.documento || p.nome)}
-                                onClick={() => onOpenChange(false)}
-                                className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase text-violet-600 hover:text-violet-700 transition-colors"
-                             >
-                                Ver Particionamento <ExternalLink className="w-3 h-3" />
-                             </Link>
-                           </TableCell>
                           <TableCell className="text-right font-mono text-[11px] font-black text-violet-600 pr-6">{formatUCS(p.imeiSaldo)}</TableCell>
                         </TableRow>
                       ))}
@@ -172,24 +185,23 @@ export function ImeiViewDialog({ entity, open, onOpenChange, allData }: ImeiView
                 </div>
               </div>
 
-              {/* RESUMO VISUAL */}
               <div className="bg-violet-50/30 border border-violet-100 rounded-[2rem] p-8">
-                <h3 className="text-[11px] font-black uppercase tracking-widest text-violet-700 mb-6 font-headline">Resumo de Distribuição IMEI</h3>
+                <h3 className="text-[11px] font-black uppercase tracking-widest text-violet-700 mb-6 font-headline">Balanço IMEI (Database Verified)</h3>
                 <div className="grid grid-cols-3 gap-6">
                   <div className="bg-white p-6 rounded-2xl border border-violet-100 text-center">
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Originação Total Fazendas</p>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Consolidado Fazendas</p>
                     <p className="text-[22px] font-black text-slate-900 font-headline">{formatUCS(stats.totalOriginacao)}</p>
                     <p className="text-[8px] text-slate-400 uppercase font-bold tracking-widest mt-1">UCS BRUTOS</p>
                   </div>
                   <div className="bg-white p-6 rounded-2xl border border-primary/20 text-center">
-                    <p className="text-[9px] font-black text-primary uppercase tracking-widest mb-2">Saldo Total Produtores</p>
+                    <p className="text-[9px] font-black text-primary uppercase tracking-widest mb-2">Total Detentores</p>
                     <p className="text-[22px] font-black text-primary font-headline">{formatUCS(stats.totalSaldoProd)}</p>
                     <p className="text-[8px] text-slate-400 uppercase font-bold tracking-widest mt-1">UCS PARTICIONADOS</p>
                   </div>
                   <div className="bg-white p-6 rounded-2xl border border-violet-300 text-center">
-                    <p className="text-[9px] font-black text-violet-600 uppercase tracking-widest mb-2">Saldo Total IMEI</p>
+                    <p className="text-[9px] font-black text-violet-600 uppercase tracking-widest mb-2">Total Custódia IMEI</p>
                     <p className="text-[22px] font-black text-violet-600 font-headline">{formatUCS(stats.totalSaldoImei)}</p>
-                    <p className="text-[8px] text-slate-400 uppercase font-bold tracking-widest mt-1">UCS PARTICIONADOS</p>
+                    <p className="text-[8px] text-slate-400 uppercase font-bold tracking-widest mt-1">UCS AUDITADAS</p>
                   </div>
                 </div>
               </div>
@@ -223,7 +235,7 @@ export function ImeiViewDialog({ entity, open, onOpenChange, allData }: ImeiView
           </div>
         </div>
 
-        {/* PRINTABLE AREA */}
+        {/* ÁREA DE IMPRESSÃO (V6) */}
         <ImeiAuditReport
           entity={entity}
           linkedProducers={linkedProducers}

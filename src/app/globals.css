@@ -54,10 +54,9 @@
 }
 
 /* ========================================= */
-/* 🧾 MOTOR DE IMPRESSÃO PROFISSIONAL (V5)   */
+/* 🧾 MOTOR DE IMPRESSÃO PROFISSIONAL (V6)   */
 /* ========================================= */
 
-/* Esconde o relatório da tela interativa */
 .is-printable {
   display: none;
 }
@@ -80,19 +79,37 @@
     print-color-adjust: exact;
   }
 
-  /* Oculta absolutamente tudo na árvore principal */
+  /* Oculta absolutamente tudo na árvore principal exceto os portais */
   body > *:not([data-radix-portal]) {
     display: none !important;
   }
 
-  /* Expõe o Portal do Modal mas remove sua 'aparência' de modal */
-  [data-radix-portal], 
-  [role="dialog"],
-  [role="dialog"] > div {
+  /* Expõe o Portal do Modal e neutraliza o comportamento de 'diálogo' */
+  [data-radix-portal] {
     display: block !important;
-    visibility: visible !important;
+    position: static !important;
+    z-index: auto !important;
+  }
+
+  /* Remove o fundo escuro (overlay) e as restrições de centralização do ShadCN */
+  [data-radix-portal] > div {
+    display: block !important;
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    transform: none !important;
+    overflow: visible !important;
+  }
+
+  /* O DialogContent deve se tornar um container simples e transparente */
+  [role="dialog"] {
+    display: block !important;
     position: static !important;
     width: 100% !important;
+    max-width: none !important;
     height: auto !important;
     background: transparent !important;
     box-shadow: none !important;
@@ -103,12 +120,12 @@
     overflow: visible !important;
   }
 
-  /* Oculta interface técnica dentro do modal (botões, sliders, menus) */
+  /* Esconde todos os elementos de UI interativa dentro do modal */
   [role="dialog"] *:not(.is-printable):not(.is-printable *) {
     display: none !important;
   }
 
-  /* Renderização Final do Report A4 */
+  /* Renderiza o Report como uma página branca A4 pura */
   .is-printable {
     display: block !important;
     visibility: visible !important;
@@ -116,15 +133,15 @@
     min-height: 297mm !important;
     background: #fff !important;
     color: #000 !important;
-    padding: 20mm !important; /* Margem padrão A4 */
+    padding: 15mm !important;
     margin: 0 auto !important;
     box-sizing: border-box !important;
     position: relative !important;
     page-break-after: always;
-    font-size: 12pt;
+    font-size: 11pt;
   }
 
-  /* Ajustes finos de tabelas para PDF */
+  /* Estilos específicos para tabelas em PDF */
   .is-printable table {
     width: 100% !important;
     border-collapse: collapse !important;
