@@ -14,6 +14,8 @@ export interface AppUser {
   status: UserStatus;
   ultimoAcesso: string;
   createdAt: string;
+  cpf?: string;
+  cargo?: string;
 }
 
 export interface Movimento {
@@ -76,6 +78,7 @@ export interface RegistroTabela {
   observacaoTransacao?: string;
   dataPagamento?: string;
   valorPago?: number;
+  usuarioDestino?: string;
 }
 
 export interface EntidadeSaldo {

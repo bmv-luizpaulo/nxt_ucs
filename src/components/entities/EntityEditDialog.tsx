@@ -275,7 +275,11 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
       const parts = line.split('\t');
       const parseVal = (str: string | undefined) => {
         if (!str || !str.trim()) return 0;
-        return parseInt(str.replace(/\./g, '').replace(/[^\d-]/g, '')) || 0;
+        // Suporte para formato brasileiro (1.000,00)
+        if (str.includes(',')) {
+          return parseFloat(str.replace(/\./g, "").replace(",", ".")) || 0;
+        }
+        return parseFloat(str.replace(/\./g, "").replace(/[^\d.-]/g, "")) || 0;
       };
 
       const cleanData = (str: string | undefined) => {
@@ -317,19 +321,40 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             valor: parseVal(parts[parts.length - 1])
           };
         default: // tabelaMovimentacao
-          // Smart Scanning for complex Ledger formats
+          if (parts.length >= 14) {
+            // New specific format: Dist [0], Data [1], Hist [2], Dest [3], . [4], . [5], Debito [6], . [7], Situa [8], Dt Pgt [9], Link [10], Val Pgt [11], NXT [12], OBS [13]
+            const statusRaw = parts[8]?.trim().toLowerCase() || '';
+            const statusAuditoria: AuditoriaStatus = (statusRaw.includes('pago') || statusRaw.includes('concl') || statusRaw.includes('final')) ? 'Concluido' :
+                                                    statusRaw.includes('canc') ? 'Cancelado' : 'Pendente';
+            
+            return {
+              id: `MOV-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
+              dist: parts[0]?.trim() || '',
+              data: cleanData(parts[1]),
+              plataforma: parts[2]?.trim() || '',
+              destino: parts[3]?.trim() || '',
+              usuarioDestino: parts[4]?.trim() || '',
+              valor: parseVal(parts[7]),
+              statusAuditoria,
+              dataPagamento: parts[10]?.trim() || '',
+              linkComprovante: parts[11]?.trim() || '',
+              valorPago: parseVal(parts[12]),
+              linkNxt: parts[13]?.trim() || '',
+              observacaoTransacao: parts[14]?.trim() || ''
+            };
+          }
+
+          // Smart Scanning Fallback for other formats
           let valor = 0;
           let statusAuditoria: AuditoriaStatus = 'Pendente';
           let linkComprovante = "";
           let linkNxt = "";
           let foundValor = false;
 
-          // Scan columns starting from 2 to find specialized data
           parts.forEach((p, idx) => {
             const val = p.trim();
             if (!val) return;
 
-            // 1. Find Volume (first number found after the initial identification columns)
             if (!foundValor && idx >= 4) {
               const parsed = parseVal(val);
               if (parsed > 0) {
@@ -339,12 +364,10 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
               }
             }
 
-            // 2. Find Status
             if (val.toLowerCase() === 'pago') {
               statusAuditoria = 'Concluido';
             }
 
-            // 3. Find Links (Google Drive vs NXT)
             if (val.startsWith('http')) {
               if (val.includes('drive.google.com') || val.includes('docs.google.com')) {
                 linkComprovante = val;
@@ -1104,6 +1127,13 @@ function SectionHeader({ title, value, onPaste, onAdd, isNegative, isAmber, isIm
   );
 }
 
+function formatCurrency(val: number): string {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(val || 0);
+}
+
 function SectionTable({ data, type, onRemove, onUpdateItem, maskFn = (t: any) => t || '-' }: { data: any[], type: string, onRemove?: (id: string) => void, onUpdateItem?: (id: string, updates: Partial<RegistroTabela>) => void, maskFn?: (t: string | undefined) => string }) {
   const isLegado = type === 'legado';
   const isImei = type === 'imei';
@@ -1116,17 +1146,19 @@ function SectionTable({ data, type, onRemove, onUpdateItem, maskFn = (t: any) =>
           <TableRow className="h-10 border-b border-slate-100">
             <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 pl-6 w-[120px]">DATA</TableHead>
             <TableHead className="text-[9px] font-black uppercase tracking-widest text-primary w-[140px]">DISTRIBUIÇÃO</TableHead>
-            <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">HISTÓRICO / PLATAFORMA</TableHead>
-            {isMovimentacao && (
+            {isMovimentacao ? (
               <>
+                <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">DESTINO</TableHead>
                 <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">USUÁRIO DESTINO</TableHead>
-                <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">STATUS PGTO</TableHead>
+                <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">SITUAÇÃO</TableHead>
                 <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">DATA PGTO</TableHead>
                 <TableHead className="text-[9px] font-black uppercase tracking-widest text-emerald-600 text-center">VALOR PAGO</TableHead>
                 <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center w-[200px]">OBSERVAÇÕES</TableHead>
                 <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">COMPROVANTE</TableHead>
                 <TableHead className="text-[9px] font-black uppercase tracking-widest text-[#734DCC] text-center">NXT</TableHead>
               </>
+            ) : (
+              <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">HISTÓRICO / PLATAFORMA</TableHead>
             )}
             {isLegado ? (
               <>
@@ -1150,7 +1182,7 @@ function SectionTable({ data, type, onRemove, onUpdateItem, maskFn = (t: any) =>
         <TableBody>
           {data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={isLegado ? 7 : isImei ? 6 : isMovimentacao ? 10 : 4} className="py-12 text-center text-slate-300 font-bold uppercase text-[10px] tracking-widest">
+              <TableCell colSpan={isLegado ? 7 : isImei ? 6 : isMovimentacao ? 11 : 4} className="py-12 text-center text-slate-300 font-bold uppercase text-[10px] tracking-widest">
                 Nenhum registro auditado nesta sessão
               </TableCell>
             </TableRow>
@@ -1176,7 +1208,7 @@ function SectionTable({ data, type, onRemove, onUpdateItem, maskFn = (t: any) =>
                   <Input
                     value={row.plataforma || row.nome || ""}
                     onChange={e => onUpdateItem?.(row.id, { plataforma: e.target.value })}
-                    placeholder="Histórico / Plataforma"
+                    placeholder={isMovimentacao ? "Destino" : "Histórico / Plataforma"}
                     className="h-7 bg-slate-50/50 border-slate-100 text-[9px] font-bold text-slate-600 rounded-lg uppercase focus:bg-white"
                   />
                 </TableCell>
@@ -1216,10 +1248,13 @@ function SectionTable({ data, type, onRemove, onUpdateItem, maskFn = (t: any) =>
                     </TableCell>
                     <TableCell className="text-center px-4 py-1">
                       <Input
-                        type="number"
-                        value={row.valorPago ?? ""}
-                        onChange={e => onUpdateItem?.(row.id, { valorPago: e.target.value === "" ? 0 : parseFloat(e.target.value) || 0 })}
-                        placeholder="R$ 0,00"
+                        type="text"
+                        value={formatCurrency(row.valorPago || 0)}
+                        onChange={e => {
+                          const val = e.target.value.replace(/\D/g, "");
+                          const num = parseFloat(val) / 100;
+                          onUpdateItem?.(row.id, { valorPago: num });
+                        }}
                         className="h-7 bg-emerald-50/50 border-emerald-100 text-[9px] font-bold text-emerald-700 rounded-lg text-right min-w-[110px] focus:bg-white"
                       />
                     </TableCell>

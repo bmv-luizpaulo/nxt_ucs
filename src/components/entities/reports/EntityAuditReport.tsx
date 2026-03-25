@@ -12,10 +12,11 @@ interface EntityAuditReportProps {
   totals: any;
   reportType: 'executive' | 'juridico';
   userEmail?: string;
+  auditor?: any;
   isCensored: boolean;
 }
 
-export function EntityAuditReport({ entity, totals, reportType, userEmail, isCensored }: EntityAuditReportProps) {
+export function EntityAuditReport({ entity, totals, reportType, userEmail, auditor, isCensored }: EntityAuditReportProps) {
   const formatUCS = (val?: number) => (val ?? 0).toLocaleString('pt-BR');
 
   const maskText = (text: string | undefined) => {
@@ -30,7 +31,7 @@ export function EntityAuditReport({ entity, totals, reportType, userEmail, isCen
   return (
     <div className={cn(
       "is-printable bg-white text-slate-900 font-sans mx-auto",
-      "w-full max-w-[21cm] p-[1.5cm] min-h-[29.7cm] text-[10px]"
+      "w-full max-w-[21cm] p-[4mm] min-h-[29.7cm] text-[10px]"
     )}>
       {/* HEADER */}
       <header className="flex justify-between items-start border-b-2 border-slate-900 pb-4 mb-8">
@@ -222,7 +223,7 @@ export function EntityAuditReport({ entity, totals, reportType, userEmail, isCen
       )}
 
       {/* TABLES */}
-      <div className="space-y-8">
+      <div className="space-y-10">
         <ReportTable
           title={isJuridico ? "02. DEMONSTRATIVO DE ORIGINAÇÃO" : "01. DEMONSTRATIVO DE ORIGINAÇÃO"}
           data={entity.tabelaOriginacao || []}
@@ -240,8 +241,8 @@ export function EntityAuditReport({ entity, totals, reportType, userEmail, isCen
                  const statusColor = statusAudit === 'CONCLUIDO' || statusAudit === 'CONCLUÍDO' ? 'text-emerald-600 border-emerald-100' : 'text-amber-500 border-amber-100';
                  
                  return (
-                  <div key={idx} className="border border-slate-200 rounded-lg p-4 page-break-inside-avoid">
-                    <div className="flex justify-between items-start mb-4 border-b border-slate-100 pb-3">
+                  <div key={idx} className="border border-slate-200 rounded-lg p-3 page-break-inside-avoid">
+                    <div className="flex justify-between items-start mb-3 border-b border-slate-100 pb-2">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                            <span className="text-[12px] font-black text-slate-900 uppercase">{maskText(mov.destino)}</span>
@@ -258,7 +259,7 @@ export function EntityAuditReport({ entity, totals, reportType, userEmail, isCen
                         )}
                       </div>
                       
-                      <div className="text-right flex flex-col items-end gap-3">
+                      <div className="text-right flex flex-col items-end gap-2">
                         <div>
                           <p className="text-[8px] font-black uppercase text-slate-400">VOLUME MOVIDO</p>
                           <p className="text-[16px] font-black font-mono text-rose-600">-{formatUCS(mov.valor)} <span className="text-[8px] text-slate-500">UCS</span></p>
@@ -274,33 +275,19 @@ export function EntityAuditReport({ entity, totals, reportType, userEmail, isCen
                       </div>
                     </div>
 
-                    {(mov.linkNxt || mov.linkComprovante) && (
+                    {(mov.linkNxt) && (
                       <div className="flex gap-6 items-stretch">
                         {/* NXT HASH COM QR CODE */}
-                        {mov.linkNxt && (
-                          <div className="flex-1 bg-slate-50 p-3 rounded-lg border border-slate-100 flex items-start gap-4">
-                            <div className="bg-white p-1 rounded border border-slate-200 shrink-0">
-                               <QRCode value={mov.linkNxt} size={48} bgColor="#ffffff" fgColor="#000000" level="L" />
-                            </div>
-                            <div className="space-y-1 overflow-hidden">
-                               <p className="text-[7px] font-black uppercase tracking-widest text-[#734DCC] flex items-center gap-1"><Link2 className="w-2.5 h-2.5" /> NXT BLOCKCHAIN HASH</p>
-                               <a href={mov.linkNxt} target="_blank" className="text-[8px] font-mono text-slate-600 truncate block hover:text-[#734DCC]">{mov.linkNxt}</a>
-                               <p className="text-[6px] text-slate-400 uppercase font-bold mt-1">Escaneie o QR Code para auditar a transação na rede NXT.</p>
-                            </div>
+                        <div className="flex-1 bg-slate-50 p-2 rounded-lg border border-slate-100 flex items-start gap-3">
+                          <div className="bg-white p-1 rounded border border-slate-200 shrink-0">
+                                <QRCode value={mov.linkNxt} size={40} bgColor="#ffffff" fgColor="#000000" level="L" />
                           </div>
-                        )}
-
-                        {/* COMPROVANTE */}
-                        {mov.linkComprovante && (
-                          <div className={cn("bg-slate-50 p-3 rounded-lg border border-slate-100", mov.linkNxt ? "w-[40%]" : "flex-1")}>
-                            <p className="text-[7px] font-black uppercase tracking-widest text-primary flex items-center gap-1 mb-1"><ExternalLink className="w-2.5 h-2.5" /> COMPROVANTE DE PAGAMENTO</p>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[9px] font-mono font-bold text-slate-600 truncate">ANEXO_PAGAMENTO.PDF</span>
-                              <Badge className="bg-emerald-100 text-emerald-700 text-[6px] px-1 py-0 border-none hover:bg-emerald-100">VALIDADO</Badge>
-                            </div>
-                            <p className="text-[6px] text-slate-400 uppercase font-bold mt-1">Acervo digital armazenado no LedgerTrust.</p>
+                          <div className="space-y-1 overflow-hidden">
+                                <p className="text-[7px] font-black uppercase tracking-widest text-[#734DCC] flex items-center gap-1"><Link2 className="w-2.5 h-2.5" /> NXT BLOCKCHAIN HASH</p>
+                                <a href={mov.linkNxt} target="_blank" className="text-[8px] font-mono text-slate-600 truncate block hover:text-[#734DCC] font-bold">{mov.linkNxt}</a>
+                                <p className="text-[6px] text-slate-400 uppercase font-bold mt-1">Escaneie o QR Code para auditar a transação na rede NXT.</p>
                           </div>
-                        )}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -314,6 +301,7 @@ export function EntityAuditReport({ entity, totals, reportType, userEmail, isCen
             data={entity.tabelaMovimentacao || []}
             type="movimentacao"
             isCensored={isCensored}
+            initialBalance={totals.origProdutor || totals.orig}
           />
         )}
 
@@ -329,19 +317,22 @@ export function EntityAuditReport({ entity, totals, reportType, userEmail, isCen
         <div className="flex items-center gap-2 text-emerald-600 font-black text-[12px] uppercase">
           <ShieldCheck className="w-5 h-5" /> OK - CONFORMIDADE BMV
         </div>
-        <div className="text-center text-[8px] uppercase font-bold text-slate-900">
-          <p className="text-[10px] font-black">RESPONSÁVEL TÉCNICO BMV</p>
-          <p>{userEmail || "LUIZPAULO.JESUS@BMV.GLOBAL"}</p>
-          <p className="text-slate-400 mt-1">ASSINADO DIGITALMENTE</p>
+        <div className="text-right text-[8px] uppercase font-bold text-slate-900">
+          <p className="text-[10px] font-black">{auditor?.cargo || "RESPONSÁVEL TÉCNICO BMV"}</p>
+          <p className="text-[11px] font-black">{auditor?.nome || userEmail || "LUIZPAULO.JESUS"}</p>
+          {auditor?.cpf && <p className="text-[8px] opacity-60">CPF: {auditor.cpf}</p>}
+          <p className="text-slate-400 mt-1 uppercase text-[7px]">ASSINADO DIGITALMENTE EM CONFORMIDADE COM PROTOCOLO LEDGERTRUST</p>
         </div>
       </footer>
     </div>
   );
 }
 
-function ReportTable({ title, data, type, isCensored }: any) {
+function ReportTable({ title, data, type, isCensored, initialBalance = 0 }: any) {
   if (!data || data.length === 0) return null;
   const formatUCS = (val?: number) => (val ?? 0).toLocaleString('pt-BR');
+  const isMovimentacao = type === 'movimentacao';
+  const isLegado = type === 'legado';
   
   const maskText = (text: string | undefined) => {
     if (!text || !isCensored) return text || '-';
@@ -349,72 +340,94 @@ function ReportTable({ title, data, type, isCensored }: any) {
     return text[0] + "*".repeat(text.length - 2) + text[text.length - 1];
   };
 
-  return (
-    <div className="page-break-inside-avoid">
-      <h4 className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">{title}</h4>
-      <table className="w-full text-left border-collapse table-fixed">
-        <thead>
-          <tr className="border-b border-slate-300">
-            <th className={cn("text-[8px] font-black uppercase text-slate-500 py-2", type === 'legado' || type === 'originacao' ? "w-[25%]" : "w-[20%]")}>REFERÊNCIA</th>
-            <th className={cn("text-[8px] font-black uppercase text-slate-500 py-2", type === 'legado' || type === 'originacao' ? "w-[35%]" : "w-[25%]")}>HISTÓRICO / PLATAFORMA</th>
-            
-            {type === 'movimentacao' && (
-              <>
-                <th className="text-[8px] font-black uppercase text-slate-500 py-2 w-[25%]">USUÁRIO DESTINO</th>
-                <th className="text-[8px] font-black uppercase text-slate-500 py-2 text-center w-[15%]">STATUS</th>
-                <th className="text-[8px] font-black uppercase text-[#734DCC] py-2 text-center w-[15%]">NXT</th>
-              </>
-            )}
+  // Calculate Running Balance for Movimentação
+  let runningBalance = initialBalance;
+  const dataWithBalance = isMovimentacao ? (data || []).map((row: any) => {
+    runningBalance -= (row.valor || 0);
+    return { ...row, saldoAcumulado: runningBalance };
+  }) : data;
 
-            {type === 'legado' ? (
+  return (
+    <div className="page-break-inside-avoid mt-8">
+      <h4 className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">{title}</h4>
+      <table className="w-full text-left border-collapse table-fixed border border-slate-200">
+        <thead>
+          <tr className="border-b-2 border-slate-900 bg-slate-50/80">
+             <th className="text-[8px] font-black uppercase text-slate-500 py-3 pl-3 w-[6%]">DIST.</th>
+             <th className="text-[8px] font-black uppercase text-slate-500 py-3 w-[8%]">INÍCIO</th>
+             <th className="text-[8px] font-black uppercase text-slate-500 py-3 w-[12%]">HISTÓRICO</th>
+             
+             {isMovimentacao ? (
+               <>
+                 <th className="text-[8px] font-black uppercase text-slate-500 py-3 w-[25%]">DESTINO</th>
+                 <th className="text-[8px] font-black uppercase text-slate-500 py-3 w-[5%] text-center">USR</th>
+                 <th className="text-[8px] font-black uppercase text-rose-600 py-3 text-right w-[7%]">DÉBITO</th>
+                 <th className="text-[8px] font-black uppercase text-slate-500 py-3 text-center w-[5%]">SIT.</th>
+                 <th className="text-[8px] font-black uppercase text-slate-500 py-3 text-center w-[12%]">PGTO</th>
+                 <th className="text-[8px] font-black uppercase text-[#734DCC] py-3 text-center w-[3%]">NXT</th>
+                 <th className="text-[8px] font-black uppercase text-slate-500 py-3 pr-4 w-[20%]">OBSERVAÇÕES</th>
+               </>
+             ) : isLegado ? (
               <>
                 <th className="text-[8px] font-black uppercase text-slate-500 py-2 text-right w-[10%]">DISP.</th>
                 <th className="text-[8px] font-black uppercase text-slate-500 py-2 text-right w-[10%]">RES.</th>
                 <th className="text-[8px] font-black uppercase text-slate-500 py-2 text-right w-[10%]">BLOQ.</th>
-                <th className="text-[8px] font-black uppercase text-slate-500 py-2 text-right w-[10%]">APOS.</th>
+                <th className="text-[8px] font-black uppercase text-slate-500 py-2 text-right w-[10%] pr-4">APOS.</th>
               </>
             ) : (
-              <th className="text-[8px] font-black uppercase text-slate-500 py-2 text-right">VOLUME (UCS)</th>
+              <th className="text-[8px] font-black uppercase text-slate-500 py-2 text-right pr-4">VOLUME (UCS)</th>
             )}
           </tr>
         </thead>
         <tbody className="text-[8px] font-bold text-slate-600">
-          {data.map((row: any, i: number) => {
+          {dataWithBalance.map((row: any, i: number) => {
             const statusAudit = (row.statusAuditoria || row.status || 'PENDENTE').toString().toUpperCase();
             const statusColor = statusAudit === 'CONCLUIDO' || statusAudit === 'CONCLUÍDO' ? 'text-emerald-600' : 
                                 statusAudit === 'CANCELADO' ? 'text-rose-600' : 
                                 'text-amber-500';
 
             return (
-              <tr key={i} className="border-b border-slate-100 last:border-0 hover:bg-slate-50">
-                <td className="py-2.5 text-slate-500 font-mono break-words pr-4">{row.data || row.dist || '-'}</td>
-                <td className="py-2.5 uppercase text-slate-800 break-words pr-4">
-                   {type === 'movimentacao' ? (row.nome || row.plataforma || 'TRADING') : (row.destino || row.plataforma || row.nome || '-')}
+              <tr key={i} className={cn(
+                "border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-colors",
+                i % 2 === 0 ? "bg-white" : "bg-slate-50/30"
+              )}>
+                <td className="py-2.5 pl-3 text-slate-400 font-mono text-[7.5px]">{row.dist || '-'}</td>
+                <td className="py-2.5 text-slate-400 font-mono text-[7.5px]">{row.data || '-'}</td>
+                <td className="py-2.5 uppercase text-slate-800 break-words pr-2">
+                   {maskText(row.plataforma || row.nome || '-')}
                 </td>
                 
-                {type === 'movimentacao' && (
+                {isMovimentacao && (
                   <>
-                    <td className="py-2.5 uppercase text-slate-600 break-words pr-4">{maskText(row.destino || '-')}</td>
-                    <td className={`py-2.5 text-center font-black ${statusColor}`}>{statusAudit}</td>
-                    <td className="py-2 text-center font-black text-[#734DCC]">
-                      {row.linkNxt ? "HASH ✓" : "-"}
+                    <td className="py-2.5 uppercase text-slate-900 font-black break-words pr-2 leading-tight text-[7.5px]">{maskText(row.destino || '-')}</td>
+                    <td className="py-2.5 uppercase text-slate-400 break-words pr-2 leading-tight text-center text-[7px]">{maskText(row.usuarioDestino || '-')}</td>
+                    <td className="py-2.5 text-right font-black text-rose-600 font-mono text-[7.5px]">{row.valor > 0 ? `-${formatUCS(row.valor)}` : formatUCS(row.valor)}</td>
+                    <td className={`py-2.5 text-center font-black ${statusColor} text-[6.5px]`}>{statusAudit.substring(0, 4)}</td>
+                    <td className="py-2.5 text-center text-slate-500 whitespace-nowrap">
+                       <div className="flex flex-col items-center leading-none gap-1">
+                         <span className="text-[7px]">{row.dataPagamento || '-'}</span>
+                         {row.valorPago > 0 && <span className="text-emerald-700 font-black text-[7.5px]">{row.valorPago.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>}
+                       </div>
+                    </td>
+                    <td className="py-2.5 text-center font-black text-[#734DCC]">
+                      {row.linkNxt ? "✓" : "-"}
+                    </td>
+                    <td className="py-2.5 pr-4 text-[7px] font-medium text-slate-500 uppercase leading-snug italic break-words">
+                       {row.observacaoTransacao || "-"}
                     </td>
                   </>
                 )}
 
-                {type === 'legado' ? (
+                {isLegado ? (
                   <>
-                    <td className="py-2 text-right text-emerald-600">{formatUCS(row.disponivel)}</td>
-                    <td className="py-2 text-right text-amber-500">{formatUCS(row.reservado || 0)}</td>
-                    <td className="py-2 text-right text-rose-500">{formatUCS(row.bloqueado || row.aposentado)}</td>
-                    <td className="py-2 text-right text-slate-400">{formatUCS(row.aposentado || 0)}</td>
+                    <td className="py-2.5 text-right text-emerald-700 font-black">{formatUCS(row.disponivel)}</td>
+                    <td className="py-2.5 text-right text-amber-600">{formatUCS(row.reservado || 0)}</td>
+                    <td className="py-2.5 text-right text-rose-600">{formatUCS(row.bloqueado || row.aposentado)}</td>
+                    <td className="py-2.5 text-right text-slate-400 pr-4">{formatUCS(row.aposentado || 0)}</td>
                   </>
-                ) : (
-                  <td className={cn(
-                    "py-2 text-right font-black font-mono",
-                    type === 'movimentacao' ? "text-rose-600" : "text-slate-900"
-                  )}>
-                    {type === 'movimentacao' ? '-' : ''}{formatUCS(row.valor)}
+                ) : !isMovimentacao && (
+                  <td className="py-2.5 text-right font-black font-mono pr-4 text-slate-900">
+                    {formatUCS(row.valor)}
                   </td>
                 )}
               </tr>

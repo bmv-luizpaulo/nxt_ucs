@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EntityAuditReport } from "./reports/EntityAuditReport";
+import { useAuditor } from "@/hooks/use-auditor";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useUser } from "@/firebase";
@@ -37,6 +38,7 @@ interface EntityViewDialogProps {
 
 export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityViewDialogProps) {
   const { user } = useUser();
+  const auditor = useAuditor();
   const [isCensored, setIsCensored] = useState(false);
   const [reportType, setReportType] = useState<'executive' | 'juridico'>('executive');
 
@@ -129,6 +131,7 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
           totals={totals} 
           reportType={reportType} 
           userEmail={user?.email || "SYSTEM_AUDITOR"} 
+          auditor={auditor}
           isCensored={isCensored}
         />
 
@@ -286,7 +289,15 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
                   />
                 )}
                 {(entity.tabelaMovimentacao?.length || entity.movimentacao > 0) && (
-                  <ViewSection title="02. MOVIMENTAÇÃO" data={entity.tabelaMovimentacao} type="movimentacao" isNegative total={totals.mov} maskFn={maskText} />
+                  <ViewSection 
+                    title="02. MOVIMENTAÇÃO" 
+                    data={entity.tabelaMovimentacao} 
+                    type="movimentacao" 
+                    isNegative 
+                    total={totals.mov} 
+                    maskFn={maskText}
+                    initialBalance={totals.origProdutor}
+                  />
                 )}
                 {(entity.tabelaLegado?.length || entity.saldoLegadoTotal > 0) && (
                   <ViewSection title="03. SALDO LEGADO" data={entity.tabelaLegado} type="legado" isAmber total={totals.legadoTotal} />
@@ -358,9 +369,16 @@ function StatBox({ label, value, isNegative, isHighlight, isAmber, isImei }: any
   );
 }
 
-function ViewSection({ title, data, type, isNegative, isAmber, isImei, total, maskFn = (t: any) => t || '-' }: any) {
+function ViewSection({ title, data, type, isNegative, isAmber, isImei, total, maskFn = (t: any) => t || '-', initialBalance = 0 }: any) {
   const isLegado = type === 'legado';
   const isMovimentacao = type === 'movimentacao';
+
+  // Calculate Running Balance for Movimentação
+  let runningBalance = initialBalance;
+  const dataWithBalance = isMovimentacao ? (data || []).map((row: any) => {
+    runningBalance -= (row.valor || 0);
+    return { ...row, saldoAcumulado: runningBalance };
+  }) : data;
 
   return (
     <div className="space-y-6">
@@ -384,15 +402,20 @@ function ViewSection({ title, data, type, isNegative, isAmber, isImei, total, ma
         <Table>
           <TableHeader className="bg-slate-50/50">
             <TableRow className="h-12">
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-8">REFERÊNCIA</TableHead>
-              <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">HISTÓRICO / PLATAFORMA</TableHead>
-              {isMovimentacao && (
+              <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 pl-8">DIST.</TableHead>
+              <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">DATA INÍCIO</TableHead>
+              {isMovimentacao ? (
                 <>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">USUÁRIO DESTINO</TableHead>
-                  <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">STATUS PGTO</TableHead>
+                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">DESTINO</TableHead>
+                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">USUÁRIO DESTINO</TableHead>
+                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-rose-500 text-right">DÉBITO (UCS)</TableHead>
+                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-emerald-600 text-right">SALDO ACUM.</TableHead>
+                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">SITUAÇÃO</TableHead>
+                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">PAGAMENTO</TableHead>
+                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-[#734DCC] text-center">NXT</TableHead>
+                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 pr-8">OBSERVAÇÕES</TableHead>
                 </>
-              )}
-              {isLegado ? (
+              ) : isLegado ? (
                 <>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest text-primary text-right">DISPONÍVEL</TableHead>
                   <TableHead className="text-[10px] font-black uppercase tracking-widest text-amber-500 text-right">RESERVADO</TableHead>
@@ -404,25 +427,52 @@ function ViewSection({ title, data, type, isNegative, isAmber, isImei, total, ma
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data?.map((row: any, i: number) => (
-              <TableRow key={i} className="h-12 border-b border-slate-50 last:border-0">
-                <TableCell className="pl-8 font-mono text-[11px] text-slate-400">{row.dist || row.data || '-'}</TableCell>
-                <TableCell className="font-bold text-[11px] uppercase text-slate-600 truncate max-w-[240px]">
-                  <span>{isMovimentacao ? (maskFn(row.nome || row.plataforma)) : (maskFn(row.destino || row.plataforma || row.nome))}</span>
-                </TableCell>
+            {dataWithBalance?.map((row: any, i: number) => (
+              <TableRow key={i} className="h-14 border-b border-slate-50 last:border-0 hover:bg-slate-50/30 transition-colors">
+                <TableCell className="pl-8 font-mono text-[10px] text-slate-400">{row.dist || '-'}</TableCell>
+                <TableCell className="font-mono text-[10px] text-slate-400">{row.data || '-'}</TableCell>
                 {isMovimentacao && (
-                  <TableCell className="font-bold text-[11px] uppercase text-slate-600 truncate max-w-[200px]">{maskFn(row.destino)}</TableCell>
-                )}
-
-                {isMovimentacao && (
-                  <TableCell className="text-center">
-                    <Badge className={cn(
-                      "text-[9px] font-black uppercase px-3 py-1 rounded-full border-none flex items-center gap-1.5",
-                      row.statusAuditoria === 'Concluido' ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
-                    )}>
-                      {row.statusAuditoria || 'PENDENTE'}
-                    </Badge>
-                  </TableCell>
+                  <>
+                    <TableCell className="font-bold text-[10px] uppercase text-slate-600 max-w-[140px] truncate">{maskFn(row.plataforma || row.nome || '-')}</TableCell>
+                    <TableCell className="font-bold text-[10px] uppercase text-slate-400 max-w-[140px] truncate">{maskFn(row.destino || '-')}</TableCell>
+                    <TableCell className="text-right font-mono font-black text-[12px] text-rose-500">
+                      -{ (row.valor || 0).toLocaleString('pt-BR') }
+                    </TableCell>
+                    <TableCell className="text-right font-mono font-black text-[12px] text-emerald-600 bg-emerald-50/30">
+                      { (row.saldoAcumulado || 0).toLocaleString('pt-BR') }
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge className={cn(
+                        "text-[8px] font-black uppercase px-2 py-0.5 rounded-md border-none",
+                        row.statusAuditoria === 'Concluido' ? "bg-emerald-100 text-emerald-700" : 
+                        row.statusAuditoria === 'Cancelado' ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700"
+                      )}>
+                        {row.statusAuditoria || 'PENDENTE'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-center font-bold text-[9px] text-slate-500 whitespace-nowrap">
+                       <div className="flex flex-col items-center">
+                          <span>{row.dataPagamento || '-'}</span>
+                          {row.valorPago > 0 && (
+                            <span className="text-emerald-600 font-black">
+                               {row.valorPago.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                            </span>
+                          )}
+                       </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                       <div className="flex items-center justify-center gap-2">
+                          {row.linkNxt && (
+                            <a href={row.linkNxt} target="_blank" title="Ver no NXT Blockchain">
+                               <Link2 className="w-4 h-4 text-[#734DCC] hover:scale-120 transition-all" />
+                            </a>
+                          )}
+                       </div>
+                    </TableCell>
+                    <TableCell className="pr-8 text-[10px] font-medium text-slate-400 italic max-w-[180px] break-words">
+                       {row.observacaoTransacao || '-'}
+                    </TableCell>
+                  </>
                 )}
 
                 {isLegado ? (
@@ -431,10 +481,15 @@ function ViewSection({ title, data, type, isNegative, isAmber, isImei, total, ma
                     <TableCell className="text-right font-mono font-black text-amber-500">{(row.reservado || 0).toLocaleString('pt-BR')}</TableCell>
                     <TableCell className="text-right font-mono font-black text-slate-400 pr-8">{(row.aposentado || 0).toLocaleString('pt-BR')}</TableCell>
                   </>
-                ) : (
-                  <TableCell className={cn("text-right font-mono font-black text-[12px] pr-8", isNegative ? "text-rose-500" : "text-slate-900")}>
-                    {(row.valor || 0).toLocaleString('pt-BR')}
-                  </TableCell>
+                ) : !isMovimentacao && (
+                  <>
+                    <TableCell className="font-bold text-[10px] uppercase text-slate-600 max-w-[140px] truncate">
+                      {maskFn(row.plataforma || row.nome || '-')}
+                    </TableCell>
+                    <TableCell className={cn("text-right font-mono font-black text-[12px] pr-8", isNegative ? "text-rose-500" : "text-slate-900")}>
+                      {(row.valor || 0).toLocaleString('pt-BR')}
+                    </TableCell>
+                  </>
                 )}
               </TableRow>
             ))}

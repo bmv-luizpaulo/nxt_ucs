@@ -48,6 +48,7 @@ export default function SettingsPage() {
   const [showInviteResult, setShowInviteResult] = useState(false);
   const [newUserData, setNewUserData] = useState({ nome: "", email: "", role: "auditor" });
   const [generatedLink, setGeneratedLink] = useState("");
+  const [profileForm, setProfileForm] = useState({ nome: "", cargo: "", cpf: "" });
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -80,6 +81,31 @@ export default function SettingsPage() {
   }, [firestore, user]);
 
   const { data: appUsers, isLoading: isUsersLoading } = useCollection<AppUser>(usersQuery);
+
+  useEffect(() => {
+    if (appUsers && user) {
+       const me = appUsers.find(u => u.email === user.email);
+       if (me) {
+         setProfileForm({
+           nome: me.nome || user.email?.split('@')[0].toUpperCase() || "",
+           cargo: me.cargo || "AUDITOR DE UCS",
+           cpf: me.cpf || ""
+         });
+       }
+    }
+  }, [appUsers, user]);
+
+  const handleUpdateProfile = async () => {
+    if (!firestore || !user) return;
+    const userRef = doc(firestore, "users", user.uid);
+    await setDoc(userRef, {
+      ...profileForm,
+      nome: profileForm.nome.toUpperCase(),
+      cargo: profileForm.cargo.toUpperCase(),
+      ultimoAcesso: new Date().toISOString()
+    }, { merge: true });
+    toast({ title: "Perfil atualizado", description: "Seas informações foram salvas com sucesso." });
+  };
 
   const handleDeleteUser = async (id: string) => {
     if (!firestore) return;
@@ -216,18 +242,38 @@ export default function SettingsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                       <div className="space-y-3.5">
                         <Label className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">Nome Completo</Label>
-                        <Input defaultValue={user.email?.split('@')[0].toUpperCase()} className="h-16 bg-slate-50/50 border-slate-100 rounded-2xl px-8 font-black text-[14px] text-slate-900 uppercase" />
+                        <Input 
+                          value={profileForm.nome} 
+                          onChange={e => setProfileForm({...profileForm, nome: e.target.value})}
+                          className="h-16 bg-slate-50/50 border-slate-100 rounded-2xl px-8 font-black text-[14px] text-slate-900 uppercase" 
+                        />
                       </div>
                       <div className="space-y-3.5">
                         <Label className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">Cargo / Função</Label>
-                        <Input defaultValue="Auditor de UCS" className="h-16 bg-slate-50/50 border-slate-100 rounded-2xl px-8 font-black text-[14px] text-slate-900 uppercase" />
+                        <Input 
+                          value={profileForm.cargo} 
+                          onChange={e => setProfileForm({...profileForm, cargo: e.target.value})}
+                          className="h-16 bg-slate-50/50 border-slate-100 rounded-2xl px-8 font-black text-[14px] text-slate-900 uppercase" 
+                        />
+                      </div>
+                      <div className="space-y-3.5 col-span-1">
+                        <Label className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">CPF (Identificação)</Label>
+                        <Input 
+                          value={profileForm.cpf} 
+                          onChange={e => setProfileForm({...profileForm, cpf: e.target.value})}
+                          placeholder="000.000.000-00"
+                          className="h-16 bg-slate-50/50 border-slate-100 rounded-2xl px-8 font-black text-[14px] text-slate-900 uppercase" 
+                        />
                       </div>
                       <div className="space-y-3.5 col-span-1">
                         <Label className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">E-mail Corporativo</Label>
                         <Input value={user.email || ""} disabled className="h-16 bg-slate-50 border-none rounded-2xl px-8 font-bold text-slate-300 cursor-not-allowed" />
                       </div>
-                      <div className="flex items-end">
-                        <Button className="h-16 w-full rounded-2xl bg-[#734DCC] hover:bg-[#633fb9] text-white font-black uppercase text-[12px] tracking-[0.2em] shadow-2xl shadow-indigo-100 transition-all active:scale-95">
+                      <div className="flex items-end md:col-span-2">
+                        <Button 
+                          onClick={handleUpdateProfile}
+                          className="h-16 w-full rounded-2xl bg-[#734DCC] hover:bg-[#633fb9] text-white font-black uppercase text-[12px] tracking-[0.2em] shadow-2xl shadow-indigo-100 transition-all active:scale-95"
+                        >
                           Salvar Alterações
                         </Button>
                       </div>

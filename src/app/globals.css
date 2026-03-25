@@ -47,7 +47,12 @@
     font-family: 'Montserrat', sans-serif;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: 'Raleway', sans-serif;
     font-weight: 800;
   }
@@ -64,15 +69,17 @@
 @media print {
   @page {
     size: A4;
-    margin: 0;
+    margin: 15mm 10mm 15mm 10mm;
   }
 
   /* Reset Total para Impressão */
-  html, body {
+  html,
+  body {
     width: 210mm !important;
     height: auto !important;
     margin: 0 !important;
     padding: 0 !important;
+    /* deixa o @page cuidar disso */
     background: #fff !important;
     overflow: visible !important;
     -webkit-print-color-adjust: exact;
@@ -93,7 +100,7 @@
     background: white !important;
     box-shadow: none !important;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 0 !important;    /* deixa o @page cuidar disso */
     width: 100% !important;
     height: auto !important;
     max-height: none !important;
@@ -117,7 +124,7 @@
     box-shadow: none !important;
     border: none !important;
     transform: none !important;
-    padding: 0 !important;
+    padding: 0 !important;    /* deixa o @page cuidar disso */
     margin: 0 !important;
     overflow: visible !important;
   }
@@ -135,11 +142,12 @@
     min-height: 297mm !important;
     background: #fff !important;
     color: #000 !important;
-    padding: 15mm !important;
+    padding: 0 !important;    /* deixa o @page cuidar disso */
+    gap: 8mm !important;
     margin: 0 auto !important;
     box-sizing: border-box !important;
     position: relative !important;
-    page-break-after: always;
+    page-break-after: auto;
     font-size: 11pt;
   }
 
@@ -148,9 +156,11 @@
     width: 100% !important;
     border-collapse: collapse !important;
   }
-  
-  .is-printable tr {
+
+  .is-printable tr,
+  .is-printable .page-break-inside-avoid {
     page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   .no-print {

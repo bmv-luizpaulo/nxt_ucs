@@ -18,6 +18,7 @@ import { collection, query, where } from "firebase/firestore";
 import { getLinkWithFilter } from "./EntityFilters";
 import Link from "next/link";
 import Image from "next/image";
+import { useAuditor } from "@/hooks/use-auditor";
 
 interface ProducerViewDialogProps {
   entity: EntidadeSaldo | null;
@@ -29,6 +30,7 @@ interface ProducerViewDialogProps {
 
 export function ProducerViewDialog({ entity, open, onOpenChange, onEdit, allData }: ProducerViewDialogProps) {
   const { user } = useUser();
+  const auditor = useAuditor();
   const firestore = useFirestore();
   const [isCensored, setIsCensored] = useState(false);
   const [reportType, setReportType] = useState<'executive' | 'juridico'>('executive');
@@ -303,6 +305,39 @@ export function ProducerViewDialog({ entity, open, onOpenChange, onEdit, allData
                   </div>
                 </div>
               </div>
+
+              {/* TABELAS EM MODO LEITURA CONSOLIDADA */}
+              {aggregatedEntity && (
+                <div className="space-y-12">
+                  {(aggregatedEntity.tabelaOriginacao?.length || 0) > 0 && (
+                    <ViewSection 
+                      title="01. ORIGINAÇÃO CONSOLIDADA" 
+                      data={aggregatedEntity.tabelaOriginacao} 
+                      type="originacao" 
+                      total={consolidated.orig} 
+                    />
+                  )}
+                  {(aggregatedEntity.tabelaMovimentacao?.length || 0) > 0 && (
+                    <ViewSection 
+                      title="02. MOVIMENTAÇÃO CONSOLIDADA" 
+                      data={aggregatedEntity.tabelaMovimentacao} 
+                      type="movimentacao" 
+                      isNegative 
+                      total={consolidated.mov} 
+                      initialBalance={consolidated.orig}
+                    />
+                  )}
+                  {(aggregatedEntity.tabelaLegado?.length || 0) > 0 && (
+                    <ViewSection 
+                      title="03. SALDO LEGADO CONSOLIDADO" 
+                      data={aggregatedEntity.tabelaLegado} 
+                      type="legado" 
+                      isAmber 
+                      total={consolidated.legado} 
+                    />
+                  )}
+                </div>
+              )}
             </div>
           </ScrollArea>
 
@@ -345,6 +380,7 @@ export function ProducerViewDialog({ entity, open, onOpenChange, onEdit, allData
             totals={reportTotals} 
             reportType={reportType} 
             userEmail={user?.email || "SYSTEM_AUDITOR"} 
+            auditor={auditor}
             isCensored={isCensored}
           />
         )}
@@ -384,6 +420,150 @@ function DetailItem({ label, value, isMono, className }: { label: string, value:
     <div className={cn("space-y-1", className)}>
       <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
       <p className={cn("text-[11px] font-bold text-slate-900", isMono ? "font-mono tracking-tight text-[10px] break-all" : "")}>{value}</p>
+    </div>
+  );
+}
+
+function ViewSection({ title, data, type, isNegative, isAmber, isImei, total, maskFn = (t: any) => t || '-', initialBalance = 0 }: any) {
+  const isLegado = type === 'legado';
+  const isMovimentacao = type === 'movimentacao';
+
+  // Calculate Running Balance for Movimentação
+  let runningBalance = initialBalance;
+  const sortedData = useMemo(() => {
+    // Ordenar por data se disponível para o saldo acumulado fazer sentido
+    const items = [...(data || [])];
+    if (isMovimentacao) {
+      items.sort((a, b) => {
+        const dateA = a.data ? new Date(a.data.split('/').reverse().join('-')) : new Date(0);
+        const dateB = b.data ? new Date(b.data.split('/').reverse().join('-')) : new Date(0);
+        return dateA.getTime() - dateB.getTime();
+      });
+    }
+    return items;
+  }, [data, isMovimentacao]);
+
+  const dataWithBalance = isMovimentacao ? sortedData.map((row: any) => {
+    runningBalance -= (row.valor || 0);
+    return { ...row, saldoAcumulado: runningBalance };
+  }) : sortedData;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div className="flex items-center gap-4">
+          <div className={cn(
+            "w-1.5 h-6 rounded-full",
+            isAmber ? "bg-amber-500" : isImei ? "bg-indigo-500" : isNegative ? "bg-rose-500" : "bg-[#10B981]"
+          )} />
+          <h3 className="text-[12px] font-black uppercase tracking-widest text-slate-900 font-headline">{title}</h3>
+          <Badge variant="secondary" className={cn(
+            "text-[10px] font-black uppercase rounded-full bg-slate-100 px-3 py-1",
+            isAmber ? "text-amber-500" : isImei ? "text-indigo-500" : isNegative ? "text-rose-500" : "text-[#10B981]"
+          )}>
+            {(total || 0).toLocaleString('pt-BR')} UCS
+          </Badge>
+        </div>
+      </div>
+
+      <div className="rounded-[1.5rem] border border-slate-100 overflow-hidden bg-white shadow-sm">
+        <Table>
+          <TableHeader className="bg-slate-50/50">
+            <TableRow className="h-12 hover:bg-transparent">
+              <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 pl-8 w-[100px]">DIST.</TableHead>
+              <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 w-[100px]">DATA INÍCIO</TableHead>
+              <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">HISTÓRICO</TableHead>
+              
+              {isMovimentacao ? (
+                <>
+                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">DESTINO</TableHead>
+                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400">USUÁRIO DESTINO</TableHead>
+                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-rose-500 text-right w-[100px]">DÉBITO</TableHead>
+                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-emerald-600 text-right w-[100px]">SALDO ACUM.</TableHead>
+                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center w-[80px]">SITUAÇÃO</TableHead>
+                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">PAGAMENTO</TableHead>
+                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-[#734DCC] text-center w-[60px]">NXT</TableHead>
+                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 pr-8">OBSERVAÇÕES</TableHead>
+                </>
+              ) : isLegado ? (
+                <>
+                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-emerald-600 text-right">DISPONÍVEL</TableHead>
+                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-amber-500 text-right">RESERVADO</TableHead>
+                  <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-right pr-8">BLOQUEADO</TableHead>
+                </>
+              ) : (
+                <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 text-right pr-8">VOLUME (UCS)</TableHead>
+              )}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {dataWithBalance?.map((row: any, i: number) => (
+              <TableRow key={i} className="h-14 border-b border-slate-50 last:border-0 hover:bg-slate-50/30 transition-colors">
+                <TableCell className="pl-8 font-mono text-[10px] text-slate-400">{row.dist || '-'}</TableCell>
+                <TableCell className="font-mono text-[10px] text-slate-400">{row.data || '-'}</TableCell>
+                <TableCell className="font-bold text-[10px] uppercase text-slate-600 max-w-[140px] truncate">
+                  {maskFn(row.plataforma || row.nome || '-')}
+                </TableCell>
+                
+                {isMovimentacao && (
+                  <>
+                    <TableCell className="font-bold text-[10px] uppercase text-slate-400 max-w-[140px] truncate">{maskFn(row.destino || '-')}</TableCell>
+                    <TableCell className="text-right font-mono font-black text-[11px] text-rose-500">
+                      -{ (row.valor || 0).toLocaleString('pt-BR') }
+                    </TableCell>
+                    <TableCell className="text-right font-mono font-black text-[11px] text-emerald-600 bg-emerald-50/20">
+                      { (row.saldoAcumulado || 0).toLocaleString('pt-BR') }
+                    </TableCell>
+                    <TableCell className="text-center">
+                       <Badge className={cn(
+                         "text-[8px] font-black uppercase px-2 py-0.5 rounded-md border-none",
+                         (row.statusAuditoria === 'Concluido' || row.statusAuditoria === 'CONCLUÍDO') ? "bg-emerald-100 text-emerald-700" : 
+                         row.statusAuditoria === 'Cancelado' ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700"
+                       )}>
+                         {(row.statusAuditoria || 'PENDENTE').substring(0, 10)}
+                       </Badge>
+                    </TableCell>
+                    <TableCell className="text-center font-bold text-[9px] text-slate-500 whitespace-nowrap">
+                       <div className="flex flex-col items-center">
+                          <span>{row.dataPagamento || '-'}</span>
+                          {row.valorPago > 0 && (
+                            <span className="text-emerald-600 font-black">
+                               {row.valorPago.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                            </span>
+                          )}
+                       </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                        <div className="flex items-center justify-center gap-2">
+                           {row.linkNxt && (
+                             <a href={row.linkNxt} target="_blank" rel="noopener noreferrer">
+                                <Link2 className="w-3.5 h-3.5 text-[#734DCC] hover:scale-110 transition-transform" />
+                             </a>
+                           )}
+                        </div>
+                    </TableCell>
+                    <TableCell className="pr-8 text-[10px] font-medium text-slate-400 italic max-w-[180px] break-words">
+                       {row.observacaoTransacao || '-'}
+                    </TableCell>
+                  </>
+                )}
+
+                {isLegado ? (
+                  <>
+                    <TableCell className="text-right font-mono font-bold text-[10px] text-emerald-600">{(row.disponivel || 0).toLocaleString('pt-BR')}</TableCell>
+                    <TableCell className="text-right font-mono font-bold text-[10px] text-amber-500">{(row.reservado || 0).toLocaleString('pt-BR')}</TableCell>
+                    <TableCell className="text-right font-mono font-bold text-[10px] text-rose-400 pr-8">{(row.bloqueado || row.aposentado || 0).toLocaleString('pt-BR')}</TableCell>
+                  </>
+                ) : !isMovimentacao && (
+                  <TableCell className="text-right font-mono font-black text-[11px] pr-8 text-slate-900">
+                    {(row.valor || 0).toLocaleString('pt-BR')}
+                  </TableCell>
+                )}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
