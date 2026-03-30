@@ -3,10 +3,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2, AlertTriangle, Clock, Link as LinkIcon, ShieldCheck } from "lucide-react";
 
 export function AuditOverview({ orders }: { orders: Pedido[] }) {
-  const total = orders.length;
-  const auditados = orders.filter(o => o.auditado).length;
-  const pendentes = orders.filter(o => !o.auditado).length;
-  const inconsistencias = orders.filter(o => o.status === 'erro').length;
+   const total = orders.length;
+   const auditados = orders.filter(o => o.linkNxt && o.linkNxt.trim() !== '').length;
+   const pendentes = orders.filter(o => !o.linkNxt || o.linkNxt.trim() === '').length;
+   const inconsistencias = orders.filter(o => o.status === 'erro').length;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

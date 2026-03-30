@@ -75,15 +75,12 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   useEffect(() => {
     if (entity) {
       const data = { ...entity };
-      // The farm total is stored in originacaoFazendaTotal, or falls back to originacao
       const farmTotal = data.originacaoFazendaTotal || data.originacao || 0;
 
-      // Ensure originacao reflects the farm total for the UI
       if (!data.originacaoFazendaTotal && data.originacao) {
         data.originacaoFazendaTotal = data.originacao;
       }
 
-      // Auto-recalculate partitioned balances based on the FARM TOTAL
       if (data.particionamento && data.particionamento > 0) {
         data.saldoParticionado = Math.round(farmTotal * (data.particionamento / 100));
       }
@@ -95,10 +92,25 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
       }
 
       setFormData(data);
-      // Reset auto-sync flag when a new entity is loaded
+      setHasAutoSynced(false);
+    } else if (open) {
+      // Initialize for NEW entity
+      setFormData({
+        nome: "",
+        documento: "",
+        status: "disponivel",
+        statusAuditoriaSaldo: undefined,
+        safra: new Date().getFullYear().toString(),
+        particionamento: 100,
+        tabelaOriginacao: [],
+        tabelaMovimentacao: [],
+        tabelaAquisicao: [],
+        tabelaLegado: [],
+        tabelaImei: []
+      });
       setHasAutoSynced(false);
     }
-  }, [entity]);
+  }, [entity, open]);
 
   // Auto-sync table if empty but has summary balance
   useEffect(() => {
@@ -193,13 +205,10 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   };
 
   const handleSave = () => {
-    if (!entity) return;
-    onUpdate(entity.id, {
+    const finalData = {
       ...formData,
-      // Keep originacao as the farm total, NOT the producer share
       originacao: formData.originacao || totals.origFazenda,
       originacaoFazendaTotal: formData.originacao || totals.origFazenda,
-      // The producer's partitioned share
       saldoParticionado: totals.origProdutor,
       movimentacao: totals.mov,
       aquisicao: totals.aq,
@@ -207,8 +216,16 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
       saldoLegadoTotal: totals.legadoTotal,
       aposentado: totals.aposentado,
       bloqueado: totals.bloqueado,
-      saldoFinalAtual: totals.final
-    });
+      saldoFinalAtual: totals.final,
+      updatedAt: new Date().toISOString()
+    };
+
+    if (entity) {
+      onUpdate(entity.id, finalData);
+    } else {
+      // Pass a random ID for creation if needed, or handle in parent
+      onUpdate("NEW_" + Math.random().toString(36).substr(2, 9), finalData);
+    }
     onOpenChange(false);
   };
 
@@ -372,7 +389,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
             if (val.startsWith('http')) {
               if (val.includes('drive.google.com') || val.includes('docs.google.com')) {
                 linkComprovante = val;
-              } else if (val.includes('nxtportal.org')) {
+              } else if (val.includes('explorer.nxt.org') || val.includes('nxtportal.org')) {
                 linkNxt = val;
               } else if (!linkComprovante) {
                 linkComprovante = val;
@@ -409,8 +426,8 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[1700px] w-[98vw] max-h-[95vh] h-full p-0 border-none bg-white overflow-hidden flex flex-col rounded-[2.5rem] shadow-2xl transition-all">
         <DialogHeader className="sr-only">
-          <DialogTitle>Console de Auditoria de Saldo - {entity.nome}</DialogTitle>
-          <DialogDescription>Detalhamento técnico de conformidade e auditoria de UCS.</DialogDescription>
+          <DialogTitle>{entity ? 'Atuar na conta (Auditoria)' : 'Criar Nova Conta'}</DialogTitle>
+          <DialogDescription>Console de gerenciamento e auditoria de UCS para {formData.nome || 'Novo Registro'}.</DialogDescription>
         </DialogHeader>
 
         {/* RELATÓRIO EXECUTIVO E JURÍDICO A4 PRINT */}
@@ -442,7 +459,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                   <p className="text-[10px] font-bold text-slate-500 font-mono tracking-widest bg-white/5 px-2 py-0.5 rounded">{entity.documento}</p>
                   <Badge className={cn(
                     "text-[8px] font-black uppercase px-2 py-0.5 rounded-md border-white/10",
-                    formData.status === 'disponivel' ? "bg-emerald-500/10 text-emerald-400" :
+                    formData.status === 'disponivel' ? "bg-teal-500/10 text-teal-400" :
                       formData.status === 'bloqueado' ? "bg-rose-500/10 text-rose-400" :
                         "bg-amber-500/10 text-amber-400"
                   )}>
@@ -1291,7 +1308,7 @@ function SectionTable({ data, type, onRemove, onUpdateItem, maskFn = (t: any) =>
                           className="h-7 bg-slate-50/50 text-[9px] rounded-lg border-slate-100 border-[#734DCC]/10 min-w-[130px] focus:bg-white"
                         />
                         {row.linkNxt && (
-                          <a href={row.linkNxt.startsWith('http') ? row.linkNxt : `https://nxtportal.org/transactions/${row.linkNxt}`} target="_blank" rel="noopener noreferrer">
+                          <a href={row.linkNxt.startsWith('http') ? row.linkNxt : `https://explorer.nxt.org/transaction/${row.linkNxt}`} target="_blank" rel="noopener noreferrer">
                             <QrCode className="w-3 h-3 text-[#734DCC] hover:scale-110 transition-all" />
                           </a>
                         )}

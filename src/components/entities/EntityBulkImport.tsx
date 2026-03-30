@@ -155,10 +155,10 @@ export function EntityBulkImport({ onImport, type }: EntityBulkImportProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button 
-          variant="outline" 
-          className="h-12 px-8 rounded-full border-[#10B981]/20 bg-white hover:bg-[#10B981]/5 text-slate-900 font-black uppercase text-[10px] tracking-widest gap-3 shadow-none transition-all"
+          variant="secondary" 
+          className="h-11 px-6 rounded-xl bg-slate-100 text-slate-900 border-none font-bold text-[12px] gap-2 hover:bg-slate-200 transition-all active:scale-95 shadow-sm"
         >
-          <Layers className="w-4 h-4 text-slate-900" /> IMPORTAR {type === 'produtor' ? 'PRODUTORES' : 'ASSOCIAÇÕES'}
+          <Layers className="w-4 h-4 text-slate-500" /> IMPORTAR {type === 'produtor' ? 'CONTAS' : 'ASSOCIAÇÕES'}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-6xl bg-white border-none shadow-2xl rounded-[2.5rem] p-0 overflow-hidden">

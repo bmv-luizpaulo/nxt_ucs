@@ -8,13 +8,12 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
-import { collection, doc, writeBatch, query, orderBy, updateDoc } from "firebase/firestore";
+import { collection, doc, query, orderBy, updateDoc } from "firebase/firestore";
 import { EntidadeSaldo, EntityStatus } from "@/lib/types";
 import { toast } from "@/hooks/use-toast";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Footer } from "@/components/layout/Footer";
 import { EntityEditDialog } from "@/components/entities/EntityEditDialog";
 import { NucleoConsolidatedReport } from "@/components/entities/NucleoConsolidatedReport";
 import { cn } from "@/lib/utils";
@@ -50,12 +49,10 @@ function NucleosContent() {
     };
   }, [allProdutores]);
 
-  // Filter by status first
   const statusFiltered = useMemo(() => {
     return (allProdutores || []).filter(p => p.status === activeTab);
   }, [allProdutores, activeTab]);
 
-  // Get unique nucleos with counts and total saldo
   const nucleoList = useMemo(() => {
     const map = new Map<string, { count: number; totalSaldo: number; totalOrig: number }>();
     statusFiltered.forEach(p => {
@@ -71,14 +68,12 @@ function NucleosContent() {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [statusFiltered]);
 
-  // Set default nucleo when data loads
   useEffect(() => {
     if (nucleoList.length > 0 && (!activeNucleo || !nucleoList.find(n => n.name === activeNucleo))) {
       setActiveNucleo(nucleoList[0].name);
     }
-  }, [nucleoList]);
+  }, [nucleoList, activeNucleo]);
 
-  // Filter records for the active nucleo & search
   const nucleoRecords = useMemo(() => {
     let records = statusFiltered.filter(p => {
       const key = p.nucleo || p.associacaoNome || "Sem Núcleo";
@@ -90,8 +85,7 @@ function NucleosContent() {
       records = records.filter(p =>
         p.nome.toLowerCase().includes(q) ||
         p.documento?.includes(q) ||
-        p.propriedade?.toLowerCase().includes(q) ||
-        p.associacaoNome?.toLowerCase().includes(q)
+        p.propriedade?.toLowerCase().includes(q)
       );
     }
     
@@ -99,12 +93,9 @@ function NucleosContent() {
   }, [statusFiltered, activeNucleo, searchQuery]);
 
   const activeNucleoData = nucleoList.find(n => n.name === activeNucleo);
-
-  // Pagination
   const totalPages = Math.ceil(nucleoRecords.length / itemsPerPage);
   const paginatedRecords = nucleoRecords.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  // Reset page when nucleo or search changes
   useEffect(() => { setCurrentPage(1); }, [activeNucleo, searchQuery, activeTab]);
 
   const handleUpdate = async (id: string, updates: Partial<EntidadeSaldo>) => {
@@ -115,82 +106,97 @@ function NucleosContent() {
 
   const formatUCS = (val?: number) => (val ?? 0).toLocaleString('pt-BR');
 
-  if (isUserLoading || !user) return <div className="min-h-screen flex items-center justify-center bg-white"><Loader2 className="w-8 h-8 text-primary animate-spin" /></div>;
+  if (isUserLoading || !user) return <div className="min-h-screen flex items-center justify-center bg-white"><Loader2 className="w-8 h-8 text-emerald-600 animate-spin" /></div>;
 
   return (
     <div className="flex min-h-screen bg-[#F8FAFC]">
       <Sidebar />
       <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-20 bg-white px-8 flex items-center justify-between border-b border-slate-200 shrink-0">
-          <div className="flex items-center gap-3">
-             <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center"><Users2 className="w-5 h-5 text-amber-600" /></div>
-             <div className="space-y-0.5">
-               <h1 className="text-lg font-black uppercase tracking-[0.2em] text-slate-900">Núcleos & Associações</h1>
-               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Visão Consolidada por Região / Entidade</p>
-             </div>
+        {/* Header Corporativo Premium */}
+        <header className="h-24 bg-white px-10 flex items-center justify-between border-b border-slate-100 shrink-0">
+          <div className="space-y-1">
+             <h1 className="text-2xl font-black text-slate-900 tracking-tight">Núcleos & Associações</h1>
+             <p className="text-[12px] font-medium text-slate-400">Visão consolidada por entidade e região</p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="relative w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input 
-                placeholder="Buscar produtor, fazenda..."
-                className="pl-10 bg-slate-100 border-none rounded-full h-10 text-sm"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-              />
+          
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 rounded-full border border-emerald-100/50">
+               <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+               <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Live Auditor</span>
             </div>
-            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md uppercase">{user.email?.substring(0,2)}</div>
+            <div className="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg shadow-emerald-100 uppercase">
+               {user.email?.substring(0,2)}
+            </div>
           </div>
         </header>
 
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {isLoading ? <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 text-primary animate-spin" /></div> : (
-            <>
-              {/* STATUS TABS */}
-              <div className="px-8 pt-6 pb-4 flex items-center justify-between shrink-0">
+        <div className="flex-1 p-10 space-y-8 overflow-y-auto custom-scrollbar">
+           {/* Section Filter & Search */}
+           <div className="space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                 <div className="flex items-center gap-3">
+                    <h2 className="text-base font-bold text-slate-800">Lista Regional ({nucleoRecords.length})</h2>
+                 </div>
+                 
+                 <div className="flex items-center gap-3">
+                    <div className="relative w-80">
+                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                       <Input 
+                          placeholder="Buscar por produtor, fazenda..." 
+                          className="pl-10 h-11 bg-white border-slate-200 rounded-xl text-sm shadow-sm"
+                          value={searchQuery}
+                          onChange={e => setSearchQuery(e.target.value)}
+                       />
+                    </div>
+                    
+                    <Button onClick={() => window.print()} variant="secondary" className="h-11 px-6 rounded-xl bg-slate-100 text-slate-900 border-none font-bold text-[12px] gap-2 hover:bg-slate-200 transition-all active:scale-95 shadow-sm">
+                       <Printer className="w-4 h-4" /> Relatório Consolidado
+                    </Button>
+                 </div>
+              </div>
+
+              <div className="flex items-center justify-between">
                 <Tabs value={activeTab} onValueChange={v => { setActiveTab(v as EntityStatus); setActiveNucleo(""); }}>
-                  <TabsList className="bg-slate-100/50 p-1 border rounded-full h-12 gap-1">
+                  <TabsList className="bg-slate-100/50 p-1 border-none rounded-[1.25rem] h-14 gap-1">
                     <TabWithCount label="Disponíveis" value="disponivel" count={counts.disponivel} isActive={activeTab === 'disponivel'} />
                     <TabWithCount label="Bloqueados" value="bloqueado" count={counts.bloqueado} isActive={activeTab === 'bloqueado'} />
                     <TabWithCount label="Inaptos" value="inapto" count={counts.inapto} isActive={activeTab === 'inapto'} />
                   </TabsList>
                 </Tabs>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                  {nucleoList.length} Núcleos · {statusFiltered.length} Produtores
-                </p>
               </div>
+           </div>
 
-              {/* NUCLEO TABS */}
-              <div className="px-8 shrink-0">
+           {/* NUCLEO TABS HORIZONTAL */}
+           <div className="shrink-0">
                 <ScrollArea className="w-full">
-                  <div className="flex gap-2 pb-2">
+                  <div className="flex gap-3 pb-4">
                     {nucleoList.map(nucleo => (
                       <button
                         key={nucleo.name}
                         onClick={() => setActiveNucleo(nucleo.name)}
                         className={cn(
-                          "shrink-0 px-5 py-3 rounded-2xl border-2 transition-all text-left",
+                          "shrink-0 px-6 py-4 rounded-[1.5rem] border-2 transition-all text-left min-w-[200px]",
                           activeNucleo === nucleo.name
-                            ? "bg-amber-50 border-amber-400 shadow-md shadow-amber-100"
-                            : "bg-white border-slate-100 hover:border-amber-200 hover:bg-amber-50/30"
+                            ? "bg-white border-emerald-500 shadow-xl shadow-emerald-50"
+                            : "bg-white border-slate-50 hover:border-slate-200"
                         )}
                       >
-                        <div className="flex items-center gap-2 mb-1">
-                          <MapPin className={cn("w-3 h-3", activeNucleo === nucleo.name ? "text-amber-600" : "text-slate-300")} />
+                        <div className="flex items-center gap-2 mb-2">
+                          <MapPin className={cn("w-3.5 h-3.5", activeNucleo === nucleo.name ? "text-emerald-600" : "text-slate-300")} />
                           <span className={cn(
-                            "text-[10px] font-black uppercase tracking-widest truncate max-w-[180px]",
-                            activeNucleo === nucleo.name ? "text-amber-800" : "text-slate-500"
+                            "text-[11px] font-black uppercase tracking-widest truncate max-w-[150px]",
+                            activeNucleo === nucleo.name ? "text-slate-900" : "text-slate-400"
                           )}>
                             {nucleo.name}
                           </span>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <span className="text-[9px] font-bold text-slate-400">{nucleo.count} prod.</span>
+                        <div className="flex items-end justify-between">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase">{nucleo.count} contas</span>
                           <span className={cn(
-                            "text-[11px] font-black",
-                            activeNucleo === nucleo.name ? "text-amber-700" : "text-slate-700"
+                            "text-[14px] font-black",
+                            activeNucleo === nucleo.name ? "text-emerald-600" : "text-slate-700"
                           )}>
-                            {formatUCS(nucleo.totalSaldo)} UCS
+                            {formatUCS(nucleo.totalSaldo)}
                           </span>
                         </div>
                       </button>
@@ -198,160 +204,125 @@ function NucleosContent() {
                   </div>
                   <ScrollBar orientation="horizontal" />
                 </ScrollArea>
-              </div>
+           </div>
 
-              {/* NUCLEO DETAIL HEADER */}
-              {activeNucleoData && (
-                <div className="px-8 py-4 shrink-0">
-                  <div className="bg-[#0B0F1A] rounded-2xl p-6 flex items-center justify-between text-white">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center">
-                        <Building2 className="w-6 h-6 text-amber-400" />
-                      </div>
-                      <div>
-                        <p className="text-[9px] font-black text-amber-400 uppercase tracking-widest">Núcleo / Região</p>
-                        <h2 className="text-[20px] font-black uppercase tracking-tight">{activeNucleo}</h2>
-                      </div>
-                      <Badge className="bg-white/10 text-white/70 border-white/10 text-[9px] font-black uppercase rounded-full px-3 py-1 ml-4">
-                        {nucleoRecords.length} Produtores
-                      </Badge>
+            {/* NUCLEO SUMMARY CARD */}
+            {activeNucleoData && (
+              <div className="bg-[#0B0F1A] rounded-[2.5rem] p-8 flex items-center justify-between text-white shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 blur-[100px] -mr-32 -mt-32"></div>
+                <div className="flex items-center gap-6 relative z-10">
+                    <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-white/5">
+                        <Building2 className="w-8 h-8 text-emerald-400" />
                     </div>
-                    <div className="flex items-center gap-10">
-                      <Button 
-                        variant="ghost" 
-                        onClick={() => window.print()}
-                        className="h-10 px-6 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white font-black uppercase text-[10px] tracking-widest gap-2 transition-all shrink-0"
-                      >
-                        <Printer className="w-4 h-4 text-amber-400" /> Relatório Consolidado
-                      </Button>
-                      <div className="flex gap-8">
-                        <div className="text-right">
-                          <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Originação Total</p>
-                          <p className="text-[18px] font-black text-white font-mono tracking-tight">{formatUCS(activeNucleoData.totalOrig)}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-[8px] font-black text-amber-400 uppercase tracking-widest">Saldo Associação</p>
-                          <p className="text-[18px] font-black text-amber-400 font-mono tracking-tight">{formatUCS(activeNucleoData.totalSaldo)} <span className="text-[10px]">UCS</span></p>
-                        </div>
-                      </div>
+                    <div>
+                        <p className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] mb-1">Entidade Selecionada</p>
+                        <h2 className="text-[28px] font-black uppercase tracking-tight">{activeNucleo}</h2>
                     </div>
-                  </div>
                 </div>
-              )}
+                <div className="flex items-center gap-12 relative z-10">
+                    <div className="text-right">
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Vol. Originação</p>
+                        <p className="text-[24px] font-black text-white font-mono">{formatUCS(activeNucleoData.totalOrig)}</p>
+                    </div>
+                    <div className="bg-white/5 w-px h-12"></div>
+                    <div className="text-right">
+                        <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-1">Saldo Consolidado</p>
+                        <p className="text-[24px] font-black text-emerald-400 font-mono">{formatUCS(activeNucleoData.totalSaldo)} <span className="text-[12px] pl-1">UCS</span></p>
+                    </div>
+                </div>
+              </div>
+            )}
 
-              {/* TABLE */}
-              <div className="flex-1 px-8 pb-6 overflow-hidden flex flex-col">
-                <div className="rounded-[1.5rem] border border-slate-200 bg-white shadow-sm overflow-hidden flex-1 flex flex-col">
-                  <ScrollArea className="flex-1">
-                    <Table className="min-w-[1100px]">
-                      <TableHeader>
-                        <TableRow className="bg-slate-50/50 h-14 border-b border-slate-100">
-                          <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-6">Safra</TableHead>
-                          <TableHead className="text-[10px] font-black uppercase tracking-widest text-amber-600">Associação</TableHead>
-                          <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Produtor</TableHead>
-                          <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Documento</TableHead>
-                          <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Fazenda</TableHead>
-                          <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Originação</TableHead>
-                          <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Part. %</TableHead>
-                          <TableHead className="text-[10px] font-black uppercase tracking-widest text-amber-600 text-right">Saldo Assoc.</TableHead>
-                          <TableHead className="text-[10px] font-black uppercase tracking-widest text-primary text-right">Saldo Produtor</TableHead>
-                          <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Status</TableHead>
-                          <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center pr-6">Ações</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {nucleoRecords.length === 0 ? (
-                          <TableRow>
-                            <TableCell colSpan={11} className="h-32 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest">
-                              Nenhum registro encontrado neste núcleo
-                            </TableCell>
-                          </TableRow>
-                        ) : (
-                          paginatedRecords.map(item => (
-                            <TableRow key={item.id} className="border-b border-slate-50 hover:bg-amber-50/20 transition-colors h-14">
-                              <TableCell className="pl-6 font-bold text-[10px] text-primary uppercase">{item.safra}</TableCell>
-                              <TableCell className="font-black text-[10px] text-amber-700 uppercase truncate max-w-[180px]">
-                                {item.associacaoNome || '-'}
-                              </TableCell>
-                              <TableCell className="font-black text-[10px] text-slate-900 uppercase truncate max-w-[160px]">{item.nome}</TableCell>
-                              <TableCell className="font-mono text-[9px] text-slate-400">{item.documento || '-'}</TableCell>
-                              <TableCell className="text-[9px] text-slate-500 truncate max-w-[140px]">{item.propriedade || '-'}</TableCell>
-                              <TableCell className="text-right font-mono text-[10px] font-bold text-slate-600">{formatUCS(item.originacao)}</TableCell>
-                              <TableCell className="text-right font-mono text-[10px] font-bold text-amber-600">
-                                {item.associacaoParticionamento ? `${item.associacaoParticionamento.toLocaleString('pt-BR')}%` : '-'}
-                              </TableCell>
-                              <TableCell className="text-right font-mono font-black text-amber-600 text-[11px]">{formatUCS(item.associacaoSaldo)}</TableCell>
-                              <TableCell className="text-right font-mono font-black text-primary text-[11px]">{formatUCS(item.saldoFinalAtual)}</TableCell>
-                              <TableCell className="text-center">
-                                {item.statusAuditoriaSaldo === 'valido' ? (
-                                  <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 text-[8px] font-black uppercase px-2 py-1 rounded-full"><CheckCircle2 className="w-3 h-3 mr-1" /> Válido</Badge>
-                                ) : item.statusAuditoriaSaldo === 'inconsistente' ? (
-                                  <Badge className="bg-rose-50 text-rose-500 border-rose-100 text-[8px] font-black uppercase px-2 py-1 rounded-full"><AlertTriangle className="w-3 h-3 mr-1" /> Divergente</Badge>
-                                ) : (
-                                  <Badge variant="outline" className="text-slate-400 border-slate-200 text-[8px] font-black uppercase px-2 py-1 rounded-full"><Clock className="w-3 h-3 mr-1" /> Pendente</Badge>
-                                )}
-                              </TableCell>
-                              <TableCell className="text-center pr-6">
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon"
-                                  onClick={() => setEditingEntity(item)}
-                                  className="h-8 w-8 text-slate-300 hover:text-primary transition-all"
-                                >
-                                  <Search className="w-4 h-4" />
-                                </Button>
-                              </TableCell>
+            {/* MAIN TABLE AREA */}
+            <div className="rounded-[2.5rem] border border-slate-200 bg-white shadow-sm overflow-hidden min-h-[500px] flex flex-col">
+                <ScrollArea className="flex-1">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="bg-slate-50/30 h-16 border-b border-slate-100">
+                                <TableHead className="text-[11px] font-black uppercase tracking-widest text-slate-400 pl-10">Safra</TableHead>
+                                <TableHead className="text-[11px] font-black uppercase tracking-widest text-slate-400">Produtor / Conta</TableHead>
+                                <TableHead className="text-[11px] font-black uppercase tracking-widest text-slate-400">Fazenda</TableHead>
+                                <TableHead className="text-[11px] font-black uppercase tracking-widest text-slate-400 text-right">Originação</TableHead>
+                                <TableHead className="text-[11px] font-black uppercase tracking-widest text-slate-400 text-right">Saldo Produtor</TableHead>
+                                <TableHead className="text-[11px] font-black uppercase tracking-widest text-emerald-600 text-right">Saldo Entidade</TableHead>
+                                <TableHead className="text-[11px] font-black uppercase tracking-widest text-slate-400 text-center">Status</TableHead>
+                                <TableHead className="text-[11px] font-black uppercase tracking-widest text-slate-400 text-center pr-10">Ações</TableHead>
                             </TableRow>
-                          ))
-                        )}
-                      </TableBody>
+                        </TableHeader>
+                        <TableBody>
+                            {nucleoRecords.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={10} className="h-48 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest">Nenhum registro encontrado</TableCell>
+                                </TableRow>
+                            ) : (
+                                paginatedRecords.map(item => (
+                                    <TableRow key={item.id} className="group border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors h-16">
+                                        <TableCell className="pl-10 font-black text-[12px] text-emerald-600">{item.safra}</TableCell>
+                                        <TableCell>
+                                            <div className="flex flex-col">
+                                                <span className="text-[13px] font-bold text-slate-900 uppercase truncate max-w-[200px]">{item.nome}</span>
+                                                <span className="text-[10px] text-slate-400 font-mono">{item.documento}</span>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="text-[12px] font-medium text-slate-500 uppercase truncate max-w-[180px]">{item.propriedade || '-'}</TableCell>
+                                        <TableCell className="text-right font-mono text-[12px] font-bold text-slate-400">{formatUCS(item.originacao)}</TableCell>
+                                        <TableCell className="text-right font-black text-[13px] text-slate-900">{formatUCS(item.saldoFinalAtual)}</TableCell>
+                                        <TableCell className="text-right font-black text-[13px] text-emerald-600 bg-emerald-50/20">{formatUCS(item.associacaoSaldo)}</TableCell>
+                                        <TableCell className="text-center">
+                                            {item.statusAuditoriaSaldo === 'valido' ? (
+                                                <Badge className="bg-emerald-100 text-emerald-700 border-none text-[9px] font-black uppercase px-3 py-1 rounded-full w-fit mx-auto">VÁLIDO</Badge>
+                                            ) : (
+                                                <Badge className="bg-slate-100 text-slate-400 border-none text-[9px] font-black uppercase px-3 py-1 rounded-full w-fit mx-auto">PENDENTE</Badge>
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="text-center pr-10">
+                                            <Button 
+                                                variant="outline" 
+                                                size="sm" 
+                                                onClick={() => setEditingEntity(item)}
+                                                className="h-9 px-4 rounded-lg text-[10px] font-black tracking-widest border-slate-200 text-slate-600 gap-2 hover:bg-slate-50 active:scale-95 transition-all"
+                                            >
+                                                <Search className="w-3.5 h-3.5" /> DETALHES
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
                     </Table>
-                    <ScrollBar orientation="horizontal" />
-                  </ScrollArea>
-                </div>
-
-                {/* PAGINATION */}
+                </ScrollArea>
+                
+                {/* Pagination Internal */}
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-between px-8 py-3 bg-white border-t border-slate-100 shrink-0">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                      Página {currentPage} de {totalPages} · {nucleoRecords.length} registros
-                    </p>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="icon" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="w-9 h-9 rounded-xl">
-                        <ChevronLeft className="w-4 h-4" />
-                      </Button>
-                      <Button variant="outline" size="icon" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="w-9 h-9 rounded-xl">
-                        <ChevronRight className="w-4 h-4" />
-                      </Button>
+                    <div className="h-16 flex items-center justify-between px-10 border-t border-slate-100 bg-slate-50/30">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pág. {currentPage} de {totalPages}</p>
+                        <div className="flex gap-2">
+                             <Button variant="outline" size="icon" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="w-10 h-10 rounded-xl bg-white"><ChevronLeft className="w-4 h-4"/></Button>
+                             <Button variant="outline" size="icon" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="w-10 h-10 rounded-xl bg-white"><ChevronRight className="w-4 h-4"/></Button>
+                        </div>
                     </div>
-                  </div>
                 )}
-              </div>
-            </>
-          )}
+            </div>
         </div>
-        <Footer />
+
+        {/* Global Report Component */}
+        <NucleoConsolidatedReport records={nucleoRecords} nucleoName={activeNucleo || "GERAL"} />
+        
+        {/* EDIT DIALOG */}
+        <EntityEditDialog 
+            entity={editingEntity}
+            open={!!editingEntity}
+            onOpenChange={(open: boolean) => !open && setEditingEntity(null)}
+            onUpdate={handleUpdate}
+        />
       </main>
-
-      {/* EDIT DIALOG */}
-      <EntityEditDialog 
-        entity={editingEntity}
-        open={!!editingEntity}
-        onOpenChange={(open: boolean) => !open && setEditingEntity(null)}
-        onUpdate={handleUpdate}
-      />
-
-      <NucleoConsolidatedReport 
-        records={nucleoRecords} 
-        nucleoName={activeNucleo || "GERAL"} 
-      />
     </div>
   );
 }
 
 export default function NucleosPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-white"><Loader2 className="w-8 h-8 text-primary animate-spin" /></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-white"><Loader2 className="w-8 h-8 text-emerald-600 animate-spin" /></div>}>
       <NucleosContent />
     </Suspense>
   );
@@ -359,10 +330,11 @@ export default function NucleosPage() {
 
 function TabWithCount({ label, value, count, isActive }: any) {
   return (
-    <TabsTrigger value={value} className="data-[state=active]:bg-white px-6 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 h-10 transition-all font-black">
+    <TabsTrigger value={value} className="data-[state=active]:bg-white px-8 rounded-2xl text-[11px] font-black uppercase tracking-widest flex items-center gap-3 h-12 transition-all">
       {label}
-      <span className={cn("px-2 py-0.5 rounded-full text-[9px] font-black min-w-[20px] text-center", isActive ? "bg-primary/10 text-primary" : "bg-slate-200 text-slate-500")}>{count}</span>
+      <span className={cn("px-3 py-1 rounded-full text-[10px] font-black min-w-[24px] text-center", isActive ? "bg-emerald-600 text-white" : "bg-slate-200 text-slate-500")}>
+        {count}
+      </span>
     </TabsTrigger>
   );
 }
-

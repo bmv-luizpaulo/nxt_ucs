@@ -1,8 +1,6 @@
 "use client"
 
 import { 
-  ShieldCheck, 
-  Database, 
   Settings, 
   LogOut,
   LayoutGrid,
@@ -10,7 +8,10 @@ import {
   MapPin,
   Users2,
   Cpu,
-  FileText
+  Wallet,
+  Leaf,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -18,11 +19,13 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/firebase";
 import { toast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const auth = useAuth();
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -34,138 +37,94 @@ export function Sidebar() {
     }
   };
 
-  const navItems = [
-    { 
-      icon: LayoutGrid, 
-      label: "PEDIDOS DE CRÉDITO", 
-      href: "/dashboard", 
-      tooltip: "Selos & Certificados",
-      color: "primary"
-    },
-    { 
-      icon: Calendar, 
-      label: "SAFRAS", 
-      href: "/safras", 
-      tooltip: "Portal de Safras",
-      color: "primary"
-    },
-    { 
-      icon: MapPin, 
-      label: "FAZENDAS", 
-      href: "/fazendas", 
-      tooltip: "Propriedades Rurais",
-      color: "teal"
-    },
-    { 
-      icon: ShieldCheck, 
-      label: "PRODUTORES", 
-      href: "/produtores", 
-      tooltip: "Cadastro de Produtores",
-      color: "primary"
-    },
-    { 
-      icon: Users2, 
-      label: "NÚCLEOS / ASSOCIAÇÕES", 
-      href: "/nucleos", 
-      tooltip: "Visão por Núcleo e Associação",
-      color: "amber"
-    },
-    { 
-      icon: Cpu, 
-      label: "IMEIS (ADMINISTRADORA)", 
-      href: "/imeis", 
-      tooltip: "Particionamento IMEI",
-      color: "violet"
-    },
-    { 
-      icon: FileText, 
-      label: "RELATÓRIOS", 
-      href: "/reports", 
-      tooltip: "Audit Report Center",
-      color: "emerald"
-    },
+  const menuGroups = [
+    {
+      items: [
+        { icon: LayoutGrid, label: "Dashboard", href: "/dashboard" },
+        { icon: Wallet, label: "Produtores", href: "/produtores" },
+        { icon: MapPin, label: "Núcleos", href: "/nucleos" },
+        { icon: MapPin, label: "Fazendas", href: "/fazendas" },
+        { icon: Users2, label: "Associações", href: "/associacoes" },
+        { icon: Cpu, label: "IMEI", href: "/imeis" },
+        { icon: Calendar, label: "Safras", href: "/safras" },
+      ]
+    }
   ];
 
-  const getActiveColors = (color: string) => {
-    switch(color) {
-      case 'teal': return "bg-teal-500 text-white shadow-xl shadow-teal-200/50";
-      case 'amber': return "bg-amber-500 text-white shadow-xl shadow-amber-200/50";
-      case 'violet': return "bg-violet-500 text-white shadow-xl shadow-violet-200/50";
-      case 'emerald': return "bg-emerald-600 text-white shadow-xl shadow-emerald-200/50";
-      default: return "bg-primary text-white shadow-xl shadow-primary/30";
-    }
-  };
-
-  const getHoverColors = (color: string) => {
-    switch(color) {
-      case 'teal': return "hover:text-teal-500 hover:bg-teal-50";
-      case 'amber': return "hover:text-amber-500 hover:bg-amber-50";
-      case 'violet': return "hover:text-violet-500 hover:bg-violet-50";
-      case 'emerald': return "hover:text-emerald-600 hover:bg-emerald-50";
-      default: return "hover:text-primary hover:bg-emerald-50";
-    }
-  };
-
   return (
-    <aside className="w-24 bg-white border-r flex flex-col items-center py-10 sticky top-0 h-screen print:hidden shrink-0 z-20">
-      {/* Logo BMV Style */}
-      <Link href="/dashboard">
-        <div className="w-14 h-14 bg-[#E6F9F3] rounded-[1.25rem] flex items-center justify-center mb-12 cursor-pointer transition-transform hover:scale-105 active:scale-95 group">
-          <span className="text-primary font-black text-xs tracking-tighter">BMV</span>
-        </div>
-      </Link>
+    <aside className={cn(
+      "bg-white border-r flex flex-col sticky top-0 h-screen print:hidden shrink-0 z-30 transition-all duration-300",
+      isCollapsed ? "w-20" : "w-[260px]"
+    )}>
+      {/* Header with Logo */}
+      <div className="h-20 flex items-center justify-between px-6 border-b border-slate-50">
+        {!isCollapsed && (
+          <div className="flex items-center gap-2">
+            <span className="text-2xl font-black text-slate-900 tracking-tighter">bmv</span>
+          </div>
+        )}
+        {isCollapsed && (
+          <span className="text-xl font-black text-slate-900 mx-auto">b</span>
+        )}
+        <button 
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="w-8 h-8 rounded-lg hover:bg-slate-50 flex items-center justify-center text-slate-400"
+        >
+          {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+        </button>
+      </div>
 
-      {/* Navigation Section */}
-      <nav className="flex flex-col gap-6 flex-1">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href + '/'));
-          const Icon = item.icon;
+      {/* Navigation */}
+      <div className="flex-1 overflow-y-auto py-6 px-4 custom-scrollbar">
+        {menuGroups.map((group, gIdx) => (
+          <div key={gIdx} className="space-y-1">
+            {group.items.map((item) => {
+              const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+              const Icon = item.icon;
 
-          return (
-            <div key={item.label} className="relative group flex items-center justify-center">
-              <Link href={item.href}>
-                <div 
-                  className={cn(
-                    "w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300",
+              return (
+                <Link key={item.label} href={item.href}>
+                  <div className={cn(
+                    "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group cursor-pointer font-bold",
                     isActive 
-                      ? getActiveColors(item.color) 
-                      : `bg-slate-50 text-slate-300 ${getHoverColors(item.color)}`
-                  )}
-                >
-                  <Icon className={cn("w-6 h-6", isActive && "stroke-[2.5px]")} />
-                </div>
-              </Link>
+                      ? "bg-emerald-600 text-white shadow-lg shadow-emerald-100" 
+                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                  )}>
+                    <Icon className={cn(
+                      "w-5 h-5 shrink-0 transition-colors",
+                      isActive ? "text-white" : "text-slate-400 group-hover:text-slate-900"
+                    )} />
+                    {!isCollapsed && (
+                      <span className="text-[13px] truncate">{item.label}</span>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        ))}
+      </div>
 
-              {/* Pill Label Style */}
-              <div className="absolute left-20 px-6 py-2.5 rounded-full bg-[#0F172A] text-white text-[10px] font-black uppercase tracking-widest whitespace-nowrap opacity-0 translate-x-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-300 z-50 pointer-events-none border border-slate-800 shadow-xl">
-                {item.label}
-              </div>
-            </div>
-          );
-        })}
-      </nav>
-
-      {/* Footer Actions */}
-      <div className="flex flex-col gap-4 mt-auto">
+      {/* Footer */}
+      <div className="p-4 border-t border-slate-50 space-y-2">
         <Link href="/settings">
           <div className={cn(
-            "w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 cursor-pointer",
+            "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group cursor-pointer font-bold",
             pathname === "/settings" 
-              ? "bg-accent text-white shadow-xl shadow-accent/30" 
-              : "bg-slate-50 text-slate-300 hover:text-accent hover:bg-blue-50"
+              ? "bg-slate-100 text-slate-900" 
+              : "text-slate-400 hover:bg-slate-50 hover:text-slate-900"
           )}>
-            <Settings className="w-5 h-5" />
+            <Settings className="w-5 h-5 shrink-0" />
+            {!isCollapsed && <span className="text-[13px]">Configurações</span>}
           </div>
         </Link>
-
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <button 
           onClick={handleLogout}
-          className="w-14 h-14 rounded-2xl text-slate-200 hover:text-rose-500"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-all duration-200 font-bold"
         >
-          <LogOut className="w-5 h-5" />
-        </Button>
+          <LogOut className="w-5 h-5 shrink-0" />
+          {!isCollapsed && <span className="text-[13px]">Sair do Sistema</span>}
+        </button>
       </div>
     </aside>
   );

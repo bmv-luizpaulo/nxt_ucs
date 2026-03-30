@@ -168,6 +168,28 @@ export interface EntidadeSaldoGroup {
 export type ReportType = 'executive' | 'juridico' | 'consolidated';
 export type ReportFormat = 'A4_PDF' | 'CSV' | 'JSON';
 
+export interface Aposentadoria {
+  id: string;
+  data: string;
+  origem: string;
+  userEmail?: string;
+  userName?: string;
+  documento?: string;
+  carteiraId?: string;
+  quantidade: number;
+  motivo: string;
+  hash: string;
+  blockchainConfirmado: boolean;
+  composicao: {
+    safra: string;
+    origem: string;
+    fazenda: string;
+    nucleo: string;
+    quantidade: number;
+  }[];
+  createdAt: string;
+}
+
 export interface AuditReportMetadata {
   id: string;
   title: string;

@@ -91,7 +91,7 @@ export function OrderTable({
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right h-10">Taxa</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right h-10">Total</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center h-10">Modo</TableHead>
-            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-10">Nxt</TableHead>
+            <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 h-10">Link Nxt</TableHead>
             <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center h-10">Status</TableHead>
             <TableHead className="w-[80px] pr-8 h-10"></TableHead>
           </TableRow>
@@ -148,9 +148,13 @@ export function OrderTable({
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col gap-0.5 max-w-[120px]">
-                    <span className="text-[8px] font-mono text-slate-400 truncate" title={order.hashPedido || order.linkNxt}>
-                      {order.hashPedido || order.linkNxt || "-"}
-                    </span>
+                    {order.linkNxt || order.hashPedido ? (
+                      <span className="text-[8px] font-mono text-slate-400 truncate" title={order.hashPedido || order.linkNxt}>
+                        {order.linkNxt || order.hashPedido}
+                      </span>
+                    ) : (
+                      <span className="text-[7px] font-black text-amber-500 uppercase tracking-tighter opacity-80 leading-none">PENDENTE LINK NXT</span>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell className="text-center">
@@ -195,12 +199,13 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
   }, [movimentos, order.quantidade]);
 
   const handleSaveAudit = () => {
+    const isAuditOk = !!(hash && link); // Exige link NXT agora para ser OK
     onUpdateOrder(order.id, { 
       hashPedido: hash, 
       linkNxt: link, 
       linkCertificado: certLink,
-      auditado: !!(hash && (link || certLink)),
-      status: (hash && (link || certLink)) ? 'ok' : 'pendente'
+      auditado: isAuditOk,
+      status: isAuditOk ? 'ok' : 'pendente'
     });
   };
 
@@ -391,11 +396,11 @@ function OrderDetailsDialog({ order, onUpdateOrder, onDeleteOrder, onAddMovement
                         />
                       </div>
                       <div className="space-y-3">
-                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">URL Explorer</label>
+                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Link NXT</label>
                         <Input 
                           value={link} 
                           onChange={(e) => setLink(e.target.value)}
-                          placeholder="https://nxtportal.org/transactions/..."
+                          placeholder="https://explorer.nxt.org/transaction/..."
                           className="font-mono text-[13px] bg-white border-slate-200 rounded-[1.25rem] h-14 px-8 focus:ring-primary shadow-sm"
                         />
                       </div>
