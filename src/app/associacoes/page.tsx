@@ -24,7 +24,7 @@ export default function AssociacoesPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
-  const itemsPerPage = 15;
+  const itemsPerPage = 50;
 
   useEffect(() => {
     if (!isUserLoading && !user) {

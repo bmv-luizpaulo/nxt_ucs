@@ -22,7 +22,7 @@ function FazendasContent() {
   const [activeTab, setActiveTab] = useState<EntityStatus>("disponivel");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 15;
+  const itemsPerPage = 50;
 
   const { filters, setFilters } = useSyncFiltersWithUrl();
 

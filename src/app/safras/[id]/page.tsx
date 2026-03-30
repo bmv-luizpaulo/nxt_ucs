@@ -27,7 +27,7 @@ export default function SafraDetailPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<'fazenda' | 'produtor' | 'nucleo' | 'imei'>('fazenda');
-  const itemsPerPage = 15;
+  const itemsPerPage = 50;
 
   useEffect(() => {
     if (!isUserLoading && !user) {

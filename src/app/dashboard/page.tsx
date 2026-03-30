@@ -32,7 +32,7 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<OrderCategory>("selo");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 15;
+  const itemsPerPage = 50;
 
   useEffect(() => {
     if (!isUserLoading && !user) {
