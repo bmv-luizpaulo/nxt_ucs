@@ -182,11 +182,11 @@ export default function SafraDetailPage() {
                </div>
                <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between h-[120px]">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">UCS Disponíveis</p>
-                  <p className="text-3xl font-black text-primary">{(produtorData?.filter(p => p.status === 'disponivel').reduce((acc, p) => acc + (p.saldoFinalAtual || 0), 0) || 0).toLocaleString('pt-BR')}</p>
+                  <p className="text-3xl font-black text-primary">{Math.floor(produtorData?.filter(p => p.status === 'disponivel').reduce((acc, p) => acc + (p.saldoFinalAtual || 0), 0) || 0).toLocaleString('pt-BR')}</p>
                </div>
                <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between h-[120px]">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">UCS Bloqueadas</p>
-                  <p className="text-3xl font-black text-rose-500">{(produtorData?.filter(p => p.status === 'bloqueado').reduce((acc, p) => acc + (p.saldoFinalAtual || 0), 0) || 0).toLocaleString('pt-BR')}</p>
+                  <p className="text-3xl font-black text-rose-500">{Math.floor(produtorData?.filter(p => p.status === 'bloqueado').reduce((acc, p) => acc + (p.saldoFinalAtual || 0), 0) || 0).toLocaleString('pt-BR')}</p>
                </div>
                <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between h-[120px]">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Certificados Emitidos</p>

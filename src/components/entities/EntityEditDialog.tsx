@@ -184,7 +184,9 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     const final = formData.ajusteRealizado ? (formData.valorAjusteManual || 0) : finalCalculated;
 
     return {
-      origFazenda, origProdutor, mov, aq, imeiPending, legadoTotal, aposentado, bloqueado, final
+      origFazenda, origProdutor, mov, aq, imeiPending, legadoTotal, aposentado, bloqueado, final,
+      transferenciaImei: imeiDebits,
+      estornoImei: imeiCredits
     };
   }, [formData]);
 
@@ -205,25 +207,37 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
   };
 
   const handleSave = () => {
+    const isNew = !entity;
+    const hasTables = (
+      (formData.tabelaOriginacao?.length || 0) > 0 ||
+      (formData.tabelaMovimentacao?.length || 0) > 0 ||
+      (formData.tabelaLegado?.length || 0) > 0 ||
+      (formData.tabelaImei?.length || 0) > 0 ||
+      (formData.tabelaAquisicao?.length || 0) > 0
+    );
+
+    // Em criação rápida (sem tabelas), usa os valores diretos dos inputs
     const finalData = {
       ...formData,
-      originacao: formData.originacao || totals.origFazenda,
-      originacaoFazendaTotal: formData.originacao || totals.origFazenda,
-      saldoParticionado: totals.origProdutor,
-      movimentacao: totals.mov,
-      aquisicao: totals.aq,
-      saldoAjustarImei: totals.imeiPending,
-      saldoLegadoTotal: totals.legadoTotal,
-      aposentado: totals.aposentado,
-      bloqueado: totals.bloqueado,
-      saldoFinalAtual: totals.final,
-      updatedAt: new Date().toISOString()
+      originacao: formData.originacao || totals.origFazenda || 0,
+      originacaoFazendaTotal: formData.originacaoFazendaTotal || formData.originacao || totals.origFazenda || 0,
+      saldoParticionado: hasTables ? totals.origProdutor : (formData.saldoParticionado || 0),
+      movimentacao: hasTables ? totals.mov : (formData.movimentacao || 0),
+      aquisicao: hasTables ? totals.aq : (formData.aquisicao || 0),
+      saldoAjustarImei: hasTables ? totals.imeiPending : (formData.saldoAjustarImei || 0),
+      transferenciaImei: hasTables ? totals.transferenciaImei : (formData.transferenciaImei || 0),
+      estornoImei: hasTables ? totals.estornoImei : (formData.estornoImei || 0),
+      saldoLegadoTotal: hasTables ? totals.legadoTotal : (formData.saldoLegadoTotal || 0),
+      aposentado: hasTables ? totals.aposentado : (formData.aposentado || 0),
+      bloqueado: hasTables ? totals.bloqueado : (formData.bloqueado || 0),
+      saldoFinalAtual: hasTables ? totals.final : (formData.saldoFinalAtual || 0),
+      updatedAt: new Date().toISOString(),
+      ...(isNew ? { createdAt: new Date().toISOString() } : {}),
     };
 
     if (entity) {
       onUpdate(entity.id, finalData);
     } else {
-      // Pass a random ID for creation if needed, or handle in parent
       onUpdate("NEW_" + Math.random().toString(36).substr(2, 9), finalData);
     }
     onOpenChange(false);
@@ -420,7 +434,7 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
     setPasteData(null);
   };
 
-  if (!entity) return null;
+  if (!entity && !open) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -454,9 +468,9 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                   </div>
                   <p className="text-[8px] font-black uppercase tracking-[0.2em] text-[#10B981]">AUDITORIA TÉCNICA BMV</p>
                 </div>
-                <h1 className="text-[22px] font-black tracking-tight uppercase leading-none truncate max-w-[600px]">{entity.nome}</h1>
+                <h1 className="text-[22px] font-black tracking-tight uppercase leading-none truncate max-w-[600px]">{formData.nome || 'NOVA CONTA'}</h1>
                 <div className="flex items-center gap-3 mt-1">
-                  <p className="text-[10px] font-bold text-slate-500 font-mono tracking-widest bg-white/5 px-2 py-0.5 rounded">{entity.documento}</p>
+                  <p className="text-[10px] font-bold text-slate-500 font-mono tracking-widest bg-white/5 px-2 py-0.5 rounded">{formData.documento || 'CPF / CNPJ'}</p>
                   <Badge className={cn(
                     "text-[8px] font-black uppercase px-2 py-0.5 rounded-md border-white/10",
                     formData.status === 'disponivel' ? "bg-teal-500/10 text-teal-400" :
@@ -520,6 +534,165 @@ export function EntityEditDialog({ entity, open, onOpenChange, onUpdate }: Entit
                       <Button variant="ghost" onClick={handleRemoveAjuste} className="text-rose-500 hover:bg-rose-50 text-[10px] font-black uppercase tracking-widest h-9 px-4">
                         <Trash2 className="w-3.5 h-3.5 mr-2" /> Revogar
                       </Button>
+                    </div>
+                  )}
+
+                  {/* SEÇÃO DE DADOS CADASTRAIS — APENAS EM MODO CRIAÇÃO */}
+                  {!entity && (
+                    <div className="bg-[#0B0F1A] border border-white/10 rounded-3xl p-6 flex flex-col gap-5 relative overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-transparent pointer-events-none rounded-3xl" />
+                      <div className="flex items-center gap-2 relative z-10">
+                        <div className="w-1 h-5 bg-[#10B981] rounded-full" />
+                        <h3 className="text-[10px] font-black uppercase tracking-widest text-white">Dados Cadastrais</h3>
+                        <span className="text-[8px] font-black text-teal-400 uppercase tracking-widest bg-teal-500/10 px-2 py-0.5 rounded-md">Novo Registro</span>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
+                        <div className="space-y-1.5">
+                          <Label className="text-[8px] font-black uppercase tracking-widest text-slate-400 ml-1">Nome Completo *</Label>
+                          <Input
+                            value={formData.nome || ""}
+                            onChange={e => setFormData({ ...formData, nome: e.target.value })}
+                            placeholder="NOME DO PRODUTOR"
+                            className="h-11 rounded-xl bg-white/5 border-white/10 text-white font-bold text-[12px] placeholder:text-slate-600 focus:ring-teal-500"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-[8px] font-black uppercase tracking-widest text-slate-400 ml-1">CPF / CNPJ *</Label>
+                          <Input
+                            value={formData.documento || ""}
+                            onChange={e => setFormData({ ...formData, documento: e.target.value })}
+                            placeholder="000.000.000-00"
+                            className="h-11 rounded-xl bg-white/5 border-white/10 text-white font-bold text-[12px] placeholder:text-slate-600 font-mono focus:ring-teal-500"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-[8px] font-black uppercase tracking-widest text-slate-400 ml-1">Safra (Ano) *</Label>
+                          <Input
+                            value={formData.safra || ""}
+                            onChange={e => setFormData({ ...formData, safra: e.target.value })}
+                            placeholder={new Date().getFullYear().toString()}
+                            className="h-11 rounded-xl bg-white/5 border-white/10 text-white font-bold text-[12px] placeholder:text-slate-600 focus:ring-teal-500"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-[8px] font-black uppercase tracking-widest text-slate-400 ml-1">Status *</Label>
+                          <Select
+                            value={formData.status || "disponivel"}
+                            onValueChange={(v: any) => setFormData({ ...formData, status: v })}
+                          >
+                            <SelectTrigger className="h-11 rounded-xl bg-white/5 border-white/10 text-white font-bold text-[12px] focus:ring-teal-500">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="disponivel">APTO / DISPONÍVEL</SelectItem>
+                              <SelectItem value="bloqueado">BLOQUEADO</SelectItem>
+                              <SelectItem value="inapto">INAPTO</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-white/5 relative z-10">
+                        <div className="space-y-1.5">
+                          <Label className="text-[8px] font-black uppercase tracking-widest text-slate-400 ml-1">Propriedade / Fazenda</Label>
+                          <Input
+                            value={formData.propriedade || ""}
+                            onChange={e => setFormData({ ...formData, propriedade: e.target.value })}
+                            placeholder="NOME DA FAZENDA"
+                            className="h-10 rounded-xl bg-white/5 border-white/10 text-white font-bold text-[12px] placeholder:text-slate-600 focus:ring-teal-500"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-[8px] font-black uppercase tracking-widest text-slate-400 ml-1">IDF</Label>
+                          <Input
+                            value={formData.idf || ""}
+                            onChange={e => setFormData({ ...formData, idf: e.target.value })}
+                            placeholder="000000"
+                            className="h-10 rounded-xl bg-white/5 border-white/10 text-white font-mono font-bold text-[12px] placeholder:text-slate-600 focus:ring-teal-500"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-[8px] font-black uppercase tracking-widest text-slate-400 ml-1">Núcleo / Associação</Label>
+                          <Input
+                            value={formData.nucleo || ""}
+                            onChange={e => setFormData({ ...formData, nucleo: e.target.value })}
+                            placeholder="NOME DO NÚCLEO"
+                            className="h-10 rounded-xl bg-white/5 border-white/10 text-white font-bold text-[12px] placeholder:text-slate-600 focus:ring-teal-500"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-[8px] font-black uppercase tracking-widest text-slate-400 ml-1">Área Total (ha)</Label>
+                          <Input
+                            type="number"
+                            value={formData.areaTotal ?? ""}
+                            onChange={e => setFormData({ ...formData, areaTotal: e.target.value === "" ? undefined : parseFloat(e.target.value) })}
+                            placeholder="0,00"
+                            className="h-10 rounded-xl bg-white/5 border-white/10 text-white font-bold text-[12px] placeholder:text-slate-600 focus:ring-teal-500"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-[8px] font-black uppercase tracking-widest text-slate-400 ml-1">Área Vegetação (ha)</Label>
+                          <Input
+                            type="number"
+                            value={formData.areaVegetacao ?? ""}
+                            onChange={e => setFormData({ ...formData, areaVegetacao: e.target.value === "" ? undefined : parseFloat(e.target.value) })}
+                            placeholder="0,00"
+                            className="h-10 rounded-xl bg-white/5 border-white/10 text-white font-bold text-[12px] placeholder:text-slate-600 focus:ring-teal-500"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-[8px] font-black uppercase tracking-widest text-slate-400 ml-1">Data de Registro</Label>
+                          <Input
+                            value={formData.dataRegistro || ""}
+                            onChange={e => setFormData({ ...formData, dataRegistro: e.target.value })}
+                            placeholder="DD/MM/AAAA"
+                            className="h-10 rounded-xl bg-white/5 border-white/10 text-white font-bold text-[12px] placeholder:text-slate-600 focus:ring-teal-500"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Saldos Diretos (Lançamento Rápido) */}
+                      <div className="pt-4 border-t border-white/5 space-y-3 relative z-10">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-1 h-4 bg-amber-500 rounded-full" />
+                          <h4 className="text-[9px] font-black uppercase tracking-widest text-slate-400">Saldos Diretos (Lançamento Rápido)</h4>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          <div className="space-y-1.5">
+                            <Label className="text-[8px] font-black uppercase tracking-widest text-slate-500 ml-1">Movimentação (Débito)</Label>
+                            <Input type="number" value={formData.movimentacao ?? ""} onChange={e => setFormData({ ...formData, movimentacao: e.target.value === "" ? 0 : parseInt(e.target.value) || 0 })} placeholder="0" className="h-10 rounded-xl bg-rose-500/5 border-rose-500/20 text-rose-400 font-bold text-[12px] placeholder:text-slate-600" />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-[8px] font-black uppercase tracking-widest text-slate-500 ml-1">Aposentado</Label>
+                            <Input type="number" value={formData.aposentado ?? ""} onChange={e => setFormData({ ...formData, aposentado: e.target.value === "" ? 0 : parseInt(e.target.value) || 0 })} placeholder="0" className="h-10 rounded-xl bg-white/5 border-white/10 text-slate-300 font-bold text-[12px] placeholder:text-slate-600" />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-[8px] font-black uppercase tracking-widest text-slate-500 ml-1">Bloqueado</Label>
+                            <Input type="number" value={formData.bloqueado ?? ""} onChange={e => setFormData({ ...formData, bloqueado: e.target.value === "" ? 0 : parseInt(e.target.value) || 0 })} placeholder="0" className="h-10 rounded-xl bg-white/5 border-white/10 text-slate-300 font-bold text-[12px] placeholder:text-slate-600" />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-[8px] font-black uppercase tracking-widest text-slate-500 ml-1">Aquisição</Label>
+                            <Input type="number" value={formData.aquisicao ?? ""} onChange={e => setFormData({ ...formData, aquisicao: e.target.value === "" ? 0 : parseInt(e.target.value) || 0 })} placeholder="0" className="h-10 rounded-xl bg-emerald-500/5 border-emerald-500/20 text-emerald-400 font-bold text-[12px] placeholder:text-slate-600" />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-[8px] font-black uppercase tracking-widest text-slate-500 ml-1">Ajuste IMEI</Label>
+                            <Input type="number" value={formData.saldoAjustarImei ?? ""} onChange={e => setFormData({ ...formData, saldoAjustarImei: e.target.value === "" ? 0 : parseInt(e.target.value) || 0 })} placeholder="0" className="h-10 rounded-xl bg-indigo-500/5 border-indigo-500/20 text-indigo-400 font-bold text-[12px] placeholder:text-slate-600" />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-[8px] font-black uppercase tracking-widest text-slate-500 ml-1">Saldo Legado</Label>
+                            <Input type="number" value={formData.saldoLegadoTotal ?? ""} onChange={e => setFormData({ ...formData, saldoLegadoTotal: e.target.value === "" ? 0 : parseInt(e.target.value) || 0 })} placeholder="0" className="h-10 rounded-xl bg-amber-500/5 border-amber-500/20 text-amber-400 font-bold text-[12px] placeholder:text-slate-600" />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-[8px] font-black uppercase tracking-widest text-slate-500 ml-1">Transfer. IMEI</Label>
+                            <Input type="number" value={formData.transferenciaImei ?? ""} onChange={e => setFormData({ ...formData, transferenciaImei: e.target.value === "" ? 0 : parseInt(e.target.value) || 0 })} placeholder="0" className="h-10 rounded-xl bg-rose-500/5 border-rose-500/20 text-rose-300 font-bold text-[12px] placeholder:text-slate-600" />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label className="text-[8px] font-black uppercase tracking-widest text-slate-500 ml-1">Estorno IMEI</Label>
+                            <Input type="number" value={formData.estornoImei ?? ""} onChange={e => setFormData({ ...formData, estornoImei: e.target.value === "" ? 0 : parseInt(e.target.value) || 0 })} placeholder="0" className="h-10 rounded-xl bg-emerald-500/5 border-emerald-500/20 text-emerald-300 font-bold text-[12px] placeholder:text-slate-600" />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )}
 
@@ -1158,8 +1331,9 @@ function SectionTable({ data, type, onRemove, onUpdateItem, maskFn = (t: any) =>
   const isMovimentacao = type === 'movimentacao';
 
   return (
-    <div className="rounded-xl border border-slate-100 bg-white shadow-sm overflow-x-auto technical-console-scroll custom-scrollbar">
-      <Table className="min-w-[1600px]">
+    <div className="rounded-xl border border-slate-100 bg-white shadow-sm overflow-hidden">
+      <div className="overflow-x-auto w-full custom-scrollbar technical-console-scroll">
+        <Table className="min-w-[1600px]">
         <TableHeader className="bg-slate-50/50">
           <TableRow className="h-10 border-b border-slate-100">
             <TableHead className="text-[9px] font-black uppercase tracking-widest text-slate-400 pl-6 w-[120px]">DATA</TableHead>
@@ -1395,7 +1569,8 @@ function SectionTable({ data, type, onRemove, onUpdateItem, maskFn = (t: any) =>
             ))
           )}
         </TableBody>
-      </Table>
+        </Table>
+      </div>
     </div>
   );
 }

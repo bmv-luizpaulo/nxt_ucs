@@ -1,6 +1,7 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
+import { Toaster as SonnerToaster } from "sonner";
 import { FirebaseClientProvider } from "@/firebase/client-provider";
 
 export const metadata: Metadata = {
@@ -26,6 +27,7 @@ export default function RootLayout({
             {children}
           </div>
           <Toaster />
+          <SonnerToaster position="top-right" richColors />
         </FirebaseClientProvider>
       </body>
     </html>

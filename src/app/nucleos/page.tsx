@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useMemo, Suspense } from "react";
 import { useRouter } from "next/navigation";
-import { Trash2, ChevronLeft, ChevronRight, Loader2, Users2, MapPin, Search, CheckCircle2, Clock, AlertTriangle, Building2, Printer } from "lucide-react";
+import { Trash2, ChevronLeft, ChevronRight, Loader2, Users2, MapPin, Search, CheckCircle2, Clock, AlertTriangle, Building2, Printer, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
-import { collection, doc, query, orderBy, updateDoc } from "firebase/firestore";
+import { collection, doc, query, orderBy, updateDoc, writeBatch, getDocs } from "firebase/firestore";
 import { EntidadeSaldo, EntityStatus } from "@/lib/types";
 import { toast } from "@/hooks/use-toast";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -148,6 +148,63 @@ function NucleosContent() {
                           onChange={e => setSearchQuery(e.target.value)}
                        />
                     </div>
+                    
+                    <Button 
+                      onClick={async () => {
+                        if (!firestore) return;
+                        const batch = writeBatch(firestore);
+                        const { getDocs, collection, doc, setDoc } = await import('firebase/firestore');
+                        
+                        // 1. Vincular Fazendas
+                        const snap = await getDocs(collection(firestore, 'fazendas'));
+                        let fCount = 0;
+                        snap.forEach(fDoc => {
+                          const f = fDoc.data();
+                          if (f.nucleo && (!f.nucleoCnpj || f.nucleoCnpj === "")) {
+                            const n = (f.nucleo || "").toUpperCase();
+                            let cnpj = "";
+                            if (n.includes('XINGU')) cnpj = '10.175.886/0001-68';
+                            else if (n.includes('TELES PIRES')) cnpj = '11.271.788/0001-97';
+                            else if (n.includes('MADEIRA') || n.includes('APRIMA') || n.includes('APRRIMA')) cnpj = '12.741.679/0001-59';
+                            else if (n.includes('ARINOS')) cnpj = '11.952.411/0001-01';
+                            
+                            if (cnpj) {
+                              batch.update(fDoc.ref, { nucleoCnpj: cnpj });
+                              fCount++;
+                            }
+                          }
+                        });
+
+                        // 2. Garantir que as Associações existam como carteiras (produtores)
+                        const assocMap = [
+                          { nome: "ASSOCIACAO DE PROPRIETARIOS RURAIS SANTA CRUZ DO XINGU MATA VIVA", cnpj: "10.175.886/0001-68", nucleo: "XINGU MATA VIVA" },
+                          { nome: "ASSOCIACAO TELES PIRES MATA VIVA", cnpj: "11.271.788/0001-97", nucleo: "TELES PIRES MATA VIVA" },
+                          { nome: "ASSOCIACAO DE PRODUTORES RURAIS DO RIO MADEIRA - APRRIMA", cnpj: "12.741.679/0001-59", nucleo: "MADEIRA MATA VIVA" },
+                          { nome: "ASSOCIACAO ARINOS MATA VIVA", cnpj: "11.952.411/0001-01", nucleo: "ARINOS MATA VIVA" }
+                        ];
+
+                        for (const a of assocMap) {
+                          const docId = `ASSOC_${a.cnpj.replace(/\D/g, '')}`;
+                          batch.set(doc(firestore, "produtores", docId), {
+                            id: docId,
+                            nome: a.nome,
+                            documento: a.cnpj,
+                            nucleo: a.nucleo,
+                            status: "disponivel",
+                            tipo: "PJ",
+                            saldoFinalAtual: 0,
+                            createdAt: new Date().toISOString()
+                          }, { merge: true });
+                        }
+                        
+                        await batch.commit();
+                        toast({ title: `Governança Sincronizada`, description: `${fCount} fazendas vinculadas e 4 associações criadas.` });
+                      }}
+                      variant="outline" 
+                      className="h-11 px-6 rounded-xl border-dashed border-slate-300 text-slate-600 font-bold text-[12px] gap-2 hover:bg-slate-50 transition-all active:scale-95 shadow-sm"
+                    >
+                       <RefreshCw className="w-4 h-4" /> Sincronizar Governança
+                    </Button>
                     
                     <Button onClick={() => window.print()} variant="secondary" className="h-11 px-6 rounded-xl bg-slate-100 text-slate-900 border-none font-bold text-[12px] gap-2 hover:bg-slate-200 transition-all active:scale-95 shadow-sm">
                        <Printer className="w-4 h-4" /> Relatório Consolidado

@@ -5,12 +5,14 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { useCollection, useFirestore, useMemoFirebase, useUser } from "@/firebase";
 import { collection, query, orderBy } from "firebase/firestore";
 import { EntidadeSaldo } from "@/lib/types";
-import { Loader2, Plus, Calendar, ArrowRight } from "lucide-react";
+import { Loader2, Plus, Calendar, ArrowRight, Leaf, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { AddSafraDialog } from "@/components/entities/AddSafraDialog";
-import { useState } from "react";
+import { SafraGenerationDialog } from "@/components/safras/SafraGenerationDialog";
+import { SafraBulkDialog } from "@/components/safras/SafraBulkDialog";
+import { useState, useEffect } from "react";
 interface SafraMetadata {
   id: string;
   year: string;
@@ -21,6 +23,8 @@ interface SafraMetadata {
 
 export default function SafrasPage() {
   const [isAddSafraOpen, setIsAddSafraOpen] = useState(false);
+  const [isGenerateOpen, setIsGenerateOpen] = useState(false);
+  const [isBulkOpen, setIsBulkOpen] = useState(false);
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
 
@@ -39,6 +43,12 @@ export default function SafrasPage() {
   }, [firestore, user]);
 
   const { data: allProdutores } = useCollection<EntidadeSaldo>(allProdutoresQuery);
+  
+  const fazendasQuery = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return query(collection(firestore, "fazendas"));
+  }, [firestore, user]);
+  const { data: allFazendas } = useCollection<any>(fazendasQuery);
 
   const safras = useMemo(() => {
     const listFromDb = safrasDb || [];
@@ -79,12 +89,28 @@ export default function SafrasPage() {
              </div>
              <h1 className="text-lg font-black uppercase tracking-[0.2em] text-slate-900">Portal de Safras</h1>
           </div>
-          <Button 
-            onClick={() => setIsAddSafraOpen(true)}
-            className="h-12 px-6 rounded-full bg-primary text-white font-black uppercase text-[10px] tracking-widest shadow-lg shadow-emerald-100 transition-all hover:scale-105 active:scale-95"
-          >
-            <Plus className="w-4 h-4 mr-2" /> Nova Safra
-          </Button>
+          <div className="flex gap-3">
+            <Button 
+              onClick={() => setIsGenerateOpen(true)}
+              variant="outline"
+              className="h-12 px-6 rounded-full border-primary/20 text-primary font-black uppercase text-[10px] tracking-widest shadow-sm transition-all hover:bg-primary/5 active:scale-95"
+            >
+              <Leaf className="w-4 h-4 mr-2" /> Geração Manual
+            </Button>
+            <Button 
+              onClick={() => setIsBulkOpen(true)}
+              variant="outline"
+              className="h-12 px-6 rounded-full border-emerald-500/20 text-emerald-600 font-black uppercase text-[10px] tracking-widest shadow-sm transition-all hover:bg-emerald-50 active:scale-95"
+            >
+              <Layers className="w-4 h-4 mr-2" /> Geração em Lote
+            </Button>
+            <Button 
+              onClick={() => setIsAddSafraOpen(true)}
+              className="h-12 px-6 rounded-full bg-primary text-white font-black uppercase text-[10px] tracking-widest shadow-lg shadow-emerald-100 transition-all hover:scale-105 active:scale-95"
+            >
+              <Plus className="w-4 h-4 mr-2" /> Nova Safra
+            </Button>
+          </div>
         </header>
 
         <div className="flex-1 p-8 space-y-8 overflow-y-auto">
@@ -119,7 +145,7 @@ export default function SafrasPage() {
                           </div>
                           <div className="text-right">
                             <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Volume Total</p>
-                            <p className="text-xl font-black text-primary">{safra.totalUCS.toLocaleString('pt-BR')} <span className="text-[10px] uppercase font-bold text-slate-500">UCS</span></p>
+                            <p className="text-xl font-black text-primary">{Math.floor(safra.totalUCS).toLocaleString('pt-BR')} <span className="text-[10px] uppercase font-bold text-slate-500">UCS</span></p>
                           </div>
                         </div>
                         
@@ -154,6 +180,13 @@ export default function SafrasPage() {
       </main>
 
       <AddSafraDialog open={isAddSafraOpen} onOpenChange={setIsAddSafraOpen} />
+      <SafraGenerationDialog open={isGenerateOpen} onOpenChange={setIsGenerateOpen} />
+      <SafraBulkDialog 
+        open={isBulkOpen} 
+        onOpenChange={setIsBulkOpen} 
+        selectedFarms={allFazendas || []} 
+        onSuccess={() => setIsBulkOpen(false)} 
+      />
     </div>
   );
 }

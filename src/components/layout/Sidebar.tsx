@@ -42,9 +42,8 @@ export function Sidebar() {
       items: [
         { icon: LayoutGrid, label: "Dashboard", href: "/dashboard" },
         { icon: Wallet, label: "Produtores", href: "/produtores" },
-        { icon: MapPin, label: "Núcleos", href: "/nucleos" },
+        { icon: MapPin, label: "Núcleos & Associações", href: "/nucleos" },
         { icon: MapPin, label: "Fazendas", href: "/fazendas" },
-        { icon: Users2, label: "Associações", href: "/associacoes" },
         { icon: Cpu, label: "IMEI", href: "/imeis" },
         { icon: Calendar, label: "Safras", href: "/safras" },
       ]
@@ -95,7 +94,9 @@ export function Sidebar() {
                       isActive ? "text-white" : "text-slate-400 group-hover:text-slate-900"
                     )} />
                     {!isCollapsed && (
-                      <span className="text-[13px] truncate">{item.label}</span>
+                      <span className="text-[13px] truncate">
+                        {item.label}
+                      </span>
                     )}
                   </div>
                 </Link>

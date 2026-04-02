@@ -1,200 +1,263 @@
-export type OrderStatus = 'pendente' | 'ok' | 'erro';
-export type MovementType = 'gov' | 'cliente' | 'outro';
-export type OrderCategory = 'selo' | 'Saas_Tesouro_Verde' | 'Saas_BMV';
-export type EntityStatus = 'disponivel' | 'bloqueado' | 'inapto';
-export type AuditoriaStatus = 'Pendente' | 'Cancelado' | 'Concluido';
-export type UserRole = 'admin' | 'auditor' | 'viewer';
-export type UserStatus = 'ativo' | 'suspenso' | 'pendente';
-
-export interface AppUser {
+export interface User {
   id: string;
-  nome: string;
   email: string;
-  role: UserRole;
-  status: UserStatus;
-  ultimoAcesso: string;
+  nome: string;
+  role: 'admin' | 'investidor' | 'produtor' | 'auditor' | string;
+  avatar?: string;
+  status?: 'ativo' | 'inativo' | 'pendente' | string;
+  ultimoAcesso?: string;
   createdAt: string;
-  cpf?: string;
   cargo?: string;
+  cpf?: string;
 }
 
-export interface Movimento {
+export type AppUser = User;
+
+export type OrderStatus = 'ok' | 'pendente' | 'cancelado' | 'erro';
+export type ReportType = 'executive' | 'juridico';
+
+export interface AuditReportMetadata {
   id: string;
-  pedidoId: string;
-  raw: string;
-  hashMovimento: string;
-  tipo: MovementType;
-  origem: string;
-  destino: string;
-  quantidade: number;
-  duplicado: boolean;
-  validado: boolean;
-  createdAt: string;
+  title?: string;
+  description?: string;
+  icon?: any;
+  category?: string;
+  template?: 'executive' | 'juridico' | 'consolidated';
+  type?: ReportType;
+  date?: string;
+  userName?: string;
+  userEmail?: string;
 }
 
+export interface FazendaProprietario {
+  nome: string;
+  documento: string;    // CPF ou CNPJ
+  percentual: number;   // % de participação sobre a terra
+  tipo?: 'PF' | 'PJ';
+}
+
+export interface Fazenda {
+  id: string;
+  idf: string;           // Identificação da Fazenda (IDF)
+  nome: string;          // Nome da Fazenda
+  nucleo: string;        // Núcleo (Ex: Xingu Mata Viva)
+  nucleoCnpj?: string;    // CNPJ do Núcleo
+  municipio: string;     // Município
+  uf: string;            // Estado
+  latitude?: string;
+  longitude?: string;
+  lat?: number | string;
+  long?: number | string;
+  
+  // Áreas
+  areaTotal: number;
+  areaVegetacao?: number;
+  areaConsolidada?: number;
+  areaUsoAntropico?: number;
+  tipoArea?: string;      // Privado, etc
+  
+  // Produtores / Proprietários (Derivado)
+  proprietarios: FazendaProprietario[];
+
+  // Documentação
+  isin?: string;
+  status: 'ativa' | 'inativa' | 'pendente';
+  observacao?: string;
+  hashOriginacao?: string;
+  ucs?: number;
+  safra?: string;
+  dataRegistro?: string;
+  createdAt: string;
+  updatedAt?: string;
+
+  // Geometria (importado do KML)
+  polygonCoordinates?: { lon: number; lat: number }[]; 
+}
+
+// Safra: Distribuição de UCS por Ano e por Entidade (Produtor, Associação, IMEI)
+export interface SafraDistribuicao {
+  id: string;
+  fazendaId: string;
+  fazendaNome: string;
+  idf: string;
+  ano: number;           // Ano de Referência
+  ucsTotal: number;      // UCS Total da Fazenda (100%)
+  isin?: string;
+  hashOrigination?: string;
+  
+  // 1. Produtor
+  produtorNome: string;
+  produtorDoc: string;   
+  produtorPct: number;
+  produtorSaldo: number;
+
+  // 2. Associação
+  associacaoNome: string;
+  associacaoCnpj: string;
+  associacaoPct: number;
+  associacaoSaldo: number;
+
+  // 3. IMEI (Institutos/Entidades)
+  imeiNome: string;
+  imeiCnpj: string;
+  imeiPct: number;
+  imeiSaldo: number;
+
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export type OrderCategory = 'selo' | 'Saas_Tesouro_Verde' | 'Saas_BMV';
+
+// Tipos para Pedidos e Movimentações (Dashboard)
 export interface Pedido {
   id: string;
   data: string;
   empresa: string;
   cnpj: string;
-  programa: string;
-  uf: string;
-  do: boolean;
   quantidade: number;
   taxa: number;
   valorTotal: number;
-  hashPedido: string;
-  linkNxt: string;
-  linkCertificado?: string;
-  origem?: string;
-  origemCnpj?: string;
-  modo?: string;
-  auditado: boolean;
   status: OrderStatus;
-  categoria: OrderCategory;
+  categoria: string;
+  usuarioId: string;
+  origem?: string;
+  programa?: string;
+  modo?: string;
+  linkNxt?: string;
+  hashPedido?: string;
+  linkCertificado?: string;
+  auditado?: boolean;
+  uf?: string;
+  do?: boolean;
   createdAt: string;
 }
 
+export interface Movimento {
+  id: string;
+  pedidoId: string;
+  tipo: string;
+  origem: string;
+  destino: string;
+  quantidade: number;
+  data?: string;
+  duplicado?: boolean;
+  validado?: boolean;
+  createdAt: string;
+}
+
+export type EntityStatus = 'disponivel' | 'bloqueado' | 'inapto';
+export type AuditoriaStatus = 'Concluido' | 'Cancelado' | 'Pendente' | 'valido' | 'inconsistente';
+
 export interface RegistroTabela {
-  id?: string;
-  dist?: string;
+  id: string;
   data: string;
-  destino?: string;
-  valor?: number;
-  valorCredito?: number;
-  valorDebito?: number;
-  nome?: string;
-  tipo?: string;
-  status?: string;
-  prioridade?: number;
   plataforma?: string;
+  dist?: string;
+  valor?: number;
+  destino?: string;
+  usuarioDestino?: string;
+  statusAuditoria?: AuditoriaStatus;
+  dataPagamento?: string;
+  linkComprovante?: string;
+  valorPago?: number;
+  linkNxt?: string;
+  observacaoTransacao?: string;
   disponivel?: number;
   reservado?: number;
   bloqueado?: number;
   aposentado?: number;
-  statusAuditoria?: AuditoriaStatus | string;
-  linkComprovante?: string;
-  linkNxt?: string;
-  observacaoTransacao?: string;
-  dataPagamento?: string;
-  valorPago?: number;
-  usuarioDestino?: string;
+  valorCredito?: number;
+  valorDebito?: number;
 }
 
 export interface EntidadeSaldo {
   id: string;
   nome: string;
   documento: string;
-  safra: string | number; // Ano da Safra
+  status: EntityStatus;
+  statusAuditoriaSaldo?: 'valido' | 'inconsistente';
+  safra: string;
   
-  // Dados da Propriedade / Originação
-  propriedade?: string;
-  idf?: string;
-  areaTotal?: number;
-  areaVegetacao?: number;
-  nucleo?: string;
-  lat?: string;
-  long?: string;
-  isin?: string;
-  hashOriginacao?: string;
-  dataRegistro?: string;
-
-  // Particionamento e Saldos
-  particionamento?: number; // % do produtor
-  saldoParticionado?: number; // Valor em UCS do produtor
-  
-  associacaoNome?: string;
-  associacaoCnpj?: string;
-  associacaoParticionamento?: number;
-  associacaoSaldo?: number;
-
-  imeiNome?: string;
-  imeiCnpj?: string;
-  imeiParticionamento?: number;
-  imeiSaldo?: number;
-  originacaoFazendaTotal?: number; // Volume total da fazenda antes do particionamento
-  observacaoFazenda?: string; // Observações da fazenda (global)
-  
-  // Totais Consolidados (Retrocompatibilidade)
-  originacao: number;
-  movimentacao: number; 
-  aposentado: number;
-  bloqueado: number;
+  // Saldos e Particionamento
+  particionamento?: number;
+  saldoParticionado?: number;
+  originacao?: number;
+  originacaoFazendaTotal?: number;
+  movimentacao: number;
   aquisicao: number;
   saldoAjustarImei: number;
+  transferenciaImei?: number;
+  estornoImei?: number;
   saldoLegadoTotal: number;
-  saldoFinalAtual: number; 
+  aposentado: number;
+  bloqueado: number;
+  saldoFinalAtual: number;
   
-  // Tabelas de Lançamentos
-  tabelaOriginacao?: RegistroTabela[];
-  tabelaMovimentacao?: RegistroTabela[];
-  tabelaImei?: RegistroTabela[];
-  tabelaAquisicao?: RegistroTabela[];
-  tabelaLegado?: RegistroTabela[];
-
-  // Ajuste Manual (Governança)
+  balance?: number;
+  
+  // Propriedade
+  propriedade?: string;
+  idf?: string;
+  nucleo?: string;
+  areaTotal?: number;
+  areaVegetacao?: number;
+  dataRegistro?: string;
+  lat?: number | string;
+  long?: number | string;
+  isin?: string;
+  hashOriginacao?: string;
+  observacaoFazenda?: string;
+  observacao?: string;
+  
+  // Tabelas
+  tabelaOriginacao: RegistroTabela[];
+  tabelaMovimentacao: RegistroTabela[];
+  tabelaAquisicao: RegistroTabela[];
+  tabelaLegado: RegistroTabela[];
+  tabelaImei: RegistroTabela[];
+  
+  // Ajuste Manual
   ajusteRealizado?: boolean;
   valorAjusteManual?: number;
   justificativaAjuste?: string;
   usuarioAjuste?: string;
   dataAjuste?: string;
+  
+  // Entidades Vinculadas
+  associacaoNome?: string;
+  associacaoCnpj?: string;
+  associacaoParticionamento?: number;
+  associacaoSaldo?: number;
+  imeiNome?: string;
+  imeiCnpj?: string;
+  imeiParticionamento?: number;
+  imeiSaldo?: number;
+  
+  // Auditoria
+  updatedAt?: string;
+  createdAt?: string;
 
-  // Auditoria e Apontamentos
-  observacao?: string;
-  statusAuditoriaSaldo?: 'valido' | 'inconsistente';
-
-  status: EntityStatus;
-  createdAt: string;
-
-  // Propriedades Virtuais para Consolidação
+  // UI helper
   isGroup?: boolean;
-  volumeContextual?: number;
 }
 
 export interface EntidadeSaldoGroup {
   id: string;
   nome: string;
-  isGroup: boolean;
-  volumeTotal: number;
-  items: (EntidadeSaldo & { volumeContextual: number })[];
-  
-  // Propriedades opcionais para compatibilidade de interface
-  safra?: string | number;
-  propriedade?: string;
-  documento?: string;
-  statusAuditoriaSaldo?: 'valido' | 'inconsistente';
+  isGroup: true;
+  type: 'associacao' | 'imei' | 'nucleo' | 'fazenda';
+  items: EntidadeSaldo[];
 }
 
-export type ReportType = 'executive' | 'juridico' | 'consolidated';
-export type ReportFormat = 'A4_PDF' | 'CSV' | 'JSON';
-
-export interface Aposentadoria {
+export interface Certificado {
   id: string;
-  data: string;
-  origem: string;
-  userEmail?: string;
-  userName?: string;
-  documento?: string;
-  carteiraId?: string;
-  quantidade: number;
-  motivo: string;
-  hash: string;
-  blockchainConfirmado: boolean;
-  composicao: {
-    safra: string;
-    origem: string;
-    fazenda: string;
-    nucleo: string;
-    quantidade: number;
-  }[];
-  createdAt: string;
-}
-
-export interface AuditReportMetadata {
-  id: string;
-  title: string;
-  description: string;
-  icon: any;
-  category: 'audit' | 'compliance' | 'operational';
-  template: ReportType;
+  codigo: string;
+  fazendaId: string;
+  produtorId: string;
+  volumeUCS: number;
+  anoSafra: number;
+  dataEmissao: string;
+  status: 'valido' | 'cancelado' | 'expirado';
+  pdfUrl?: string;
 }

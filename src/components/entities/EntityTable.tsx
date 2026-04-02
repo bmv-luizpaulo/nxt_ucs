@@ -105,7 +105,7 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate, is
     else onSelectionChange([...selectedIds, id]);
   };
 
-  const formatUCS = (val?: number) => (val ?? 0).toLocaleString('pt-BR');
+  const formatUCS = (val?: number) => Math.floor(val ?? 0).toLocaleString('pt-BR');
 
   const renderStatus = (item: EntidadeSaldo) => {
     const cadastralStatus = item.status;
@@ -164,18 +164,22 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate, is
                 </TableHead>
                 {viewMode === 'produtor' ? (
                   <>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nome</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Documento</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Usuário Titular</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Tipo</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Fazendas</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Núcleos</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Produtor</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Orig. Produtor</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Débitos</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Aposentadas</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Bloqueadas</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Aquisição</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Saldo Final</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Tipo</TableHead>
                   </>
                 ) : (
                   <>
                     <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Safra</TableHead>
                     <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400">Entidade / Registro</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Saldo Auditado</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">
+                      {viewMode === 'fazenda' ? 'Originação da Fazenda' : 'Saldo Auditado'}
+                    </TableHead>
                   </>
                 )}
                 <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Status</TableHead>
@@ -193,10 +197,18 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate, is
                 Object.entries(groupedData).map(([groupKey, items]: [string, any[]]) => (
                   <React.Fragment key={groupKey}>
                     {viewMode !== 'produtor' && (
-                       <TableRow className="bg-slate-50/30 border-y border-slate-100/50">
-                         <TableCell colSpan={14} className="py-2 px-10">
+                       <TableRow className="bg-slate-50/30 border-y border-slate-100/50 h-10">
+                         <TableCell colSpan={2} className="py-2 px-10">
                             <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">{groupKey}</span>
                          </TableCell>
+                         <TableCell className="text-right py-2 pr-4">
+                            <span className="text-[11px] font-black text-slate-900">
+                              {viewMode === 'fazenda' 
+                                ? formatUCS(items[0]?.originacao || items[0]?.originacaoFazendaTotal) 
+                                : formatUCS(items.reduce((acc, i) => acc + (i.saldoFinalAtual || 0), 0))} UCS
+                            </span>
+                         </TableCell>
+                         <TableCell colSpan={11} />
                        </TableRow>
                     )}
                     {items.map((item: any) => (
@@ -213,38 +225,52 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate, is
                           <>
                             <TableCell className="py-4">
                                <div className="flex items-center gap-4">
-                                  <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-500 font-bold text-xs uppercase">
+                                  <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-500 font-bold text-xs uppercase shrink-0">
                                      {item.nome?.substring(0,2)}
                                   </div>
-                                  <div className="flex flex-col">
-                                     <span className="text-[13px] font-bold text-slate-900">{item.nome}</span>
-                                     <span className="text-[10px] text-slate-400 font-medium">Pessoa Jurídica</span>
+                                  <div className="flex flex-col gap-0.5">
+                                     <span className="text-[13px] font-bold text-slate-900 leading-tight">{item.nome}</span>
+                                     <span className="text-[10px] text-slate-400 font-mono tracking-tight">{item.documento}</span>
+                                     {(item.originacaoFazendaTotal || item.originacao) ? (
+                                       <span className="text-[9px] text-slate-300 font-medium">
+                                         Fazenda: {formatUCS(item.originacaoFazendaTotal || item.originacao)} UCS
+                                       </span>
+                                     ) : null}
                                   </div>
                                </div>
                             </TableCell>
-                            <TableCell>
-                               <div className="flex flex-col">
-                                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">CNPJ</span>
-                                  <span className="text-[12px] font-medium text-slate-600">{item.documento}</span>
+                            {/* ORIGINAÇÃO = saldoParticionado (cota do produtor, não o total da fazenda) */}
+                            <TableCell className="text-right">
+                               <div className="flex flex-col items-end gap-0.5">
+                                  <span className="font-black text-[12px] text-teal-700">{formatUCS(item.saldoParticionado || 0)}</span>
+                                  {item.associacaoSaldo ? (
+                                    <span className="text-[9px] font-bold text-amber-500">Assoc: {formatUCS(item.associacaoSaldo)}</span>
+                                  ) : null}
+                                  {item.imeiSaldo ? (
+                                    <span className="text-[9px] font-bold text-indigo-400">IMEI: {formatUCS(item.imeiSaldo)}</span>
+                                  ) : null}
                                </div>
                             </TableCell>
-                            <TableCell>
-                               <div className="flex flex-col">
-                                  <span className="text-[13px] font-bold text-slate-800 uppercase">{item.nome?.split('-')[0]}</span>
-                                  <span className="text-[11px] text-slate-400">{item.nome?.toLowerCase().replace(/ /g, '.') + "@gmail.com"}</span>
-                               </div>
-                            </TableCell>
-                            <TableCell>
+                            <TableCell className="text-right font-black text-[12px] text-rose-500">-{formatUCS(item.movimentacao)}</TableCell>
+                            <TableCell className="text-right font-black text-[12px] text-slate-400">{formatUCS(item.aposentado)}</TableCell>
+                            <TableCell className="text-right font-black text-[12px] text-slate-400">{formatUCS(item.bloqueado)}</TableCell>
+                            <TableCell className="text-right font-black text-[12px] text-emerald-600">{formatUCS(item.aquisicao)}</TableCell>
+                            <TableCell className="text-right font-black text-[12px] text-indigo-500">{formatUCS(item.saldoAjustarImei)}</TableCell>
+                            <TableCell className="text-right font-black text-[12px] text-amber-600">{formatUCS(item.saldoLegadoTotal)}</TableCell>
+                            <TableCell className="text-right font-black text-[13px] text-primary">{formatUCS(item.saldoFinalAtual)} UCS</TableCell>
+                            <TableCell className="text-center">
                                {renderTypeIcon(item)}
                             </TableCell>
-                            <TableCell className="text-center font-medium text-slate-400">-</TableCell>
-                            <TableCell className="text-center font-medium text-slate-400">-</TableCell>
                           </>
                         ) : (
                           <>
                             <TableCell className="font-bold text-[11px] text-primary uppercase">{item.safra}</TableCell>
                             <TableCell className="font-bold text-[12px] uppercase text-slate-700">{item.nome}</TableCell>
-                            <TableCell className="text-right font-black text-[13px] text-primary">{formatUCS(item.saldoFinalAtual)} UCS</TableCell>
+                            <TableCell className="text-right font-black text-[13px] text-primary">
+                              {viewMode === 'fazenda' 
+                                ? formatUCS(item.originacao || item.originacaoFazendaTotal) 
+                                : formatUCS(item.saldoFinalAtual)} UCS
+                            </TableCell>
                           </>
                         )}
 

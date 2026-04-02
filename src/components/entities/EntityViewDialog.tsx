@@ -280,7 +280,7 @@ export function EntityViewDialog({ entity, open, onOpenChange, onEdit }: EntityV
 
               {/* TABELAS EM MODO LEITURA */}
               <div className="space-y-12">
-                {(entity.tabelaOriginacao?.length || entity.originacao > 0) && (
+                {(entity.tabelaOriginacao?.length || (entity.originacao || 0) > 0) && (
                   <ViewSection 
                     title="01. ORIGINAÇÃO" 
                     data={entity.tabelaOriginacao?.length ? entity.tabelaOriginacao : [{ data: entity.dataRegistro, destino: entity.propriedade, valor: (entity.saldoParticionado || entity.originacao), plataforma: 'IMPORTAÇÃO SAFRA' }]} 

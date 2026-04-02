@@ -4,17 +4,20 @@ import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Layers, CheckCircle2, FileSpreadsheet, AlertCircle, ChevronDown, ChevronRight, Leaf, MapPin, Users2, Cpu, User } from "lucide-react";
+import { Layers, CheckCircle2, FileSpreadsheet, AlertCircle, ChevronDown, ChevronRight, Leaf, MapPin, Users2, Cpu, User, Loader2, Send, Calculator } from "lucide-react";
 import { EntidadeSaldo } from "@/lib/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import { useFirestore } from "@/firebase";
+import { collection, doc, getDocs, writeBatch, increment, arrayUnion } from "firebase/firestore";
+import { toast } from "@/hooks/use-toast";
 
 interface SafraBulkImportProps {
-  onImport: (data: any[]) => void;
-  safraId?: string;
+  onImport?: (data: any[]) => void;
+  safraId: string;
 }
 
 // Tipo para um registro parseado da planilha
@@ -30,6 +33,7 @@ interface SafraRecord {
   lat: string;
   long: string;
   originacao: number;
+  originacaoFazendaTotal?: number;
   isin: string;
   hashOriginacao: string;
   nome: string;       // Produtor
@@ -42,6 +46,8 @@ interface SafraRecord {
   associacaoCnpj: string;
   associacaoParticionamento: number;
   imeiNome: string;
+  imeiCnpj: string;
+  imeiParticionamento: number;
   saldoFinalAtual: number;    // Saldo do Produtor (Particionado)
   associacaoSaldo: number;    // Saldo da Associação (Particionado)
   imeiSaldo: number;          // Saldo da IMEI (Particionado)
@@ -54,35 +60,47 @@ interface SafraRecord {
   saldoLegadoTotal: number;
   status: string;
   createdAt: string;
+  isSimplified?: boolean;
 }
 
 // Mapeamento de colunas da planilha (25 campos)
 const COLUMN_MAP = [
-  { key: 'safra',                     label: 'Safra',                 type: 'text' },    // 0
-  { key: 'dataRegistro',              label: 'Data Registro',         type: 'text' },    // 1
-  { key: 'idf',                       label: 'IDF',                   type: 'text' },    // 2
-  { key: 'areaTotal',                 label: 'Área Total',            type: 'number' },  // 3
-  { key: 'areaVegetacao',             label: 'Área Vegetação',        type: 'number' },  // 4
-  { key: 'propriedade',               label: 'Propriedade',           type: 'text' },    // 5
-  { key: 'nucleo',                    label: 'Núcleo',                type: 'text' },    // 6
-  { key: 'lat',                       label: 'Lat',                   type: 'text' },    // 7
-  { key: 'long',                      label: 'Long',                  type: 'text' },    // 8
-  { key: 'originacao',                label: 'UCS',                   type: 'number' },  // 9
-  { key: 'isin',                      label: 'ISIN',                  type: 'text' },    // 10
-  { key: 'hashOriginacao',            label: 'Hash Originação',       type: 'text' },    // 11
-  { key: 'nome',                      label: 'Produtor',              type: 'text' },    // 12
-  { key: 'cnpj',                      label: 'CNPJ',                  type: 'text' },    // 13
-  { key: 'cpf',                       label: 'CPF',                   type: 'text' },    // 14
-  { key: 'particionamento',           label: 'Part. %',               type: 'number' },  // 15
-  { key: 'saldoParticionado',         label: 'Saldo Part.',           type: 'number' },  // 16
-  { key: 'associacaoNome',            label: 'Associação',            type: 'text' },    // 17
-  { key: 'associacaoCnpj',            label: 'CNPJ Assoc.',           type: 'text' },    // 18
-  { key: 'associacaoParticionamento', label: 'Part. Assoc. %',        type: 'number' },  // 19
-  { key: 'imeiCnpj',                  label: 'IMEI (CNPJ)',           type: 'text' },    // 20
-  { key: 'imeiNome',                   label: 'Sistema',               type: 'text' },    // 21
-  { key: 'saldoFinalAtual',           label: 'Saldo Produtor Part.',  type: 'number' },  // 22
-  { key: 'associacaoSaldo',           label: 'Saldo Assoc. Part.',    type: 'number' },  // 23
-  { key: 'imeiSaldo',                 label: 'Saldo IMEI Part.',      type: 'number' },  // 24
+  { label: 'Safra', type: 'text' },               // 0
+  { label: 'Data', type: 'text' },                // 1
+  { label: 'IDF', type: 'text' },                 // 2
+  { label: 'Área Total', type: 'number' },        // 3
+  { label: 'Área Veg.', type: 'number' },         // 4
+  { label: 'Fazenda', type: 'text' },             // 5
+  { label: 'Núcleo', type: 'text' },              // 6
+  { label: 'Lat', type: 'text' },                 // 7
+  { label: 'Long', type: 'text' },                // 8
+  { label: 'UCS Farm', type: 'number' },          // 9
+  { label: 'ISIN', type: 'text' },                // 10
+  { label: 'Hash', type: 'text' },                // 11
+  { label: 'Produtor', type: 'text' },            // 12
+  { label: 'CNPJ', type: 'text' },                // 13
+  { label: 'CPF', type: 'text' },                 // 14
+  { label: 'Part. %', type: 'number' },           // 15
+  { label: 'Saldo Part.', type: 'number' },       // 16
+  { label: 'Assoc. Nome', type: 'text' },         // 17
+  { label: 'Assoc. CNPJ', type: 'text' },         // 18
+  { label: 'Assoc. %', type: 'number' },          // 19
+  { label: 'IMEI CNPJ', type: 'text' },           // 20
+  { label: 'IMEI Nome', type: 'text' },           // 21
+  { label: 'Saldo Prod.', type: 'number' },       // 22
+  { label: 'Saldo Assoc.', type: 'number' },      // 23
+  { label: 'Saldo IMEI', type: 'number' },       // 24
+];
+// Novo Mapeamento Robusto (8 colunas)
+const MEDIUM_COLUMN_MAP = [
+  { key: 'propriedade',               label: 'Fazenda',               type: 'text' },    // 0
+  { key: 'nome',                      label: 'Produtores',            type: 'text' },    // 1
+  { key: 'cnpj',                      label: 'CNPJ',                  type: 'text' },    // 2
+  { key: 'cpf',                       label: 'CPF',                   type: 'text' },    // 3
+  { key: 'idf',                       label: 'IDF',                   type: 'text' },    // 4
+  { key: 'originacao',                label: 'UCS',                   type: 'number' },  // 5
+  { key: 'isin',                      label: 'ISIN',                  type: 'text' },    // 6
+  { key: 'hashOriginacao',            label: 'Hash Originação',       type: 'text' },    // 7
 ];
 
 const parseNumber = (val: string): number => {
@@ -112,6 +130,14 @@ const parseNumber = (val: string): number => {
   return parseFloat(`${integerPart}.${fractionalPart}`) || 0;
 };
 
+const cleanObject = (obj: any) => {
+  const newObj: any = {};
+  Object.keys(obj).forEach(key => {
+    if (obj[key] !== undefined) newObj[key] = obj[key];
+  });
+  return newObj;
+};
+
 export function SafraBulkImport({ onImport, safraId }: SafraBulkImportProps) {
   const [open, setOpen] = useState(false);
   const [raw, setRaw] = useState("");
@@ -132,11 +158,47 @@ export function SafraBulkImport({ onImport, safraId }: SafraBulkImportProps) {
     const startIdx = hasHeader ? 1 : 0;
 
     for (let i = startIdx; i < lines.length; i++) {
-      const parts = lines[i].split('\t');
-      if (parts.length < 10) continue; // Precisa de ao menos 10 colunas úteis
+      const parts = lines[i].split(/\t|\s{2,}/); // Aceita TAB ou múltiplos espaços
+      if (parts.length < 2) continue;
 
       const get = (idx: number) => (parts[idx] || '').trim();
       const getNum = (idx: number) => parseNumber(get(idx));
+
+      // MODO SIMPLIFICADO: IDF | UCS 
+      if (parts.length >= 2 && parts.length < 5) {
+        results.push({
+          id: `SIMP_${get(0)}_${i}`,
+          idf: get(0).replace(/^0+/, ''),
+          originacao: getNum(1),
+          safra: safraId || 'N/A',
+          isSimplified: true,
+          status: 'disponivel',
+          createdAt: new Date().toISOString()
+        } as any);
+        continue;
+      }
+
+      // NOVO MODO ROBUSTO (8 COLUNAS): Fazenda | Produtor | CNPJ | CPF | IDF | UCS | ISIN | Hash
+      if (parts.length >= 8 && parts.length < 15) {
+        const doc = get(2) || get(3);
+        results.push({
+          id: `ROBUST_${get(4)}_${i}`,
+          propriedade: get(0),
+          nome: get(1),
+          documento: doc,
+          cnpj: get(2),
+          cpf: get(3),
+          idf: get(4).replace(/^0+/, ''),
+          originacao: getNum(5),
+          isin: get(6),
+          hashOriginacao: get(7),
+          safra: safraId || 'N/A',
+          isRobust: true, // Tag para identificar esse modo
+          status: 'disponivel',
+          createdAt: new Date().toISOString()
+        } as any);
+        continue;
+      }
 
       const cnpj = get(13);
       const cpf = get(14);
@@ -144,7 +206,7 @@ export function SafraBulkImport({ onImport, safraId }: SafraBulkImportProps) {
       const produtor = get(12) || 'Sem Nome';
       const safra = get(0) || safraId || 'N/A';
       const propriedade = get(5);
-      const idf = get(2);
+      const idf = (get(2) || '').toString().trim().replace(/^0+/, '');
       const origFazenda = getNum(9);
       const partPct = getNum(15);
       const assocPct = getNum(19);
@@ -212,7 +274,7 @@ export function SafraBulkImport({ onImport, safraId }: SafraBulkImportProps) {
 
     preview.forEach(r => {
       // Fazendas
-      const fKey = r.propriedade || r.nome;
+      const fKey = r.propriedade || (r.isSimplified ? `IDF: ${r.idf}` : r.nome) || 'N/A';
       if (!fazendas.has(fKey)) fazendas.set(fKey, { nome: fKey, count: 0, ucs: 0 });
       const f = fazendas.get(fKey)!;
       f.count++;
@@ -255,10 +317,187 @@ export function SafraBulkImport({ onImport, safraId }: SafraBulkImportProps) {
     saldoImei: preview.reduce((a, r) => a + r.imeiSaldo, 0),
   }), [preview]);
 
-  const handleConfirm = () => {
-    onImport(preview);
-    setRaw("");
+  const firestore = useFirestore();
+  const [loading, setLoading] = useState(false);
+  const [isSafraImported, setIsSafraImported] = useState(false);
+  const [isParticionamentoDone, setIsParticionamentoDone] = useState(false);
+
+  const handleSubirSafra = async () => {
+    if (preview.length === 0 || !firestore) return;
+    setLoading(true);
+    try {
+      const fazendasMap: Record<string, any> = {};
+      const fazendasByName: Record<string, any> = {};
+
+      const fSnap = await getDocs(collection(firestore, "fazendas"));
+      fSnap.forEach(doc => {
+        const f = doc.data();
+        if (f.idf) fazendasMap[f.idf.toString().trim().replace(/^0+/, '')] = { ...f, docId: doc.id };
+        if (f.nome) fazendasByName[f.nome.toString().trim().toLowerCase()] = { ...f, docId: doc.id };
+      });
+
+      const batch = writeBatch(firestore);
+      const PCT = 33.3333333 / 100;
+
+      for (const d of preview) {
+        let farm = fazendasMap[d.idf];
+        if (!farm && d.propriedade) {
+          farm = fazendasByName[d.propriedade.toString().trim().toLowerCase()];
+        }
+
+        const finalData: any = (d.isSimplified || (d as any).isRobust) ? {
+          ...d,
+          propriedade: farm?.nome || d.propriedade || "",
+          idf: farm?.idf || d.idf || "",
+          nucleo: farm?.nucleo || "",
+          nome: d.nome || farm?.proprietarios?.[0]?.nome || "",
+          documento: d.documento || farm?.proprietarios?.[0]?.documento || "",
+          saldoFinalAtual: Number(d.originacao * PCT) || 0,
+          associacaoNome: farm?.nucleo || "",
+          associacaoCnpj: farm?.nucleoCnpj || "",
+          associacaoSaldo: Number(d.originacao * PCT) || 0,
+          imeiNome: "INSTITUTO MATA VIVA",
+          imeiCnpj: "00.000.000/0001-00",
+          imeiSaldo: Number(d.originacao * PCT) || 0,
+          dataRegistro: new Date().toLocaleDateString('pt-BR')
+        } : d;
+
+        const safraRef = doc(collection(firestore, "safras_registros"));
+        batch.set(safraRef, cleanObject({
+          ...finalData,
+          importadoEm: new Date().toISOString()
+        }));
+      }
+
+      await batch.commit();
+      setIsSafraImported(true);
+      toast({ title: "Passo 1 Concluído", description: "Safra registrada com sucesso na auditoria técnica." });
+    } catch (e) {
+      console.error(e);
+      toast({ variant: "destructive", title: "Erro na importação" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleProcessarCarteiras = async () => {
+    if (preview.length === 0 || !firestore) return;
+    setLoading(true);
+    try {
+      const fazendasMap: Record<string, any> = {};
+      const fazendasByName: Record<string, any> = {};
+
+      const fSnap = await getDocs(collection(firestore, "fazendas"));
+      fSnap.forEach(doc => {
+        const f = doc.data();
+        if (f.idf) fazendasMap[f.idf.toString().trim().replace(/^0+/, '')] = { ...f, docId: doc.id };
+        if (f.nome) fazendasByName[f.nome.toString().trim().toLowerCase()] = { ...f, docId: doc.id };
+      });
+
+      const batch = writeBatch(firestore);
+      const produtoresUpdates = new Map<string, {
+        id: string;
+        nome: string;
+        documento: string;
+        safra: string;
+        nucleo: string;
+        valorTotal: number;
+        transactions: any[];
+      }>();
+
+      const PCT = 33.3333333 / 100;
+
+      for (const d of preview) {
+        let farm = fazendasMap[d.idf];
+        if (!farm && d.propriedade) {
+          farm = fazendasByName[d.propriedade.toString().trim().toLowerCase()];
+        }
+
+        const finalData: any = (d.isSimplified || (d as any).isRobust) ? {
+          ...d,
+          propriedade: farm?.nome || d.propriedade || "",
+          idf: farm?.idf || d.idf || "",
+          nucleo: farm?.nucleo || "",
+          nome: d.nome || farm?.proprietarios?.[0]?.nome || "",
+          documento: d.documento || farm?.proprietarios?.[0]?.documento || "",
+          saldoFinalAtual: Number(d.originacao * PCT) || 0,
+          associacaoNome: farm?.nucleo || "",
+          associacaoCnpj: farm?.nucleoCnpj || "",
+          associacaoSaldo: Number(d.originacao * PCT) || 0,
+          imeiNome: "INSTITUTO MATA VIVA",
+          imeiCnpj: "00.000.000/0001-00",
+          imeiSaldo: Number(d.originacao * PCT) || 0,
+        } : d;
+
+        const entities = [
+          { nome: finalData.nome, doc: finalData.documento, valor: finalData.saldoFinalAtual },
+          { nome: finalData.associacaoNome, doc: finalData.associacaoCnpj, valor: finalData.associacaoSaldo },
+          { nome: finalData.imeiNome, doc: finalData.imeiCnpj, valor: finalData.imeiSaldo }
+        ].filter(e => e.doc && e.valor > 0);
+
+        for (const ent of entities) {
+          const entId = ent.doc.replace(/[^\d]/g, '');
+          if (!entId) continue;
+
+          if (!produtoresUpdates.has(entId)) {
+            produtoresUpdates.set(entId, {
+              id: entId,
+              nome: ent.nome,
+              documento: ent.doc,
+              safra: finalData.safra,
+              nucleo: finalData.nucleo,
+              valorTotal: 0,
+              transactions: []
+            });
+          }
+
+          const existing = produtoresUpdates.get(entId)!;
+          existing.valorTotal += ent.valor;
+          existing.transactions.push({
+            id: `ORIG-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+            data: finalData.dataRegistro || new Date().toISOString(),
+            dist: finalData.propriedade,
+            plataforma: finalData.safra,
+            valor: ent.valor,
+            statusAuditoria: 'valido'
+          });
+        }
+      }
+
+      produtoresUpdates.forEach((upd, entId) => {
+        const entRef = doc(firestore, "produtores", entId);
+        batch.set(entRef, cleanObject({
+          id: upd.id,
+          nome: upd.nome,
+          documento: upd.documento,
+          status: 'disponivel',
+          safra: upd.safra || "",
+          nucleo: upd.nucleo || "",
+          originacao: increment(upd.valorTotal),
+          saldoFinalAtual: increment(upd.valorTotal),
+          tabelaOriginacao: arrayUnion(...upd.transactions.map(cleanObject)),
+          updatedAt: new Date().toISOString()
+        }), { merge: true });
+      });
+
+      await batch.commit();
+      setIsParticionamentoDone(true);
+      toast({ title: "Passo 2 Concluído", description: "Carteiras atualizadas com sucesso." });
+    } catch (e) {
+      console.error(e);
+      toast({ variant: "destructive", title: "Erro no particionamento" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFinish = () => {
     setOpen(false);
+    setRaw("");
+    setPreview([]);
+    setIsSafraImported(false);
+    setIsParticionamentoDone(false);
+    if (onImport) onImport(preview);
   };
 
   const formatUCS = (val: number) => (val || 0).toLocaleString('pt-BR');
@@ -299,18 +538,41 @@ export function SafraBulkImport({ onImport, safraId }: SafraBulkImportProps) {
             <div className="p-6 border-r border-slate-100 flex flex-col gap-4 overflow-hidden">
               {/* Mapa de colunas esperadas */}
               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-3">Mapeamento de Colunas (25 campos):</p>
+                <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-3">
+                  {preview.some(r => r.isSimplified) 
+                    ? "Mapeamento Simplificado Detectado (2 campos):" 
+                    : (preview[0] as any)?.isRobust 
+                      ? "Mapeamento Robusto Detectado (8 campos):"
+                      : "Mapeamento Completo de Colunas (25 campos):"}
+                </p>
                 <div className="grid grid-cols-4 gap-1.5">
-                  {COLUMN_MAP.map((col, i) => (
-                    <div key={i} className={cn(
-                      "px-2 py-1.5 rounded-lg text-[7px] font-bold text-center uppercase tracking-wide border",
-                      col.type === 'number' 
-                        ? "bg-primary/5 text-primary border-primary/10" 
-                        : "bg-white text-slate-400 border-slate-100"
-                    )}>
-                      <span className="text-[6px] text-slate-300 mr-0.5">{i}.</span> {col.label}
-                    </div>
-                  ))}
+                  {preview.some(r => r.isSimplified) ? (
+                    <>
+                      <div className="px-2 py-1.5 rounded-lg text-[7px] font-bold text-center uppercase tracking-wide border bg-primary/5 text-primary border-primary/10">
+                        <span className="text-[6px] text-slate-300 mr-0.5">0.</span> IDF
+                      </div>
+                      <div className="px-2 py-1.5 rounded-lg text-[7px] font-bold text-center uppercase tracking-wide border bg-primary/5 text-primary border-primary/10">
+                        <span className="text-[6px] text-slate-300 mr-0.5">1.</span> UCS
+                      </div>
+                    </>
+                  ) : (preview[0] as any)?.isRobust ? (
+                    MEDIUM_COLUMN_MAP.map((col, i) => (
+                      <div key={i} className="px-2 py-1.5 rounded-lg text-[7px] font-bold text-center uppercase tracking-wide border bg-primary/5 text-primary border-primary/10">
+                        <span className="text-[6px] text-slate-300 mr-0.5">{i}.</span> {col.label}
+                      </div>
+                    ))
+                  ) : (
+                    COLUMN_MAP.map((col, i) => (
+                      <div key={i} className={cn(
+                        "px-2 py-1.5 rounded-lg text-[7px] font-bold text-center uppercase tracking-wide border",
+                        col.type === 'number' 
+                          ? "bg-primary/5 text-primary border-primary/10" 
+                          : "bg-white text-slate-400 border-slate-100"
+                      )}>
+                        <span className="text-[6px] text-slate-300 mr-0.5">{i}.</span> {col.label}
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
 
@@ -526,19 +788,50 @@ export function SafraBulkImport({ onImport, safraId }: SafraBulkImportProps) {
             <div className="flex items-center gap-3 text-amber-600 bg-amber-50 px-5 py-3 rounded-2xl border border-amber-100 flex-1 max-w-2xl">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <p className="text-[10px] font-bold uppercase tracking-tight leading-snug">
-                Estrutura obrigatória: Safra · Data · IDF · Área · Propriedade · Núcleo · Lat/Long · UCS · ISIN · Hash · Produtor · CNPJ · CPF · Part% · Saldos Particionados.
+                {preview.some(r => r.isSimplified)
+                  ? "Modo Simplificado: Apenas colunas 'IDF' e 'UCS' são necessárias. O sistema vinculará as fazendas automaticamente."
+                  : (preview[0] as any)?.isRobust
+                    ? "Modo Robusto: Mapeamento de 8 colunas detectado (Fazenda, Produtor, Docs, IDF, UCS, ISIN, Hash). Cruzamento de dados ativo."
+                    : "Estrutura completa: Safra · Data · IDF · Área · Propriedade · Núcleo · Lat/Long · UCS · ISIN · Hash · Produtor · CNPJ · CPF · Part% · Saldos Particionados."}
               </p>
             </div>
             <div className="flex gap-4">
               <Button variant="ghost" onClick={() => setOpen(false)} className="text-[10px] font-bold uppercase tracking-widest px-8">Cancelar</Button>
-              <Button 
-                onClick={handleConfirm} 
-                disabled={preview.length === 0}
-                className="h-14 px-12 font-black uppercase text-xs rounded-2xl shadow-xl shadow-primary/20 transition-all active:scale-95"
-              >
-                <Leaf className="w-4 h-4 mr-2" />
-                Importar {preview.length} Registros na Safra
-              </Button>
+              {!isSafraImported ? (
+                <Button 
+                  onClick={handleSubirSafra} 
+                  disabled={preview.length === 0 || loading}
+                  className="h-14 px-12 font-black uppercase text-xs rounded-2xl shadow-xl shadow-primary/20 transition-all active:scale-95 bg-primary"
+                >
+                  {loading ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <Send className="w-4 h-4 mr-2" />
+                  )}
+                  Passo 1: Subir Safra (Auditoria)
+                </Button>
+              ) : !isParticionamentoDone ? (
+                <Button 
+                  onClick={handleProcessarCarteiras} 
+                  disabled={loading}
+                  className="h-14 px-12 font-black uppercase text-xs rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95 bg-indigo-600"
+                >
+                  {loading ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <Calculator className="w-4 h-4 mr-2" />
+                  )}
+                  Passo 2: Processar Carteiras (Saldos)
+                </Button>
+              ) : (
+                <Button 
+                  onClick={handleFinish} 
+                  className="h-14 px-12 font-black uppercase text-xs rounded-2xl shadow-xl shadow-emerald-500/20 transition-all active:scale-95 bg-emerald-600"
+                >
+                  <CheckCircle2 className="w-4 h-4 mr-2" />
+                  Finalizar Importação
+                </Button>
+              )}
             </div>
           </div>
         </div>

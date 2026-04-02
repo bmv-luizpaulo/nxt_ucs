@@ -230,7 +230,7 @@ export function FarmViewDialog({ entity, open, onOpenChange, allData }: FarmView
                  <p className="text-[11px] font-bold text-slate-900">
                    {(entity.lat && entity.long) ? (
                     <a 
-                      href={`https://www.google.com/maps/search/?api=1&query=${entity.lat.replace(',', '.')},${entity.long.replace(',', '.')}`} 
+                      href={`https://www.google.com/maps/search/?api=1&query=${String(entity.lat).replace(',', '.')},${String(entity.long).replace(',', '.')}`} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-primary hover:underline flex items-center gap-1"
