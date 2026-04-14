@@ -116,6 +116,8 @@ export default function ProdutorDetailPage() {
   const [isLegadoModalOpen, setIsLegadoModalOpen] = useState(false);
   const [isAquisicaoModalOpen, setIsAquisicaoModalOpen] = useState(false);
   const [isReportPreviewOpen, setIsReportPreviewOpen] = useState(false);
+  const [isReportSimplified, setIsReportSimplified] = useState(false);
+  const [isReportCensored, setIsReportCensored] = useState(false);
   const [manualAquisicao, setManualAquisicao] = useState({ data: '2018', valor: 0, observacao: '' });
   const [pasteData, setPasteData] = useState<{ section: string; raw: string } | null>(null);
 
@@ -554,13 +556,16 @@ export default function ProdutorDetailPage() {
       const liquid = farmOrig - farmDeduction - farmAquisicao - farmAposentado;
 
       return {
-        "Fazenda": f.fazendaNome,
         "IDF": f.idf,
+        "Fazenda": f.fazendaNome,
+        "Nucleo": f.nucleo || "NÃO INFORMADO",
+        "Proprietario(produtor)": produtor.nome,
+        "Documento do proprietario": produtor.documento,
         "Safra": f.safraReferencia,
         "Originação Total (UCS)": farmOrig,
         "Dedução Consumo (UCS)": farmDeduction,
         "Aquisição ADM (UCS)": farmAquisicao,
-        "Manual/Aposentado (UCS)": farmAposentado,
+        "Aposentado (UCS)": farmAposentado,
         "Saldo Líquido (UCS)": liquid
       };
     });
@@ -1300,7 +1305,29 @@ export default function ProdutorDetailPage() {
                     <p className="text-[10px] font-bold text-slate-400 uppercase">Revise as informações antes da exportação oficial</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-8 mr-12 bg-slate-50 p-2 px-6 rounded-2xl border border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <input 
+                      type="checkbox" 
+                      id="simple-mode" 
+                      checked={isReportSimplified} 
+                      onChange={(e) => setIsReportSimplified(e.target.checked)}
+                      className="w-4 h-4 accent-indigo-500"
+                    />
+                    <label htmlFor="simple-mode" className="text-[10px] font-black uppercase text-slate-500 cursor-pointer">Versão Simples</label>
+                  </div>
+                  <div className="w-px h-6 bg-slate-200" />
+                  <div className="flex items-center gap-3">
+                    <input 
+                      type="checkbox" 
+                      id="privacy-mode" 
+                      checked={isReportCensored} 
+                      onChange={(e) => setIsReportCensored(e.target.checked)}
+                      className="w-4 h-4 accent-emerald-500"
+                    />
+                    <label htmlFor="privacy-mode" className="text-[10px] font-black uppercase text-slate-500 cursor-pointer">Proteção de Dados</label>
+                  </div>
+                  <div className="w-px h-6 bg-slate-200" />
                   <Button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-700 h-11 px-8 rounded-2xl font-black uppercase text-[10px] tracking-widest gap-2 shadow-lg shadow-emerald-100">
                     <Download className="w-4 h-4" /> Confirmar e Gerar PDF
                   </Button>
@@ -1314,6 +1341,8 @@ export default function ProdutorDetailPage() {
                         currentStats={currentStats} 
                         currentUser={userData || user}
                         isPreview={true}
+                        isSimplified={isReportSimplified}
+                        isCensored={isReportCensored}
                     />
                 </div>
               </div>
@@ -1331,6 +1360,8 @@ export default function ProdutorDetailPage() {
             entityData={isEditing ? formData : entityData}
             currentStats={currentStats}
             currentUser={userData || user}
+            isSimplified={isReportSimplified}
+            isCensored={isReportCensored}
           />
         </div>
       </PrintPortal>

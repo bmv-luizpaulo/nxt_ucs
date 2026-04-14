@@ -9,9 +9,30 @@ interface AuditReportProps {
   currentStats: any;
   isPreview?: boolean;
   currentUser?: any;
+  isSimplified?: boolean;
+  isCensored?: boolean;
 }
 
-export function AuditReport({ produtor, entityData, currentStats, isPreview, currentUser }: AuditReportProps) {
+export function AuditReport({ 
+  produtor, 
+  entityData, 
+  currentStats, 
+  isPreview, 
+  currentUser,
+  isSimplified = false,
+  isCensored = false
+}: AuditReportProps) {
+  const mask = (text: string) => {
+    if (!isCensored || !text) return text;
+    const prodName = produtor.nome?.toUpperCase().trim();
+    const upperText = text.toUpperCase().trim();
+    
+    // Se o texto contém o nome do produtor, deixa passar
+    if (upperText.includes(prodName) || prodName.includes(upperText)) return text;
+    
+    // Caso contrário, mascara
+    return text.split(' ').map(() => '****').join(' ');
+  };
   return (
     <div className={cn(
       "bg-white w-full audit-page",
@@ -116,6 +137,7 @@ export function AuditReport({ produtor, entityData, currentStats, isPreview, cur
         </div>
 
         {/* Gestão de Propriedades e Ativo Biológico (Tabela) */}
+        {!isSimplified && (
         <div className="space-y-4 pt-4 break-inside-avoid">
           <h2 className="text-xl font-black uppercase tracking-tight text-slate-800 flex items-center gap-3">
             <div className="w-2 h-8 bg-emerald-500 rounded-full" />
@@ -167,10 +189,12 @@ export function AuditReport({ produtor, entityData, currentStats, isPreview, cur
             </table>
           </div>
         </div>
+        )}
 
         {/* Tabelas de Auditoria Granular */}
         <div className="space-y-10 pt-6">
           {/* Seção 07 - Conciliação de Liquidez Por Matrícula */}
+          {(!isSimplified || !isCensored) && (
           <div className="space-y-6 break-inside-avoid">
             <h3 className="text-sm font-black bg-slate-100 text-slate-900 px-6 py-3 rounded-2xl uppercase tracking-[0.2em]">07. Conciliação de Liquidez Por Matrícula (Dossiê Técnico)</h3>
             <table className="w-full border-collapse">
@@ -232,6 +256,7 @@ export function AuditReport({ produtor, entityData, currentStats, isPreview, cur
               </p>
             </div>
           </div>
+          )}
 
         {/* Extrato Consolidado de Transações (Estilo Banco) */}
         <div className="space-y-8 pt-8">
@@ -286,10 +311,10 @@ export function AuditReport({ produtor, entityData, currentStats, isPreview, cur
                                 <span className="text-[8px] bg-slate-100 text-slate-400 px-1 rounded font-bold uppercase">{t.statusAuditoria || t.status || 'FINAL'}</span>
                              </div>
                              <div className="flex items-center gap-1.5 text-[9px] font-bold text-slate-500 uppercase">
-                                <span className="text-slate-900">{t.usuarioOrigem || t.plataforma || 'CUSTÓDIA'}</span>
+                                <span className="text-slate-900">{mask(t.usuarioOrigem || t.plataforma || 'CUSTÓDIA')}</span>
                                 <span className="text-slate-300">→</span>
                                 <span className={t.usuarioDestino ? "text-slate-900" : "text-slate-400 italic"}>
-                                  {t.usuarioDestino || t.destino || t.plataformaDestino || produtor.nome}
+                                  {mask(t.usuarioDestino || t.destino || t.plataformaDestino || produtor.nome)}
                                 </span>
                              </div>
                           </div>
@@ -321,12 +346,12 @@ export function AuditReport({ produtor, entityData, currentStats, isPreview, cur
 
         {/* Firmas e Chaves de Verificação */}
         <div className="pt-10 space-y-10 break-inside-avoid">
-          <div className="flex justify-center text-center">
+          <div className="flex justify-end text-right">
             <div className="w-64 space-y-4">
               <div className="border-t border-slate-900 pt-5">
                 <p className="text-[12px] font-black uppercase text-slate-900">{currentUser?.nome || currentUser?.displayName || 'Auditor Central'}</p>
                 <div className="mt-1 space-y-0.5">
-                   <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Auditado e Certificado Via NXT</p>
+                   <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Auditado e Certificado</p>
                    {currentUser?.cargo && <p className="text-[8px] font-bold text-slate-500 uppercase">{currentUser.cargo}</p>}
                    {currentUser?.cpf && <p className="text-[8px] font-mono text-slate-400">CPF: {currentUser.cpf}</p>}
                 </div>

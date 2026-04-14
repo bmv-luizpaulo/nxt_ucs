@@ -59,24 +59,9 @@ export default function SettingsPage() {
     }
   }, [user, isUserLoading, router]);
 
-  useEffect(() => {
-    if (!firestore || !user || isUserLoading) return;
-    
-    const syncUser = async () => {
-      const userRef = doc(firestore, "users", user.uid);
-      await setDoc(userRef, {
-        id: user.uid,
-        nome: user.email?.split('@')[0].toUpperCase() || "AUDITOR",
-        email: user.email,
-        role: 'admin',
-        status: 'ativo',
-        ultimoAcesso: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-      }, { merge: true });
-    };
-    
-    syncUser();
-  }, [firestore, user, isUserLoading]);
+  // A sincronização inicial agora é tratada apenas no login ou criação.
+  // Removido syncUser repetitivo que sobrescrevia o nome do auditor.
+
 
   const usersQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
@@ -86,7 +71,7 @@ export default function SettingsPage() {
   const { data: appUsers, isLoading: isUsersLoading } = useCollection<AppUser>(usersQuery);
 
   useEffect(() => {
-    if (appUsers && user) {
+    if (appUsers && user && !profileForm.nome) { // Só inicializa se o formulário estiver vazio
        const me = appUsers.find(u => u.email === user.email);
        if (me) {
          setProfileForm({
@@ -96,7 +81,7 @@ export default function SettingsPage() {
          });
        }
     }
-  }, [appUsers, user]);
+  }, [appUsers, user, profileForm.nome]);
 
   const handleUpdateProfile = async () => {
     if (!firestore || !user) return;
@@ -107,7 +92,7 @@ export default function SettingsPage() {
       cargo: profileForm.cargo.toUpperCase(),
       ultimoAcesso: new Date().toISOString()
     }, { merge: true });
-    toast({ title: "Perfil atualizado", description: "Seas informações foram salvas com sucesso." });
+    toast({ title: "Perfil atualizado", description: "Suas informações foram salvas com sucesso." });
   };
 
   const handleDeleteUser = async (id: string) => {
