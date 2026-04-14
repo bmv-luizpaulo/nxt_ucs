@@ -79,8 +79,11 @@ export function SafraGenerationDialog({ open, onOpenChange }: SafraGenerationDia
     try {
       const batch = writeBatch(firestore);
       const ucsVal = parseFloat(ucs);
-      const PCT = 33.3333333 / 100;
-      const partVal = ucsVal * PCT;
+      
+      // Particionamento 33.33333% com Math.ceil
+      const p1 = Math.ceil(ucsVal * 0.333333333); // Produtor
+      const p2 = Math.ceil(ucsVal * 0.333333333); // Associação
+      const p3 = Math.ceil(ucsVal * 0.333333333); // IMEI
 
       const mainData = {
         safra: year,
@@ -93,13 +96,13 @@ export function SafraGenerationDialog({ open, onOpenChange }: SafraGenerationDia
         hashOriginacao: `HASH-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
         nome: selectedFazenda.proprietarios?.[0]?.nome || "Sem Nome",
         documento: selectedFazenda.proprietarios?.[0]?.documento || "",
-        saldoFinalAtual: partVal,
+        produtorSaldo: p1,
         associacaoNome: selectedFazenda.nucleo || "ASSOCIAÇÃO MATA VIVA",
         associacaoCnpj: selectedFazenda.nucleoCnpj || "00.000.000/0001-00",
-        associacaoSaldo: partVal,
+        associacaoSaldo: p2,
         imeiNome: "INSTITUTO MATA VIVA",
         imeiCnpj: "00.000.000/0001-00",
-        imeiSaldo: partVal,
+        imeiSaldo: p3,
         status: 'disponivel',
         createdAt: new Date().toISOString()
       };
@@ -110,9 +113,9 @@ export function SafraGenerationDialog({ open, onOpenChange }: SafraGenerationDia
 
       // 2. Distribuição nas Carteiras
       const entities = [
-        { nome: mainData.nome, doc: mainData.documento, valor: partVal },
-        { nome: mainData.associacaoNome, doc: mainData.associacaoCnpj, valor: partVal },
-        { nome: mainData.imeiNome, doc: mainData.imeiCnpj, valor: partVal }
+        { nome: mainData.nome, doc: mainData.documento, valor: p1 },
+        { nome: mainData.associacaoNome, doc: mainData.associacaoCnpj, valor: p2 },
+        { nome: mainData.imeiNome, doc: mainData.imeiCnpj, valor: p3 }
       ].filter(e => e.doc && e.valor > 0);
 
       for (const ent of entities) {

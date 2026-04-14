@@ -59,6 +59,17 @@ export function ProdutorDetail({ produtor, open, onOpenChange }: ProdutorDetailP
     }
   }, [entityData, open]);
 
+  // Paginação
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const paginate = (items: any[]) => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return (items || []).slice(start, start + itemsPerPage);
+  };
+
+  const totalPages = (items: any[]) => Math.ceil((items || []).length / itemsPerPage);
+
   const handleUpdateItem = (section: string, id: string, updates: Partial<any>) => {
     const list = ((formData as any)[section] || []).map((item: any) =>
       item.id === id ? { ...item, ...updates } : item
@@ -76,11 +87,19 @@ export function ProdutorDetail({ produtor, open, onOpenChange }: ProdutorDetailP
     const lines = pasteData.raw.split('\n').filter(l => l.trim());
 
     const newRows: any[] = lines.map(line => {
-      const parts = line.split('\t');
+      // Split flexível: tab ou 2+ espaços
+      const parts = line.split(/\t+| {2,}/).map(p => p.trim()).filter(p => p !== "");
+      if (parts.length < 3) return null;
+
       const parseVal = (str: string | undefined) => {
         if (!str || !str.trim()) return 0;
-        if (str.includes(',')) return parseFloat(str.replace(/\./g, "").replace(",", ".")) || 0;
-        return parseFloat(str.replace(/\./g, "").replace(/[^\d.-]/g, "")) || 0;
+        const clean = str.replace(/\s/g, "");
+        if (clean.includes(',')) {
+          // Formato 1.234,56
+          return parseFloat(clean.replace(/\./g, "").replace(",", ".")) || 0;
+        }
+        // Formato 1.234.567 ou 1234
+        return parseFloat(clean.replace(/\./g, "").replace(/[^\d.-]/g, "")) || 0;
       };
 
       const cleanData = (str: string | undefined) => {
@@ -89,7 +108,76 @@ export function ProdutorDetail({ produtor, open, onOpenChange }: ProdutorDetailP
         return str.trim();
       };
 
-      switch (pasteData.section) {
+      const section = pasteData.section;
+
+      // DETECÇÃO DE FORMATO ROBUSTO (NOVA TABELA DE ORIGINAÇÃO)
+      // Tenta localizar a coluna da Fazenda e do UCS baseada no conteúdo
+      const isHarvestSection = section === 'tabelaOriginacao';
+      if (isHarvestSection && parts.length >= 8) {
+        // Encontra o indice que parece ser a data (XX/XX/XXXX)
+        const dateIdx = parts.findIndex(p => /^\d{2}\/\d{2}\/\d{4}/.test(p));
+        if (dateIdx !== -1) {
+          const farmName = parts[dateIdx + 3];
+          const nucleo = parts[dateIdx + 4];
+          const ucsValue = parts[dateIdx + 7]; // UCS costuma estar 7 posições após a data
+          const produtorLine = parts[dateIdx + 9]; // Produtor costuma estar 9 posições após a data
+
+          const currentProdName = produtor.nome.toLowerCase();
+          const currentProdDoc = (produtor.documento || "").replace(/[^\d]/g, "");
+
+          // Verifica se o produtor coincide (nome ou doc nas colunas finais)
+          const searchArea = parts.slice(dateIdx).join(" ").toLowerCase();
+          const isMatch = searchArea.includes(currentProdName) || 
+                         (currentProdDoc.length > 5 && searchArea.includes(currentProdDoc));
+
+          if (isMatch && farmName && ucsValue) {
+            return {
+              id: `ORIG-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
+              dist: farmName,
+              data: cleanData(parts[dateIdx]),
+              plataforma: nucleo || '',
+              valor: parseVal(ucsValue),
+              idf: parts[dateIdx - 1] || '' // Geralmente o IDF vem antes da data
+            };
+          }
+        }
+      }
+
+      if (section === 'tabelaMovimentacao' || section === 'tabelaAquisicao') {
+        const origin = (parts[0] || "").toLowerCase();
+        const dest = (parts[2] || "").toLowerCase();
+        const prodName = produtor.nome.toLowerCase();
+        
+        // Ignore self-transfers (intra-platform)
+        if (origin.includes(prodName) && dest.includes(prodName)) return null;
+        
+        // Determine if it's withdrawal (Saída) or acquisition (Entrada)
+        const isSaida = origin.includes(prodName);
+        const isEntrada = dest.includes(prodName);
+
+        if (!isSaida && !isEntrada) return null;
+
+        const val = parseVal(parts[6]) || parseVal(parts[4]) || 0;
+        const row = {
+          id: `${isSaida ? 'MOV' : 'AQ'}-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
+          dist: parts[0]?.trim() || '',
+          data: cleanData(parts[1]),
+          destino: parts[2]?.trim() || '',
+          usuarioDestino: parts[3]?.trim() || '',
+          valor: val,
+          saldoAcumulado: parts[7]?.trim() || '',
+          statusAuditoria: 'Concluido',
+          dataPagamento: parts[9]?.trim() || '',
+          linkComprovante: parts[10]?.trim() || '',
+          valorPago: parseVal(parts[11]),
+          linkNxt: parts[12]?.trim() || '',
+          observacaoTransacao: parts[13]?.trim() || '',
+          _targetSection: isSaida ? 'tabelaMovimentacao' : 'tabelaAquisicao'
+        };
+        return row;
+      }
+
+      switch (section) {
         case 'tabelaLegado':
           return {
             id: `LEG-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
@@ -116,42 +204,89 @@ export function ProdutorDetail({ produtor, open, onOpenChange }: ProdutorDetailP
             valorDebito: parseVal(parts[4]),
             valorCredito: parseVal(parts[5]),
           };
-        case 'tabelaAquisicao':
-          return {
-            id: `AQ-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
-            data: cleanData(parts[1]),
-            plataforma: parts[0]?.trim() || '',
-            valor: parseVal(parts[parts.length - 1])
-          };
-        default: // tabelaMovimentacao (Debits)
-          const statusRaw = parts[8]?.trim().toLowerCase() || '';
-          const statusAuditoria = (statusRaw.includes('pago') || statusRaw.includes('concl') || statusRaw.includes('final')) ? 'Concluido' :
-                                                   statusRaw.includes('canc') ? 'Cancelado' : 'Pendente';
-          
-          return {
-            id: `MOV-${Math.random().toString(36).substr(2, 5).toUpperCase()}`,
-            dist: parts[0]?.trim() || '',
-            data: cleanData(parts[1]),
-            destino: parts[2]?.trim() || '',    
-            usuarioDestino: parts[3]?.trim() || '', 
-            valor: parseVal(parts[6]) || parseVal(parts[4]) || 0, 
-            saldoAcumulado: parts[7]?.trim() || '',
-            statusAuditoria,
-            dataPagamento: parts[9]?.trim() || '',
-            linkComprovante: parts[10]?.trim() || '',
-            valorPago: parseVal(parts[11]),
-            linkNxt: parts[12]?.trim() || '',
-            observacaoTransacao: parts[13]?.trim() || ''
-          };
+        default:
+          return null;
       }
-    });
+    }).filter(Boolean);
+
+    // Filter and Sort Saídas for Traceability
+    const saídasRows = newRows.filter(r => r._targetSection === 'tabelaMovimentacao');
+    const entradasRows = newRows.filter(r => r._targetSection === 'tabelaAquisicao');
+    const legacyRows = newRows.filter(r => !r._targetSection);
+
+    let processedSaídas = saídasRows;
+    if (saídasRows.length > 0) {
+      const usedByFarm: Record<string, number> = {};
+      [...(formData.tabelaMovimentacao || [])].forEach((m: any) => {
+        (m.rastreabilidade || []).forEach((r: any) => {
+          usedByFarm[r.fazenda] = (usedByFarm[r.fazenda] || 0) + r.valor;
+        });
+      });
+
+      const farmPool = (formData.tabelaOriginacao || []).map((o: any) => ({
+        nome: o.dist,
+        saldo: (o.valor || 0) - (usedByFarm[o.dist] || 0)
+      }));
+
+      processedSaídas = saídasRows.map(row => {
+        const rastreabilidade: { fazenda: string; valor: number }[] = [];
+        let restante = row.valor;
+        while (restante > 0.0001) {
+          const activeFarms = farmPool.filter(f => f.saldo > 0);
+          if (activeFarms.length === 0) break;
+          const share = restante / activeFarms.length;
+          let distributedInThisPass = 0;
+          for (const farm of activeFarms) {
+            const take = Math.min(share, farm.saldo);
+            if (take > 0) {
+              farm.saldo -= take;
+              restante -= take;
+              distributedInThisPass += take;
+              const existing = rastreabilidade.find(r => r.fazenda === farm.nome);
+              if (existing) existing.valor += take;
+              else rastreabilidade.push({ fazenda: farm.nome, valor: take });
+            }
+          }
+          if (distributedInThisPass === 0) break;
+        }
+        return { ...row, rastreabilidade };
+      });
+    }
 
     setFormData({
       ...formData,
-      [pasteData.section]: [...((formData as any)[pasteData.section] || []), ...newRows]
+      tabelaMovimentacao: [...((formData as any).tabelaMovimentacao || []), ...processedSaídas],
+      tabelaAquisicao: [...((formData as any).tabelaAquisicao || []), ...entradasRows],
+      [pasteData.section]: pasteData.section === 'tabelaMovimentacao' || pasteData.section === 'tabelaAquisicao' 
+        ? ((formData as any)[pasteData.section] || []) // Don't double add
+        : [...((formData as any)[pasteData.section] || []), ...legacyRows]
     });
     setPasteData(null);
   };
+
+  const farmStats = useMemo(() => {
+    const stats: Record<string, { originacao: number; usado: number; saldo: number; idf?: string }> = {};
+    const farmIdfs: Record<string, string> = {};
+    produtor.fazendas.forEach((f: any) => { farmIdfs[f.fazendaNome] = f.idf; });
+
+    const currentTabOriginacao = isEditing ? (formData.tabelaOriginacao || []) : (entityData?.tabelaOriginacao || []);
+    const currentTabMovimentacao = isEditing ? (formData.tabelaMovimentacao || []) : (entityData?.tabelaMovimentacao || []);
+
+    currentTabOriginacao.forEach((o: any) => {
+      if (!stats[o.dist]) stats[o.dist] = { originacao: 0, usado: 0, saldo: 0, idf: farmIdfs[o.dist] };
+      stats[o.dist].originacao += (o.valor || 0);
+    });
+
+    currentTabMovimentacao.forEach((m: any) => {
+      (m.rastreabilidade || []).forEach((r: any) => {
+        if (!stats[r.fazenda]) stats[r.fazenda] = { originacao: 0, usado: 0, saldo: 0 };
+        stats[r.fazenda].usado += (r.valor || 0);
+      });
+    });
+
+    Object.keys(stats).forEach(k => { stats[k].saldo = Math.ceil(stats[k].originacao - stats[k].usado); });
+    return stats;
+  }, [entityData, formData, isEditing, produtor.fazendas]);
 
   const handleSave = async () => {
     if (!entRef) return;
@@ -180,10 +315,16 @@ export function ProdutorDetail({ produtor, open, onOpenChange }: ProdutorDetailP
   const currentStats = {
     originacao: (isEditing 
       ? formData.tabelaOriginacao?.reduce((acc: number, cur: any) => acc + (Number(cur.valor) || 0), 0) 
-      : (entityData?.originacao || 0)) || 0,
+      : (entityData?.tabelaOriginacao?.reduce((acc: number, cur: any) => acc + (Number(cur.valor) || 0), 0) || entityData?.originacao || 0)) || 0,
     movimentacao: (isEditing 
-      ? formData.tabelaMovimentacao?.reduce((acc: number, cur: any) => acc + (Number(cur.valor) || 0), 0) 
-      : (entityData?.movimentacao || 0)) || 0,
+      ? formData.tabelaMovimentacao?.reduce((acc: number, cur: any) => {
+          const isConsumo = !cur.tipoTransacao || cur.tipoTransacao === 'CONSUMO';
+          return isConsumo ? acc + (Number(cur.valor) || 0) : acc;
+        }, 0) 
+      : (entityData?.tabelaMovimentacao?.reduce((acc: number, cur: any) => {
+          const isConsumo = !cur.tipoTransacao || cur.tipoTransacao === 'CONSUMO';
+          return isConsumo ? acc + (Number(cur.valor) || 0) : acc;
+        }, 0) || entityData?.movimentacao || 0)) || 0,
     legado: (isEditing 
       ? formData.tabelaLegado?.reduce((acc: number, cur: any) => acc + (Number(cur.disponivel) || 0), 0) 
       : (entityData?.saldoLegadoTotal || 0)) || 0,
@@ -195,7 +336,9 @@ export function ProdutorDetail({ produtor, open, onOpenChange }: ProdutorDetailP
       : (entityData?.aquisicao || 0)) || 0,
   };
 
-  const currentSaldoReal = currentStats.originacao + currentStats.legado + currentStats.aquisicao - currentStats.movimentacao - currentStats.imei;
+  const totalEntradas = currentStats.legado + currentStats.aquisicao;
+  const totalSaidas = currentStats.movimentacao + currentStats.imei;
+  const currentSaldoReal = Math.ceil(totalEntradas - totalSaidas);
 
   if (!produtor) return null;
   return (
@@ -232,26 +375,26 @@ export function ProdutorDetail({ produtor, open, onOpenChange }: ProdutorDetailP
                 </div>
               </div>
 
-              {/* BARRA DE SALDO INTEGRADA (MAIS COMPACTA) */}
+              {/* BARRA DE SALDO INTEGRADA (ENTRADAS vs SAÍDAS) */}
               <div className="flex items-center gap-3 lg:gap-6 bg-white/5 border border-white/5 p-2 lg:p-3 px-4 lg:px-5 rounded-2xl backdrop-blur-md shrink-0">
                  <div className="text-right">
-                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-0.5">Originação</p>
-                    <p className="text-[16px] font-black text-white">{Math.floor(currentStats.originacao).toLocaleString('pt-BR')}</p>
+                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-0.5">Saldo Origem (Total Entradas)</p>
+                    <p className="text-[16px] font-black text-white">{Math.ceil(totalEntradas).toLocaleString('pt-BR')}</p>
                  </div>
                  
                  <div className="w-px h-6 bg-white/5" />
 
                  <div className="text-right">
-                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-0.5">Baixas</p>
-                    <p className="text-[16px] font-black text-rose-500">{Math.floor(currentStats.movimentacao).toLocaleString('pt-BR')}</p>
+                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-0.5">Saldo Destino (Total Baixas)</p>
+                    <p className="text-[16px] font-black text-rose-500">{Math.ceil(totalSaidas).toLocaleString('pt-BR')}</p>
                  </div>
 
                  <div className="w-px h-6 bg-white/5 hidden lg:block" />
 
                   <div className="bg-emerald-500/10 px-3 lg:px-4 py-1.5 lg:py-2 rounded-xl border border-emerald-500/10">
-                    <p className="text-[7px] lg:text-[8px] font-black text-emerald-500/80 uppercase tracking-[0.2em] mb-0.5 text-center">Saldo Disponível</p>
+                    <p className="text-[7px] lg:text-[8px] font-black text-emerald-500/80 uppercase tracking-[0.2em] mb-0.5 text-center">Patrimônio Líquido</p>
                     <p className="text-[18px] lg:text-[22px] font-black text-emerald-400 leading-none text-center">
-                       {Math.floor(currentSaldoReal).toLocaleString('pt-BR')} 
+                       {Math.ceil(currentSaldoReal).toLocaleString('pt-BR')} 
                        <span className="text-[9px] ml-0.5 font-bold">UCS</span>
                     </p>
                  </div>
@@ -284,7 +427,7 @@ export function ProdutorDetail({ produtor, open, onOpenChange }: ProdutorDetailP
                             <p className="text-[15px] font-black text-slate-900 uppercase group-hover:text-emerald-600 transition-colors">{f.fazendaNome}</p>
                             <ExternalLink className="w-3 h-3 text-slate-300 group-hover:text-emerald-500 opacity-0 group-hover:opacity-100 transition-all" />
                           </div>
-                          <p className="text-[11px] font-mono text-slate-400 tracking-tight">IDF: {f.idf}</p>
+                          <p className="text-[11px] font-mono text-slate-400 tracking-tight">IDF: {String(f.idf || '').padStart(11, '0')}</p>
                         </div>
                         <Badge className="bg-slate-100 text-slate-500 border-none font-black text-[10px]">{f.percentual}%</Badge>
                       </div>
@@ -292,105 +435,177 @@ export function ProdutorDetail({ produtor, open, onOpenChange }: ProdutorDetailP
                       <div className="space-y-3">
                         <PropInfo label="Área do Produtor" value={`${f.areaProdutor.toLocaleString('pt-BR')} ha`} highlight />
                         <PropInfo label="Núcleo" value={f.nucleo || "---"} />
-                        <PropInfo label="Localização" value={`${f.municipio || '---'}/${f.uf || '---'}`} />
+                        <PropInfo 
+                          label="Saldo Disponível" 
+                          value={farmStats[f.fazendaNome] ? `${Math.ceil(farmStats[f.fazendaNome].saldo).toLocaleString('pt-BR')} UCS` : "---"} 
+                          highlight
+                        />
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* TABS DE EXTRATO / EDIÇÃO */}
-              <div className="space-y-6">
-               {!isEditing ? (
-                 <div className="space-y-6">
-                   <div className="flex items-center justify-between">
-                       <h3 className="text-[12px] font-black uppercase text-slate-400 tracking-widest flex gap-2 items-center">
-                         <Droplets className="w-4 h-4 text-emerald-500" /> Extrato de Originação (Safra por Fazenda)
-                       </h3>
-                       <Badge variant="outline" className="text-[12px] font-black px-3 py-1 rounded-full border-slate-200 text-slate-400">
-                         {entityData?.tabelaOriginacao?.length || 0} Inserções
-                       </Badge>
-                   </div>
+              {/* CONTEÚDO DINÂMICO: VISUALIZAÇÃO vs EDIÇÃO */}
+              {!isEditing ? (
+                /* MODO VISUALIZAÇÃO (SESSÕES TÉCNICAS) */
+                <div className="space-y-16 pb-20">
+                  
+                  {/* SESSÃO 01: ORIGINAÇÃO SAFRA */}
+                  <div className="space-y-6">
+                    <SectionLabel title="01. DEMONSTRATIVO: ORIGINAÇÃO SAFRA" color="bg-emerald-500" total={currentStats.originacao} />
+                    <ViewTable 
+                      data={entityData?.tabelaOriginacao || []} 
+                      type="originacao" 
+                      itemsPerPage={10} 
+                    />
+                  </div>
 
-                   <div className="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
-                       <table className="w-full">
-                         <thead className="bg-slate-50 border-b border-slate-100">
-                           <tr>
-                             <th className="text-left py-4 px-8 text-[9px] font-black uppercase text-slate-400 tracking-widest">Safra</th>
-                             <th className="text-left py-4 px-8 text-[9px] font-black uppercase text-slate-400 tracking-widest">Fazenda Origem</th>
-                             <th className="text-left py-4 px-8 text-[9px] font-black uppercase text-slate-400 tracking-widest text-right">Crédito UCS</th>
-                             <th className="text-center py-4 px-8 text-[9px] font-black uppercase text-slate-400 tracking-widest">Status</th>
-                           </tr>
-                         </thead>
-                         <tbody className="divide-y divide-slate-50">
-                           {entityData?.tabelaOriginacao && entityData.tabelaOriginacao.length > 0 ? (
-                             [...entityData.tabelaOriginacao].reverse().map((item, idx) => (
-                               <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                                 <td className="py-4 px-8 text-[12px] font-black text-slate-900">{item.plataforma}</td>
-                                 <td className="py-4 px-8">
-                                   <p className="text-[12px] font-bold text-slate-700 uppercase">{item.dist}</p>
-                                   <p className="text-[10px] text-slate-400">{item.data}</p>
-                                 </td>
-                                 <td className="py-4 px-8 text-right font-black text-[14px] text-emerald-600">
-                                   + {Math.floor(item.valor || 0).toLocaleString('pt-BR')}
-                                 </td>
-                                 <td className="py-4 px-8 text-center">
-                                   <Badge className="bg-emerald-50 text-emerald-600 border-none text-[8px] font-black uppercase px-2 py-0.5 rounded-full">Liquidado</Badge>
-                                 </td>
-                               </tr>
-                             ))
-                           ) : (
-                             <tr>
-                               <td colSpan={5} className="py-20 text-center">
-                                 <div className="flex flex-col items-center gap-3 opacity-30">
-                                   <Droplets className="w-8 h-8 text-slate-400" />
-                                   <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nenhuma inserção registrada</p>
-                                 </div>
-                               </td>
-                             </tr>
-                           )}
-                         </tbody>
-                       </table>
-                   </div>
-                 </div>
-               ) : (
-                 <div className="space-y-12">
-                   <div className="space-y-6">
-                     <SectionHeader 
-                        title="01. ORIGINAÇÃO (VOL. PRODUTOR)" 
-                       value={formData.tabelaOriginacao?.reduce((acc: number, cur: any) => acc + (cur.valor || 0), 0) || 0}
-                       onPaste={() => setPasteData({ section: 'tabelaOriginacao', raw: '' })}
-                     />
-                     <SectionTable data={formData.tabelaOriginacao || []} type="originacao" onRemove={(id) => handleRemoveItem('tabelaOriginacao', id)} onUpdateItem={(id, updates) => handleUpdateItem('tabelaOriginacao', id, updates)} />
-                   </div>
+                  {/* SESSÃO 02: AQUISIÇÕES */}
+                  <div className="space-y-6">
+                    <SectionLabel title="02. CRÉDITOS: AQUISIÇÕES / REFORÇO" color="bg-indigo-500" total={currentStats.aquisicao} />
+                    <ViewTable 
+                      data={entityData?.tabelaAquisicao || []} 
+                      type="originacao" 
+                      itemsPerPage={5} 
+                    />
+                  </div>
 
-                   <div className="space-y-6">
-                     <SectionHeader 
-                        title="02. MOVIMENTAÇÃO" 
-                        value={formData.tabelaMovimentacao?.reduce((acc: number, cur: any) => acc + (cur.valor || 0), 0) || 0}
-                        isNegative 
-                        onPaste={() => setPasteData({ section: 'tabelaMovimentacao', raw: '' })} 
-                      />
-                     <SectionTable
-                       data={formData.tabelaMovimentacao || []}
-                       type="movimentacao"
-                       onRemove={(id) => handleRemoveItem('tabelaMovimentacao', id)}
-                       onUpdateItem={(id, updates) => handleUpdateItem('tabelaMovimentacao', id, updates)}
-                     />
-                   </div>
+                  {/* SESSÃO 03: SALDO LEGADO */}
+                  <div className="space-y-6">
+                    <SectionLabel title="03. CRÉDITOS: SALDO LEGADO" color="bg-amber-500" total={currentStats.legado} />
+                    <ViewTable 
+                      data={entityData?.tabelaLegado || []} 
+                      type="legado" 
+                      itemsPerPage={5} 
+                    />
+                  </div>
 
-                   <div className="space-y-6">
-                     <SectionHeader 
-                        title="03. SALDO LEGADO" 
-                        value={formData.tabelaLegado?.reduce((acc: number, cur: any) => acc + (cur.disponivel + cur.reservado || 0), 0) || 0}
-                        isAmber 
-                        onPaste={() => setPasteData({ section: 'tabelaLegado', raw: '' })} 
-                      />
-                     <SectionTable data={formData.tabelaLegado || []} type="legado" onRemove={(id) => handleRemoveItem('tabelaLegado', id)} onUpdateItem={(id, updates) => handleUpdateItem('tabelaLegado', id, updates)} />
-                   </div>
-                 </div>
-               )}
-              </div>
+                  {/* SESSÃO 04: SAÍDAS */}
+                  <div className="space-y-6">
+                    <SectionLabel title="04. DÉBITOS: MOVIMENTAÇÃO / SAÍDAS" color="bg-rose-500" total={currentStats.movimentacao} isNegative />
+                    <ViewTable 
+                      data={entityData?.tabelaMovimentacao || []} 
+                      type="movimentacao" 
+                      itemsPerPage={10} 
+                      initialBalance={totalEntradas}
+                    />
+                  </div>
+
+                  {/* SESSÃO 05: AJUSTES IMEI */}
+                  <div className="space-y-6">
+                    <SectionLabel title="05. DÉBITOS: AJUSTES IMEI" color="bg-amber-600" total={currentStats.imei} isNegative />
+                    <ViewTable 
+                      data={entityData?.tabelaImei || []} 
+                      type="imei" 
+                      itemsPerPage={5} 
+                    />
+                  </div>
+                </div>
+              ) : (
+                /* MODO EDIÇÃO (TABELAS TÉCNICAS) */
+                <div className="space-y-20 pb-32">
+                  
+                  {/* ============================================================
+                      GRUPO A: CRÉDITOS E ORIGENS (ENTRADAS NO SALDO)
+                  ============================================================ */}
+                  <div className="space-y-10">
+                    <div className="flex items-center gap-4 border-b-2 border-emerald-500/20 pb-6">
+                      <div className="w-4 h-12 bg-emerald-500 rounded-full shadow-lg shadow-emerald-200" />
+                      <div className="space-y-1">
+                        <h2 className="text-[22px] font-black text-slate-900 uppercase tracking-tight">01. Créditos e Origens</h2>
+                        <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest">Toda movimentação que gera saldo positivo na conta do cliente</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-12 pl-6 border-l-2 border-slate-100">
+                      {/* SESSÃO 01: ORIGINAÇÃO */}
+                      <div className="space-y-4">
+                        <SectionHeader 
+                           title="01. DEMONSTRATIVO: ORIGINAÇÃO (SAFRA / UCS FARM)" 
+                           value={Math.ceil(formData.tabelaOriginacao?.reduce((acc: number, cur: any) => acc + (cur.valor || 0), 0) || 0)}
+                           onPaste={() => setPasteData({ section: 'tabelaOriginacao', raw: '' })}
+                         />
+                        <SectionTable data={formData.tabelaOriginacao || []} type="originacao" onRemove={(id) => handleRemoveItem('tabelaOriginacao', id)} onUpdateItem={(id, updates) => handleUpdateItem('tabelaOriginacao', id, updates)} />
+                      </div>
+
+                      {/* SESSÃO 02: AQUISIÇÕES */}
+                      <div className="space-y-4">
+                        <SectionHeader 
+                           title="02. AQUISIÇÕES EXTERNAS / REFORÇO" 
+                           value={Math.ceil(formData.tabelaAquisicao?.reduce((acc: number, cur: any) => acc + (cur.valor || 0), 0) || 0)}
+                           isIndigo
+                           onPaste={() => setPasteData({ section: 'tabelaAquisicao', raw: '' })} 
+                         />
+                        <SectionTable
+                          data={formData.tabelaAquisicao || []}
+                          type="movimentacao"
+                          onRemove={(id) => handleRemoveItem('tabelaAquisicao', id)}
+                          onUpdateItem={(id, updates) => handleUpdateItem('tabelaAquisicao', id, updates)}
+                        />
+                      </div>
+
+                      {/* SESSÃO 03: SALDO LEGADO */}
+                      <div className="space-y-4">
+                        <SectionHeader 
+                           title="03. SALDO LEGADO (PLATAFORMA ANTERIOR)" 
+                           value={Math.ceil(formData.tabelaLegado?.reduce((acc: number, cur: any) => acc + (Number(cur.disponivel || 0) + Number(cur.reservado ||0) + Number(cur.bloqueado || 0)), 0) || 0)}
+                           isAmber 
+                           onPaste={() => setPasteData({ section: 'tabelaLegado', raw: '' })} 
+                         />
+                        <SectionTable data={formData.tabelaLegado || []} type="legado" onRemove={(id) => handleRemoveItem('tabelaLegado', id)} onUpdateItem={(id, updates) => handleUpdateItem('tabelaLegado', id, updates)} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ============================================================
+                      GRUPO B: DÉBITOS E DESTINOS (SAÍDAS DO SALDO)
+                  ============================================================ */}
+                  <div className="space-y-10">
+                    <div className="flex items-center gap-4 border-b-2 border-rose-500/20 pb-6">
+                      <div className="w-4 h-12 bg-rose-500 rounded-full shadow-lg shadow-rose-200" />
+                      <div className="space-y-1">
+                        <h2 className="text-[22px] font-black text-slate-900 uppercase tracking-tight">02. Débitos e Destinos</h2>
+                        <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest">Toda movimentação que deduz saldo da conta do cliente</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-12 pl-6 border-l-2 border-slate-100">
+                      {/* SESSÃO 04: SAÍDAS */}
+                      <div className="space-y-4">
+                        <SectionHeader 
+                           title="04. SAÍDAS (TRANSFERÊNCIAS / BAIXAS)" 
+                           value={Math.ceil(formData.tabelaMovimentacao?.reduce((acc: number, cur: any) => acc + (cur.valor || 0), 0) || 0)}
+                           isNegative 
+                           onPaste={() => setPasteData({ section: 'tabelaMovimentacao', raw: '' })} 
+                         />
+                        <SectionTable
+                          data={formData.tabelaMovimentacao || []}
+                          type="movimentacao"
+                          onRemove={(id) => handleRemoveItem('tabelaMovimentacao', id)}
+                          onUpdateItem={(id, updates) => handleUpdateItem('tabelaMovimentacao', id, updates)}
+                        />
+                      </div>
+
+                      {/* SESSÃO 05: AJUSTES IMEI */}
+                      <div className="space-y-4">
+                        <SectionHeader 
+                           title="05. AJUSTES TÉCNICOS (IMEI)" 
+                           value={Math.ceil(formData.tabelaImei?.reduce((acc: number, cur: any) => acc + (Number(cur.valorDebito || 0) - Number(cur.valorCredito || 0)), 0) || 0)}
+                           isAmber
+                           onPaste={() => setPasteData({ section: 'tabelaImei', raw: '' })} 
+                         />
+                        <SectionTable 
+                          data={formData.tabelaImei || []} 
+                          type="imei" 
+                          onRemove={(id) => handleRemoveItem('tabelaImei', id)} 
+                          onUpdateItem={(id, updates) => handleUpdateItem('tabelaImei', id, updates)} 
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </ScrollArea>
         </div>
@@ -408,8 +623,21 @@ export function ProdutorDetail({ produtor, open, onOpenChange }: ProdutorDetailP
                  {/* MENU DE NAVEGAÇÃO / AÇÕES */}
                  <div className="space-y-2">
                     <h4 className="px-4 text-[9px] font-black text-slate-400 uppercase tracking-widest mb-4">Acesso Rápido</h4>
-                    <MenuButton icon={<History className="w-4 h-4" />} label="Extrato de Movimentações" />
-                    <MenuButton icon={<FileText className="w-4 h-4" />} label="Relatórios de Auditoria" />
+                    <MenuButton 
+                      icon={<Droplets className="w-4 h-4" />} 
+                      label="Visão Geral do Ledger" 
+                      onClick={() => { setIsEditing(false); }}
+                    />
+                    <MenuButton 
+                      icon={<History className="w-4 h-4" />} 
+                      label="Extrato Consolidado" 
+                      onClick={() => { setIsEditing(false); }}
+                    />
+                    <MenuButton 
+                      icon={<FileText className="w-4 h-4" />} 
+                      label="Auditoria Técnica" 
+                      onClick={() => { setIsEditing(false); }}
+                    />
                     <MenuButton icon={<Award className="w-4 h-4" />} label="Certificações de Origem" />
                     <MenuButton icon={<TrendingUpIcon className="w-4 h-4" />} label="Projeção de Carbono" />
                     
@@ -418,7 +646,7 @@ export function ProdutorDetail({ produtor, open, onOpenChange }: ProdutorDetailP
                           <Button 
                             onClick={() => setIsEditing(true)}
                             variant="outline"
-                            className="w-full h-11 rounded-xl bg-primary text-white font-black uppercase text-[10px] tracking-widest hover:bg-primary/90 transition-all gap-2"
+                            className="w-full h-11 rounded-xl bg-primary text-white font-black uppercase text-[10px] tracking-widest hover:bg-primary/90 transition-all gap-2 shadow-lg shadow-emerald-50"
                           >
                             <Calculator className="w-3.5 h-3.5" /> Habilitar Edição
                           </Button>
@@ -479,28 +707,25 @@ export function ProdutorDetail({ produtor, open, onOpenChange }: ProdutorDetailP
               </Button>
            </div>
         </div>
-
-        {/* MODAL DE COLAGEM TÉCNICA */}
-        {pasteData && (
-          <Dialog open={!!pasteData} onOpenChange={() => setPasteData(null)}>
-            <DialogContent className="max-w-xl rounded-3xl p-8 space-y-4 border-none bg-white">
-              <DialogHeader>
-                <DialogTitle className="text-lg font-black uppercase text-slate-900 flex items-center gap-2">
-                  <Calculator className="w-5 h-5 text-primary" /> COLAGEM TÉCNICA
-                </DialogTitle>
-                <DialogDescription className="sr-only">Colagem de dados para processamento de auditoria.</DialogDescription>
-              </DialogHeader>
-              <Textarea
-                value={pasteData.raw}
-                onChange={e => setPasteData({ ...pasteData, raw: e.target.value })}
-                placeholder="Cole aqui as colunas do Excel/Google Sheets para processamento automático..."
-                className="min-h-[250px] font-mono text-[10px] bg-slate-50 border-slate-100 rounded-2xl p-6 shadow-inner"
-              />
-              <Button onClick={handleProcessPaste} className="w-full h-12 rounded-xl font-black uppercase text-[10px] bg-primary text-white shadow-lg shadow-emerald-100">IMPORTAR DADOS</Button>
-            </DialogContent>
-          </Dialog>
-        )}
       </DialogContent>
+
+      <Dialog open={!!pasteData} onOpenChange={() => setPasteData(null)}>
+        <DialogContent className="max-w-xl rounded-3xl p-8 space-y-4 border-none bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-black uppercase text-slate-900 flex items-center gap-2">
+              <Calculator className="w-5 h-5 text-primary" /> COLAGEM TÉCNICA
+            </DialogTitle>
+            <DialogDescription className="sr-only">Colagem de dados para processamento de auditoria.</DialogDescription>
+          </DialogHeader>
+          <Textarea
+            value={pasteData?.raw || ""}
+            onChange={e => setPasteData({ ...pasteData!, raw: e.target.value })}
+            placeholder="Cole aqui as colunas do Excel/Google Sheets para processamento automático..."
+            className="min-h-[250px] font-mono text-[10px] bg-slate-50 border-slate-100 rounded-2xl p-6 shadow-inner"
+          />
+          <Button onClick={handleProcessPaste} className="w-full h-12 rounded-xl font-black uppercase text-[10px] bg-primary text-white shadow-lg shadow-emerald-100">IMPORTAR DADOS</Button>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
@@ -514,9 +739,12 @@ function MiniStat({ label, value, unit }: { label: string; value: string; unit: 
   );
 }
 
-function MenuButton({ icon, label }: { icon: any; label: string }) {
+function MenuButton({ icon, label, onClick }: { icon: any; label: string; onClick?: () => void }) {
   return (
-    <button className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-emerald-50 transition-all group text-left">
+    <button 
+      onClick={onClick}
+      className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-emerald-50 transition-all group text-left"
+    >
        <div className="flex items-center gap-4">
           <div className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-slate-400 group-hover:text-emerald-500 transition-colors">
             {icon}
@@ -542,18 +770,18 @@ function DownloadCard({ label }: { label: string }) {
   );
 }
 
-function SectionHeader({ title, value, onPaste, onAdd, isNegative, isAmber, isImei }: any) {
+function SectionHeader({ title, value, onPaste, onAdd, isNegative, isAmber, isImei, isIndigo }: any) {
   return (
     <div className="flex items-center gap-6 border-b border-slate-100 pb-3">
       <div className="flex items-center gap-3">
         <div className={cn(
           "w-1.5 h-6 rounded-full",
-          isAmber ? "bg-amber-500" : isImei ? "bg-indigo-500" : isNegative ? "bg-rose-500" : "bg-[#10B981]"
+          isAmber ? "bg-amber-500" : isImei ? "bg-indigo-500" : isNegative ? "bg-rose-500" : isIndigo ? "bg-indigo-500" : "bg-[#10B981]"
         )} />
         <h3 className="text-[13px] font-black uppercase tracking-[0.1em] text-slate-800">{title}</h3>
         <Badge variant="outline" className={cn(
           "text-[10px] font-black uppercase rounded-full border-slate-100 px-3 py-1",
-          isAmber ? "text-amber-500" : isImei ? "text-indigo-500" : isNegative ? "text-rose-500" : "text-[#10B981]"
+          isAmber ? "text-amber-500" : isImei ? "text-indigo-500" : isNegative ? "text-rose-500" : isIndigo ? "text-indigo-500" : "text-[#10B981]"
         )}>
           {Math.floor(value || 0).toLocaleString('pt-BR')} UCS
         </Badge>
@@ -588,6 +816,7 @@ function SectionTable({ data, type, onRemove, onUpdateItem }: { data: any[], typ
               <TableHead className="w-[180px] text-[9px] font-black uppercase tracking-widest text-primary">DISTRIBUIÇÃO</TableHead>
               {isMovimentacao ? (
                 <>
+                  <TableHead className="w-[140px] text-[9px] font-black uppercase tracking-widest text-slate-500">TIPO</TableHead>
                   <TableHead className="w-[180px] text-[9px] font-black uppercase tracking-widest text-slate-500">DESTINO</TableHead>
                   <TableHead className="w-[140px] text-[9px] font-black uppercase tracking-widest text-slate-500">USUÁRIO DEST.</TableHead>
                   <TableHead className="w-[110px] text-[9px] font-black uppercase tracking-widest text-rose-500 text-right">DÉBITO(UCS)</TableHead>
@@ -649,6 +878,21 @@ function SectionTable({ data, type, onRemove, onUpdateItem }: { data: any[], typ
                   {isMovimentacao ? (
                     <>
                       <TableCell className="px-2 py-2">
+                        <Select
+                          value={row.tipoTransacao || "CONSUMO"}
+                          onValueChange={(v) => onUpdateItem?.(row.id, { tipoTransacao: v })}
+                        >
+                          <SelectTrigger className="h-8 rounded-xl bg-slate-50/50 text-[9px] font-black uppercase border-slate-100 focus:bg-white transition-all">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="CONSUMO">CONSUMO</SelectItem>
+                            <SelectItem value="AJUSTE ENTRE PLATAFORMAS">AJUSTE</SelectItem>
+                            <SelectItem value="RESERVA OPERACIONAL">RESERVA</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell className="px-2 py-2">
                         <Input
                           value={row.destino || ""}
                           onChange={e => onUpdateItem?.(row.id, { destino: e.target.value })}
@@ -667,7 +911,12 @@ function SectionTable({ data, type, onRemove, onUpdateItem }: { data: any[], typ
                           type="number"
                           value={row.valor ?? ""}
                           onChange={e => onUpdateItem?.(row.id, { valor: parseFloat(e.target.value) || 0 })}
-                          className="h-8 w-full bg-rose-50/30 border-rose-100 focus:border-rose-300 text-[11px] font-mono font-black text-rose-500 text-right rounded-xl focus:bg-white transition-all shadow-none"
+                          className={cn(
+                            "h-8 w-full text-[11px] font-mono font-black text-right rounded-xl focus:bg-white transition-all shadow-none",
+                            (!row.tipoTransacao || row.tipoTransacao === 'CONSUMO') 
+                              ? "bg-rose-50/30 border-rose-100 focus:border-rose-300 text-rose-500" 
+                              : "bg-slate-50 border-slate-100 focus:border-slate-300 text-slate-400"
+                          )}
                         />
                       </TableCell>
                       <TableCell className="px-2 py-2 text-right">
@@ -805,6 +1054,112 @@ function SectionTable({ data, type, onRemove, onUpdateItem }: { data: any[], typ
 }
 
 
+
+function SectionLabel({ title, color, total, isNegative }: any) {
+  return (
+    <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+      <div className="flex items-center gap-3">
+        <div className={cn("w-1.5 h-6 rounded-full", color)} />
+        <h3 className="text-[14px] font-black uppercase tracking-widest text-slate-900 font-headline">{title}</h3>
+      </div>
+      <Badge className={cn("text-[12px] font-black px-4 py-1 rounded-full", isNegative ? "bg-rose-50 text-rose-600" : "bg-emerald-50 text-emerald-600")}>
+        {isNegative ? "-" : "+"}{Math.ceil(total || 0).toLocaleString('pt-BR')} UCS
+      </Badge>
+    </div>
+  );
+}
+
+function ViewTable({ data, type, itemsPerPage, initialBalance = 0 }: any) {
+  const [page, setPage] = useState(1);
+  const total = Math.ceil((data?.length || 0) / itemsPerPage);
+  const currentItems = (data || []).slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
+  const isMovimentacao = type === 'movimentacao';
+  const isLegado = type === 'legado';
+  const isImei = type === 'imei';
+
+  return (
+    <div className="bg-white rounded-[2rem] border border-slate-200 overflow-hidden shadow-sm">
+      <Table>
+        <TableHeader className="bg-slate-50">
+          <TableRow>
+            <TableHead className="text-[9px] font-black uppercase tracking-widest pl-8 w-[120px]">Data</TableHead>
+            <TableHead className="text-[9px] font-black uppercase tracking-widest">Origem / Histórico</TableHead>
+            {isMovimentacao ? (
+               <>
+                 <TableHead className="text-[9px] font-black uppercase tracking-widest">Tipo</TableHead>
+                 <TableHead className="text-[9px] font-black uppercase tracking-widest">Destinatário</TableHead>
+                 <TableHead className="text-[9px] font-black uppercase tracking-widest text-right">Débito</TableHead>
+                 <TableHead className="text-[9px] font-black uppercase tracking-widest text-center">Status</TableHead>
+               </>
+            ) : isImei ? (
+              <>
+                <TableHead className="text-[9px] font-black uppercase tracking-widest text-right">Débito</TableHead>
+                <TableHead className="text-[9px] font-black uppercase tracking-widest text-right">Crédito</TableHead>
+                <TableHead className="text-[9px] font-black uppercase tracking-widest text-right pr-8">Líquido</TableHead>
+              </>
+            ) : (
+              <TableHead className="text-[9px] font-black uppercase tracking-widest text-right pr-8">Volume UCS</TableHead>
+            )}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {currentItems.length === 0 ? (
+            <TableRow><TableCell colSpan={6} className="py-10 text-center text-[10px] font-bold text-slate-300 uppercase">Nenhum registro encontrado</TableCell></TableRow>
+          ) : (
+            currentItems.map((item: any, idx: number) => (
+              <TableRow key={idx} className="hover:bg-slate-50/50 transition-colors">
+                <TableCell className="pl-8 text-[11px] font-mono font-bold text-slate-400">{item.data}</TableCell>
+                <TableCell>
+                  <p className="text-[12px] font-black text-slate-900 uppercase">{item.dist || item.plataforma}</p>
+                  <p className="text-[10px] text-slate-400 uppercase font-bold tracking-tight">{item.plataforma || item._type || 'Registro'}</p>
+                </TableCell>
+                {isMovimentacao ? (
+                  <>
+                    <TableCell>
+                      <Badge className={cn(
+                        "text-[8px] font-black px-2 py-0.5 border-none uppercase",
+                        !item.tipoTransacao || item.tipoTransacao === 'CONSUMO' ? "bg-slate-100 text-slate-500" : "bg-blue-50 text-blue-600"
+                      )}>
+                        {item.tipoTransacao || 'CONSUMO'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-[11px] font-bold text-slate-500 uppercase">{item.destino}</TableCell>
+                    <TableCell className={cn(
+                      "text-right font-black",
+                      (!item.tipoTransacao || item.tipoTransacao === 'CONSUMO') ? "text-rose-500" : "text-slate-400"
+                    )}>
+                      {(!item.tipoTransacao || item.tipoTransacao === 'CONSUMO') ? "-" : ""}{Math.ceil(item.valor).toLocaleString('pt-BR')}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge className="bg-slate-100 text-slate-500 border-none text-[8px] font-black px-2 py-0.5">{item.statusAuditoria || 'CONCLUÍDO'}</Badge>
+                    </TableCell>
+                  </>
+                ) : isImei ? (
+                  <>
+                    <TableCell className="text-right font-bold text-rose-500">{Math.ceil(item.valorDebito || 0).toLocaleString('pt-BR')}</TableCell>
+                    <TableCell className="text-right font-bold text-emerald-600">{Math.ceil(item.valorCredito || 0).toLocaleString('pt-BR')}</TableCell>
+                    <TableCell className="text-right font-black text-indigo-600 pr-8">{Math.ceil((item.valorDebito || 0) - (item.valorCredito || 0)).toLocaleString('pt-BR')}</TableCell>
+                  </>
+                ) : (
+                  <TableCell className="text-right font-black text-emerald-600 pr-8">+{Math.ceil(item.valor || item.disponivel || 0).toLocaleString('pt-BR')}</TableCell>
+                )}
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+      
+      {total > 1 && (
+        <div className="bg-slate-50 p-3 border-t border-slate-100 flex items-center justify-center gap-4">
+           <Button disabled={page === 1} onClick={() => setPage(p => p - 1)} variant="ghost" size="sm" className="h-7 text-[9px] font-black uppercase">Anterior</Button>
+           <span className="text-[9px] font-bold text-slate-400">Pág {page} de {total}</span>
+           <Button disabled={page >= total} onClick={() => setPage(p => p + 1)} variant="ghost" size="sm" className="h-7 text-[9px] font-black uppercase">Próxima</Button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function PropInfo({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (

@@ -3,9 +3,8 @@
 import { useState, useEffect, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  Loader2, Search, Users, Building2,
-  ChevronLeft, ChevronRight, MapPin, Eye, ExternalLink,
-  ChevronUp
+  Loader2, Search, Users, Building2, MapIcon,
+  ChevronLeft, ChevronRight, Eye, User, Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,13 +14,12 @@ import { collection, query, orderBy } from "firebase/firestore";
 import { Fazenda } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { ProdutorDetail } from "@/components/produtores/ProdutorDetail";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Produtor derivado: consolidação dos proprietários de todas as fazendas
 // ─────────────────────────────────────────────────────────────────────────────
 interface ProdutorConsolidado {
-  documento: string;           // CPF / CNPJ (chave única)
+  documento: string;           
   nome: string;
   tipo: 'PF' | 'PJ';
   fazendas: {
@@ -33,10 +31,10 @@ interface ProdutorConsolidado {
     uf?: string;
     areaTotal: number;
     percentual: number;
-    areaProdutor: number;      // areaTotal * percentual / 100
+    areaProdutor: number;      
   }[];
   totalFazendas: number;
-  totalAreaHa: number;          // soma da área proporcional do produtor
+  totalAreaHa: number;          
 }
 
 function buildProdutores(fazendas: Fazenda[]): ProdutorConsolidado[] {
@@ -87,9 +85,7 @@ function ProdutoresContent() {
   const { user, isUserLoading } = useUser();
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [viewingProdutor, setViewingProdutor] = useState<any | null>(null);
-  const itemsPerPage = 50;
+  const itemsPerPage = 15;
 
   useEffect(() => {
     const q = searchParams.get("search");
@@ -125,201 +121,260 @@ function ProdutoresContent() {
   const paginated = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   if (isUserLoading || !user) return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
+    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="relative">
+         <div className="w-16 h-16 border-4 border-emerald-100 rounded-full animate-pulse absolute" />
+         <Loader2 className="w-16 h-16 text-emerald-500 animate-spin relative z-10" />
+      </div>
     </div>
   );
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC]">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-[#F4F7FA]">
       <Sidebar />
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
 
-        {/* HEADER */}
-        <header className="h-24 bg-white px-10 flex items-center justify-between border-b border-slate-100 shrink-0">
-          <div className="space-y-1">
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Produtores</h1>
-            <p className="text-[12px] font-medium text-slate-400">
-              Derivado das fazendas cadastradas · Consolidado por CPF/CNPJ
-            </p>
-          </div>
-          <div className="flex items-center gap-4">
-            <Badge className="bg-emerald-50 text-emerald-600 border-none px-3 py-1.5 text-[10px] font-black uppercase tracking-widest flex gap-1.5 items-center">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              {produtores.length} produtores
-            </Badge>
-            <div className="w-11 h-11 bg-emerald-600 rounded-2xl flex items-center justify-center text-white font-black shadow-lg shadow-emerald-100 uppercase">
-              {user.email?.substring(0, 2)}
-            </div>
-          </div>
-        </header>
+        {/* GLOWING BACKGROUND ORB */}
+        <div className="absolute top-0 right-0 w-[800px] h-[600px] bg-gradient-to-bl from-emerald-400/20 via-teal-400/5 to-transparent rounded-full blur-[120px] pointer-events-none -z-10" />
 
-        <div className="flex-1 p-10 space-y-6 overflow-y-auto">
+        {/* PREMIUM HEADER SECTION */}
+        <div className="px-8 lg:px-12 pt-12 pb-8 shrink-0 relative z-10">
+           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+              <div className="space-y-4 max-w-2xl">
+                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 shadow-inner">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Painel Consolidado</span>
+                 </div>
+                 <h1 className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-[1.1]">
+                    Central de <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">Produtores</span>
+                 </h1>
+                 <p className="text-sm font-medium text-slate-500 leading-relaxed max-w-xl">
+                    Gestão unificada de clientes. Os perfis abaixo são gerados automaticamente através da consolidação de propriedades e titularidades das fazendas cadastradas.
+                 </p>
+              </div>
 
-          {/* STATS */}
+              <div className="flex items-center gap-4">
+                 <div className="relative hidden md:block">
+                   <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl blur opacity-20" />
+                   <div className="relative bg-white h-14 px-6 rounded-2xl border border-emerald-100 flex items-center justify-center gap-3 shadow-sm">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                      <div className="flex flex-col">
+                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Total Unificado</span>
+                         <span className="text-lg font-black text-slate-900 leading-tight">{produtores.length} perfis</span>
+                      </div>
+                   </div>
+                 </div>
+              </div>
+           </div>
+        </div>
+
+        <div className="flex-1 px-8 lg:px-12 pb-12 overflow-y-auto custom-scrollbar z-10 space-y-8">
+
+          {/* DYNAMIC STATS CARDS */}
           {produtores.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <StatCard label="Produtores" value={produtores.length} unit="cadastrados" color="emerald" />
-              <StatCard label="PF" value={produtores.filter(p => p.tipo === 'PF').length} unit="pessoa física" color="teal" />
-              <StatCard label="PJ" value={produtores.filter(p => p.tipo === 'PJ').length} unit="pessoa jurídica" color="indigo" />
-              <StatCard
-                label="Área Total"
-                value={Math.round(produtores.reduce((s, p) => s + p.totalAreaHa, 0)).toLocaleString('pt-BR')}
-                unit="ha (proporcional)"
-                color="amber"
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 xl:gap-6">
+              <StatCard icon={<Users className="w-5 h-5" />} label="Produtores" value={produtores.length} unit="cadastrados" gradient="from-emerald-500 to-emerald-600" />
+              <StatCard icon={<User className="w-5 h-5" />} label="Pessoa Física (PF)" value={produtores.filter(p => p.tipo === 'PF').length} unit="cadastros ativos" gradient="from-teal-500 to-teal-600" />
+              <StatCard icon={<Building2 className="w-5 h-5" />} label="Pessoa Jurídica (PJ)" value={produtores.filter(p => p.tipo === 'PJ').length} unit="empresas" gradient="from-indigo-500 to-indigo-600" />
+              <StatCard 
+                 icon={<MapIcon className="w-5 h-5" />} 
+                 label="Área Mapeada" 
+                 value={Math.round(produtores.reduce((s, p) => s + p.totalAreaHa, 0)).toLocaleString('pt-BR')} 
+                 unit="hectares" 
+                 gradient="from-amber-500 to-orange-500" 
               />
             </div>
           )}
 
-          {/* SEARCH */}
-          <div className="relative w-96">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <Input
-              placeholder="Buscar por nome, CPF/CNPJ, fazenda, núcleo..."
-              className="pl-10 h-11 bg-white border-slate-200 rounded-xl text-sm shadow-sm"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
-          </div>
+          {/* MAIN CONTENT AREA */}
+          <div className="bg-white/80 backdrop-blur-xl border border-white rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
+             
+             {/* TOOLBAR */}
+             <div className="p-6 lg:p-8 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="relative w-full max-w-md group">
+                   <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl blur opacity-0 group-focus-within:opacity-20 transition-opacity duration-300" />
+                   <div className="relative flex items-center">
+                     <Search className="absolute left-4 w-5 h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                     <Input
+                       placeholder="Buscar por nome, identificação ou núcleo..."
+                       className="pl-12 h-14 bg-slate-50/50 border-slate-200 rounded-2xl text-[14px] font-medium text-slate-700 shadow-inner focus-visible:ring-emerald-500 focus-visible:border-emerald-500 transition-all placeholder:text-slate-400"
+                       value={search}
+                       onChange={e => setSearch(e.target.value)}
+                     />
+                   </div>
+                </div>
+                
+                <Badge className="md:hidden self-start bg-slate-100 text-slate-500 border-none px-4 py-2 text-[10px] font-black uppercase tracking-widest">
+                  {filtered.length} Resultados
+                </Badge>
+             </div>
 
-          {/* TABLE */}
-          <div className="bg-white rounded-[2rem] border border-slate-200 overflow-hidden shadow-sm">
+            {/* TABLE / LIST */}
             {isLoading ? (
-              <div className="flex items-center justify-center h-64">
-                <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
-              </div>
+               <div className="p-20 flex flex-col items-center justify-center gap-4">
+                  <div className="w-16 h-16 border-4 border-slate-100 border-t-emerald-500 rounded-full animate-spin" />
+                  <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Sincronizando base de dados...</p>
+               </div>
             ) : paginated.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-64 gap-4">
-                <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center">
-                  <Users className="w-8 h-8 text-slate-400" />
-                </div>
-                <div className="text-center">
-                  <p className="text-[13px] font-black text-slate-500 uppercase tracking-widest">
-                    {(fazendas?.length || 0) === 0
-                      ? "Nenhuma fazenda cadastrada ainda"
-                      : "Nenhum produtor encontrado"}
-                  </p>
-                  <p className="text-[11px] text-slate-400 mt-1">
-                    {(fazendas?.length || 0) === 0
-                      ? "Cadastre fazendas com proprietários para ver os produtores aqui"
-                      : "Tente buscar por outro termo"}
-                  </p>
-                </div>
-              </div>
+               <div className="p-24 flex flex-col items-center justify-center gap-6 bg-slate-50/30">
+                  <div className="w-24 h-24 bg-white shadow-sm border border-slate-100 rounded-[2rem] flex items-center justify-center rotate-3 hover:rotate-0 transition-transform duration-500">
+                    <Users className="w-10 h-10 text-slate-300" />
+                  </div>
+                  <div className="text-center space-y-2">
+                    <h3 className="text-xl font-black text-slate-900 tracking-tight">Nenhum produtor encontrado</h3>
+                    <p className="text-[14px] font-medium text-slate-500 max-w-md mx-auto">
+                      {(fazendas?.length || 0) === 0
+                        ? "Você ainda não cadastrou nenhuma fazenda com proprietários."
+                        : "Não encontramos resultados para sua busca atual."}
+                    </p>
+                  </div>
+               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-slate-50 border-b border-slate-100">
-                    <tr>
-                      {['Produtor', 'Tipo', 'Fazendas', 'Área Proporcional', 'Núcleo(s)'].map(h => (
-                        <th key={h} className="text-left py-4 px-6 text-[9px] font-black uppercase tracking-widest text-slate-400">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginated.map((produtor, i) => (
-                      <tr key={i} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors group">
-                        {/* PRODUTOR */}
-                        <td className="py-4 px-6">
-                          <div 
-                            onClick={() => { router.push(`/produtores/${produtor.documento?.replace(/[^\d]/g, '') || produtor.nome}`); }}
-                            className="flex items-center gap-3 cursor-pointer group/name"
-                          >
-                            <div className={cn(
-                              "w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black shrink-0 transition-colors",
-                              produtor.tipo === 'PJ'
-                                ? "bg-indigo-50 text-indigo-600 group-hover/name:bg-indigo-100"
-                                : "bg-emerald-50 text-emerald-600 group-hover/name:bg-emerald-100"
-                            )}>
-                              {produtor.nome?.substring(0, 2).toUpperCase()}
-                            </div>
-                            <div className="flex flex-col gap-0.5">
-                              <span className="text-[13px] font-bold text-slate-900 leading-tight group-hover/name:text-emerald-500 transition-colors uppercase">{produtor.nome}</span>
-                              <span className="text-[10px] font-mono text-slate-400">{produtor.documento}</span>
-                            </div>
-                          </div>
-                        </td>
-
-                        {/* TIPO */}
-                        <td className="py-4 px-6">
-                          <div className="flex items-center gap-3">
-                             <Badge className={cn(
-                               "text-[8px] font-black uppercase px-2.5 py-1 rounded-full border-none",
+               <div className="overflow-x-auto">
+                 <table className="w-full">
+                   <thead>
+                     <tr className="bg-slate-50/80 border-b border-slate-100">
+                       <th className="text-left py-5 px-8 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Produtor</th>
+                       <th className="text-left py-5 px-8 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 hidden xl:table-cell">Classificação</th>
+                       <th className="text-left py-5 px-8 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Propriedades</th>
+                       <th className="text-left py-5 px-8 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Geografia & Área</th>
+                       <th className="text-right py-5 px-8 w-24"></th>
+                     </tr>
+                   </thead>
+                   <tbody className="divide-y divide-slate-50">
+                     {paginated.map((produtor, i) => (
+                       <tr 
+                         key={i} 
+                         onClick={() => { router.push(`/produtores/${produtor.documento?.replace(/[^\d]/g, '') || produtor.nome}`); }}
+                         className="group bg-white hover:bg-emerald-50/30 transition-all duration-300 cursor-pointer"
+                       >
+                         {/* PRODUTOR - NOME E DOCUMENTO */}
+                         <td className="py-5 px-8">
+                           <div className="flex items-center gap-4">
+                             <div className={cn(
+                               "w-12 h-12 rounded-[1rem] flex items-center justify-center text-[14px] font-black shrink-0 transition-all duration-500 shadow-sm group-hover:scale-110",
                                produtor.tipo === 'PJ'
-                                 ? "bg-indigo-100 text-indigo-700"
-                                 : "bg-emerald-100 text-emerald-700"
+                                 ? "bg-indigo-50 text-indigo-600 border border-indigo-100 group-hover:bg-indigo-600 group-hover:text-white"
+                                 : "bg-emerald-50 text-emerald-600 border border-emerald-100 group-hover:bg-emerald-600 group-hover:text-white"
                              )}>
+                               {produtor.nome?.substring(0, 2).toUpperCase()}
+                             </div>
+                             <div className="flex flex-col gap-1 min-w-0">
+                               <span className="text-[15px] font-black text-slate-900 truncate max-w-[200px] lg:max-w-[280px] leading-none uppercase group-hover:text-emerald-700 transition-colors">{produtor.nome}</span>
+                               <span className="text-[11px] font-mono font-bold text-slate-400 tracking-tight flex items-center gap-2">
+                                 {produtor.documento}
+                                 <Badge className={cn(
+                                   "xl:hidden text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md text-[9px] border-none",
+                                   produtor.tipo === 'PJ' ? "bg-indigo-50 text-indigo-500" : "bg-emerald-50 text-emerald-500"
+                                 )}>
+                                   {produtor.tipo}
+                                 </Badge>
+                               </span>
+                             </div>
+                           </div>
+                         </td>
+ 
+                         {/* CLASSIFICAÇÃO / TIPO */}
+                         <td className="py-5 px-8 hidden xl:table-cell">
+                            <Badge className={cn(
+                               "text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border-none transition-all shadow-sm",
+                               produtor.tipo === 'PJ'
+                                 ? "bg-indigo-50 text-indigo-600"
+                                 : "bg-emerald-50 text-emerald-600"
+                            )}>
                                {produtor.tipo === 'PJ' ? 'Pessoa Jurídica' : 'Pessoa Física'}
-                             </Badge>
-                             <Button 
-                                variant="ghost" size="sm" 
-                                onClick={() => { router.push(`/produtores/${produtor.documento?.replace(/[^\d]/g, '') || produtor.nome}`); }}
-                                className="h-7 px-3 rounded-lg text-[9px] font-black uppercase tracking-widest text-emerald-600 hover:bg-emerald-50 opacity-0 group-hover:opacity-100 transition-all gap-1.5"
-                             >
-                               <Eye className="w-3.5 h-3.5" /> Visualizar
-                             </Button>
-                          </div>
-                        </td>
-
-                        {/* FAZENDAS */}
-                        <td className="py-4 px-6">
-                          <div className="space-y-1">
-                            {produtor.fazendas.slice(0, 3).map((f, j) => (
-                              <div key={j} className="flex items-center gap-1.5">
-                                <Building2 className="w-3 h-3 text-slate-300 shrink-0" />
-                                <span className="text-[11px] font-bold text-slate-700 truncate max-w-[180px]">{f.fazendaNome}</span>
-                                <span className="text-[9px] text-slate-400 font-mono shrink-0">({f.percentual}%)</span>
-                              </div>
-                            ))}
-                            {produtor.fazendas.length > 3 && (
-                              <span className="text-[9px] text-slate-400 font-bold">+{produtor.fazendas.length - 3} mais</span>
-                            )}
-                          </div>
-                        </td>
-
-                        {/* ÁREA */}
-                        <td className="py-4 px-6">
-                          <div className="flex flex-col">
-                            <span className="text-[14px] font-black text-slate-800">
-                              {produtor.totalAreaHa.toLocaleString('pt-BR', { maximumFractionDigits: 2 })} ha
-                            </span>
-                            <span className="text-[9px] text-slate-400">
-                              {produtor.totalFazendas} {produtor.totalFazendas === 1 ? 'fazenda' : 'fazendas'}
-                            </span>
-                          </div>
-                        </td>
-
-                        {/* NÚCLEOS */}
-                        <td className="py-4 px-6">
-                          <div className="flex flex-wrap gap-1">
-                            {[...new Set(produtor.fazendas.map(f => f.nucleo).filter(Boolean))].slice(0, 2).map((n, j) => (
-                              <span key={j} className="text-[9px] bg-slate-100 text-slate-500 font-bold px-2 py-0.5 rounded-full">{n}</span>
-                            ))}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                            </Badge>
+                         </td>
+ 
+                         {/* PROPRIEDADES RESUMO */}
+                         <td className="py-5 px-8 hidden md:table-cell">
+                           <div className="space-y-2">
+                             {produtor.fazendas.slice(0, 2).map((f, j) => (
+                               <div key={j} className="flex items-center gap-2">
+                                 <Building2 className="w-3.5 h-3.5 text-slate-300 shrink-0 group-hover:text-emerald-400 transition-colors" />
+                                 <span className="text-[12px] font-bold text-slate-700 truncate max-w-[150px]">{f.fazendaNome}</span>
+                                 <Badge className="bg-slate-50 text-slate-400 border-slate-200 text-[9px] font-mono px-1.5 py-0.5">{f.percentual}%</Badge>
+                               </div>
+                             ))}
+                             {produtor.fazendas.length > 2 && (
+                               <Badge variant="outline" className="mt-1 text-[9px] font-black text-emerald-500 border-emerald-100 uppercase tracking-widest bg-emerald-50 px-2 py-0.5 rounded-md">
+                                 +{produtor.fazendas.length - 2} Propriedades
+                               </Badge>
+                             )}
+                           </div>
+                         </td>
+ 
+                         {/* ÁREA / GEOGRAFIA */}
+                         <td className="py-5 px-8">
+                           <div className="flex flex-col gap-2">
+                             <div className="flex items-baseline gap-1.5">
+                               <span className="text-[16px] font-black text-slate-800">
+                                 {produtor.totalAreaHa.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}
+                               </span>
+                               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">ha</span>
+                             </div>
+                             
+                             <div className="flex flex-wrap gap-1">
+                               {[...new Set(produtor.fazendas.map(f => f.nucleo).filter(Boolean))].slice(0, 2).map((n, j) => (
+                                 <Badge key={j} variant="outline" className="text-[9px] bg-white border-slate-200 text-slate-500 font-bold px-2 py-0.5 uppercase tracking-wide truncate max-w-[120px]">{n}</Badge>
+                               ))}
+                             </div>
+                           </div>
+                         </td>
+ 
+                         {/* AÇÕES */}
+                         <td className="py-5 px-8 text-right">
+                            <Button 
+                               variant="ghost" 
+                               size="icon" 
+                               className="w-10 h-10 rounded-2xl text-slate-300 group-hover:text-emerald-600 group-hover:bg-emerald-50 transition-all group-hover:shadow-[0_0_15px_rgba(16,185,129,0.15)]"
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 router.push(`/produtores/${produtor.documento?.replace(/[^\d]/g, '') || produtor.nome}`);
+                               }}
+                            >
+                               <ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                            </Button>
+                         </td>
+                       </tr>
+                     ))}
+                   </tbody>
+                 </table>
+               </div>
             )}
 
             {/* PAGINATION */}
             {totalPages > 1 && (
-              <div className="h-16 flex items-center justify-between px-10 border-t border-slate-100 bg-slate-50/20">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  Página {currentPage} de {totalPages} · {filtered.length} produtores
-                </p>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="icon" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="w-10 h-10 rounded-xl">
-                    <ChevronLeft className="w-4 h-4" />
-                  </Button>
-                  <Button variant="outline" size="icon" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="w-10 h-10 rounded-xl">
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
+               <div className="p-6 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                     <p className="text-[11px] font-black text-slate-500 uppercase tracking-widest hidden md:block">
+                       Exibindo <span className="text-emerald-600">{(currentPage - 1) * itemsPerPage + 1}</span> a <span className="text-emerald-600">{Math.min(currentPage * itemsPerPage, filtered.length)}</span> de <span className="text-slate-900">{filtered.length}</span>
+                     </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                     <Button 
+                       variant="outline" 
+                       onClick={(e) => { e.stopPropagation(); setCurrentPage(p => Math.max(1, p - 1)); }} 
+                       disabled={currentPage === 1} 
+                       className="h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 border-slate-200 hover:bg-slate-100 hover:border-slate-300"
+                     >
+                       Anterior
+                     </Button>
+                     <div className="px-4 text-[12px] font-black text-slate-900 bg-white border border-slate-200 h-10 rounded-xl flex items-center justify-center shadow-sm">
+                       {currentPage}
+                     </div>
+                     <Button 
+                       variant="outline" 
+                       onClick={(e) => { e.stopPropagation(); setCurrentPage(p => Math.min(totalPages, p + 1)); }} 
+                       disabled={currentPage === totalPages} 
+                       className="h-10 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 border-slate-200 hover:bg-slate-100 hover:border-slate-300"
+                     >
+                       Próxima
+                     </Button>
+                  </div>
+               </div>
             )}
+
           </div>
         </div>
       </main>
@@ -327,25 +382,38 @@ function ProdutoresContent() {
   );
 }
 
-function StatCard({ label, value, unit, color }: { label: string; value: any; unit: string; color: string }) {
-  const colors: Record<string, string> = {
-    emerald: "bg-emerald-50 border-emerald-100 text-emerald-700",
-    teal: "bg-teal-50 border-teal-100 text-teal-700",
-    indigo: "bg-indigo-50 border-indigo-100 text-indigo-700",
-    amber: "bg-amber-50 border-amber-100 text-amber-700",
-  };
+function StatCard({ icon, label, value, unit, gradient }: { icon: React.ReactNode; label: string; value: any; unit: string; gradient: string }) {
   return (
-    <div className={cn("rounded-2xl border p-5", colors[color])}>
-      <p className="text-[8px] font-black uppercase tracking-widest opacity-60 mb-1">{label}</p>
-      <p className="text-[22px] font-black leading-none">{value}</p>
-      <p className="text-[9px] font-bold opacity-50 mt-0.5">{unit}</p>
+    <div className="relative overflow-hidden rounded-[2rem] bg-white border border-slate-100 p-6 flex flex-col group hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:border-emerald-100 transition-all duration-300 min-h-[160px]">
+       <div className={cn("absolute top-0 right-0 w-32 h-32 bg-gradient-to-br opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-500 rounded-full blur-2xl -mr-10 -mt-10", gradient)} />
+       
+       <div className="flex items-center gap-3 mb-4 relative z-10">
+          <div className={cn("w-10 h-10 rounded-2xl flex items-center justify-center text-white shadow-lg bg-gradient-to-br", gradient)}>
+             {icon}
+          </div>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{label}</p>
+       </div>
+
+       <div className="relative z-10 mt-auto">
+          <p className="text-[32px] xl:text-[40px] font-black text-slate-900 leading-none tracking-tight mb-2">
+             {value}
+          </p>
+          <div className="flex items-center gap-1.5">
+             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest truncate">{unit}</p>
+          </div>
+       </div>
     </div>
   );
 }
 
 export default function ProdutoresPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-white"><Loader2 className="w-8 h-8 text-emerald-600 animate-spin" /></div>}>
+    <Suspense fallback={
+       <div className="min-h-screen flex items-center justify-center bg-slate-50">
+          <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
+       </div>
+    }>
       <ProdutoresContent />
     </Suspense>
   );

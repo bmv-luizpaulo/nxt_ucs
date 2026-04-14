@@ -63,7 +63,7 @@
 /* ========================================= */
 
 .is-printable {
-  display: none;
+  display: none !important;
 }
 
 @media print {
@@ -126,17 +126,27 @@
   .is-printable {
     display: block !important;
     visibility: visible !important;
-    width: 100% !important;
-    max-width: 210mm !important;
+    opacity: 1 !important;
+    width: 210mm !important;
     min-height: 297mm !important;
-    background: #fff !important;
-    color: #000 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
     padding: 0 !important;
     margin: 0 auto !important;
-    box-sizing: border-box !important;
     position: relative !important;
-    page-break-after: auto;
-    font-size: 11pt;
+    overflow: visible !important;
+    z-index: 999999 !important;
+  }
+
+  /* Reset Total - Esconde absolutamente tudo exceto o report */
+  body > *:not(.is-printable-wrapper):not([role="dialog"]):not([data-radix-portal]) {
+    display: none !important;
+  }
+
+  /* Se estiver dentro de um wrapper/portal, esconde os irmãos do report */
+  .is-printable-wrapper *:not(.is-printable):not(.is-printable *),
+  [role="dialog"] *:not(.is-printable):not(.is-printable *) {
+    display: none !important;
   }
 
   /* Estilos específicos para tabelas em PDF */

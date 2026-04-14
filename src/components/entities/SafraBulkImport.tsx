@@ -91,16 +91,17 @@ const COLUMN_MAP = [
   { label: 'Saldo Assoc.', type: 'number' },      // 23
   { label: 'Saldo IMEI', type: 'number' },       // 24
 ];
-// Novo Mapeamento Robusto (8 colunas)
-const MEDIUM_COLUMN_MAP = [
-  { key: 'propriedade',               label: 'Fazenda',               type: 'text' },    // 0
-  { key: 'nome',                      label: 'Produtores',            type: 'text' },    // 1
-  { key: 'cnpj',                      label: 'CNPJ',                  type: 'text' },    // 2
-  { key: 'cpf',                       label: 'CPF',                   type: 'text' },    // 3
-  { key: 'idf',                       label: 'IDF',                   type: 'text' },    // 4
-  { key: 'originacao',                label: 'UCS',                   type: 'number' },  // 5
-  { key: 'isin',                      label: 'ISIN',                  type: 'text' },    // 6
-  { key: 'hashOriginacao',            label: 'Hash Originação',       type: 'text' },    // 7
+// Novo Mapeamento Auditoria Técnica (14 colunas)
+const AUDIT_COLUMN_MAP = [
+  { key: 'tipo',                      label: 'Tipo da Área',          type: 'text' },    // 0
+  { key: 'idf',                       label: 'IDF',                   type: 'text' },    // 1
+  { key: 'data',                      label: 'Data Registro',         type: 'text' },    // 2
+  { key: 'areaTotal',                 label: 'Área Total',           type: 'number' },  // 3
+  { key: 'areaVeg',                   label: 'Área Veg.',             type: 'number' },  // 4
+  { key: 'propriedade',               label: 'Fazenda',               type: 'text' },    // 5
+  { key: 'nucleo',                    label: 'Núcleo',                type: 'text' },    // 6
+  { key: 'ucs',                       label: 'UCS',                   type: 'number' },  // 9 (index will be adjusted)
+  { key: 'produtores',                label: 'Produtores',            type: 'text' },    // 11
 ];
 
 const parseNumber = (val: string): number => {
@@ -178,26 +179,39 @@ export function SafraBulkImport({ onImport, safraId }: SafraBulkImportProps) {
         continue;
       }
 
-      // NOVO MODO ROBUSTO (8 COLUNAS): Fazenda | Produtor | CNPJ | CPF | IDF | UCS | ISIN | Hash
-      if (parts.length >= 8 && parts.length < 15) {
-        const doc = get(2) || get(3);
-        results.push({
-          id: `ROBUST_${get(4)}_${i}`,
-          propriedade: get(0),
-          nome: get(1),
-          documento: doc,
-          cnpj: get(2),
-          cpf: get(3),
-          idf: get(4).replace(/^0+/, ''),
-          originacao: getNum(5),
-          isin: get(6),
-          hashOriginacao: get(7),
-          safra: safraId || 'N/A',
-          isRobust: true, // Tag para identificar esse modo
-          status: 'disponivel',
-          createdAt: new Date().toISOString()
-        } as any);
-        continue;
+      // MODO AUDITORIA TÉCNICA (13-14 COLUNAS)
+      if (parts.length >= 10 && parts.length < 18) {
+        // Encontrar o IDF e a Data no início para garantir alinhamento
+        const dateIdx = parts.findIndex(p => /^\d{2}\/\d{2}\/\d{4}/.test(p));
+        
+        if (dateIdx !== -1) {
+          const idf = parts[dateIdx - 1]?.replace(/^0+/, '') || "";
+          const prop = parts[dateIdx + 3] || "";
+          const nuc = parts[dateIdx + 4] || "";
+          const ucsVal = parseNumber(parts[dateIdx + 7]);
+          const prod = parts[dateIdx + 9] || "";
+          const cnpj = parts[dateIdx + 10] || "";
+          const cpf = parts[dateIdx + 11] || "";
+          const doc = (cnpj || cpf || "").trim();
+
+          results.push({
+            id: `AUDIT_${idf}_${i}`,
+            safra: safraId || 'N/A',
+            dataRegistro: parts[dateIdx],
+            idf,
+            propriedade: prop,
+            nucleo: nuc,
+            originacao: ucsVal,
+            nome: prod,
+            documento: doc,
+            cnpj,
+            cpf,
+            isRobust: true,
+            status: 'disponivel',
+            createdAt: new Date().toISOString()
+          } as any);
+          continue;
+        }
       }
 
       const cnpj = get(13);
@@ -349,17 +363,18 @@ export function SafraBulkImport({ onImport, safraId }: SafraBulkImportProps) {
           ...d,
           propriedade: farm?.nome || d.propriedade || "",
           idf: farm?.idf || d.idf || "",
-          nucleo: farm?.nucleo || "",
+          nucleo: farm?.nucleo || d.nucleo || "",
           nome: d.nome || farm?.proprietarios?.[0]?.nome || "",
           documento: d.documento || farm?.proprietarios?.[0]?.documento || "",
-          saldoFinalAtual: Number(d.originacao * PCT) || 0,
-          associacaoNome: farm?.nucleo || "",
-          associacaoCnpj: farm?.nucleoCnpj || "",
-          associacaoSaldo: Number(d.originacao * PCT) || 0,
+          // Particionamento Math.ceil
+          saldoFinalAtual: Math.ceil(d.originacao * 0.333333333),
+          associacaoNome: farm?.nucleo || d.nucleo || "",
+          associacaoCnpj: farm?.nucleoCnpj || d.associacaoCnpj || "00.000.000/0001-00",
+          associacaoSaldo: Math.ceil(d.originacao * 0.333333333),
           imeiNome: "INSTITUTO MATA VIVA",
           imeiCnpj: "00.000.000/0001-00",
-          imeiSaldo: Number(d.originacao * PCT) || 0,
-          dataRegistro: new Date().toLocaleDateString('pt-BR')
+          imeiSaldo: Math.ceil(d.originacao * 0.333333333),
+          dataRegistro: d.dataRegistro || new Date().toLocaleDateString('pt-BR')
         } : d;
 
         const safraRef = doc(collection(firestore, "safras_registros"));
@@ -417,16 +432,17 @@ export function SafraBulkImport({ onImport, safraId }: SafraBulkImportProps) {
           ...d,
           propriedade: farm?.nome || d.propriedade || "",
           idf: farm?.idf || d.idf || "",
-          nucleo: farm?.nucleo || "",
+          nucleo: farm?.nucleo || d.nucleo || "",
           nome: d.nome || farm?.proprietarios?.[0]?.nome || "",
           documento: d.documento || farm?.proprietarios?.[0]?.documento || "",
-          saldoFinalAtual: Number(d.originacao * PCT) || 0,
-          associacaoNome: farm?.nucleo || "",
-          associacaoCnpj: farm?.nucleoCnpj || "",
-          associacaoSaldo: Number(d.originacao * PCT) || 0,
+          // Particionamento Math.ceil
+          saldoFinalAtual: Math.ceil(d.originacao * 0.333333333),
+          associacaoNome: farm?.nucleo || d.nucleo || "",
+          associacaoCnpj: farm?.nucleoCnpj || d.associacaoCnpj || "00.000.000/0001-00",
+          associacaoSaldo: Math.ceil(d.originacao * 0.333333333),
           imeiNome: "INSTITUTO MATA VIVA",
           imeiCnpj: "00.000.000/0001-00",
-          imeiSaldo: Number(d.originacao * PCT) || 0,
+          imeiSaldo: Math.ceil(d.originacao * 0.333333333),
         } : d;
 
         const entities = [
@@ -556,7 +572,7 @@ export function SafraBulkImport({ onImport, safraId }: SafraBulkImportProps) {
                       </div>
                     </>
                   ) : (preview[0] as any)?.isRobust ? (
-                    MEDIUM_COLUMN_MAP.map((col, i) => (
+                    AUDIT_COLUMN_MAP.map((col, i) => (
                       <div key={i} className="px-2 py-1.5 rounded-lg text-[7px] font-bold text-center uppercase tracking-wide border bg-primary/5 text-primary border-primary/10">
                         <span className="text-[6px] text-slate-300 mr-0.5">{i}.</span> {col.label}
                       </div>

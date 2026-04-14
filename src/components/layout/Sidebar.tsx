@@ -5,6 +5,7 @@ import {
   LogOut,
   LayoutGrid,
   Calendar,
+  History,
   MapPin,
   Users2,
   Cpu,
@@ -41,6 +42,7 @@ export function Sidebar() {
     {
       items: [
         { icon: LayoutGrid, label: "Dashboard", href: "/dashboard" },
+        { icon: History, label: "Rastreabilidade", href: "/rastreabilidade" },
         { icon: Wallet, label: "Produtores", href: "/produtores" },
         { icon: MapPin, label: "Núcleos & Associações", href: "/nucleos" },
         { icon: MapPin, label: "Fazendas", href: "/fazendas" },

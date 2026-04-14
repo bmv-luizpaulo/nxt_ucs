@@ -72,6 +72,10 @@ export interface Fazenda {
 
   // Geometria (importado do KML)
   polygonCoordinates?: { lon: number; lat: number }[]; 
+  
+  // Campos de Auditoria
+  saldoOriginacao?: number;
+  safraReferencia?: string;
 }
 
 // Safra: Distribuição de UCS por Ano e por Entidade (Produtor, Associação, IMEI)
@@ -157,6 +161,10 @@ export interface RegistroTabela {
   valor?: number;
   destino?: string;
   usuarioDestino?: string;
+  plataformaOrigem?: string;
+  usuarioOrigem?: string;
+  tipoUsuarioOrigem?: string;
+  tipoUsuarioDestino?: string;
   statusAuditoria?: AuditoriaStatus;
   dataPagamento?: string;
   linkComprovante?: string;
@@ -169,6 +177,7 @@ export interface RegistroTabela {
   aposentado?: number;
   valorCredito?: number;
   valorDebito?: number;
+  rastreabilidade?: { fazenda: string; valor: number }[];
 }
 
 export interface EntidadeSaldo {
@@ -186,6 +195,7 @@ export interface EntidadeSaldo {
   originacaoFazendaTotal?: number;
   movimentacao: number;
   aquisicao: number;
+  creditos: number;
   saldoAjustarImei: number;
   transferenciaImei?: number;
   estornoImei?: number;
@@ -214,6 +224,7 @@ export interface EntidadeSaldo {
   tabelaOriginacao: RegistroTabela[];
   tabelaMovimentacao: RegistroTabela[];
   tabelaAquisicao: RegistroTabela[];
+  tabelaCreditos: RegistroTabela[];
   tabelaLegado: RegistroTabela[];
   tabelaImei: RegistroTabela[];
   
@@ -221,6 +232,9 @@ export interface EntidadeSaldo {
   ajusteRealizado?: boolean;
   valorAjusteManual?: number;
   justificativaAjuste?: string;
+  ajusteManualVolume?: number;
+  ajusteManualJustificativa?: string;
+  comentariosAuditoria?: string;
   usuarioAjuste?: string;
   dataAjuste?: string;
   

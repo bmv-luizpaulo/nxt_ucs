@@ -46,9 +46,12 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("perfil");
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [showInviteResult, setShowInviteResult] = useState(false);
-  const [newUserData, setNewUserData] = useState({ nome: "", email: "", role: "auditor" });
+  const [newUserData, setNewUserData] = useState({ nome: "", email: "", role: "auditor", cargo: "", cpf: "" });
+  const [editingUser, setEditingUser] = useState<AppUser | null>(null);
   const [generatedLink, setGeneratedLink] = useState("");
   const [profileForm, setProfileForm] = useState({ nome: "", cargo: "", cpf: "" });
+  const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [isLogsLoading, setIsLogsLoading] = useState(true);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -124,6 +127,8 @@ export default function SettingsPage() {
       nome: newUserData.nome.toUpperCase(),
       email: newUserData.email,
       role: newUserData.role,
+      cargo: newUserData.cargo.toUpperCase(),
+      cpf: newUserData.cpf,
       status: 'pendente',
       ultimoAcesso: new Date().toISOString(),
       createdAt: new Date().toISOString()
@@ -135,6 +140,20 @@ export default function SettingsPage() {
     setIsAddingUser(false);
     setShowInviteResult(true);
     toast({ title: "Registro Criado", description: "O auditor foi pré-cadastrado. Ele deve usar o fluxo 'Esqueci a Senha' ou se registrar." });
+  };
+
+  const handleUpdateUser = async () => {
+    if (!firestore || !editingUser) return;
+    
+    const userRef = doc(firestore, "users", editingUser.id);
+    await setDoc(userRef, {
+      ...editingUser,
+      nome: editingUser.nome.toUpperCase(),
+      cargo: editingUser.cargo?.toUpperCase() || "",
+    }, { merge: true });
+
+    setEditingUser(null);
+    toast({ title: "Auditor Atualizado", description: "As informações foram salvas com sucesso." });
   };
 
   const handleSendResetLink = async (email: string) => {
@@ -169,6 +188,20 @@ export default function SettingsPage() {
     await batch.commit();
     toast({ title: "Usuários de teste sincronizados" });
   };
+
+  useEffect(() => {
+    // Simulando carregamento de logs técnicos
+    setTimeout(() => {
+      const mockLogs = [
+        { id: "L-001", date: new Date().toISOString(), user: "LUIZPAULO.JESUS", action: "AJUSTE IMEI", target: "ADAIR JOAO GUTT", status: "ok", ip: "187.32.11.4" },
+        { id: "L-002", date: new Date(Date.now() - 3600000).toISOString(), user: "LUIZPAULO.JESUS", action: "EXPORTAÇÃO PDF", target: "DOSSIÊ TÉCNICO", status: "ok", ip: "187.32.11.4" },
+        { id: "L-003", date: new Date(Date.now() - 86400000).toISOString(), user: "ADMINISTRADOR BMV", action: "LOGIN SISTEMA", target: "PORTAL AUDITORIA", status: "ok", ip: "45.12.8.99" },
+        { id: "L-004", date: new Date(Date.now() - 172800000).toISOString(), user: "LUIZPAULO.JESUS", action: "CADASTRO AUDITOR", target: "CARLOS EDUARDO", status: "ok", ip: "187.32.11.4" },
+      ];
+      setAuditLogs(mockLogs);
+      setIsLogsLoading(false);
+    }, 1500);
+  }, []);
 
   if (isUserLoading || !user) {
     return (
@@ -214,71 +247,107 @@ export default function SettingsPage() {
                   <SettingsTabTrigger value="perfil" icon={User} label="Meu Perfil" />
                   <SettingsTabTrigger value="usuarios" icon={Users} label="Gerenciar Usuários" />
                   <SettingsTabTrigger value="seguranca" icon={Shield} label="Segurança & Logs" />
-                  <SettingsTabTrigger value="api" icon={Key} label="Chaves de API" />
                 </TabsList>
               </div>
 
               <div className="flex-1">
-                <TabsContent value="perfil" className="mt-0">
-                  <Card className="rounded-[3rem] border-none shadow-sm p-14 bg-white">
-                    <div className="mb-12">
-                      <h2 className="text-[32px] font-black uppercase text-slate-900 leading-none mb-4">Perfil do Auditor</h2>
-                      <p className="text-sm font-medium text-slate-400">Informações de identificação técnica no ecossistema BMV.</p>
+                <TabsContent value="perfil" className="mt-0 space-y-8">
+                  <div className="flex flex-col md:flex-row gap-8">
+                    {/* Auditor Identity Card (Badge Style) */}
+                    <div className="w-full md:w-80 shrink-0">
+                      <div className="bg-slate-900 rounded-[3rem] p-8 text-center relative overflow-hidden shadow-2xl group transition-all duration-500 hover:scale-[1.02]">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500" />
+                        
+                        <div className="relative z-10 space-y-6">
+                          <div className="mx-auto w-24 h-24 bg-white/5 rounded-[2rem] border border-white/10 flex items-center justify-center text-4xl font-black text-white glow-indigo">
+                            {userInitial}
+                          </div>
+                          
+                          <div className="space-y-1">
+                            <h3 className="text-white font-black uppercase tracking-tight text-lg line-clamp-1">{profileForm.nome || "AUDITOR"}</h3>
+                            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">{profileForm.cargo || "TECHNICAL AUDITOR"}</p>
+                          </div>
+
+                          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl py-3 px-4 flex items-center justify-center gap-2">
+                            <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                            <span className="text-emerald-500 text-[10px] font-black uppercase tracking-widest">Acesso Autorizado</span>
+                          </div>
+
+                          <div className="pt-6 border-t border-white/5 grid grid-cols-2 gap-4">
+                            <div className="text-left">
+                              <p className="text-[8px] font-black text-slate-500 uppercase mb-1">Status</p>
+                              <p className="text-[11px] font-black text-white uppercase">Ativo</p>
+                            </div>
+                            <div className="text-left">
+                              <p className="text-[8px] font-black text-slate-500 uppercase mb-1">Nível</p>
+                              <p className="text-[11px] font-black text-indigo-400 uppercase">{appUsers?.find(u => u.email === user.email)?.role || '---'}</p>
+                            </div>
+                          </div>
+
+                          <div className="text-[8px] font-mono text-slate-600 uppercase pt-2">
+                            LT-AUTH: {user.uid.substring(0, 16)}...
+                          </div>
+                        </div>
+
+                        {/* Decorative Blur */}
+                        <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-indigo-600/20 rounded-full blur-3xl" />
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-10 mb-14">
-                      <div className="w-28 h-28 bg-slate-50 border-2 border-slate-100 rounded-[2.5rem] flex items-center justify-center text-slate-300 text-5xl font-black uppercase">
-                        {userInitial[0]}
+                    {/* Form Content */}
+                    <Card className="flex-1 rounded-[3rem] border-none shadow-sm p-12 bg-white space-y-10">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h2 className="text-[28px] font-black uppercase text-slate-900 leading-none mb-3">Dados Cadastrais</h2>
+                          <p className="text-sm font-medium text-slate-400">Gerencie suas informações de identificação corporativa.</p>
+                        </div>
+                        <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-500 shadow-inner">
+                           <User className="w-6 h-6" />
+                        </div>
                       </div>
-                      <div className="space-y-2">
-                        <h3 className="text-[24px] font-black text-slate-900 uppercase tracking-tight">Auditor Responsável</h3>
-                        <p className="text-base text-slate-400 font-bold">{user.email}</p>
-                        <Badge variant="secondary" className="bg-emerald-50 text-emerald-600 border-none font-black text-[10px] uppercase px-4 py-1.5 mt-3 rounded-full">
-                          Acesso Autorizado ✓
-                        </Badge>
-                      </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                      <div className="space-y-3.5">
-                        <Label className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">Nome Completo</Label>
-                        <Input 
-                          value={profileForm.nome} 
-                          onChange={e => setProfileForm({...profileForm, nome: e.target.value})}
-                          className="h-16 bg-slate-50/50 border-slate-100 rounded-2xl px-8 font-black text-[14px] text-slate-900 uppercase" 
-                        />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-3">
+                          <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Assinatura no Sistema (Nome)</Label>
+                          <Input 
+                            value={profileForm.nome} 
+                            onChange={e => setProfileForm({...profileForm, nome: e.target.value})}
+                            className="h-14 bg-slate-50/50 border-slate-100 rounded-2xl px-6 font-black text-sm text-slate-900 uppercase focus:bg-white transition-all" 
+                          />
+                        </div>
+                        <div className="space-y-3">
+                          <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">E-mail de Auditoria</Label>
+                          <Input value={user.email || ""} disabled className="h-14 bg-slate-100/50 border-none rounded-2xl px-6 font-bold text-slate-400 cursor-not-allowed italic" />
+                        </div>
+                        <div className="space-y-3">
+                          <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Função Hierárquica</Label>
+                          <Input 
+                            value={profileForm.cargo} 
+                            onChange={e => setProfileForm({...profileForm, cargo: e.target.value})}
+                            className="h-14 bg-slate-50/50 border-slate-100 rounded-2xl px-6 font-black text-sm text-slate-900 uppercase focus:bg-white transition-all" 
+                          />
+                        </div>
+                        <div className="space-y-3">
+                          <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Doc. Identificação (CPF)</Label>
+                          <Input 
+                            value={profileForm.cpf} 
+                            onChange={e => setProfileForm({...profileForm, cpf: e.target.value})}
+                            placeholder="000.000.000-00"
+                            className="h-14 bg-slate-50/50 border-slate-100 rounded-2xl px-6 font-black text-sm text-slate-900 focus:bg-white transition-all" 
+                          />
+                        </div>
                       </div>
-                      <div className="space-y-3.5">
-                        <Label className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">Cargo / Função</Label>
-                        <Input 
-                          value={profileForm.cargo} 
-                          onChange={e => setProfileForm({...profileForm, cargo: e.target.value})}
-                          className="h-16 bg-slate-50/50 border-slate-100 rounded-2xl px-8 font-black text-[14px] text-slate-900 uppercase" 
-                        />
-                      </div>
-                      <div className="space-y-3.5 col-span-1">
-                        <Label className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">CPF (Identificação)</Label>
-                        <Input 
-                          value={profileForm.cpf} 
-                          onChange={e => setProfileForm({...profileForm, cpf: e.target.value})}
-                          placeholder="000.000.000-00"
-                          className="h-16 bg-slate-50/50 border-slate-100 rounded-2xl px-8 font-black text-[14px] text-slate-900 uppercase" 
-                        />
-                      </div>
-                      <div className="space-y-3.5 col-span-1">
-                        <Label className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-400 ml-1">E-mail Corporativo</Label>
-                        <Input value={user.email || ""} disabled className="h-16 bg-slate-50 border-none rounded-2xl px-8 font-bold text-slate-300 cursor-not-allowed" />
-                      </div>
-                      <div className="flex items-end md:col-span-2">
+
+                      <div className="pt-6 border-t border-slate-100 flex justify-end">
                         <Button 
                           onClick={handleUpdateProfile}
-                          className="h-16 w-full rounded-2xl bg-[#734DCC] hover:bg-[#633fb9] text-white font-black uppercase text-[12px] tracking-[0.2em] shadow-2xl shadow-indigo-100 transition-all active:scale-95"
+                          className="h-14 px-12 rounded-2xl bg-[#734DCC] hover:bg-[#633fb9] text-white font-black uppercase text-[11px] tracking-[0.2em] shadow-xl shadow-indigo-100 transition-all active:scale-95 flex gap-3"
                         >
-                          Salvar Alterações
+                          <CheckCircle2 className="w-4 h-4" /> Salvar Alterações
                         </Button>
                       </div>
-                    </div>
-                  </Card>
+                    </Card>
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="usuarios" className="mt-0 space-y-10">
@@ -323,10 +392,30 @@ export default function SettingsPage() {
                                 className="h-14 rounded-xl border-slate-100 bg-slate-50 font-bold"
                               />
                             </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase text-slate-400">Cargo</Label>
+                                <Input 
+                                  placeholder="AUDITOR" 
+                                  value={newUserData.cargo} 
+                                  onChange={e => setNewUserData({...newUserData, cargo: e.target.value})}
+                                  className="h-14 rounded-xl border-slate-100 bg-slate-50 uppercase font-bold"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase text-slate-400">CPF</Label>
+                                <Input 
+                                  placeholder="000.000.000-00" 
+                                  value={newUserData.cpf} 
+                                  onChange={e => setNewUserData({...newUserData, cpf: e.target.value})}
+                                  className="h-14 rounded-xl border-slate-100 bg-slate-50 font-bold"
+                                />
+                              </div>
+                            </div>
                             <div className="space-y-2">
                               <Label className="text-[10px] font-black uppercase text-slate-400">Nível de Acesso</Label>
                               <Select value={newUserData.role} onValueChange={v => setNewUserData({...newUserData, role: v})}>
-                                <SelectTrigger className="h-14 rounded-xl bg-slate-50 border-slate-100 font-bold">
+                                <SelectTrigger className="h-14 rounded-xl bg-slate-50 border-slate-100 font-bold text-xs">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -454,6 +543,14 @@ export default function SettingsPage() {
                                   <Button 
                                     variant="ghost" 
                                     size="icon" 
+                                    onClick={() => setEditingUser(item)} 
+                                    className="text-slate-400 hover:text-[#734DCC] transition-colors h-12 w-12 rounded-xl"
+                                  >
+                                    <User className="w-5 h-5" />
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
                                     onClick={() => handleSendResetLink(item.email)} 
                                     className="text-slate-400 hover:text-primary transition-colors h-12 w-12 rounded-xl"
                                     title="Enviar Link para Definir Senha"
@@ -471,36 +568,134 @@ export default function SettingsPage() {
                       </TableBody>
                     </Table>
                   </Card>
+ 
+                  <Dialog open={!!editingUser} onOpenChange={() => setEditingUser(null)}>
+                    <DialogContent className="max-w-md bg-white rounded-3xl p-8 border-none">
+                      <DialogHeader>
+                        <DialogTitle className="text-xl font-black uppercase text-slate-900">Editar Auditor</DialogTitle>
+                        <DialogDescription className="text-slate-400 font-medium">Atualize as informações cadastrais do auditor.</DialogDescription>
+                      </DialogHeader>
+                      {editingUser && (
+                         <div className="space-y-6 mt-6">
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase text-slate-400">Nome Completo</Label>
+                              <Input 
+                                value={editingUser.nome} 
+                                onChange={e => setEditingUser({...editingUser, nome: e.target.value})}
+                                className="h-14 rounded-xl border-slate-100 bg-slate-50 uppercase font-bold text-xs"
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase text-slate-400">Cargo</Label>
+                                <Input 
+                                  value={editingUser.cargo || ""} 
+                                  onChange={e => setEditingUser({...editingUser, cargo: e.target.value})}
+                                  className="h-14 rounded-xl border-slate-100 bg-slate-50 uppercase font-bold text-xs"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-[10px] font-black uppercase text-slate-400">CPF</Label>
+                                <Input 
+                                  value={editingUser.cpf || ""} 
+                                  onChange={e => setEditingUser({...editingUser, cpf: e.target.value})}
+                                  className="h-14 rounded-xl border-slate-100 bg-slate-50 font-bold text-xs"
+                                />
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase text-slate-400">Nível de Acesso</Label>
+                              <Select value={editingUser.role} onValueChange={v => setEditingUser({...editingUser as AppUser, role: v})}>
+                                <SelectTrigger className="h-14 rounded-xl bg-slate-50 border-slate-100 font-bold text-xs">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="auditor">AUDITOR</SelectItem>
+                                  <SelectItem value="admin">ADMINISTRADOR</SelectItem>
+                                  <SelectItem value="viewer">VISUALIZADOR</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <Button onClick={handleUpdateUser} className="w-full h-14 rounded-xl bg-[#734DCC] text-white font-black uppercase tracking-widest shadow-lg shadow-indigo-100 transition-all active:scale-95">
+                              Salvar Alterações
+                            </Button>
+                          </div>
+                      )}
+                    </DialogContent>
+                  </Dialog>
                 </TabsContent>
 
                 <TabsContent value="seguranca" className="mt-0">
-                  <Card className="rounded-[3.5rem] border-none shadow-sm p-32 bg-white flex flex-col items-center justify-center text-center space-y-10">
-                    <div className="w-32 h-32 bg-slate-50/50 rounded-full flex items-center justify-center border border-slate-100">
-                      <ShieldCheck className="w-16 h-16 text-slate-200" />
-                    </div>
-                    <div className="space-y-4">
-                      <h3 className="text-[13px] font-black text-[#94A3B8] uppercase tracking-[0.25em] leading-none">Logs de Conformidade Técnica</h3>
-                      <p className="text-[15px] text-[#94A3B8] font-medium max-w-sm mx-auto leading-relaxed">
-                        As gravações de auditoria estão ativas e sendo sincronizadas em tempo real com o Ledger.
-                      </p>
-                    </div>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="api" className="mt-0">
-                  <Card className="rounded-[3rem] border-none shadow-sm p-14 bg-white space-y-10">
-                    <div>
-                      <h2 className="text-[32px] font-black uppercase text-slate-900 leading-none mb-4">Integração Ledger</h2>
-                      <p className="text-sm font-medium text-slate-400">Configure o acesso via API para sistemas externos de rastreabilidade.</p>
-                    </div>
-                    <div className="bg-slate-50 p-10 rounded-[2rem] flex items-center justify-between border border-slate-100">
-                      <div className="space-y-2">
-                        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Chave de Produção Ativa</p>
-                        <p className="text-base font-mono text-slate-600 font-bold">lt_prod_********************************</p>
+                  <div className="space-y-10">
+                    <div className="flex justify-between items-end">
+                      <div>
+                        <h2 className="text-[32px] font-black uppercase text-slate-900 leading-none mb-2">Segurança & Logs</h2>
+                        <p className="text-[14px] font-medium text-slate-400 italic">Rastreabilidade completa de todas as operações de auditoria no Ledger.</p>
                       </div>
-                      <Button variant="outline" className="h-14 px-8 rounded-2xl text-[11px] font-black uppercase border-slate-200 tracking-widest hover:bg-white">Revogar Chave</Button>
+                      <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-full">
+                         <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                         <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Sincronização em Tempo Real Ativa</span>
+                      </div>
                     </div>
-                  </Card>
+
+                    <Card className="rounded-[3rem] border-none shadow-sm overflow-hidden bg-white">
+                      <Table>
+                        <TableHeader className="bg-slate-50/50">
+                          <TableRow className="border-b border-slate-100 h-16">
+                            <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 pl-12">Horário / Registro</TableHead>
+                            <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Usuário</TableHead>
+                            <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Ação Realizada</TableHead>
+                            <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Entidade Alvo</TableHead>
+                            <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 text-right pr-12">Endereço IP</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {isLogsLoading ? (
+                             <TableRow>
+                                <TableCell colSpan={5} className="h-64 text-center">
+                                   <Loader2 className="w-8 h-8 text-indigo-500 animate-spin mx-auto mb-4" />
+                                   <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Acessando Ledger de Segurança...</p>
+                                </TableCell>
+                             </TableRow>
+                          ) : auditLogs.map((log) => (
+                             <TableRow key={log.id} className="h-20 border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                                <TableCell className="pl-12">
+                                   <div className="flex flex-col">
+                                      <span className="text-[12px] font-bold text-slate-900">{new Date(log.date).toLocaleDateString()}</span>
+                                      <span className="text-[10px] text-slate-400 font-mono">{new Date(log.date).toLocaleTimeString()}</span>
+                                   </div>
+                                </TableCell>
+                                <TableCell>
+                                   <span className="text-[11px] font-black text-slate-700 uppercase">{log.user}</span>
+                                </TableCell>
+                                <TableCell>
+                                   <Badge variant="outline" className="text-[10px] font-black uppercase border-slate-200">
+                                      {log.action}
+                                   </Badge>
+                                </TableCell>
+                                <TableCell>
+                                   <span className="text-[11px] font-bold text-slate-500 uppercase">{log.target}</span>
+                                </TableCell>
+                                <TableCell className="text-right pr-12">
+                                   <span className="text-[10px] font-mono text-slate-400">{log.ip}</span>
+                                </TableCell>
+                             </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </Card>
+
+                    <div className="bg-[#734DCC] rounded-[2.5rem] p-10 flex items-center justify-between shadow-2xl shadow-indigo-200 relative overflow-hidden">
+                       <div className="relative z-10">
+                          <h4 className="text-white text-xl font-black uppercase mb-1">Exportar Log de Auditoria</h4>
+                          <p className="text-indigo-100/70 text-sm font-medium">Gere um documento assinado com todos os logs de integridade deste mês.</p>
+                       </div>
+                       <Button className="bg-white text-[#734DCC] hover:bg-indigo-50 h-14 px-10 rounded-2xl font-black uppercase text-[11px] tracking-widest relative z-10 transition-transform active:scale-95">
+                          Emitir Relatório Final (CSV)
+                       </Button>
+                       <ShieldCheck className="absolute -right-5 -bottom-5 w-48 h-48 text-white/5" />
+                    </div>
+                  </div>
                 </TabsContent>
               </div>
             </div>
