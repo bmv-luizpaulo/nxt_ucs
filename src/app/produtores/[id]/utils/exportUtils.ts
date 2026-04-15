@@ -15,33 +15,26 @@ export const handleExportXLSX = (produtor: any, entityData: any, currentStats: a
   const wb = XLSX.utils.book_new();
 
   // 1. Planilha de Resumo por Fazenda
-  const farmCount = produtor.fazendas.length;
+  const resumoData = produtor.fazendas.map((f: any) => {
+    const safeMatch = (val: string) => {
+      if (!val) return false;
+      const d = val.toUpperCase().trim();
+      const n = (f.fazendaNome || '').toUpperCase().trim();
+      const idf = (f.idf || '').toUpperCase().trim();
+      if (idf && idf !== '---' && d.includes(idf)) return true;
+      if (n && d.includes(n)) return true;
+      const cleanN = n.replace(/^(FAZENDA|SITIO|SÍTIO|CHACARA|CHÁCARA|ESTANCIA|ESTÂNCIA)\s+/i, '').trim();
+      const cleanD = d.replace(/^(FAZENDA|SITIO|SÍTIO|CHACARA|CHÁCARA|ESTANCIA|ESTÂNCIA)\s+/i, '').trim();
+      if (cleanN && cleanN.length > 3 && (cleanD.includes(cleanN) || cleanN.includes(cleanD))) return true;
+      return false;
+    };
 
-  // Totais dos 3 tipos de consumo (distribuídos igualmente por fazenda)
-  // movimentacao é negativo (débitos armazenados como negativo) → abs para distribuição
-  const totalConsumo    = Math.abs(Math.floor(currentStats.movimentacao || 0));
-  const totalAquisicao  = Math.floor(currentStats.aquisicao    || 0);
-  const totalAposentado = Math.floor(currentStats.aposentado   || 0);
-  // Bloqueado: não é consumo, não distribui por fazenda
-  const totalBloqueado  = Math.floor(currentStats.bloqueado    || 0);
+    const farmOrig = (entityData?.tabelaOriginacao?.filter((row: any) => safeMatch(row.dist) || safeMatch(row.plataforma)).reduce((acc: number, cur: any) => acc + (Number(cur.valor) || 0), 0)) || Number(f.saldoOriginacao) || 0;
+    const farmConsumo = entityData?.tabelaMovimentacao?.filter((row: any) => safeMatch(row.dist) || safeMatch(row.plataforma)).reduce((acc: number, cur: any) => acc + (Number(cur.valor) || 0), 0) || 0;
+    const farmAquisicao = entityData?.tabelaAquisicao?.filter((row: any) => safeMatch(row.dist) || safeMatch(row.plataforma)).reduce((acc: number, cur: any) => acc + (Number(cur.valor) || 0), 0) || 0;
+    const farmAposentado = (entityData?.tabelaLegado?.filter((row: any) => safeMatch(row.dist) || safeMatch(row.plataforma)).reduce((acc: number, cur: any) => acc + (Number(cur.aposentado) || 0), 0)) || Number(f.aposentado) || 0;
 
-  // Função de distribuição inteira: floor + resto nas primeiras fazendas
-  const distValue = (total: number, idx: number) => {
-    if (farmCount === 0) return 0;
-    const base = Math.floor(total / farmCount);
-    const resto = total % farmCount;
-    return idx < resto ? base + 1 : base;
-  };
-
-  const resumoData = produtor.fazendas.map((f: any, i: number) => {
-    const farmOrig      = Number(f.saldoOriginacao) || 0;
-    const farmDeduction = distValue(totalConsumo,    i);
-    const farmAquisicao = distValue(totalAquisicao,  i);
-    const farmAposentado = distValue(totalAposentado, i);
-
-    // Saldo da fazenda = origem - (consumos distribuídos)
-    // Bloqueado não é deduzido por fazenda individualmente
-    const liquid = farmOrig - farmDeduction - farmAquisicao - farmAposentado;
+    const liquid = farmOrig - farmConsumo - farmAquisicao - farmAposentado;
 
     return {
       "IDF": f.idf,
@@ -51,7 +44,7 @@ export const handleExportXLSX = (produtor: any, entityData: any, currentStats: a
       "Documento": produtor.documento,
       "Safra": f.safraReferencia,
       "Originação (UCS)": farmOrig,
-      "Dedução Consumo (UCS)": farmDeduction,
+      "Dedução Consumo (UCS)": farmConsumo,
       "Aquisição (UCS)": farmAquisicao,
       "Aposentadas (UCS)": farmAposentado,
       "Saldo Líquido (UCS)": liquid
@@ -60,6 +53,9 @@ export const handleExportXLSX = (produtor: any, entityData: any, currentStats: a
 
   // Linha de totais
   const totalOrigem = resumoData.reduce((acc: number, r: any) => acc + r["Originação (UCS)"], 0);
+  const totalConsumoReal = resumoData.reduce((acc: number, r: any) => acc + r["Dedução Consumo (UCS)"], 0);
+  const totalAquisicaoReal = resumoData.reduce((acc: number, r: any) => acc + r["Aquisição (UCS)"], 0);
+  const totalAposentadoReal = resumoData.reduce((acc: number, r: any) => acc + r["Aposentadas (UCS)"], 0);
   const totalFarmSaldo = resumoData.reduce((acc: number, r: any) => acc + r["Saldo Líquido (UCS)"], 0);
 
   resumoData.push({
@@ -70,16 +66,18 @@ export const handleExportXLSX = (produtor: any, entityData: any, currentStats: a
     "Documento": "—",
     "Safra": "—",
     "Originação (UCS)": totalOrigem,
-    "Dedução Consumo (UCS)": totalConsumo,
-    "Aquisição (UCS)": totalAquisicao,
-    "Aposentadas (UCS)": totalAposentado,
+    "Dedução Consumo (UCS)": totalConsumoReal,
+    "Aquisição (UCS)": totalAquisicaoReal,
+    "Aposentadas (UCS)": totalAposentadoReal,
     "Saldo Líquido (UCS)": totalFarmSaldo
   });
 
-  if (totalBloqueado > 0) {
+  const totalBloqueadoVlr = Math.floor(currentStats.bloqueado || 0);
+
+  if (totalBloqueadoVlr > 0) {
     resumoData.push({
       "IDF": "BLOQUEADO (pool)",
-      "Fazenda": "Não distribuído por fazenda",
+      "Fazenda": "Bloqueio Técnico Central",
       "Núcleo": "—",
       "Proprietário": "—",
       "Documento": "—",
@@ -88,23 +86,22 @@ export const handleExportXLSX = (produtor: any, entityData: any, currentStats: a
       "Dedução Consumo (UCS)": 0,
       "Aquisição (UCS)": 0,
       "Aposentadas (UCS)": 0,
-      "Saldo Líquido (UCS)": -totalBloqueado
+      "Saldo Líquido (UCS)": -totalBloqueadoVlr
     });
     resumoData.push({
       "IDF": "SALDO REAL",
-      "Fazenda": "Após deduzir bloqueado",
+      "Fazenda": "Após deduções e bloqueios",
       "Núcleo": "—",
       "Proprietário": "—",
       "Documento": "—",
       "Safra": "—",
-      "Originação (UCS)": 0,
-      "Dedução Consumo (UCS)": 0,
-      "Aquisição (UCS)": 0,
-      "Aposentadas (UCS)": 0,
-      "Saldo Líquido (UCS)": totalFarmSaldo - totalBloqueado
+      "Originação (UCS)": totalOrigem,
+      "Dedução Consumo (UCS)": totalConsumoReal,
+      "Aquisição (UCS)": totalAquisicaoReal,
+      "Aposentadas (UCS)": totalAposentadoReal,
+      "Saldo Líquido (UCS)": totalFarmSaldo - totalBloqueadoVlr
     });
   }
-
 
   // 2. Planilha de Extrato Completo
   const extratoData = [

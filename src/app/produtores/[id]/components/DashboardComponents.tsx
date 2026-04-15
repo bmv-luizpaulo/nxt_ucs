@@ -51,6 +51,7 @@ interface SectionBlockProps {
   isGreen?: boolean;
   customColor?: string;
   pasteLabel?: string;
+  hideValue?: boolean;
 }
 
 interface SectionTableProps {
@@ -127,7 +128,7 @@ export function DocLink({ label }: DocLinkProps) {
 export function SectionBlock({
   title, value, onPaste, data, type, onRemove, onUpdateItem,
   isNegative, isAmber, customColor, pasteLabel, isGreen, isEditing,
-  onAdd
+  onAdd, hideValue
 }: SectionBlockProps) {
 
   // Lógica simplificada de cores
@@ -150,9 +151,11 @@ export function SectionBlock({
           <div className="flex flex-col gap-1">
             <h3 className="text-xs font-black uppercase text-slate-900 tracking-widest">{title}</h3>
             <div className="flex items-center gap-3">
-              <Badge className={cn("font-black text-[10px] px-3 py-1 border-none shadow-none rounded-lg", badgeTheme)}>
-                <span className="tracking-tighter">{Math.floor(value || 0).toLocaleString('pt-BR')} UCS</span>
-              </Badge>
+              {!hideValue && (
+                <Badge className={cn("font-black text-[10px] px-3 py-1 border-none shadow-none rounded-lg", badgeTheme)}>
+                  <span className="tracking-tighter">{Math.floor(value || 0).toLocaleString('pt-BR')} UCS</span>
+                </Badge>
+              )}
               <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
                 {data?.length || 0} Registros
               </span>

@@ -33,6 +33,8 @@ export interface AuditData {
   imei?: string | number;
   legado?: string | number;
   ajusteManual?: string | number;
+  ajusteManualJustificativa?: string;
+  bloqueado?: string | number;
   tabelaOriginacao?: AuditRow[];
   tabelaMovimentacao?: AuditRow[];
   tabelaAquisicao?: AuditRow[];
@@ -101,7 +103,10 @@ export function calculateAuditStats(data: AuditData | null, baseOriginacao: numb
   // Apenas 'bloqueado' e 'aposentado' contam para a auditoria matemática do estado legado.
   const legado = data.tabelaLegado?.reduce((acc, cur) => acc + num(cur.bloqueado) + num(cur.aposentado), 0) || num(data.legado);
 
-  const bloqueado = data.tabelaLegado?.reduce((acc, cur) => acc + num(cur.bloqueado), 0) || 0;
+  const bloqueadoTable = data.tabelaLegado?.reduce((acc, cur) => acc + num(cur.bloqueado), 0) || 0;
+  // Se houver um bloqueio manual definido (maior que 0), ele se torna a fonte da verdade para o total.
+  // Caso contrário, usamos a soma das tabelas legadas.
+  const bloqueado = (num(data.bloqueado) > 0) ? num(data.bloqueado) : bloqueadoTable;
   const aposentado = data.tabelaLegado?.reduce((acc, cur) => acc + num(cur.aposentado), 0) || 0;
 
   const ajusteManual = num(data.ajusteManual);
@@ -228,13 +233,14 @@ export function useAuditLogic(entityData: AuditData | null, baseOriginacao: numb
     handleUpdateItem,
     handleRemoveItem,
     handleProcessPaste,
-    handleAddItem: (section: keyof AuditData) => {
+    handleAddItem: (section: keyof AuditData, initialData: Partial<AuditRow> = {}) => {
       const newRow: AuditRow = {
         id: `MAN-${crypto.randomUUID().substring(0, 8).toUpperCase()}`,
         data: new Date().toLocaleDateString('pt-BR'),
         plataforma: 'NXT',
         valor: 0,
-        tipoTransacao: section === 'tabelaOriginacao' ? 'ORIGINACAO' : (section === 'tabelaCreditos' ? 'CREDITO' : 'CONSUMO')
+        tipoTransacao: section === 'tabelaOriginacao' ? 'ORIGINACAO' : (section === 'tabelaCreditos' ? 'CREDITO' : 'CONSUMO'),
+        ...initialData
       };
       setFormData(prev => {
         if (!prev) return prev;
