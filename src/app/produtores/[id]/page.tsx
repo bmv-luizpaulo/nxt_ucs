@@ -1,16 +1,13 @@
 "use client"
 
 import { useParams, useRouter } from "next/navigation";
-import { useCollection, useDoc, useFirestore, useMemoFirebase, useUser } from "@/firebase";
-import { collection, query, orderBy, doc, updateDoc } from "firebase/firestore";
-import { Fazenda, EntidadeSaldo } from "@/lib/types";
-import { useMemo, useState, useEffect } from "react";
+import { updateDoc } from "firebase/firestore";
+import { useState } from "react";
 import {
-  Loader2, Building2, Map as MapIcon,
-  ExternalLink, Droplets,
-  ChevronRight, Calculator, Trash2, Save,
-  History, FileText, Award, Download, TrendingUp as TrendingUpIcon,
-  ChevronLeft, AlertTriangle, PlusCircle, Info, ShieldCheck, Unlock
+  Loader2, Calculator, Save,
+  FileText, Download, Droplets,
+  ChevronLeft, ShieldCheck, LayoutGrid, List,
+  History, Table2, Building2
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,386 +16,78 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import * as XLSX from 'xlsx';
 import { PrintPortal } from "@/components/ui/print-portal";
 
-// Componentes Extraídos para Modularização
+// Hooks e Utils Refatorados
+import { useProdutorData } from "./hooks/useProdutorData";
+import { useAuditLogic, AuditData } from "./hooks/useAuditLogic";
+import { handleExportJSON, handleExportXLSX } from "./utils/exportUtils";
+
+// Componentes UI
 import { AuditReport } from "./components/AuditReport";
-import { StatCard, QuickLink, DocLink, SectionBlock, PropDetail } from "./components/DashboardComponents";
-
-// Reusing the same consolidation logic
-function buildProdutores(fazendas: Fazenda[], safras: any[]): any[] {
-  const map: Record<string, any> = {};
-  for (const fazenda of fazendas) {
-    // Busca informações da safra para esta fazenda
-    const safraInfo = safras.find(s => s.fazendaId === fazenda.id || s.idf === fazenda.idf);
-
-    for (const prop of fazenda.proprietarios || []) {
-      const key = (prop.documento || prop.nome || "").replace(/[^\d]/g, '') || prop.nome;
-      if (!key) continue;
-      const areaProdutor = ((fazenda.areaTotal || 0) * (prop.percentual || 100)) / 100;
-      if (!map[key]) {
-        map[key] = {
-          documento: prop.documento,
-          id: key,
-          nome: prop.nome,
-          tipo: prop.tipo || 'PF',
-          fazendas: [],
-          totalFazendas: 0,
-          totalAreaHa: 0,
-        };
-      }
-      map[key].fazendas.push({
-        fazendaId: fazenda.id,
-        fazendaNome: fazenda.nome,
-        idf: fazenda.idf,
-        nucleo: fazenda.nucleo,
-        municipio: fazenda.municipio,
-        uf: fazenda.uf,
-        areaTotal: fazenda.areaTotal || 0,
-        percentual: prop.percentual || 100,
-        areaProdutor,
-        saldoOriginacao: safraInfo?.originacao || safraInfo?.ucsTotal || fazenda.saldoOriginacao || fazenda.ucs || 0,
-        safraReferencia: safraInfo?.safra ? `Safra ${safraInfo.safra}` : (fazenda.safraReferencia || fazenda.safra || '---'),
-      });
-      map[key].totalFazendas++;
-      map[key].totalAreaHa += areaProdutor;
-    }
-  }
-  return Object.values(map);
-}
+import { 
+  StatCard, QuickLink, DocLink, 
+  SectionBlock, PropDetail 
+} from "./components/DashboardComponents";
 
 export default function ProdutorDetailPage() {
   const params = useParams();
   const id = params.id as string;
   const router = useRouter();
-  const firestore = useFirestore();
-  const { user } = useUser();
-  const auditorRef = useMemo(() => 
-    user && firestore ? doc(firestore, "users", user.uid) : null,
-    [user, firestore]
-  );
-  const { data: userData } = useDoc<any>(auditorRef);
 
-  const fazendasQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    return query(collection(firestore, "fazendas"), orderBy("nome", "asc"));
-  }, [firestore, user]);
+  // 1. Hook de Dados (Fetching e Consolidação)
+  const { 
+    produtor, entityData, userData, user, 
+    isLoading, entityRef 
+  } = useProdutorData(id);
 
-  const safrasQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    return query(collection(firestore, "safras_registros"));
-  }, [firestore, user]);
+  // 2. Hook de Lógica (Estados de Auditoria e Cálculos)
+  const {
+    formData, setFormData, isEditing, setIsEditing, isSaving, setIsSaving,
+    currentData, currentStats, handleUpdateItem, handleRemoveItem, handleProcessPaste
+  } = useAuditLogic(entityData, produtor?.baseOriginacao || 0);
 
-  const { data: fazendas, isLoading: isFazendasLoading } = useCollection<Fazenda>(fazendasQuery);
-  const { data: safras } = useCollection<any>(safrasQuery);
-
-  const produtor = useMemo(() => {
-    const all = buildProdutores(fazendas || [], safras || []);
-    return all.find(p => p.id === id);
-  }, [fazendas, safras, id]);
-
-  const entRef = useMemo(() =>
-    firestore && id ? doc(firestore, "produtores", id) : null,
-    [firestore, id]
-  );
-
-  const { data: entityData, isLoading: isWalletLoading } = useDoc<EntidadeSaldo>(entRef);
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState<Partial<EntidadeSaldo>>({});
-  const [isSaving, setIsSaving] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLegadoModalOpen, setIsLegadoModalOpen] = useState(false);
+  // 3. Estados Locais de UI
+  const [pasteData, setPasteData] = useState<{ section: keyof AuditData, raw: string } | null>(null);
   const [isAquisicaoModalOpen, setIsAquisicaoModalOpen] = useState(false);
+  const [isLegadoModalOpen, setIsLegadoModalOpen] = useState(false);
   const [isReportPreviewOpen, setIsReportPreviewOpen] = useState(false);
+  const [isPortfolioTableView, setIsPortfolioTableView] = useState(false);
+  const [manualAquisicao, setManualAquisicao] = useState({ data: '2024', valor: 0, observacao: '' });
+
+  // 4. Configurações de PDF
   const [isReportSimplified, setIsReportSimplified] = useState(false);
   const [isReportCensored, setIsReportCensored] = useState(false);
-  const [manualAquisicao, setManualAquisicao] = useState({ data: '2018', valor: 0, observacao: '' });
-  const [pasteData, setPasteData] = useState<{ section: string; raw: string } | null>(null);
 
-  useEffect(() => {
-    if (entityData) setFormData(entityData);
-  }, [entityData]);
-
-  const handleUpdateItem = (section: string, itemId: string, updates: Partial<any>) => {
-    const list = ((formData as any)[section] || []).map((item: any) =>
-      item.id === itemId ? { ...item, ...updates } : item
-    );
-    setFormData({ ...formData, [section]: list });
+  // Ações de Persistência
+  const handleSave = async () => {
+    if (!entityRef) return;
+    setIsSaving(true);
+    try {
+      await updateDoc(entityRef, {
+        ...formData,
+        updatedAt: new Date().toISOString(),
+        auditadoPor: user?.email || 'NXT System',
+        statusAuditoria: 'CONCLUIDO'
+      });
+      setIsEditing(false);
+      toast.success("Auditoria salva com sucesso!");
+    } catch (e) {
+      console.error(e);
+      toast.error("Erro ao salvar auditoria.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleRemoveItem = (section: string, itemId: string) => {
-    const list = ((formData as any)[section] || []).filter((i: any) => i.id !== itemId);
-    setFormData({ ...formData, [section]: list });
-  };
-
-  const handleProcessPaste = (targetSection: string) => {
-    if (!pasteData || !pasteData.raw) return;
-
-    const rawLines = pasteData.raw.split('\n').map(l => l.replace('\r', ''));
-    const parseVal = (str: string | undefined) => parseFloat(str?.replace(/\./g, "").replace(/[^\d.-]/g, "") || "0");
-    const cleanData = (str: string | undefined) => str?.split(' ')[0] || '';
-    const newRows: any[] = [];
-
-    const isMultiLineAdair = pasteData.raw.includes('UCS') && rawLines.length > 5;
-    const isLegacyExport = rawLines.some(l => /^\d{4,6}\s+\d{4,6}\s+\d{2}\/\d{2}/.test(l.replace(/\t/g, ' ')));
-
-    if (isMultiLineAdair && targetSection === 'tabelaLegado') {
-      let i = 0;
-      const cleanLines = rawLines.map(l => l.trim()).filter(Boolean);
-      while (i < cleanLines.length) {
-        const line = cleanLines[i];
-        if (/^\d{2}\/\d{2}\/\d{4}/.test(line)) {
-          const date = line.split(' ')[0];
-          const plat = cleanLines[i + 1]?.toUpperCase() || 'DESCONHECIDO';
-          // Busca a linha com UCS que deve estar nos próximos 10 registros
-          let valLine = "";
-          for (let j = i; j < Math.min(i + 15, cleanLines.length); j++) {
-            if (cleanLines[j].includes('UCS')) {
-              valLine = cleanLines[j];
-              i = j; // Pula para esta linha
-              break;
-            }
-          }
-          if (valLine) {
-            const vals = valLine.split(/[\t\s]{2,}|(?=UCS)/).map(v => v.replace('UCS', '').trim()).filter(Boolean).map(parseVal).slice(0, 4);
-            newRows.push({
-              id: `LEG-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
-              data: date,
-              plataforma: plat,
-              disponivel: vals[0] || 0,
-              reservado: vals[1] || 0,
-              bloqueado: vals[2] || 0,
-              aposentado: vals[3] || 0
-            });
-          }
-        }
-        i++;
-      }
-    } else if (isLegacyExport) {
-      const tokens = pasteData.raw.split(/[\t\n]/).map(t => t.trim()).filter(Boolean);
-      let startIndex = 0;
-      for (let i = 0; i < tokens.length; i++) {
-        // Detecta [ID] [DIST] e algo com '/' (Data)
-        if (/^\d{1,7}$/.test(tokens[i]) && /^\d{1,8}$/.test(tokens[i + 1] || '') && (tokens[i + 2] || '').includes('/')) {
-          startIndex = i;
-          break;
-        }
-      }
-
-      const cleanTokens = tokens.slice(startIndex);
-      const records: string[][] = [];
-      let currentRecord: string[] = [];
-
-      for (let i = 0; i < cleanTokens.length; i++) {
-        const t = cleanTokens[i];
-        if (i > 0 && /^\d{1,7}$/.test(t) && /^\d{1,8}$/.test(cleanTokens[i + 1] || '') && (cleanTokens[i + 2] || '').includes('/')) {
-          records.push(currentRecord);
-          currentRecord = [];
-        }
-        currentRecord.push(t);
-      }
-      if (currentRecord.length > 0) records.push(currentRecord);
-
-      records.forEach(rec => {
-        if (rec.length < 5) return;
-
-        const parseVal = (str: string | undefined) => {
-          if (!str) return 0;
-          return parseFloat(str.replace(/\./g, "").replace(",", ".").replace(/[^\d.-]/g, "")) || 0;
-        };
-
-        const idCol = rec[0];
-        const distCol = rec[1];
-        const dataCol = (rec[2] || '').split(' ')[0];
-
-        const plataformas = ['INVESTMENT', 'TRADING', 'CUSTODIA', 'ORIGINATION', 'FARM', 'ON GOING', 'TESOURO', 'MATEUS'];
-        const saldosKeywords = ['RES', 'DIS', 'APO', 'LIQ'];
-
-        // Encontrar os índices de todas as plataformas na linha
-        const platformIndices: number[] = [];
-        rec.forEach((token, idx) => {
-          if (idx > 1 && plataformas.includes(token.toUpperCase())) {
-            platformIndices.push(idx);
-          }
-        });
-
-        const origemIdx = platformIndices[0] ?? -1;
-        const destinoIdx = platformIndices[1] ?? -1;
-
-        const quantIdx = rec.findIndex(t => t.toUpperCase().includes('UCS'));
-        const saldosIdx = rec.findIndex((t, idx) => idx > 2 && saldosKeywords.includes(t.toUpperCase()));
-        const endOfDataIdx = saldosIdx !== -1 ? saldosIdx : quantIdx !== -1 ? quantIdx : rec.length;
-
-        const plataformaOrigem = origemIdx !== -1 ? rec[origemIdx] : '';
-        const plataformaDestino = destinoIdx !== -1 ? rec[destinoIdx] : (origemIdx !== -1 ? 'EXTERNO' : '');
-
-        let usuarioOrigem = '';
-        let usuarioDestino = '';
-        let tipoUsuarioOrigem = '';
-        let tipoUsuarioDestino = '';
-
-        const userTypeKeywords = ['PRODUTOR', 'SAAS TESOURO VERDE', 'CLIENTE', 'DISTRIBUIDOR GERAL', 'IMEI', 'SAAS'];
-
-        const processUser = (tokens: string[]) => {
-          let type = '';
-          let nameTokens = [...tokens];
-
-          if (tokens.length > 0) {
-            // Check for multi-token types like "Saas Tesouro Verde"
-            const fullText = tokens.join(' ').toUpperCase();
-            for (const kw of userTypeKeywords) {
-              if (fullText.startsWith(kw)) {
-                type = kw;
-                // Simple attempt to remove type tokens from name
-                const kwTokensCount = kw.split(' ').length;
-                nameTokens = tokens.slice(kwTokensCount);
-                break;
-              }
-            }
-          }
-          return { type, name: nameTokens.join(' ') };
-        };
-
-        if (origemIdx !== -1) {
-          if (destinoIdx !== -1) {
-            const uOrig = processUser(rec.slice(origemIdx + 1, destinoIdx));
-            usuarioOrigem = uOrig.name;
-            tipoUsuarioOrigem = uOrig.type;
-
-            const uDest = processUser(rec.slice(destinoIdx + 1, endOfDataIdx));
-            usuarioDestino = uDest.name;
-            tipoUsuarioDestino = uDest.type;
-          } else {
-            const uOrig = processUser(rec.slice(origemIdx + 1, endOfDataIdx));
-            usuarioOrigem = uOrig.name;
-            tipoUsuarioOrigem = uOrig.type;
-          }
-        }
-
-        // Se o nome do usuário capturado for uma data (Data Fim), limpa.
-        if (usuarioOrigem.includes('/') && usuarioOrigem.includes(':')) {
-          usuarioOrigem = '';
-        }
-
-        const valor = parseVal(quantIdx !== -1 ? rec[quantIdx] : rec[rec.length - 1]);
-
-        // Lógica Automática de Categorização Técnica
-        let tipoTransacaoDefault = 'CONSUMO';
-        const uOrigClean = usuarioOrigem.trim().toUpperCase();
-        const uDestClean = usuarioDestino.trim().toUpperCase();
-        const platOrigClean = plataformaOrigem.trim().toUpperCase();
-        const tOrigClean = (tipoUsuarioOrigem || '').trim().toUpperCase();
-
-        // 1. Regra MATEUS ou Mesmo Produtor -> AJUSTE
-        if (platOrigClean === 'MATEUS' || (uOrigClean && uDestClean && uOrigClean === uDestClean)) {
-          tipoTransacaoDefault = 'AJUSTE ENTRE PLATAFORMAS';
-        }
-        // 2. Regra IMEI -> PRODUTOR = AJUSTE
-        else if (tOrigClean === 'IMEI') {
-          tipoTransacaoDefault = 'AJUSTE ENTRE PLATAFORMAS';
-        }
-
-        switch (targetSection) {
-          case 'tabelaOriginacao':
-            newRows.push({ id: `ORIG-${idCol}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`, dist: distCol, data: dataCol, plataforma: plataformaOrigem, valor });
-            break;
-          case 'tabelaMovimentacao':
-            newRows.push({ id: `MOV-${idCol}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`, dist: distCol, data: dataCol, plataformaOrigem, usuarioOrigem, tipoUsuarioOrigem, destino: plataformaDestino, usuarioDestino, tipoUsuarioDestino, tipoTransacao: tipoTransacaoDefault, valor, statusAuditoria: 'Concluido', valorPago: 0, linkNxt: idCol, observacaoTransacao: '' });
-            break;
-          case 'tabelaAquisicao':
-            newRows.push({ id: `AQUIS-${idCol}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`, dist: distCol, data: dataCol, plataformaOrigem, usuarioOrigem, tipoUsuarioOrigem, destino: plataformaDestino, usuarioDestino, tipoUsuarioDestino, valor, statusAuditoria: 'Concluido', valorPago: 0, linkNxt: idCol, observacaoTransacao: '' });
-            break;
-          case 'tabelaCreditos':
-            newRows.push({ id: `CRED-${idCol}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`, dist: distCol, data: dataCol, plataformaOrigem, usuarioOrigem, tipoUsuarioOrigem, destino: plataformaDestino, usuarioDestino, tipoUsuarioDestino, valor, statusAuditoria: 'Concluido', valorPago: 0, linkNxt: idCol, observacaoTransacao: '' });
-            break;
-          case 'tabelaImei':
-            newRows.push({ id: `IMEI-${idCol}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`, data: dataCol, dist: distCol, valorDebito: valor, valorCredito: 0 });
-            break;
-          case 'tabelaLegado':
-            // Para legado, tentamos pegar os últimos 4 valores numéricos se houver
-            const numVals = rec.filter(t => /^\d+([.,]\d+)?$/.test(t)).map(parseVal);
-            const val4 = numVals.slice(-4); // Últimos 4 valores
-            newRows.push({
-              id: `LEG-${idCol}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
-              dist: distCol,
-              data: dataCol,
-              plataforma: plataformaOrigem,
-              disponivel: val4.length >= 4 ? val4[0] : valor,
-              reservado: val4.length >= 4 ? val4[1] : 0,
-              bloqueado: val4.length >= 4 ? val4[2] : 0,
-              aposentado: val4.length >= 4 ? val4[3] : 0,
-              status: 'Concluido'
-            });
-            break;
-        }
-      });
-    } else {
-      // Standard line-by-line parsing for Excel/Sheets templates
-      const lines = rawLines.filter(l => l.trim() && !l.toLowerCase().includes('data') && !l.toLowerCase().includes('id'));
-      lines.forEach(line => {
-        const parseVal = (str: string | undefined) => parseFloat(str?.replace(/\./g, "").replace(/[^\d.-]/g, "") || "0");
-        const cleanData = (str: string | undefined) => str?.split(' ')[0] || '';
-        const parts = line.split(/\t| {2,}/).map(p => p.trim()).filter(Boolean);
-        if (parts.length < 2) return;
-
-        switch (targetSection) {
-          case 'tabelaLegado':
-            // Procura a data em qualquer lugar
-            const dataIdx = parts.findIndex(p => p.includes('/'));
-            // Pega todos os números puros
-            const numVals = parts.filter(p => /^-?\d+([.,]\d+)?$/.test(p)).map(parseVal);
-            // Os últimos 4 são o financeiro
-            const finan = numVals.slice(-4);
-            // Plataforma costuma ser o que vem depois da data ou o primeiro item não numérico
-            const plat = parts.find((p, idx) => idx > (dataIdx !== -1 ? dataIdx : -1) && !/^-?\d+([.,]\d+)?$/.test(p) && p.length > 3) || parts[0];
-
-            newRows.push({
-              id: `LEG-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
-              data: dataIdx !== -1 ? cleanData(parts[dataIdx]) : new Date().toLocaleDateString('pt-BR'),
-              plataforma: plat.toUpperCase(),
-              disponivel: finan.length >= 1 ? (finan.length === 4 ? finan[0] : finan[finan.length - 1]) : 0,
-              reservado: finan.length === 4 ? finan[1] : 0,
-              bloqueado: finan.length === 4 ? finan[2] : 0,
-              aposentado: finan.length === 4 ? finan[3] : 0
-            });
-            break;
-          case 'tabelaOriginacao':
-            newRows.push({ id: `ORIG-${Math.random().toString(36).substring(2, 7).toUpperCase()}`, dist: parts[0]?.trim() || '', data: cleanData(parts[1]), plataforma: parts[2]?.trim() || '', valor: parseVal(parts[parts.length - 1]) }); break;
-          case 'tabelaMovimentacao':
-            newRows.push({ id: `MOV-${Math.random().toString(36).substring(2, 7).toUpperCase()}`, dist: parts[0]?.trim() || '', data: cleanData(parts[1]), destino: parts[2]?.trim() || '', usuarioDestino: parts[3]?.trim() || '', valor: parseVal(parts[6]) || parseVal(parts[4]) || 0, statusAuditoria: 'Concluido', valorPago: parseVal(parts[11]), linkNxt: parts[12]?.trim() || '', observacaoTransacao: parts[13]?.trim() || '' }); break;
-        }
-      });
+  const onProcessPaste = (section: keyof AuditData) => {
+    if (!pasteData) return;
+    const success = handleProcessPaste(section, pasteData.raw);
+    if (success) {
+      setPasteData(null);
     }
-
-    const existingRows = (formData as any)[targetSection] || [];
-    const existingSignatures = new Set(existingRows.map((r: any) =>
-      `${r.data}-${r.plataforma}-${r.valor || r.disponivel}-${r.reservado || 0}`
-    ));
-
-    const finalRows = newRows.filter(row => {
-      const sig = `${row.data}-${row.plataforma}-${row.valor || row.disponivel}-${row.reservado || 0}`;
-      if (existingSignatures.has(sig)) return false;
-      existingSignatures.add(sig);
-      return true;
-    });
-
-    if (finalRows.length > 0) {
-      setFormData({ ...formData, [targetSection]: [...existingRows, ...finalRows] });
-      setIsEditing(true);
-      toast.success(`${finalRows.length} novos registros adicionados.`);
-    } else {
-      toast.info("Nenhum registro novo detectado (duplicados ignorados).");
-    }
-
-    setPasteData(null);
-    setIsModalOpen(false);
-    setIsLegadoModalOpen(false);
   };
 
   const handleAddAquisicaoManual = () => {
@@ -406,202 +95,27 @@ export default function ProdutorDetailPage() {
       toast.error("Informe um volume de UCS válido.");
       return;
     }
-
     const newRow = {
-      id: `ACQ-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
+      id: `ACQ-${crypto.randomUUID().substring(0, 8).toUpperCase()}`,
       data: manualAquisicao.data,
       adquirente: 'IMEI / BMTCA',
       observacao: manualAquisicao.observacao,
       status: 'CONCLUÍDO',
       valor: manualAquisicao.valor
     };
-
-    setFormData({
-      ...formData,
-      tabelaAquisicao: [...(formData.tabelaAquisicao || []), newRow]
-    });
+    setFormData((prev: any) => ({
+      ...prev,
+      tabelaAquisicao: [...(prev?.tabelaAquisicao || []), newRow]
+    }));
     setIsEditing(true);
     setIsAquisicaoModalOpen(false);
-    setManualAquisicao({ data: '2019', valor: 0, observacao: '' });
-    toast.success("Aquisição registrada com sucesso.");
+    setManualAquisicao({ data: '2024', valor: 0, observacao: '' });
+    toast.success("Aquisição manual registrada.");
   };
 
-  const currentStats = {
-    originacao: (isEditing ? formData.tabelaOriginacao?.reduce((acc: number, cur: any) => acc + (Number(cur.valor) || 0), 0) : (entityData?.tabelaOriginacao?.reduce((acc: number, cur: any) => acc + (Number(cur.valor) || 0), 0) || entityData?.originacao || 0)) || 0,
-    movimentacao: (isEditing ? formData.tabelaMovimentacao?.reduce((acc: number, cur: any) => {
-      const isFinancial = cur.tipoTransacao === 'CONSUMO' || !cur.tipoTransacao;
-      return isFinancial ? acc + (Number(cur.valor) || 0) : acc;
-    }, 0) : (entityData?.tabelaMovimentacao?.reduce((acc: number, cur: any) => {
-      const isFinancial = cur.tipoTransacao === 'CONSUMO' || !cur.tipoTransacao;
-      return isFinancial ? acc + (Number(cur.valor) || 0) : acc;
-    }, 0) || entityData?.movimentacao || 0)) || 0,
-    legado: (isEditing ? formData.tabelaLegado : entityData?.tabelaLegado)?.reduce((acc: number, cur: any) => acc + (Number(cur.disponivel || 0) + Number(cur.reservado || 0)), 0) || 0,
-    bloqueado: Number(isEditing ? formData.ajusteManualVolume : entityData?.ajusteManualVolume) < 0
-      ? (Number(isEditing ? formData.originacao : entityData?.originacao) - (Number(isEditing ? formData.movimentacao : entityData?.movimentacao) || 0) - (Number(isEditing ? formData.aquisicao : entityData?.aquisicao) || 0))
-      : ((isEditing ? formData.tabelaLegado : entityData?.tabelaLegado)?.reduce((acc: number, cur: any) => acc + (Number(cur.bloqueado) || 0), 0) || 0),
-    aposentado: (isEditing ? formData.tabelaLegado : entityData?.tabelaLegado)?.reduce((acc: number, cur: any) => acc + (Number(cur.aposentado) || 0), 0) || 0,
-    imei: ((isEditing ? formData.tabelaImei : entityData?.tabelaImei) || [])?.reduce((acc: number, cur: any) => acc + (Number(cur.valorDebito || 0) - Number(cur.valorCredito || 0)), 0) || 0
-      + ((isEditing ? formData.tabelaMovimentacao : entityData?.tabelaMovimentacao) || [])?.reduce((acc: number, cur: any) =>
-        cur.tipoTransacao === 'IMEI / CUSTODIA' ? acc + (Number(cur.valor) || 0) : acc, 0) || 0,
-    aquisicao: (isEditing ? formData.tabelaAquisicao : entityData?.tabelaAquisicao)?.reduce((acc: number, cur: any) => acc + (Number(cur.valor) || 0), 0) || 0,
-    creditos: (isEditing ? formData.tabelaCreditos?.reduce((acc: number, cur: any) => {
-      const isFinancial = cur.tipoTransacao === 'CONSUMO' || !cur.tipoTransacao;
-      return isFinancial ? acc + (Number(cur.valor) || 0) : acc;
-    }, 0) : (entityData?.tabelaCreditos?.reduce((acc: number, cur: any) => {
-      const isFinancial = cur.tipoTransacao === 'CONSUMO' || !cur.tipoTransacao;
-      return isFinancial ? acc + (Number(cur.valor) || 0) : acc;
-    }, 0) || entityData?.creditos || 0)) || 0,
-    ajusteManual: Number(isEditing ? formData.ajusteManualVolume : entityData?.ajusteManualVolume) || 0,
-    entrada: 0,
-    saldoReal: 0,
-  };
-  currentStats.entrada = currentStats.originacao + currentStats.creditos;
-  currentStats.saldoReal = currentStats.entrada - currentStats.movimentacao - currentStats.aquisicao - currentStats.bloqueado - currentStats.aposentado + currentStats.ajusteManual;
-
-  // Se houver ajuste de neutralização (bloqueio integral), forçamos o saldo disponível a zero para evitar negativos
-  if (currentStats.ajusteManual < 0 && currentStats.saldoReal !== 0) {
-    currentStats.saldoReal = 0;
-  }
-  const imeiAnalysis = useMemo(() => {
-    const movTable = (isEditing ? formData.tabelaMovimentacao : entityData?.tabelaMovimentacao) || [];
-    const credTable = (isEditing ? formData.tabelaCreditos : entityData?.tabelaCreditos) || [];
-    const imeiTable = (isEditing ? formData.tabelaImei : entityData?.tabelaImei) || [];
-
-    const totalCapturado = movTable.reduce((acc: number, cur: any) =>
-      cur.tipoTransacao === 'IMEI / CUSTODIA' ? acc + (Number(cur.valor) || 0) : acc, 0);
-
-    const retornadoCreditos = credTable.reduce((acc: number, cur: any) =>
-      cur.tipoTransacao === 'IMEI / CUSTODIA' ? acc + (Number(cur.valor) || 0) : acc, 0);
-
-    const retornadoImei = imeiTable.reduce((acc: number, cur: any) =>
-      acc + (Number(cur.valorCredito) || 0), 0);
-
-    const totalRetornado = retornadoCreditos + retornadoImei;
-
-    return {
-      totalCapturado,
-      totalRetornado,
-      pendente: Math.max(0, totalCapturado - totalRetornado),
-      emDivergencia: totalCapturado > totalRetornado,
-      temBloqueio: currentStats.bloqueado > 0,
-      inconsistenciaBloqueio: totalRetornado > 0 && currentStats.bloqueado > 0
-    };
-  }, [isEditing, formData, entityData, currentStats.bloqueado]);
-
-  const divergenciaLegado = currentStats.saldoReal - currentStats.legado;
-
-  const handleSave = async () => {
-    if (!entRef) return;
-    setIsSaving(true);
-    try {
-      await updateDoc(entRef, {
-        ...formData,
-        originacao: currentStats.originacao,
-        movimentacao: currentStats.movimentacao,
-        saldoLegadoTotal: currentStats.legado,
-        aquisicao: currentStats.aquisicao,
-        creditos: currentStats.creditos,
-        bloqueado: currentStats.bloqueado,
-        aposentado: currentStats.aposentado,
-        saldoAjustarImei: currentStats.imei,
-        saldoFinalAtual: currentStats.saldoReal,
-        ajusteManualVolume: formData.ajusteManualVolume || 0,
-        ajusteManualJustificativa: formData.ajusteManualJustificativa || "",
-        comentariosAuditoria: formData.comentariosAuditoria || "",
-        updatedAt: new Date().toISOString()
-      });
-      toast.success("Perfil técnico atualizado!");
-      setIsEditing(false);
-    } catch (error) { toast.error("Erro ao salvar."); } finally { setIsSaving(false); }
-  };
-
-  const handleExportJSON = () => {
-    const dataStr = JSON.stringify({
-      produtor,
-      stats: currentStats,
-      tabelas: isEditing ? formData : entityData,
-      exportDate: new Date().toISOString()
-    }, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-    const exportFileDefaultName = `auditoria-${produtor.nome?.toLowerCase().replace(/\s+/g, '-')}-${id}.json`;
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-    toast.success("Dados exportados com sucesso!");
-  };
-
-  const handleExportXLSX = () => {
-    // 1. Planilha de Resumo por Fazenda
-    const resumoData = produtor.fazendas.map((f: any, i: number) => {
-      const farmOrig = Number(f.saldoOriginacao) || 0;
-      const totalConsumo = currentStats.movimentacao;
-      const farmCount = produtor.fazendas.length;
-      const baseDeduction = Math.floor(totalConsumo / farmCount);
-      const remainder = totalConsumo % farmCount;
-      const farmDeduction = i < remainder ? baseDeduction + 1 : baseDeduction;
-
-      const farmAquisicao = (entityData?.tabelaAquisicao || [])?.filter((item: any) =>
-        produtor.fazendas.length === 1 ||
-        item.dist?.toUpperCase().includes(f.fazendaNome?.toUpperCase()) ||
-        f.fazendaNome?.toUpperCase().includes(item.dist?.toUpperCase())
-      ).reduce((acc: number, cur: any) => acc + (Number(cur.valor) || 0), 0);
-
-      const farmAposentado = (entityData?.tabelaLegado || [])?.filter((item: any) =>
-        produtor.fazendas.length === 1 ||
-        item.dist?.toUpperCase().includes(f.fazendaNome?.toUpperCase()) ||
-        f.fazendaNome?.toUpperCase().includes(item.dist?.toUpperCase())
-      ).reduce((acc: number, cur: any) => acc + (Number(cur.aposentado) || 0), 0);
-
-      const liquid = farmOrig - farmDeduction - farmAquisicao - farmAposentado;
-
-      return {
-        "IDF": f.idf,
-        "Fazenda": f.fazendaNome,
-        "Nucleo": f.nucleo || "NÃO INFORMADO",
-        "Proprietario(produtor)": produtor.nome,
-        "Documento do proprietario": produtor.documento,
-        "Safra": f.safraReferencia,
-        "Originação Total (UCS)": farmOrig,
-        "Dedução Consumo (UCS)": farmDeduction,
-        "Aquisição ADM (UCS)": farmAquisicao,
-        "Aposentado (UCS)": farmAposentado,
-        "Saldo Líquido (UCS)": liquid
-      };
-    });
-
-    // 2. Planilha de Extrato Consolidado
-    const allTs = [
-      ...(entityData?.tabelaOriginacao || []).map((t: any) => ({ ...t, Tipo: 'ORIGINAÇÃO', Sign: '+' })),
-      ...(entityData?.tabelaCreditos || []).map((t: any) => ({ ...t, Tipo: 'CRÉDITO ADM', Sign: '+' })),
-      ...(entityData?.tabelaMovimentacao || []).map((t: any) => ({ ...t, Tipo: 'CONSUMO / SAÍDA', Sign: '-' })),
-      ...(entityData?.tabelaAquisicao || []).map((t: any) => ({ ...t, Tipo: 'AQUISIÇÃO', Sign: '-' })),
-      ...(entityData?.tabelaImei || []).map((t: any) => ({ ...t, Tipo: 'AJUSTE IMEI', Sign: t.valorDebito > 0 ? '-' : '+', valor: t.valorDebito || t.valorCredito })),
-      ...(entityData?.tabelaLegado || []).map((t: any) => ({ ...t, Tipo: 'RESERVA LEGADA', Sign: '-', valor: Number(t.aposentado || 0) + Number(t.bloqueado || 0) }))
-    ].filter(t => t.data).sort((a, b) => b.data.split('/').reverse().join('-').localeCompare(a.data.split('/').reverse().join('-')));
-
-    const extratoData = allTs.map(t => ({
-      "Data": t.data,
-      "Operação": t.Tipo,
-      "Propriedade/Dist": t.dist || 'GERAL',
-      "Plataforma/Destino": t.plataforma || t.destino || t.plataformaOrigem || 'CUSTÓDIA DIRETA',
-      "Volume (UCS)": `${t.Sign}${Math.floor(t.valor || t.disponivel || 0)}`,
-      "Status": t.statusAuditoria || t.status || 'CONCLUÍDO'
-    }));
-
-    const wb = XLSX.utils.book_new();
-    const wsResumo = XLSX.utils.json_to_sheet(resumoData);
-    const wsExtrato = XLSX.utils.json_to_sheet(extratoData);
-
-    XLSX.utils.book_append_sheet(wb, wsResumo, "Particionamento");
-    XLSX.utils.book_append_sheet(wb, wsExtrato, "Extrato Técnico");
-
-    XLSX.writeFile(wb, `auditoria-completa-${produtor.nome?.toLowerCase().replace(/\s+/g, '-')}.xlsx`);
-    toast.success("Arquivo XLSX Completo disponível!");
-  };
-
-  if (isFazendasLoading || isWalletLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-emerald-500" /></div>;
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-emerald-500" /></div>;
   if (!produtor) return <div className="min-h-screen flex items-center justify-center">Produtor não encontrado.</div>;
+
   return (
     <>
       <div id="main-app-ui" className="flex min-h-screen bg-[#F8FAFC] print:hidden">
@@ -610,193 +124,199 @@ export default function ProdutorDetailPage() {
           <div className="flex-1 flex flex-row overflow-hidden">
             <div className="flex-1 flex flex-col min-w-0 relative border-r border-slate-100 overflow-hidden">
 
-              {/* HEADER FIXO */}
-              <div className="bg-[#0B0F1A] pb-4 shrink-0 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-emerald-500/10 to-transparent pointer-events-none" />
-                <div className="px-10 py-3 border-b border-white/5 flex items-center gap-4 relative z-10">
-                  <Button onClick={() => router.push('/produtores')} variant="ghost" className="h-8 px-2 text-slate-400 hover:text-white hover:bg-white/5 gap-2 uppercase text-[10px] font-black">
-                    <ChevronLeft className="w-4 h-4" /> Voltar para Lista
-                  </Button>
-                </div>
-                <div className="px-10 py-6 flex items-center justify-between relative z-10 gap-4">
-                  <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 rounded-2xl bg-emerald-500 flex items-center justify-center text-[24px] font-black text-white shadow-xl shadow-emerald-500/20 uppercase shrink-0">
-                      {produtor.nome?.substring(0, 2)}
-                    </div>
-                    <div className="space-y-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest">{produtor.tipo}</Badge>
-                        <span className="text-slate-500 font-mono text-[11px]">{produtor.documento}</span>
+              {/* HEADER TIPO DASHBOARD (PITCH BLACK) */}
+              <div className="shrink-0 bg-[#080C11] border-b border-white/5 relative z-20 px-10 py-6">
+                <div className="flex items-center justify-between gap-8 flex-wrap lg:flex-nowrap">
+                  
+                  {/* LADO ESQUERDO: NOME E NAV */}
+                  <div className="flex items-center gap-6 min-w-0">
+                    <button onClick={() => router.push('/produtores')} className="shrink-0 w-14 h-24 rounded-[2rem] border-2 border-emerald-500/30 hover:border-emerald-500 flex items-center justify-center text-emerald-500 bg-emerald-500/5 transition-all group">
+                       <span className="text-2xl font-black tracking-tighter uppercase leading-none group-hover:scale-110 transition-transform">
+                         {produtor.nome?.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}
+                       </span>
+                    </button>
+
+                    <div className="max-w-xl">
+                      <div className="flex items-center gap-3 mb-1">
+                        <Badge className="bg-emerald-500 text-[9px] font-black uppercase px-2 py-0 border-none">PF</Badge>
+                        <p className="text-slate-500 font-mono text-[10px] font-bold tracking-tight">{produtor.documento}</p>
                       </div>
-                      <h1 className="text-[20px] xl:text-[26px] font-black text-white uppercase tracking-tight leading-none truncate max-w-[250px] lg:max-w-[450px]">{produtor.nome}</h1>
-                      <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5">
-                        <Building2 className="w-3 h-3 text-emerald-500" /> {produtor.totalFazendas} {produtor.totalFazendas === 1 ? 'Propriedade' : 'Propriedades'}
-                      </p>
+                      <h1 className="text-xl lg:text-2xl font-black text-white uppercase tracking-tighter leading-tight truncate max-w-[360px]">
+                        {produtor.nome}
+                      </h1>
+                      <div className="mt-2 flex items-center gap-2">
+                         <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                         <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{produtor.fazendas.length} PROPRIEDADES</p>
+                      </div>
+                      <button onClick={() => router.push('/produtores')} className="mt-2 flex items-center gap-1 text-[8px] font-black text-slate-600 hover:text-white transition-colors uppercase tracking-widest">
+                        <ChevronLeft className="w-2 h-2" /> Voltar para Lista
+                      </button>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-8 bg-white/5 border border-white/10 p-4 px-8 rounded-[2rem] backdrop-blur-xl shrink-0">
-                    <div className="flex gap-6">
-                      <div className="text-right">
-                        <p className="text-[7px] font-black text-emerald-500/60 uppercase tracking-widest mb-1">Originação</p>
-                        <p className="text-[14px] font-black text-emerald-500 leading-none">{Math.floor(currentStats.originacao).toLocaleString('pt-BR')}</p>
+                  {/* LADO DIREITO: MÉTRICAS */}
+                  <div className="flex items-center gap-5 flex-1 justify-end">
+                    {/* BARRA DE STATS (DARK CAPSULE) */}
+                    <div className="bg-[#111622]/50 border border-white/5 rounded-3xl p-3 px-8 flex items-center gap-6 lg:gap-10 shadow-xl relative overflow-hidden">
+                      <div className="flex items-center gap-6 relative z-10">
+                        <div className="text-center">
+                          <p className="text-[8px] font-black text-slate-500 uppercase mb-1">Originação</p>
+                          <p className="text-lg font-black text-emerald-400">{(currentStats.originacao || 0).toLocaleString('pt-BR')}</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-[8px] font-black text-slate-500 uppercase mb-1">Créditos</p>
+                          <p className="text-lg font-black text-emerald-300">+{(currentStats.creditos || 0).toLocaleString('pt-BR')}</p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-[7px] font-black text-emerald-400 uppercase tracking-widest mb-1">Créditos</p>
-                        <p className="text-[14px] font-black text-emerald-400 leading-none">+{Math.floor(currentStats.creditos).toLocaleString('pt-BR')}</p>
+                      <div className="w-px h-6 bg-white/5" />
+                      <div className="flex items-center gap-6 relative z-10">
+                        <div className="text-center">
+                          <p className="text-[8px] font-black text-rose-500/70 uppercase mb-1">Consumo</p>
+                          <p className="text-lg font-black text-rose-500">{(currentStats.movimentacao || 0).toLocaleString('pt-BR')}</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-[8px] font-black text-indigo-400/70 uppercase mb-1">Aquisição</p>
+                          <p className="text-lg font-black text-indigo-400">-{(currentStats.aquisicao || 0).toLocaleString('pt-BR')}</p>
+                        </div>
+                      </div>
+                      <div className="w-px h-6 bg-white/5" />
+                      <div className="flex items-center gap-6 relative z-10">
+                        <div className="text-center">
+                          <p className="text-[8px] font-black text-amber-500/70 uppercase mb-1">Bloqueado</p>
+                          <p className="text-lg font-black text-amber-500">{(currentStats.bloqueado || 0).toLocaleString('pt-BR')}</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-[8px] font-black text-slate-500 uppercase mb-1">Aposentado</p>
+                          <p className="text-lg font-black text-white/90">{(currentStats.aposentado || 0).toLocaleString('pt-BR')}</p>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="w-px h-8 bg-white/10" />
-
-                    <div className="flex gap-6">
-                      <div className="text-right">
-                        <p className="text-[7px] font-black text-rose-500/60 uppercase tracking-widest mb-1">Consumo</p>
-                        <p className="text-[14px] font-black text-rose-500 leading-none">{Math.floor(currentStats.movimentacao).toLocaleString('pt-BR')}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-[7px] font-black text-indigo-400 uppercase tracking-widest mb-1">Aquisição</p>
-                        <p className="text-[14px] font-black text-indigo-400 leading-none">-{Math.floor(currentStats.aquisicao).toLocaleString('pt-BR')}</p>
-                      </div>
-                    </div>
-
-                    <div className="w-px h-8 bg-white/10" />
-
-                    <div className="flex gap-6">
-                      <div className="text-right">
-                        <p className="text-[7px] font-black text-amber-500/60 uppercase tracking-widest mb-1">Bloqueado</p>
-                        <p className="text-[14px] font-black text-amber-500 leading-none">{Math.floor(currentStats.bloqueado).toLocaleString('pt-BR')}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Aposentado</p>
-                        <p className="text-[14px] font-black text-slate-400 leading-none">{Math.floor(currentStats.aposentado).toLocaleString('pt-BR')}</p>
-                      </div>
-                    </div>
-
-                    <div className="w-px h-10 bg-white/10 mx-2" />
-
-                    <div className="bg-emerald-500/20 px-6 py-3 rounded-2xl border border-emerald-500/30 shadow-[0_0_20px_rgba(16,185,129,0.1)]">
-                      <p className="text-[7px] font-black text-emerald-400 uppercase tracking-widest mb-1 text-center">Saldo Disponível</p>
-                      <div className="flex items-baseline justify-center gap-1.5">
-                        <p className="text-[22px] font-black text-emerald-400 leading-none">
-                          {Math.floor(currentStats.saldoReal).toLocaleString('pt-BR')}
+                    {/* BOX SALDO (NEON) */}
+                    <div className="bg-[#111A16] border border-emerald-500/30 rounded-3xl p-3 px-8 text-center relative overflow-hidden shadow-lg min-w-[170px] group transition-all">
+                      <p className="text-[8px] font-black text-emerald-500 uppercase tracking-widest mb-1">Saldo Disponível</p>
+                      <div className="flex items-center gap-2 justify-center">
+                        <p className="text-2xl font-black text-[#69FFA6] drop-shadow-[0_0_10px_rgba(105,255,166,0.3)] tracking-tighter">
+                          {(currentStats.saldoReal || 0).toLocaleString('pt-BR')}
                         </p>
-                        <span className="text-[8px] font-black text-emerald-600">UCS</span>
+                        <span className="text-[9px] font-black text-emerald-500 mt-1">UCS</span>
                       </div>
                     </div>
-                  </div>
 
-                  {Math.abs(divergenciaLegado) > 1 && (
-                    <div className="absolute -bottom-10 right-4 flex items-center gap-2 bg-amber-500/20 border border-amber-500/30 px-3 py-1 rounded-full backdrop-blur-sm">
-                      <AlertTriangle className="w-3 h-3 text-amber-400" />
-                      <span className="text-[9px] font-black text-amber-400 uppercase tracking-widest">
-                        Divergência Legado: {Math.floor(divergenciaLegado).toLocaleString('pt-BR')} UCS
-                      </span>
+                    {/* BOTÕES DE AÇÃO */}
+                    <div className="flex flex-col gap-2 shrink-0">
+                       <Button
+                          onClick={() => isEditing ? (handleSave ? handleSave() : setIsEditing(false)) : setIsEditing(true)}
+                          disabled={isSaving}
+                          className={cn(
+                            "h-8 px-4 rounded-xl text-[9px] font-black uppercase transition-all shadow-md",
+                            isEditing ? "bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/20" : "bg-white/10 hover:bg-white/20 text-white border border-white/5"
+                          )}
+                        >
+                          {isSaving ? "SALVANDO" : isEditing ? "CONCLUIR" : "AUDITAR"}
+                        </Button>
+                        <Button variant="ghost" className="h-4 p-0 text-[8px] font-black text-slate-500 uppercase hover:text-white transition-colors">Exportar PDF</Button>
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
 
               {/* ÁREA DE SCROLL DO CONTEÚDO */}
               <div className="flex-1 overflow-y-auto bg-[#F8FAFC] custom-scrollbar">
-                <div className="p-10 space-y-8 pb-32">
-                  <div className="space-y-6">
-                    <h3 className="text-[12px] font-black uppercase text-slate-400 tracking-widest flex gap-2 items-center"><MapIcon className="w-4 h-4" /> Portfólio de Propriedades</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="p-10 space-y-12 pb-32">
+                  
+                  {/* PORTFÓLIO DE PROPRIEDADES */}
+                  <div className="space-y-8">
+                    <div className="flex items-center justify-between">
+                       <div className="flex items-center gap-3">
+                         <div className="w-1.5 h-6 bg-slate-900 rounded-full" />
+                         <h3 className="text-xl font-black uppercase text-slate-800 tracking-tight flex gap-2 items-center">Portfólio de Propriedades</h3>
+                       </div>
+                    </div>
+
+                    <div className="space-y-12">
                       {produtor.fazendas.map((f: any, i: number) => {
-                        const farmOrig = Number(f.saldoOriginacao) || 0;
-
-                        const totalConsumo = currentStats.movimentacao;
-                        const farmCount = produtor.fazendas.length;
-                        const baseDeduction = Math.floor(totalConsumo / farmCount);
-                        const remainder = totalConsumo % farmCount;
-                        const farmDeduction = i < remainder ? baseDeduction + 1 : baseDeduction;
-
-                        const farmAquisicao = (entityData?.tabelaAquisicao || [])?.filter((item: any) =>
-                          produtor.fazendas.length === 1 ||
-                          item.dist?.toUpperCase().includes(f.fazendaNome?.toUpperCase()) ||
-                          f.fazendaNome?.toUpperCase().includes(item.dist?.toUpperCase())
-                        ).reduce((acc: number, cur: any) => acc + (Number(cur.valor) || 0), 0);
-
-                        const farmAposentado = (entityData?.tabelaLegado || [])?.filter((item: any) =>
-                          produtor.fazendas.length === 1 ||
-                          item.dist?.toUpperCase().includes(f.fazendaNome?.toUpperCase()) ||
-                          f.fazendaNome?.toUpperCase().includes(item.dist?.toUpperCase())
-                        ).reduce((acc: number, cur: any) => acc + (Number(cur.aposentado) || 0), 0);
-
-                        const legadaValue = farmOrig - farmDeduction - farmAquisicao - farmAposentado;
+                        const safeMatch = (val: string) => {
+                          if (!val) return false;
+                          const d = val.toUpperCase().trim();
+                          const n = (f.fazendaNome || '').toUpperCase().trim();
+                          const idf = (f.idf || '').toUpperCase().trim();
+                          if (idf && idf !== '---' && d.includes(idf)) return true;
+                          if (n && d.includes(n)) return true;
+                          // Fallback para nomes sem "Fazenda/Sítio"
+                          const cleanN = n.replace(/^(FAZENDA|SITIO|SÍTIO|CHACARA|CHÁCARA|ESTANCIA|ESTÂNCIA)\s+/i, '').trim();
+                          const cleanD = d.replace(/^(FAZENDA|SITIO|SÍTIO|CHACARA|CHÁCARA|ESTANCIA|ESTÂNCIA)\s+/i, '').trim();
+                          if (cleanN && cleanN.length > 3 && (cleanD.includes(cleanN) || cleanN.includes(cleanD))) return true;
+                          return false;
+                        };
+                        
+                        const farmOrig = (currentData?.tabelaOriginacao?.filter((row: any) => safeMatch(row.dist) || safeMatch(row.plataforma)).reduce((acc: number, cur: any) => acc + (Number(cur.valor) || 0), 0)) || Number(f.saldoOriginacao) || 0;
+                        const farmDeduction = currentData?.tabelaMovimentacao?.filter((row: any) => safeMatch(row.dist) || safeMatch(row.plataforma)).reduce((acc: number, cur: any) => acc + (Number(cur.valor) || 0), 0) || 0;
+                        const farmAposentado = (currentData?.tabelaLegado?.filter((row: any) => safeMatch(row.dist) || safeMatch(row.plataforma)).reduce((acc: number, cur: any) => acc + (Number(cur.aposentado) || 0), 0)) || Number(f.aposentado) || 0;
 
                         return (
-                          <div key={i} className="contents">
-                            <div onClick={() => router.push(`/fazendas?search=${encodeURIComponent(f.fazendaNome)}`)} className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all group cursor-pointer shadow-[0_10px_40px_rgba(0,0,0,0.02)]">
-                              <div className="flex justify-between items-start mb-6">
-                                <div className="space-y-1">
-                                  <div className="flex items-center gap-2">
-                                    <p className="text-[16px] font-black text-slate-900 uppercase group-hover:text-emerald-600 transition-colors">{f.fazendaNome}</p>
-                                    <ExternalLink className="w-3 h-3 text-slate-300 group-hover:text-emerald-500 opacity-0 group-hover:opacity-100 transition-all" />
-                                  </div>
-                                  <p className="text-[11px] font-mono text-slate-400 tracking-tight">IDF: {f.idf}</p>
+                          <div key={i} className="flex gap-8 items-stretch">
+                            {/* CARD ESQUERDO: DETALHES */}
+                            <div className="flex-1 bg-white p-10 rounded-[40px] border border-slate-100 shadow-[0_10px_40px_rgba(0,0,0,0.02)] relative overflow-hidden group">
+                              <div className="flex justify-between items-start mb-10">
+                                <div>
+                                  <h4 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-1">{f.fazendaNome}</h4>
+                                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">IDF: {f.idf}</p>
                                 </div>
-                                <Badge className="bg-slate-100 text-slate-500 border-none font-black text-[10px]">{f.percentual}%</Badge>
+                                <Badge className="bg-slate-100 text-slate-500 border-none px-4 py-1.5 rounded-xl font-black text-[10px] uppercase">100%</Badge>
                               </div>
 
-                              <div className="space-y-4">
-                                <PropDetail label="Área do Produtor" value={`${f.areaProdutor.toLocaleString('pt-BR')} ha`} highlight />
-                                <PropDetail label="Núcleo" value={f.nucleo || "---"} />
-                                <PropDetail label="Localização" value={`${f.municipio || '---'}/${f.uf || '---'}`} />
+                              <div className="space-y-6">
+                                <div className="flex justify-between items-center bg-slate-50/50 p-4 rounded-2xl">
+                                  <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Área do Produtor</span>
+                                  <span className="text-lg font-black text-emerald-600 tracking-tighter">{f.areaProdutor?.toLocaleString('pt-BR')} HA</span>
+                                </div>
+                                <div className="flex justify-between items-center px-4">
+                                  <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Núcleo</span>
+                                  <span className="text-[12px] font-bold text-slate-900 uppercase">{f.nucleo || '---'}</span>
+                                </div>
+                                <div className="flex justify-between items-center px-4">
+                                  <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Localização</span>
+                                  <span className="text-[12px] font-bold text-slate-500 uppercase">{f.municipio}/{f.uf}</span>
+                                </div>
                               </div>
                             </div>
 
-                            <div className="bg-[#0B0F1A] p-8 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
-                              <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/10 rounded-full -mr-24 -mt-24 blur-3xl opacity-20" />
-                              <div className="relative z-10 h-full flex flex-col justify-between space-y-8">
-                                <div className="flex justify-between items-start">
+                            {/* CARD DIREITO: RESUMO TÉCNICO (DARK) */}
+                            <div className="w-[480px] bg-[#0B101B] p-10 rounded-[40px] shadow-2xl relative overflow-hidden border border-white/5">
+                              <div className="absolute top-0 right-0 p-8 opacity-10">
+                                <Droplets className="w-16 h-16 text-emerald-400" />
+                              </div>
+                              <div className="relative z-10 h-full flex flex-col">
+                                <div className="mb-8">
+                                  <h5 className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em] mb-4">Originação Legada</h5>
                                   <div className="space-y-1">
-                                    <h4 className="text-[11px] font-black text-emerald-400 uppercase tracking-[0.2em] mb-4">Originação Legada</h4>
-                                    <div className="space-y-2">
-                                      <p className="text-[13px] font-black text-white uppercase leading-tight line-clamp-1">{f.fazendaNome}</p>
-                                      <div className="flex flex-col gap-1.5">
-                                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest leading-none">IDF: <span className="text-emerald-400">{f.idf}</span></p>
-                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">Safra {f.safraReferencia}</p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-emerald-400">
-                                    <Droplets className="w-4 h-4" />
+                                     <p className="text-[16px] font-black text-white uppercase leading-none">{f.fazendaNome}</p>
+                                     <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">IDF: <span className="text-emerald-500/80">{f.idf}</span></p>
+                                     <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Safra {f.safraReferencia}</p>
                                   </div>
                                 </div>
 
-                                <div className="space-y-3 py-4 border-y border-white/5">
-                                  <div className="flex justify-between items-center text-slate-400">
-                                    <span className="text-[8px] font-black uppercase tracking-widest">Originação Total (Safra)</span>
-                                    <span className="text-[11px] font-black">{Math.floor(farmOrig).toLocaleString('pt-BR')} <span className="text-[8px] opacity-40 ml-1">UCS</span></span>
+                                <div className="space-y-4 flex-1 border-t border-white/5 pt-8">
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Originação Total (Safra)</span>
+                                    <span className="text-[13px] font-black text-white tracking-tighter">{farmOrig.toLocaleString('pt-BR')} <span className="text-[8px] text-slate-500 ml-1">UCS</span></span>
                                   </div>
-                                  <div className="flex justify-between items-center text-rose-500/80">
-                                    <span className="text-[8px] font-black uppercase tracking-widest">Dedução (Consumo)</span>
-                                    <span className="text-[11px] font-black">-{Math.floor(farmDeduction).toLocaleString('pt-BR')} <span className="text-[8px] opacity-40 ml-1">UCS</span></span>
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-[9px] font-black text-rose-400 uppercase tracking-widest">Dedução (Consumo)</span>
+                                    <span className="text-[13px] font-black text-rose-500 tracking-tighter">-{farmDeduction.toLocaleString('pt-BR')} <span className="text-[8px] text-rose-400 ml-1">UCS</span></span>
                                   </div>
-                                  {farmAquisicao > 0 && (
-                                    <div className="flex justify-between items-center text-indigo-400/80">
-                                      <span className="text-[8px] font-black uppercase tracking-widest">Aquisição (Certificados)</span>
-                                      <span className="text-[11px] font-black">-{Math.floor(farmAquisicao).toLocaleString('pt-BR')} <span className="text-[8px] opacity-40 ml-1">UCS</span></span>
-                                    </div>
-                                  )}
-                                  {farmAposentado > 0 && (
-                                    <div className="flex justify-between items-center text-slate-500">
-                                      <span className="text-[8px] font-black uppercase tracking-widest">Reserva (Aposentado)</span>
-                                      <span className="text-[11px] font-black">-{Math.floor(farmAposentado).toLocaleString('pt-BR')} <span className="text-[8px] opacity-40 ml-1">UCS</span></span>
-                                    </div>
-                                  )}
                                 </div>
 
-                                <div className="pt-6 border-t border-white/5 flex items-end justify-between">
-                                  <div className="flex items-baseline gap-2">
-                                    <span className="text-[28px] font-black text-white tracking-tighter leading-none">{Math.floor(legadaValue).toLocaleString('pt-BR')}</span>
-                                    <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">UCS</span>
+                                <div className="mt-12 pt-6 border-t border-white/5 flex justify-between items-end">
+                                  <div>
+                                    <p className="text-4xl font-black text-white tracking-tighter leading-none mb-1">
+                                      {(farmOrig - farmDeduction).toLocaleString('pt-BR')} <span className="text-emerald-500 text-lg">UCS</span>
+                                    </p>
                                   </div>
                                   <div className="text-right">
-                                    <p className="text-[7px] font-black text-slate-500 uppercase mb-0.5">Vlr Líquido Técnico</p>
-                                    <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 rounded-md text-[7px] font-black p-0 px-1 leading-normal uppercase">Auditado</Badge>
+                                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Vlr Líquido Técnico</p>
+                                    <Badge className="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-[7px] font-black uppercase px-2 py-0.5">Auditado</Badge>
                                   </div>
                                 </div>
                               </div>
@@ -805,438 +325,257 @@ export default function ProdutorDetailPage() {
                         );
                       })}
                     </div>
-                  </div>
-
-                  <div className="space-y-6">
-                    <h3 className="text-[12px] font-black uppercase text-slate-400 tracking-widest flex gap-2 items-center"><Calculator className="w-4 h-4" /> Particionamento Técnico de Saldos</h3>
-                    <div className="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="bg-slate-50 border-b border-slate-100 h-10">
-                            <TableHead className="text-[9px] font-black uppercase text-slate-400 pl-8">Propriedade</TableHead>
-                            <TableHead className="text-[9px] font-black uppercase text-slate-400 text-center">Originação</TableHead>
-                            <TableHead className="text-[9px] font-black uppercase text-slate-400 text-center">Consumo</TableHead>
-                            <TableHead className="text-[9px] font-black uppercase text-slate-400 text-center">Aquisição</TableHead>
-                            <TableHead className="text-[9px] font-black uppercase text-slate-400 text-center">Aposentado</TableHead>
-                            <TableHead className="text-[9px] font-black uppercase text-slate-900 text-right pr-8">Saldo Líquido</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {produtor.fazendas.map((f: any, i: number) => {
-                            const farmOrig = Number(f.saldoOriginacao) || 0;
-                            const totalConsumo = currentStats.movimentacao;
-                            const farmCount = produtor.fazendas.length;
-                            const baseDeduction = Math.floor(totalConsumo / farmCount);
-                            const remainder = totalConsumo % farmCount;
-                            const farmDeduction = i < remainder ? baseDeduction + 1 : baseDeduction;
-
-                            const farmAquisicao = (entityData?.tabelaAquisicao || [])?.filter((item: any) =>
-                              produtor.fazendas.length === 1 ||
-                              item.dist?.toUpperCase().includes(f.fazendaNome?.toUpperCase()) ||
-                              f.fazendaNome?.toUpperCase().includes(item.dist?.toUpperCase())
-                            ).reduce((acc: number, cur: any) => acc + (Number(cur.valor) || 0), 0);
-
-                            const farmAposentado = (entityData?.tabelaLegado || [])?.filter((item: any) =>
-                              produtor.fazendas.length === 1 ||
-                              item.dist?.toUpperCase().includes(f.fazendaNome?.toUpperCase()) ||
-                              f.fazendaNome?.toUpperCase().includes(item.dist?.toUpperCase())
-                            ).reduce((acc: number, cur: any) => acc + (Number(cur.aposentado) || 0), 0);
-
-                            const liquid = farmOrig - farmDeduction - farmAquisicao - farmAposentado;
-
-                            return (
-                              <TableRow key={i} className="h-12 border-b border-slate-50 hover:bg-slate-50/50">
-                                <TableCell className="pl-8 text-[11px] font-black text-slate-800 uppercase">{f.fazendaNome}</TableCell>
-                                <TableCell className="text-center text-[11px] font-bold text-slate-500">{Math.floor(farmOrig).toLocaleString('pt-BR')}</TableCell>
-                                <TableCell className="text-center text-[11px] font-bold text-rose-500">-{farmDeduction.toLocaleString('pt-BR')}</TableCell>
-                                <TableCell className="text-center text-[11px] font-bold text-indigo-500">-{farmAquisicao.toLocaleString('pt-BR')}</TableCell>
-                                <TableCell className="text-center text-[11px] font-bold text-slate-400">-{farmAposentado.toLocaleString('pt-BR')}</TableCell>
-                                <TableCell className="text-right pr-8 text-[12px] font-black text-emerald-600">{Math.floor(liquid).toLocaleString('pt-BR')} UCS</TableCell>
-                              </TableRow>
-                            );
-                          })}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm space-y-6">
+                    {/* PARTICIONAMENTO TÉCNICO DE SALDOS (TABELA) */}
+                    <div className="space-y-8 pt-12">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-500">
-                          <History className="w-5 h-5" />
-                        </div>
-                        <h4 className="text-[14px] font-black uppercase text-slate-800">Resumo Legado & Conciliação</h4>
+                        <Table2 className="w-5 h-5 text-slate-300" />
+                        <h2 className="text-[14px] font-black text-slate-400 uppercase tracking-[0.2em]">Particionamento Técnico de Saldos</h2>
                       </div>
-                      <div className="space-y-4">
-                        <PropDetail label="Saldo auditado disponível" value={`${Math.floor(currentStats.saldoReal).toLocaleString('pt-BR')} UCS`} highlight />
-                        <PropDetail label="Saldo (Legado)" value={`${Math.floor(currentStats.legado).toLocaleString('pt-BR')} UCS`} />
-                        <div className="flex justify-between items-center py-2 bg-amber-50 rounded-xl px-4 border border-amber-100">
-                          <span className="text-[10px] font-black text-amber-700 uppercase tracking-widest">UCS Bloqueadas</span>
-                          <span className="text-[14px] font-black text-amber-700">-{Math.floor(currentStats.bloqueado).toLocaleString('pt-BR')}</span>
+                      <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-slate-50/50">
+                              <TableHead className="text-[9px] font-black uppercase text-slate-400 pl-8">Propriedade</TableHead>
+                              <TableHead className="text-center text-[9px] font-black uppercase text-slate-400">Originação</TableHead>
+                              <TableHead className="text-center text-[9px] font-black uppercase text-slate-400">Consumo</TableHead>
+                              <TableHead className="text-center text-[9px] font-black uppercase text-slate-400">Aquisição</TableHead>
+                              <TableHead className="text-center text-[9px] font-black uppercase text-slate-400">Aposentado</TableHead>
+                              <TableHead className="text-right text-[9px] font-black uppercase text-slate-400 pr-8">Saldo Líquido</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {produtor.fazendas.map((f: any, j: number) => {
+                              const safeMatch = (val: string) => {
+                                if (!val) return false;
+                                const d = val.toUpperCase().trim();
+                                const n = (f.fazendaNome || '').toUpperCase().trim();
+                                const idf = (f.idf || '').toUpperCase().trim();
+                                if (idf && idf !== '---' && d.includes(idf)) return true;
+                                if (n && d.includes(n)) return true;
+                                const cleanN = n.replace(/^(FAZENDA|SITIO|SÍTIO|CHACARA|CHÁCARA|ESTANCIA|ESTÂNCIA)\s+/i, '').trim();
+                                const cleanD = d.replace(/^(FAZENDA|SITIO|SÍTIO|CHACARA|CHÁCARA|ESTANCIA|ESTÂNCIA)\s+/i, '').trim();
+                                if (cleanN && cleanN.length > 3 && (cleanD.includes(cleanN) || cleanN.includes(cleanD))) return true;
+                                return false;
+                              };
+
+                              const farmOrig = (currentData?.tabelaOriginacao?.filter((row: any) => safeMatch(row.dist) || safeMatch(row.plataforma)).reduce((acc: number, cur: any) => acc + (Number(cur.valor) || 0), 0)) || Number(f.saldoOriginacao) || 0;
+                              const farmDeduction = currentData?.tabelaMovimentacao?.filter((row: any) => safeMatch(row.dist) || safeMatch(row.plataforma)).reduce((acc: number, cur: any) => acc + (Number(cur.valor) || 0), 0) || 0;
+                              const farmAquisicao = currentData?.tabelaAquisicao?.filter((row: any) => safeMatch(row.dist) || safeMatch(row.plataforma)).reduce((acc: number, cur: any) => acc + (Number(cur.valor) || 0), 0) || 0;
+                              const farmAposentado = (currentData?.tabelaLegado?.filter((row: any) => safeMatch(row.dist) || safeMatch(row.plataforma)).reduce((acc: number, cur: any) => acc + (Number(cur.aposentado) || 0), 0)) || Number(f.aposentado) || 0;
+                              return (
+                                <TableRow key={j} className="h-12">
+                                  <TableCell className="pl-8 text-[11px] font-black text-slate-900 uppercase">{f.fazendaNome}</TableCell>
+                                  <TableCell className="text-center text-[12px] font-black text-slate-400">{farmOrig.toLocaleString('pt-BR')}</TableCell>
+                                  <TableCell className="text-center text-[12px] font-black text-rose-400">-{farmDeduction.toLocaleString('pt-BR')}</TableCell>
+                                  <TableCell className="text-center text-[12px] font-black text-indigo-400">-{farmAquisicao.toLocaleString('pt-BR')}</TableCell>
+                                  <TableCell className="text-center text-[12px] font-black text-slate-400">-{farmAposentado.toLocaleString('pt-BR')}</TableCell>
+                                  <TableCell className="text-right pr-8 text-[13px] font-black text-emerald-600">{(farmOrig - farmDeduction - farmAquisicao - farmAposentado).toLocaleString('pt-BR')} UCS</TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </div>
+
+                    {/* BLOCOS DE RESUMO */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6">
+                      {/* RESUMO LEGADO & CONCILIAÇÃO */}
+                      <div className="bg-white border-l-2 border-l-amber-500 rounded-r-2xl border-y border-r border-slate-100 p-8 shadow-sm">
+                        <div className="flex items-center gap-3 mb-6">
+                          <History className="w-5 h-5 text-amber-500" />
+                          <h3 className="text-[12px] font-black text-slate-800 uppercase tracking-widest">Resumo Legado & Conciliação</h3>
                         </div>
-                        {currentStats.ajusteManual !== 0 && (
-                          <div className="flex justify-between items-center py-2 bg-slate-100 rounded-xl px-4 border border-slate-200 italic">
-                            <div className="flex flex-col">
-                              <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Ajuste Manual Aplicado</span>
-                              <span className="text-[7px] text-slate-400 uppercase font-bold">{formData.ajusteManualJustificativa || 'Sem justificativa'}</span>
-                            </div>
-                            <span className="text-[14px] font-black text-slate-900">{currentStats.ajusteManual > 0 ? '+' : ''}{currentStats.ajusteManual.toLocaleString('pt-BR')}</span>
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center py-3 border-b border-slate-50">
+                            <span className="text-[10px] font-black uppercase text-slate-400">Saldo Aposentado (Portfólio)</span>
+                            <span className="text-[14px] font-black text-emerald-600">{(currentStats.legado || 0).toLocaleString('pt-BR')} <span className="text-[9px] text-slate-400">UCS</span></span>
                           </div>
-                        )}
-                        <div className="pt-4 border-t border-slate-100 flex justify-between items-center">
-                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Divergência Técnica</span>
-                          <Badge className={cn(
-                            "text-[12px] font-black px-4 py-1 rounded-full",
-                            Math.abs(divergenciaLegado) < 1 ? "bg-emerald-100 text-emerald-600" : "bg-rose-100 text-rose-600"
-                          )}>
-                            {Math.floor(divergenciaLegado).toLocaleString('pt-BR')} UCS
-                          </Badge>
+                          <div className="flex justify-between items-center py-3 border-b border-slate-50 relative overflow-hidden rounded-lg bg-amber-50/50 px-4 border border-amber-100">
+                            <div className="absolute left-0 top-0 w-1 h-full bg-amber-300" />
+                            <span className="text-[10px] font-black uppercase text-amber-700">Déficit (Câmbio BMTCA/UCS)</span>
+                            <span className="text-[14px] font-black text-rose-500 tracking-tighter">0</span>
+                          </div>
+                          <div className="flex justify-between items-center py-3">
+                            <span className="text-[10px] font-black uppercase text-slate-400">Restorno de Excesso</span>
+                            <Badge className="bg-rose-50 text-rose-500 border border-rose-100 uppercase text-[8px] font-black">Indisponível Resta</Badge>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* STATUS DE AUDITORIA EXTERNO */}
+                      <div className="bg-[#3A3F4E] rounded-2xl p-8 shadow-inner border border-slate-600 relative overflow-hidden flex flex-col justify-center">
+                        <div className="absolute top-0 right-0 p-8 opacity-10">
+                          <ShieldCheck className="w-32 h-32 text-slate-300" />
+                        </div>
+                        <div className="relative z-10">
+                          <div className="flex items-center gap-3 mb-4">
+                            <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                            <h3 className="text-[12px] font-black text-white uppercase tracking-widest">Status de Auditoria Externo</h3>
+                          </div>
+                          <p className="text-[11px] font-medium text-slate-300 leading-relaxed max-w-sm">
+                            As bases técnicas para certificação de direitos e validação dos sistemas de originação e escrituração digital passam por robusta análise cruzada de conformidade.
+                          </p>
                         </div>
                       </div>
                     </div>
+                  </div>
 
-                    <div className="bg-[#394054] p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/50 space-y-6 text-white text-left overflow-hidden relative">
-                      <div className="absolute top-0 right-0 p-8 opacity-10">
-                        <ShieldCheck className="w-32 h-32 text-white" />
-                      </div>
-                      <div className="flex items-center gap-3 text-left relative z-10">
-                        <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-                          <ShieldCheck className="w-5 h-5 text-white" />
+                  {/* CONCILIAÇÃO DE CUSTÓDIA IMEI HERO BLOCK */}
+                  <div className="bg-slate-100/70 rounded-[2rem] p-8 border border-slate-200 relative overflow-hidden shadow-sm mb-12">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center text-white shadow-xl shadow-slate-900/10">
+                          <History className="w-6 h-6" />
                         </div>
-                        <h4 className="text-[14px] font-black uppercase text-white">Status de Auditoria Externo</h4>
+                        <div>
+                          <h2 className="text-[14px] font-black text-slate-800 uppercase tracking-tighter">Conciliação de Custódia IMEI</h2>
+                          <p className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1">Ciclo Histórico 2018 — 2024</p>
+                        </div>
                       </div>
-                      <p className="text-[11px] font-medium text-slate-100 leading-relaxed italic text-left relative z-10 max-w-[90%]">
-                        "A BMV atesta que, após verificação técnica e auditoria das camadas de originação e movimentação histórica, o titular possui a devida custódia das UCs citadas."
-                      </p>
+                      <Badge className="bg-emerald-500 text-white font-black text-[9px] uppercase px-4 py-1.5 border-none tracking-widest shadow-lg shadow-emerald-500/20 rounded-full">
+                        Conciliado
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex flex-col justify-center">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Capturado (2018)</p>
+                        <p className="text-[20px] font-black text-slate-800 tracking-tighter">0 <span className="text-[10px] text-slate-400 ml-0.5">UCS</span></p>
+                      </div>
+                      <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex flex-col justify-center">
+                        <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest mb-2">Retornado (2023/24)</p>
+                        <p className="text-[20px] font-black text-emerald-500 tracking-tighter">+0 <span className="text-[10px] text-emerald-500/60 ml-0.5">UCS</span></p>
+                      </div>
+                      <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex flex-col justify-center">
+                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2">Saldo em Aberto</p>
+                        <p className="text-[20px] font-black text-slate-800 tracking-tighter">0 <span className="text-[10px] text-slate-400 ml-0.5">UCS</span></p>
+                      </div>
                     </div>
                   </div>
 
-                   {/* Bloco de Conciliação Técnica IMEI */}
-                   <div className="bg-[#394054]/5 p-8 rounded-[2.5rem] border border-[#394054]/10 space-y-6 relative overflow-hidden mb-8">
-                     <div className="absolute top-0 right-0 p-8 opacity-[0.03]">
-                       <History className="w-32 h-32 text-[#394054]" />
-                     </div>
- 
-                     <div className="flex items-center justify-between relative z-10">
-                       <div className="flex items-center gap-3">
-                         <div className="w-10 h-10 rounded-xl bg-[#394054] flex items-center justify-center text-white">
-                           <History className="w-5 h-5" />
-                         </div>
-                         <div>
-                           <h4 className="text-[14px] font-black uppercase text-[#394054]">Conciliação de Custódia IMEI</h4>
-                           <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Ciclo Histórico 2018 → 2024</p>
-                         </div>
-                       </div>
-                       {imeiAnalysis.emDivergencia ? (
-                         <Badge className="bg-rose-500 text-white border-transparent text-[8px] font-black uppercase tracking-widest px-3 py-1">Divergência Detectada</Badge>
-                       ) : (
-                         <Badge className="bg-emerald-500 text-white border-transparent text-[8px] font-black uppercase tracking-widest px-3 py-1">Conciliado</Badge>
-                       )}
-                     </div>
- 
-                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
-                       <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-                         <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Capturado (2018)</p>
-                         <p className="text-sm font-black text-slate-700">{Math.floor(imeiAnalysis.totalCapturado).toLocaleString('pt-BR')} <span className="text-[9px] text-slate-300">UCS</span></p>
-                       </div>
-                       <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-                         <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Retornado (2023/24)</p>
-                         <p className="text-sm font-black text-emerald-600">+{Math.floor(imeiAnalysis.totalRetornado).toLocaleString('pt-BR')} <span className="text-[9px] text-emerald-300">UCS</span></p>
-                       </div>
-                       <div className={cn(
-                         "p-4 rounded-2xl border shadow-sm transition-all",
-                         imeiAnalysis.emDivergencia ? "bg-rose-50 border-rose-100 shadow-rose-100/50" : "bg-slate-50 border-slate-100"
-                       )}>
-                         <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Saldo em Aberto</p>
-                         <p className={cn(
-                           "text-sm font-black",
-                           imeiAnalysis.emDivergencia ? "text-rose-600" : "text-slate-400"
-                         )}>
-                           {Math.floor(imeiAnalysis.pendente).toLocaleString('pt-BR')} <span className="text-[9px] opacity-50">UCS</span>
-                         </p>
-                       </div>
-                     </div>
- 
-                     {/* Banner de Diagnóstico Unificado - UX Refresh */}
-                     {(imeiAnalysis.emDivergencia || imeiAnalysis.inconsistenciaBloqueio || imeiAnalysis.totalRetornado > 0) && 
-                      (isEditing ? !formData.ajusteManualVolume : !entityData?.ajusteManualVolume) && (
-                       <div className={`p-6 rounded-2xl border flex flex-col md:flex-row items-center justify-between gap-6 transition-all duration-300 relative z-20 ${
-                         imeiAnalysis.emDivergencia 
-                            ? "bg-[#E73052]/10 border-[#E73052]/20 shadow-lg shadow-[#E73052]/5" 
-                            : imeiAnalysis.inconsistenciaBloqueio
-                            ? "bg-[#F39C12]/10 border-[#F39C12]/20 shadow-lg shadow-amber-500/5"
-                            : "bg-emerald-500/10 border-emerald-500/20"
-                       }`}>
-                         <div className="flex items-center gap-4 text-left">
-                           <div className={`p-3 rounded-xl ${
-                             imeiAnalysis.emDivergencia ? "bg-[#E73052]" : 
-                             imeiAnalysis.inconsistenciaBloqueio ? "bg-[#F39C12]" : 
-                             "bg-emerald-500"
-                           }`}>
-                             <AlertTriangle className={`w-6 h-6 ${imeiAnalysis.emDivergencia || !imeiAnalysis.inconsistenciaBloqueio ? "text-white" : "text-[#231F20]"}`} />
-                           </div>
-                           <div className="flex flex-col text-left">
-                              <h4 className={`text-[12px] font-black uppercase tracking-wider mb-1 text-left ${
-                                imeiAnalysis.emDivergencia ? "text-[#E73052]" : 
-                                imeiAnalysis.inconsistenciaBloqueio ? "text-[#231F20]" : 
-                                "text-emerald-600"
-                              }`}>
-                                {imeiAnalysis.emDivergencia ? "Divergência de Custódia Detectada" : 
-                                 imeiAnalysis.inconsistenciaBloqueio ? "Inconsistência de Bloqueio" : 
-                                 "Liberação de Custódia Disponível"}
-                              </h4>
-                              <p className="text-[11px] text-[#231F20]/70 font-medium leading-relaxed max-w-[600px] text-left">
-                                {imeiAnalysis.emDivergencia 
-                                  ? `Identificamos ${Math.floor(imeiAnalysis.pendente).toLocaleString('pt-BR')} UCS capturadas em 2018 que ainda não retornaram à conta. Escolha a tratativa de ajuste:`
-                                  : imeiAnalysis.inconsistenciaBloqueio
-                                  ? "O retorno de custódia IMEI gerou saldo disponível indevido em uma conta que possui restrição integral (16/03/2023)."
-                                  : `O volume retornado da IMEI (${Math.floor(imeiAnalysis.totalRetornado).toLocaleString('pt-BR')} UCS) está pendente de liberação manual para a carteira.`}
-                              </p>
-                           </div>
-                         </div>
- 
-                         <div className="flex gap-3 shrink-0">
-                           {imeiAnalysis.emDivergencia ? (
-                             <>
-                               <Button 
-                                 onClick={() => {
-                                   const saldoParaZerar = currentStats.originacao + (currentStats.creditos || 0) - (currentStats.movimentacao || 0) - (currentStats.aquisicao || 0);
-                                   setFormData({
-                                     ...formData,
-                                     ajusteManualVolume: -saldoParaZerar,
-                                     ajusteManualJustificativa: `SANEAMENTO SOBERANO: Conta restrita (16/03/2023). Integrando estorno IMEI (${Math.floor(imeiAnalysis.pendente)} UCS) e consolidando patrimônio total de ${Math.floor(saldoParaZerar).toLocaleString('pt-BR')} UCS em BLOQUEIO INTEGRAL.`
-                                   });
-                                   toast.success("Patrimônio Consolidado no Bloqueio.");
-                                 }}
-                                 className="bg-white border-2 border-[#E73052] text-[#E73052] hover:bg-[#E73052] hover:text-white text-[10px] font-black uppercase h-10 px-6 rounded-xl transition-all"
-                               >
-                                 Ajustar e Bloquear Integralmente
-                               </Button>
-                               <Button 
-                                 onClick={() => {
-                                   setFormData({
-                                     ...formData,
-                                     ajusteManualVolume: imeiAnalysis.pendente,
-                                     ajusteManualJustificativa: `AJUSTE DE EQUILÍBRIO: Estorno manual do saldo pendente de custódia IMEI (${Math.floor(imeiAnalysis.pendente)} UCS) para a conta do produtor.`
-                                   });
-                                   toast.success("Ajuste de Equilíbrio IMEI preparado.");
-                                 }}
-                                 className="bg-[#231F20] text-white hover:bg-[#231F20]/80 text-[10px] font-black uppercase h-10 px-6 rounded-xl"
-                               >
-                                 Ajustar e Liberar (Equilibrar Saldo)
-                               </Button>
-                             </>
-                           ) : imeiAnalysis.inconsistenciaBloqueio ? (
-                             <Button 
-                               onClick={() => {
-                                 const saldoParaZerar = currentStats.originacao + (currentStats.creditos || 0) - (currentStats.movimentacao || 0) - (currentStats.aquisicao || 0);
-                                 setFormData({
-                                   ...formData,
-                                   ajusteManualVolume: -saldoParaZerar,
-                                   ajusteManualJustificativa: `BLOQUEIO INTEGRAL: Neutralização de saldo disponível indevido para conformidade técnica com restrição de 2023.`
-                                 });
-                                 toast.success("Bloqueio Integral Configurado.");
-                               }}
-                               className="bg-[#231F20] text-white hover:bg-[#231F20]/80 text-[10px] font-black uppercase h-10 px-6 rounded-xl"
-                             >
-                               PROMOVER BLOQUEIO INTEGRAL
-                             </Button>
-                           ) : (
-                              <Button 
-                                onClick={() => {
-                                  setFormData({
-                                    ...formData,
-                                    ajusteManualVolume: imeiAnalysis.totalRetornado,
-                                    ajusteManualJustificativa: "LIBERAÇÃO DE CUSTÓDIA: Volume retornado da IMEI integrado ao saldo disponível após auditoria técnica."
-                                  });
-                                  toast.success("Liberação preparada.");
-                                }}
-                                className="bg-emerald-600 text-white hover:bg-emerald-700 text-[10px] font-black uppercase h-10 px-6 rounded-xl shadow-lg shadow-emerald-500/20"
-                              >
-                                LIBERAR SALDO IMEI
-                              </Button>
-                           )}
-                         </div>
-                       </div>
-                     )}
-                   </div>
-             
-             {isEditing && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="bg-slate-900 p-8 rounded-[2.5rem] shadow-2xl space-y-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#394054] flex items-center justify-center text-white">
-                      <Calculator className="w-5 h-5" />
-                    </div>
-                    <h4 className="text-[14px] font-black uppercase text-white">00. Ajustes Técnicos de Conformidade</h4>
-                  </div>
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-black text-slate-400 uppercase">Volume de Ajuste (UCS)</Label>
-                      <Input
-                        type="number"
-                        value={formData.ajusteManualVolume || 0}
-                        onChange={(e) => setFormData({ ...formData, ajusteManualVolume: Number(e.target.value) })}
-                        className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-12 rounded-xl"
-                        placeholder="Ex: -500 ou 1000"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-black text-slate-400 uppercase">Justificativa do Ajuste</Label>
-                      <Input
-                        value={formData.ajusteManualJustificativa || ""}
-                        onChange={(e) => setFormData({ ...formData, ajusteManualJustificativa: e.target.value })}
-                        className="bg-white/5 border-white/10 text-white placeholder:text-white/20 h-12 rounded-xl"
-                        placeholder="Motivo técnico do ajuste..."
-                      />
-                    </div>
-                  </div>
-                </div>
+                  {/* SEÇÕES TÉCNICAS SEQUENCIAIS */}
+                  <div className="space-y-12">
+                    <SectionBlock 
+                      isGreen title="01. ORIGINAÇÃO (DISTRIBUIÇÃO DE SAFRA)" value={currentStats.originacao} type="originacao" 
+                      data={currentData?.tabelaOriginacao || []} isEditing={isEditing}
+                      onPaste={() => setPasteData({ section: 'tabelaOriginacao', raw: '' })}
+                      onRemove={(id: string) => handleRemoveItem('tabelaOriginacao', id)}
+                      onUpdateItem={(id: string, updates: any) => handleUpdateItem('tabelaOriginacao', id, updates)}
+                    />
 
-                <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm space-y-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500">
-                      <FileText className="w-5 h-5" />
+                    <SectionBlock 
+                      isGreen title="02. CRÉDITOS AUDITADOS" value={currentStats.creditos} type="creditos" 
+                      data={currentData?.tabelaCreditos || []} isEditing={isEditing}
+                      onPaste={() => setPasteData({ section: 'tabelaCreditos', raw: '' })}
+                      onRemove={(id: string) => handleRemoveItem('tabelaCreditos', id)}
+                      onUpdateItem={(id: string, updates: any) => handleUpdateItem('tabelaCreditos', id, updates)}
+                    />
+
+                    <SectionBlock 
+                      isNegative title="03. MOVIMENTAÇÃO (SAÍDAS)" value={currentStats.movimentacao} type="movimentacao" 
+                      data={currentData?.tabelaMovimentacao || []} isEditing={isEditing}
+                      onPaste={() => setPasteData({ section: 'tabelaMovimentacao', raw: '' })}
+                      onRemove={(id: string) => handleRemoveItem('tabelaMovimentacao', id)}
+                      onUpdateItem={(id: string, updates: any) => handleUpdateItem('tabelaMovimentacao', id, updates)}
+                    />
+
+                    <SectionBlock 
+                      isAmber title="04. AQUISIÇÕES DE PORTFÓLIO" value={currentStats.aquisicao} type="aquisicao" 
+                      data={currentData?.tabelaAquisicao || []} isEditing={isEditing}
+                      onPaste={() => setIsAquisicaoModalOpen(true)}
+                      onRemove={(id: string) => handleRemoveItem('tabelaAquisicao', id)}
+                      onUpdateItem={(id: string, updates: any) => handleUpdateItem('tabelaAquisicao', id, updates)}
+                    />
+
+                    <SectionBlock 
+                      isAmber title="05. HISTÓRICO LEGADO (PORTFÓLIO ANTIGO)" value={currentStats.legado} type="legado" 
+                      data={currentData?.tabelaLegado || []} isEditing={isEditing}
+                      onPaste={() => setIsLegadoModalOpen(true)}
+                      onRemove={(id: string) => handleRemoveItem('tabelaLegado', id)}
+                      onUpdateItem={(id: string, updates: any) => handleUpdateItem('tabelaLegado', id, updates)}
+                    />
+
+                    <SectionBlock 
+                      customColor="bg-indigo-600" title="06. REGISTROS IMEI (CÂMBIO BMT/BMTCA)" value={currentStats.imei} type="imei" 
+                      data={currentData?.tabelaImei || []} isEditing={isEditing}
+                      onPaste={() => setPasteData({ section: 'tabelaImei', raw: '' })}
+                      onRemove={(id: string) => handleRemoveItem('tabelaImei', id)}
+                      onUpdateItem={(id: string, updates: any) => handleUpdateItem('tabelaImei', id, updates)}
+                    />
+
+                    {/* 07. AUDITORIA DE SALDOS (RESUMO FINAL) */}
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-4 border-b border-slate-100 pb-4">
+                        <div className="w-1.5 h-6 rounded-full bg-slate-900" />
+                        <h3 className="text-[14px] font-black uppercase tracking-tight text-slate-800">07. Conciliação & Auditoria Final</h3>
+                      </div>
+                      <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
+                         <Table>
+                           <TableHeader>
+                              <TableRow className="bg-slate-50/50">
+                                <TableHead className="text-[9px] font-black uppercase text-slate-400 pl-8">Metodologia de Auditoria</TableHead>
+                                <TableHead className="text-right text-[9px] font-black uppercase text-slate-400 pr-8">Valores Auditados (UCS)</TableHead>
+                              </TableRow>
+                           </TableHeader>
+                           <TableBody>
+                              <TableRow><TableCell className="pl-8 text-[11px] font-bold text-slate-500 uppercase">Total Originação Legada (+) </TableCell><TableCell className="text-right pr-8 font-black text-emerald-600">{(currentStats.originacao || 0).toLocaleString('pt-BR')}</TableCell></TableRow>
+                              <TableRow><TableCell className="pl-8 text-[11px] font-bold text-slate-500 uppercase">Total Créditos Adjudicados (+) </TableCell><TableCell className="text-right pr-8 font-black text-emerald-600">{(currentStats.creditos || 0).toLocaleString('pt-BR')}</TableCell></TableRow>
+                              <TableRow><TableCell className="pl-8 text-[11px] font-bold text-slate-500 uppercase">Total Movimentação / Consumo (-) </TableCell><TableCell className="text-right pr-8 font-black text-rose-500">-{(currentStats.movimentacao || 0).toLocaleString('pt-BR')}</TableCell></TableRow>
+                              <TableRow><TableCell className="pl-8 text-[11px] font-bold text-slate-500 uppercase">Saldo Custódia IMEI / BMTCA (+/-) </TableCell><TableCell className="text-right pr-8 font-black text-indigo-600">{currentStats.imei >= 0 ? '+' : ''}{(currentStats.imei || 0).toLocaleString('pt-BR')}</TableCell></TableRow>
+                              <TableRow><TableCell className="pl-8 text-[11px] font-bold text-slate-500 uppercase">Ajuste Manual de Auditoria (+/-) </TableCell><TableCell className="text-right pr-8 font-black text-slate-400">
+                                {isEditing && currentData ? (
+                                  <Input 
+                                    type="number" 
+                                    value={currentData.ajusteManual || 0}
+                                    onChange={e => setFormData((prev: any) => ({ ...prev, ajusteManual: parseFloat(e.target.value) || 0 }))}
+                                    className="h-8 w-32 border-slate-100 text-right font-black"
+                                  />
+                                ) : (
+                                  `${currentStats.ajusteManual >= 0 ? '+' : ''}${(currentStats.ajusteManual || 0).toLocaleString('pt-BR')}`
+                                )}
+                              </TableCell></TableRow>
+                              <TableRow className="bg-slate-900 border-none">
+                                <TableCell className="pl-8 text-[12px] font-black text-white uppercase py-6">Saldo Disponível Liquidado p/ Dossiê</TableCell>
+                                <TableCell className="text-right pr-8 text-[20px] font-black text-emerald-400">{(currentStats.saldoReal || 0).toLocaleString('pt-BR')} UCS</TableCell>
+                              </TableRow>
+                           </TableBody>
+                         </Table>
+                      </div>
                     </div>
-                    <h4 className="text-[14px] font-black uppercase text-slate-800">Comentários de Auditoria</h4>
                   </div>
-                  <Textarea
-                    value={formData.comentariosAuditoria || ""}
-                    onChange={(e) => setFormData({ ...formData, comentariosAuditoria: e.target.value })}
-                    placeholder="Notas técnicas que aparecerão no dossiê final..."
-                    className="min-h-[120px] bg-slate-50 border-slate-100 rounded-2xl p-4 text-[13px] font-medium"
-                  />
                 </div>
               </div>
-            )}
-
-            <div className="space-y-12">
-              <SectionBlock
-                title="01. ORIGINAÇÃO (DISTRIBUIÇÃO DE SAFRA)"
-                value={currentStats.originacao}
-                data={isEditing ? (formData.tabelaOriginacao || []) : (entityData?.tabelaOriginacao || [])}
-                type="originacao"
-                isGreen
-                isEditing={isEditing}
-                onRemove={(id: string) => handleRemoveItem('tabelaOriginacao', id)}
-                onUpdateItem={(id: string, updates: any) => handleUpdateItem('tabelaOriginacao', id, updates)}
-              />
-
-              <SectionBlock
-                title="02. Créditos Auditados"
-                type="creditos"
-                isGreen
-                isEditing={isEditing}
-                value={currentStats.creditos}
-                data={isEditing ? (formData.tabelaCreditos || []) : (entityData?.tabelaCreditos || [])}
-                onPaste={() => { setPasteData({ section: 'tabelaCreditos', raw: '' }); setIsModalOpen(true); }}
-                onRemove={(id: string) => handleRemoveItem('tabelaCreditos', id)}
-                onUpdateItem={(id: string, updates: any) => handleUpdateItem('tabelaCreditos', id, updates)}
-              />
-
-              <SectionBlock
-                title="03. Movimentação (Saídas)"
-                type="movimentacao"
-                isNegative
-                isEditing={isEditing}
-                value={currentStats.movimentacao}
-                data={isEditing ? (formData.tabelaMovimentacao || []) : (entityData?.tabelaMovimentacao || [])}
-                onPaste={() => { setPasteData({ section: 'tabelaMovimentacao', raw: '' }); setIsModalOpen(true); }}
-                onRemove={(id: string) => handleRemoveItem('tabelaMovimentacao', id)}
-                onUpdateItem={(id: string, updates: any) => handleUpdateItem('tabelaMovimentacao', id, updates)}
-              />
-
-              <SectionBlock
-                title="04. Saldo Legado (Histórico)"
-                type="legado"
-                isAmber
-                isEditing={isEditing}
-                value={currentStats.legado}
-                data={isEditing ? (formData.tabelaLegado || []) : (entityData?.tabelaLegado || [])}
-                onPaste={() => { setPasteData({ section: 'tabelaLegado', raw: '' }); setIsLegadoModalOpen(true); }}
-                onRemove={(id: string) => handleRemoveItem('tabelaLegado', id)}
-                onUpdateItem={(id: string, updates: any) => handleUpdateItem('tabelaLegado', id, updates)}
-              />
-
-              <SectionBlock
-                title="05. Vendas Antecipadas (AQUISIÇÃO ADM)"
-                type="aquisicao"
-                isNegative
-                customColor="bg-indigo-500"
-                isEditing={isEditing}
-                value={currentStats.aquisicao}
-                data={isEditing ? (formData.tabelaAquisicao || []) : (entityData?.tabelaAquisicao || [])}
-                onPaste={() => { setPasteData({ section: 'tabelaAquisicao', raw: '' }); setIsAquisicaoModalOpen(true); }}
-                pasteLabel="Novo Lançamento ADM"
-                onRemove={(id: string) => handleRemoveItem('tabelaAquisicao', id)}
-                onUpdateItem={(id: string, updates: any) => handleUpdateItem('tabelaAquisicao', id, updates)}
-              />
-
-              <SectionBlock
-                title="06. Ajustes IMEI (Técnico)"
-                type="imei"
-                isNegative
-                isEditing={isEditing}
-                value={currentStats.imei}
-                data={isEditing ? (formData.tabelaImei || []) : (entityData?.tabelaImei || [])}
-                onPaste={() => { setPasteData({ section: 'tabelaImei', raw: '' }); setIsModalOpen(true); }}
-                onRemove={(id: string) => handleRemoveItem('tabelaImei', id)}
-                onUpdateItem={(id: string, updates: any) => handleUpdateItem('tabelaImei', id, updates)}
-              />
             </div>
-          </div>
-        </div>
-      </div>
 
-      {/* SIDEBAR DIREITA */}
-      <div className="w-[360px] shrink-0 bg-white flex flex-col relative z-20 shadow-[-10px_0_30px_rgba(0,0,0,0.03)] h-screen">
+            {/* SIDEBAR DIREITA */}
+            <div className="w-[360px] shrink-0 bg-white flex flex-col relative z-20 shadow-[-10px_0_30px_rgba(0,0,0,0.03)] h-screen">
               <div className="p-10 border-b border-slate-100 shrink-0">
                 <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Central do Produtor</h3>
                 <p className="text-[16px] font-black text-slate-900 uppercase leading-tight">Ações Técnicas e Gestão</p>
               </div>
               <div className="flex-1 overflow-y-auto custom-scrollbar">
-                <div className="p-10 space-y-10 pb-32 font-sans">
+                <div className="p-10 space-y-10 pb-32">
                   {!isEditing ? (
-                    <>
-                      <div className="space-y-3">
-                        <QuickLink
-                          icon={<Calculator className="w-5 h-5" />}
-                          label="Ativar Modo Auditoria"
-                          onClick={() => setIsEditing(true)}
-                        />
-                        <QuickLink
-                          icon={<FileText className="w-5 h-5" />}
-                          label="Visualizar Dossiê (PDF)"
-                          onClick={() => setIsReportPreviewOpen(true)}
-                        />
-                        <QuickLink
-                          icon={<Calculator className="w-5 h-5" />}
-                          label="Planilha de Saldos (XLSX)"
-                          onClick={handleExportXLSX}
-                        />
-                        <QuickLink
-                          icon={<Download className="w-5 h-5" />}
-                          label="Base de Dados (JSON)"
-                          onClick={handleExportJSON}
-                        />
-                      </div>
-                    </>
+                    <div className="space-y-3">
+                      <QuickLink icon={<Calculator className="w-5 h-5" />} label="Ativar Modo Auditoria" onClick={() => setIsEditing(true)} />
+                      <QuickLink icon={<FileText className="w-5 h-5" />} label="Visualizar Dossiê (PDF)" onClick={() => setIsReportPreviewOpen(true)} />
+                      <QuickLink icon={<Download className="w-5 h-5" />} label="Planilha de Saldos (XLSX)" onClick={() => handleExportXLSX(produtor, entityData, currentStats)} />
+                      <QuickLink icon={<Download className="w-5 h-5" />} label="Base de Dados (JSON)" onClick={() => handleExportJSON(entityData, produtor.nome)} />
+                    </div>
                   ) : (
                     <div className="space-y-3">
                       <Button onClick={handleSave} disabled={isSaving} className="w-full h-12 rounded-2xl bg-emerald-600 text-white font-black uppercase text-[10px] tracking-widest hover:bg-emerald-700 transition-all gap-3 shadow-lg shadow-emerald-100">
-                        <Save className="w-4 h-4" /> {isSaving ? "Salvando..." : "Salvar Alterações"}
+                        {isSaving ? "Salvando..." : "Salvar Alterações"}
                       </Button>
-                      <Button onClick={() => { setIsEditing(false); setFormData(entityData || {}); }} variant="ghost" className="w-full h-12 rounded-2xl text-rose-500 font-black uppercase text-[10px] tracking-widest hover:bg-rose-50 transition-all">Cancelar</Button>
+                      <Button onClick={() => { setIsEditing(false); setFormData(entityData); }} variant="ghost" className="w-full h-12 rounded-2xl text-rose-500 font-black uppercase text-[10px] tracking-widest hover:bg-rose-50 transition-all">Cancelar</Button>
                     </div>
                   )}
 
                   <div className="bg-slate-50 rounded-[2.5rem] p-8 border border-slate-100 space-y-6">
                     <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest border-b border-slate-200/60 pb-4">Performance Técnica</h4>
                     <div className="space-y-5">
-                      <StatCard label="Hectares Monitorados" value={produtor.totalAreaHa.toLocaleString('pt-BR')} unit="ha" />
-                      <StatCard label="Inserções Realizadas" value={(entityData?.tabelaOriginacao?.length || 0).toString()} unit="un" />
-                      <StatCard label="Safras Vinculadas" value={new Set(entityData?.tabelaOriginacao?.map((i: any) => i.plataforma)).size.toString()} unit="ano" />
+                      <StatCard label="Registros Auditados" value={Math.floor(currentStats.saldoReal).toString()} unit="un" />
+                      <StatCard label="Fazendas Consolidadas" value={produtor.fazendas.length.toString()} unit="un" />
                     </div>
                   </div>
 
@@ -1251,122 +590,93 @@ export default function ProdutorDetailPage() {
               </div>
             </div>
           </div>
-
-    {/* MODALS REUTILIZADOS */ }
-    <Dialog open={isAquisicaoModalOpen} onOpenChange={setIsAquisicaoModalOpen}>
-      <DialogContent className="max-w-md rounded-[32px] p-0 border-none bg-white font-sans">
-        <div className="bg-indigo-600 p-8 pb-12">
-          <DialogTitle className="text-white">Nova Aquisição ADM</DialogTitle>
-        </div>
-        <div className="p-8 -mt-8 bg-white rounded-t-[32px] space-y-6">
-          <Input placeholder="Ano" value={manualAquisicao.data} onChange={e => setManualAquisicao({ ...manualAquisicao, data: e.target.value })} />
-          <Input placeholder="Volume" type="number" value={manualAquisicao.valor} onChange={e => setManualAquisicao({ ...manualAquisicao, valor: parseFloat(e.target.value) || 0 })} />
-          <Button onClick={handleAddAquisicaoManual} className="w-full h-12 bg-indigo-600">Lançar Registro</Button>
-        </div>
-      </DialogContent>
-          </Dialog>
-
-          <Dialog open={!!pasteData} onOpenChange={() => setPasteData(null)}>
-            <DialogContent className="max-w-3xl rounded-[32px] p-8">
-              <DialogTitle className="text-xl font-black uppercase">Estação de Ingestão de Dados</DialogTitle>
-              <Textarea
-                className="min-h-[300px] mt-4 font-mono text-xs"
-                placeholder="Cole as colunas aqui..."
-                value={pasteData?.raw || ''}
-                onChange={e => setPasteData({ ...pasteData!, raw: e.target.value })}
-              />
-              <div className="flex justify-end mt-6">
-                <Button onClick={() => handleProcessPaste(pasteData?.section || '')} className="bg-emerald-600 px-8">Processar Dados</Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          <Dialog open={isLegadoModalOpen} onOpenChange={setIsLegadoModalOpen}>
-            <DialogContent className="max-w-2xl p-8 rounded-[32px]">
-               <DialogTitle className="uppercase font-black">Histórico Legado</DialogTitle>
-               <Textarea
-                 className="min-h-[200px] mt-4 font-mono text-xs"
-                 placeholder="ID DATA PLATAFORMA DISP RES BLOQ APO"
-                 onChange={e => setPasteData({ section: 'tabelaLegado', raw: e.target.value })}
-               />
-               <Button onClick={() => handleProcessPaste('tabelaLegado')} className="mt-4 w-full bg-amber-600">Importar Legado</Button>
-            </DialogContent>
-          </Dialog>
-
-          <Dialog open={isReportPreviewOpen} onOpenChange={setIsReportPreviewOpen}>
-            <DialogContent className="max-w-5xl h-[90vh] overflow-hidden flex flex-col p-0 rounded-[32px] border-none bg-slate-100 no-print">
-              <div className="bg-white px-8 py-5 border-b border-slate-200 flex justify-between items-center shrink-0">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center">
-                    <ShieldCheck className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <DialogTitle className="text-sm font-black uppercase text-slate-800 tracking-tight">Preview do Dossiê Técnico</DialogTitle>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase">Revise as informações antes da exportação oficial</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-8 mr-12 bg-slate-50 p-2 px-6 rounded-2xl border border-slate-100">
-                  <div className="flex items-center gap-3">
-                    <input 
-                      type="checkbox" 
-                      id="simple-mode" 
-                      checked={isReportSimplified} 
-                      onChange={(e) => setIsReportSimplified(e.target.checked)}
-                      className="w-4 h-4 accent-indigo-500"
-                    />
-                    <label htmlFor="simple-mode" className="text-[10px] font-black uppercase text-slate-500 cursor-pointer">Versão Simples</label>
-                  </div>
-                  <div className="w-px h-6 bg-slate-200" />
-                  <div className="flex items-center gap-3">
-                    <input 
-                      type="checkbox" 
-                      id="privacy-mode" 
-                      checked={isReportCensored} 
-                      onChange={(e) => setIsReportCensored(e.target.checked)}
-                      className="w-4 h-4 accent-emerald-500"
-                    />
-                    <label htmlFor="privacy-mode" className="text-[10px] font-black uppercase text-slate-500 cursor-pointer">Proteção de Dados</label>
-                  </div>
-                  <div className="w-px h-6 bg-slate-200" />
-                  <Button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-700 h-11 px-8 rounded-2xl font-black uppercase text-[10px] tracking-widest gap-2 shadow-lg shadow-emerald-100">
-                    <Download className="w-4 h-4" /> Confirmar e Gerar PDF
-                  </Button>
-                </div>
-              </div>
-              <div className="flex-1 overflow-y-auto p-6 bg-slate-100 custom-scrollbar">
-                <div className="bg-white shadow-2xl rounded-sm mx-auto">
-                    <AuditReport 
-                        produtor={produtor} 
-                        entityData={entityData} 
-                        currentStats={currentStats} 
-                        currentUser={userData || user}
-                        isPreview={true}
-                        isSimplified={isReportSimplified}
-                        isCensored={isReportCensored}
-                    />
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-
         </main>
       </div>
- 
-      {/* Motor de Impressão Profissional (Versão de Fundo - Via Portal) */}
+
+      {/* MODALS REUTILIZADOS */}
+      <Dialog open={isAquisicaoModalOpen} onOpenChange={setIsAquisicaoModalOpen}>
+        <DialogContent className="max-w-md rounded-[32px] p-0 border-none bg-white font-sans">
+          <div className="bg-indigo-600 p-8 pb-12">
+            <DialogTitle className="text-white">Nova Aquisição ADM</DialogTitle>
+          </div>
+          <div className="p-8 -mt-8 bg-white rounded-t-[32px] space-y-6">
+            <Input placeholder="Ano" value={manualAquisicao.data} onChange={e => setManualAquisicao({ ...manualAquisicao, data: e.target.value })} />
+            <Input placeholder="Volume" type="number" value={manualAquisicao.valor} onChange={e => setManualAquisicao({ ...manualAquisicao, valor: parseFloat(e.target.value) || 0 })} />
+            <Button onClick={handleAddAquisicaoManual} className="w-full h-12 bg-indigo-600">Lançar Registro</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!pasteData} onOpenChange={() => setPasteData(null)}>
+        <DialogContent className="max-w-3xl rounded-[32px] p-8">
+          <DialogTitle className="text-xl font-black uppercase">Estação de Ingestão de Dados</DialogTitle>
+          <Textarea
+            className="min-h-[300px] mt-4 font-mono text-xs"
+            placeholder="Cole as colunas aqui..."
+            value={pasteData?.raw || ''}
+            onChange={e => setPasteData({ ...pasteData!, raw: e.target.value })}
+          />
+          <div className="flex justify-end mt-6">
+            <Button onClick={() => pasteData && onProcessPaste(pasteData.section)} className="bg-emerald-600 px-8">Processar Dados</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isLegadoModalOpen} onOpenChange={setIsLegadoModalOpen}>
+        <DialogContent className="max-w-2xl p-8 rounded-[32px]">
+          <DialogTitle className="uppercase font-black">Histórico Legado</DialogTitle>
+          <Textarea
+            className="min-h-[200px] mt-4 font-mono text-xs"
+            placeholder="ID DATA PLATAFORMA DISP RES BLOQ APO"
+            onChange={e => setPasteData({ section: 'tabelaLegado', raw: e.target.value })}
+          />
+          <Button onClick={() => onProcessPaste('tabelaLegado')} className="mt-4 w-full bg-amber-600">Importar Legado</Button>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isReportPreviewOpen} onOpenChange={setIsReportPreviewOpen}>
+        <DialogContent className="max-w-5xl h-[90vh] overflow-hidden flex flex-col p-0 rounded-[32px] border-none bg-slate-100 no-print">
+          <div className="bg-white px-8 py-5 border-b border-slate-200 flex justify-between items-center shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <DialogTitle className="text-sm font-black uppercase text-slate-800 tracking-tight">Preview do Dossiê Técnico</DialogTitle>
+                <p className="text-[10px] font-bold text-slate-400 uppercase">Revise as informações antes da exportação oficial</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-8 mr-12 bg-slate-50 p-2 px-6 rounded-2xl border border-slate-100">
+              <div className="flex items-center gap-3">
+                <input type="checkbox" id="simple-mode" checked={isReportSimplified} onChange={(e) => setIsReportSimplified(e.target.checked)} className="w-4 h-4 accent-indigo-500" />
+                <label htmlFor="simple-mode" className="text-[10px] font-black uppercase text-slate-500 cursor-pointer">Simples</label>
+              </div>
+              <div className="flex items-center gap-3">
+                <input type="checkbox" id="privacy-mode" checked={isReportCensored} onChange={(e) => setIsReportCensored(e.target.checked)} className="w-4 h-4 accent-emerald-500" />
+                <label htmlFor="privacy-mode" className="text-[10px] font-black uppercase text-slate-500 cursor-pointer">Privacidade</label>
+              </div>
+              <Button onClick={() => window.print()} className="bg-emerald-600 h-11 px-8 rounded-2xl font-black uppercase text-[10px]">Gerar PDF</Button>
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto p-6 bg-slate-100 custom-scrollbar">
+            <div className="bg-white shadow-2xl rounded-sm mx-auto">
+              <AuditReport 
+                produtor={produtor} entityData={entityData} currentStats={currentStats} 
+                currentUser={userData || user} isPreview={true} isSimplified={isReportSimplified} isCensored={isReportCensored} 
+              />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <PrintPortal>
         <div className="is-printable-wrapper">
-          <AuditReport
-            produtor={produtor}
-            entityData={isEditing ? formData : entityData}
-            currentStats={currentStats}
-            currentUser={userData || user}
-            isSimplified={isReportSimplified}
-            isCensored={isReportCensored}
+          <AuditReport 
+            produtor={produtor} entityData={isEditing ? formData : entityData} currentStats={currentStats} 
+            currentUser={userData || user} isSimplified={isReportSimplified} isCensored={isReportCensored} 
           />
         </div>
       </PrintPortal>
     </>
   );
 }
-
-

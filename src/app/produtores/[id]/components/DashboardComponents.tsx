@@ -1,287 +1,446 @@
 import React from "react";
-import { 
-  Download, Calculator, Trash2, ChevronRight 
+import {
+  Download, Calculator, Trash2, ChevronRight,
+  ExternalLink, ShieldCheck
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
-export function StatCard({ label, value, unit }: { label: string; value: string | number; unit: string }) {
+// ==========================================
+// TIPAGENS (Removendo o 'any')
+// ==========================================
+interface StatCardProps {
+  label: string;
+  value: string | number;
+  unit: string;
+  isPositive?: boolean;
+}
+
+interface QuickLinkProps {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+}
+
+interface DocLinkProps {
+  label: string;
+}
+
+interface SectionBlockProps {
+  title: string;
+  value: number;
+  data: any[];
+  type: 'originacao' | 'creditos' | 'movimentacao' | 'aquisicao' | 'imei' | 'legado';
+  onPaste?: () => void;
+  onAdd?: () => void;
+  onRemove?: (id: string) => void;
+  onUpdateItem?: (id: string, updates: any) => void;
+  isEditing?: boolean;
+  isNegative?: boolean;
+  isAmber?: boolean;
+  isGreen?: boolean;
+  customColor?: string;
+  pasteLabel?: string;
+}
+
+interface SectionTableProps {
+  data: any[];
+  type: SectionBlockProps['type'];
+  onRemove?: (id: string) => void;
+  onUpdateItem?: (id: string, updates: any) => void;
+  isEditing?: boolean;
+}
+
+// ==========================================
+// COMPONENTES DE DASHBOARD
+// ==========================================
+
+export function StatCard({ label, value, unit, isPositive = true }: StatCardProps) {
+  const displayValue = typeof value === 'number' ? value.toLocaleString('pt-BR') : value;
+
   return (
-    <div className="bg-white border border-slate-100 rounded-[24px] p-5 flex items-center justify-between shadow-sm">
-      <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter leading-tight w-24">{label}</span>
-      <div className="text-right">
-        <span className="text-[18px] font-black text-slate-800 leading-none">{value}</span>
-        <span className="text-[10px] font-bold text-slate-400 ml-1">{unit}</span>
+    <div className="group bg-white border border-slate-100/80 rounded-3xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+      <div className="flex items-center gap-2.5 mb-6">
+        <div className={cn(
+          "w-1 h-3.5 rounded-full transition-transform group-hover:scale-y-125 duration-300",
+          isPositive ? "bg-emerald-500" : "bg-rose-500"
+        )} />
+        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none truncate">{label}</span>
+      </div>
+      <div className="flex items-baseline gap-1.5">
+        <span className={cn(
+          "text-3xl font-black tracking-tighter leading-none transition-colors duration-300",
+          isPositive ? "text-slate-900 group-hover:text-emerald-600" : "text-rose-600"
+        )}>
+          {displayValue}
+        </span>
+        <span className="text-[11px] font-black text-slate-300 uppercase tracking-widest">{unit}</span>
       </div>
     </div>
   );
 }
 
-export function QuickLink({ icon, label, onClick }: any) {
+export function QuickLink({ icon, label, onClick }: QuickLinkProps) {
   return (
-    <button onClick={onClick} className="w-full flex items-center justify-between p-4 px-6 rounded-2xl hover:bg-slate-50 transition-all group text-left border border-transparent">
-      <div className="flex items-center gap-5">
-        <div className="w-10 h-10 rounded-xl bg-slate-50/50 flex items-center justify-center text-slate-400 group-hover:bg-white group-hover:shadow-md group-hover:text-emerald-500 transition-all border border-transparent group-hover:border-slate-100">{icon}</div>
-        <span className="text-[12px] font-bold text-slate-500 uppercase tracking-tight group-hover:text-slate-800 transition-colors leading-none">{label}</span>
+    <button onClick={onClick} className="w-full flex items-center justify-between p-4 px-6 rounded-2xl bg-slate-50/50 hover:bg-white transition-all duration-300 group text-left border border-transparent hover:border-slate-100 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/10">
+      <div className="flex items-center gap-4">
+        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-slate-400 group-hover:text-emerald-500 transition-all shadow-sm border border-slate-100 group-hover:border-emerald-100">
+          {icon}
+        </div>
+        <span className="text-xs font-black text-slate-500 uppercase tracking-tight group-hover:text-slate-900 transition-colors leading-none">{label}</span>
       </div>
-      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all" />
+      <div className="w-8 h-8 rounded-full flex items-center justify-center bg-transparent group-hover:bg-emerald-50 transition-colors">
+        <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all" />
+      </div>
     </button>
   );
 }
 
-export function DocLink({ label }: { label: string }) {
+export function DocLink({ label }: DocLinkProps) {
   return (
-    <button className="w-full h-16 bg-white border border-slate-100 rounded-[20px] p-4 flex items-center justify-between group hover:border-emerald-200 hover:shadow-lg transition-all">
+    <button className="w-full h-14 bg-white border border-slate-100 rounded-2xl p-4 flex items-center justify-between group hover:border-emerald-200 hover:shadow-sm transition-all">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
-          <Download className="w-4 h-4" />
+        <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
+          <Download className="w-3.5 h-3.5" />
         </div>
         <span className="text-[11px] font-bold text-slate-600 uppercase tracking-tight text-left">{label}</span>
       </div>
-      <Badge variant="secondary" className="bg-slate-50 text-slate-400 group-hover:bg-emerald-100 group-hover:text-emerald-600 text-[8px] font-black uppercase rounded-lg border-none">PDF</Badge>
+      <Badge variant="secondary" className="bg-slate-50 text-slate-400 group-hover:bg-emerald-100 group-hover:text-emerald-600 text-[8px] font-black uppercase rounded-md border-none">PDF</Badge>
     </button>
   );
 }
 
-export function SectionBlock({ title, value, onPaste, data, type, onRemove, onUpdateItem, isNegative, isAmber, customColor, pasteLabel, isGreen, isEditing }: any) {
+// ==========================================
+// SEÇÕES TÉCNICAS E TABELAS
+// ==========================================
+
+export function SectionBlock({
+  title, value, onPaste, data, type, onRemove, onUpdateItem,
+  isNegative, isAmber, customColor, pasteLabel, isGreen, isEditing,
+  onAdd
+}: SectionBlockProps) {
+
+  // Lógica simplificada de cores
+  const themeColor = customColor ? customColor :
+    isAmber ? "bg-amber-500 shadow-amber-500/20" :
+      isNegative ? "bg-rose-500 shadow-rose-500/20" :
+        "bg-emerald-500 shadow-emerald-500/20";
+
+  const badgeTheme = isGreen ? "bg-emerald-50 text-emerald-600" :
+    isNegative ? "bg-rose-50 text-rose-500" :
+      isAmber ? "bg-amber-50 text-amber-600" :
+        (customColor ? `bg-slate-900 text-white` : "bg-slate-100 text-slate-600");
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 gap-4">
+
         <div className="flex items-center gap-4">
-          <div className={cn("w-1.5 h-6 rounded-full", customColor ? customColor : isAmber ? "bg-amber-500" : isNegative ? "bg-rose-500" : isGreen ? "bg-emerald-500" : "bg-emerald-500")} />
-          <h3 className="text-[14px] font-black uppercase tracking-tight text-slate-800">{title}</h3>
-          <Badge variant="outline" className={cn("text-[10px] font-black px-3 py-1 rounded-full", isAmber ? "text-amber-500 border-amber-200" : isNegative ? "text-rose-500 border-rose-200" : "text-emerald-500 border-emerald-200")}>
-            {Math.floor(value || 0).toLocaleString('pt-BR')} UCS
-          </Badge>
+          <div className={cn("w-1.5 h-10 rounded-full shadow-sm", themeColor)} />
+          <div className="flex flex-col gap-1">
+            <h3 className="text-xs font-black uppercase text-slate-900 tracking-widest">{title}</h3>
+            <div className="flex items-center gap-3">
+              <Badge className={cn("font-black text-[10px] px-3 py-1 border-none shadow-none rounded-lg", badgeTheme)}>
+                <span className="tracking-tighter">{Math.floor(value || 0).toLocaleString('pt-BR')} UCS</span>
+              </Badge>
+              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                {data?.length || 0} Registros
+              </span>
+            </div>
+          </div>
         </div>
-        {isEditing && onPaste && (
-          <Button
-            variant="outline"
-            onClick={onPaste}
-            className={cn(
-              "h-10 px-6 rounded-2xl text-[10px] font-black uppercase gap-2.5 transition-all text-slate-600 border-slate-200",
-              customColor ? "bg-indigo-600 text-white border-none hover:bg-indigo-700 shadow-lg shadow-indigo-500/20" : "bg-white hover:bg-slate-50"
-            )}
-          >
-            <Calculator className={cn("w-4 h-4", customColor ? "text-white" : "text-emerald-500")} /> {pasteLabel || "Colar Dados"}
-          </Button>
-        )}
+
+        <div className="flex items-center gap-2">
+          {isEditing && onAdd && (
+            <Button
+              onClick={onAdd}
+              variant="outline"
+              className="h-9 px-4 rounded-xl border-slate-200 text-slate-600 bg-white hover:bg-slate-50 font-black text-[10px] uppercase tracking-widest gap-2 shadow-sm transition-all shrink-0"
+            >
+              Adicionar Item
+            </Button>
+          )}
+
+          {isEditing && onPaste && (
+            <Button
+              onClick={onPaste}
+              variant="outline"
+              className="h-9 px-5 rounded-xl border-emerald-500/30 text-emerald-600 bg-white hover:bg-emerald-50 font-black text-[10px] uppercase tracking-widest gap-2 shadow-sm transition-all shrink-0"
+            >
+              <Calculator className="w-3.5 h-3.5" />
+              {pasteLabel || "Colar Dados"}
+            </Button>
+          )}
+        </div>
       </div>
+
       <SectionTable data={data} type={type} onRemove={onRemove} onUpdateItem={onUpdateItem} isEditing={isEditing} />
     </div>
   );
 }
 
-export function SectionTable({ data, type, onRemove, onUpdateItem, isEditing }: any) {
-  const isMovimentacao = type === 'movimentacao' || type === 'creditos';
+export function SectionTable({ data, type, onRemove, onUpdateItem, isEditing }: SectionTableProps) {
+  const isMovimentacao = type === 'movimentacao' || type === 'creditos' || type === 'originacao';
   const isAquisicao = type === 'aquisicao';
   const isImei = type === 'imei';
   const isLegado = type === 'legado';
 
-  const headers = isLegado
-    ? ["ID", "DATA", "PLATAFORMA", "DISPONÍVEL", "RESERVADO", "BLOQUEADO", "APOSENTADO"]
-    : isAquisicao
-      ? ["ID", "DATA", "ADQUIRENTE", "OBSERVAÇÃO", "STATUS", "VALOR"]
-      : isImei
-        ? ["ID", "ANO", "ORIGEM", "MÉTRICA", "DÉBITO", "CRÉDITO"]
-        : ["TIPO", "REF/ID", "DIST.", "DATA", "ORIGEM", "TIPO", "NOME", "DESTINO", "TIPO", "NOME", "SALDOS", "VALOR"];
+  // Definição limpa dos cabeçalhos baseados no tipo
+  let headers: string[] = [];
+  if (isLegado) headers = ["ID", "DATA", "ORIGEM", "DISPONÍVEL", "RESERVADO", "BLOQUEADO", "APOSENTADO"];
+  else if (isAquisicao) headers = ["ID", "DATA", "ADQUIRENTE", "OBSERVAÇÃO", "STATUS", "VALOR"];
+  else if (isImei) headers = ["DIST.", "DATA INÍCIO", "ORIGEM", "DESTINO", "CRÉDITO", "DÉBITO"];
+  else headers = ["TIPO", "ID / REF", "DIST.", "DATA", "ORIGEM", "DESTINO", "SITUAÇÃO", "UCS"];
+
+  // Componente interno para inputs repetitivos na tabela
+  const CellInput = ({ val, onChange, type = "text", align = "left", color = "text-slate-500", bold = false }: any) => (
+    <Input
+      type={type}
+      value={val}
+      readOnly={!isEditing}
+      onChange={onChange}
+      className={cn(
+        "h-7 bg-transparent border-transparent text-[10px] rounded-md shadow-none focus-visible:ring-1 focus-visible:ring-emerald-500/30 px-2",
+        isEditing ? "hover:border-slate-200 bg-white/50" : "pointer-events-none",
+        `text-${align}`, color, bold ? "font-black uppercase" : "font-bold"
+      )}
+    />
+  );
 
   return (
-    <div className="bg-white rounded-[24px] border border-slate-100 overflow-hidden shadow-sm">
+    <div className="bg-white rounded-3xl border border-slate-100/80 overflow-hidden shadow-sm group/table">
       <div className="overflow-x-auto custom-scrollbar">
-        <Table>
+        <Table className="min-w-[800px]">
           <TableHeader>
-            <TableRow className="bg-slate-50/50 border-b border-slate-100 h-10 hover:bg-slate-50/50">
+            <TableRow className="bg-slate-50/50 border-b border-slate-100 hover:bg-slate-50/50">
               {headers.map((h, i) => (
                 <TableHead key={i} className={cn(
-                  "text-[8px] font-black uppercase tracking-widest text-slate-400",
-                  i === headers.length - 1 ? "text-right pr-4" : "text-center px-1"
+                  "text-[9px] font-black uppercase tracking-widest text-slate-400 h-10",
+                  i === headers.length - 1 ? "text-right pr-6" : "text-left px-4"
                 )}>{h}</TableHead>
               ))}
-              {isEditing && <TableHead className="w-[40px] px-1"></TableHead>}
+              {isEditing && <TableHead className="w-[40px] px-2"></TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.length === 0 ? (
-              <TableRow><TableCell colSpan={isMovimentacao ? 11 : 7} className="py-12 text-center text-slate-300 font-bold uppercase text-[10px] tracking-widest bg-slate-50/20">Nenhum registro auditado</TableCell></TableRow>
+            {(!data || data.length === 0) ? (
+              <TableRow>
+                <TableCell colSpan={headers.length + (isEditing ? 1 : 0)} className="py-12 text-center">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nenhum registro auditado</span>
+                  </div>
+                </TableCell>
+              </TableRow>
             ) : (
-              data.map((row: any, i: number) => (
-                <TableRow key={i} className="h-10 border-b border-slate-50 hover:bg-slate-50/50">
-                  {isMovimentacao ? (
+              data.map((row: any, i: number) => {
+                const isAjuste = row.tipoTransacao === 'AJUSTE_PLATAFORMA';
+
+                // helpers de cor por tipo
+                const tipoColor = (
+                  row.tipoTransacao === 'CONSUMO' ? { text: 'text-rose-600', bg: 'bg-rose-50' } :
+                  row.tipoTransacao === 'TRANSFERENCIA' ? { text: 'text-indigo-600', bg: 'bg-indigo-50' } :
+                  row.tipoTransacao === 'RESERVA' ? { text: 'text-amber-600', bg: 'bg-amber-50' } :
+                  row.tipoTransacao === 'CREDITO' ? { text: 'text-emerald-600', bg: 'bg-emerald-50' } :
+                  row.tipoTransacao === 'ORIGINACAO' ? { text: 'text-slate-700', bg: 'bg-slate-100' } :
+                  row.tipoTransacao === 'IMEI_CUSTODIA' ? { text: 'text-violet-600', bg: 'bg-violet-50' } :
+                  row.tipoTransacao === 'AJUSTE_PLATAFORMA' ? { text: 'text-teal-600', bg: 'bg-teal-50' } :
+                  { text: 'text-rose-600', bg: 'bg-rose-50' }
+                );
+
+                const tipoLabel = (
+                  row.tipoTransacao === 'IMEI_CUSTODIA' ? 'IMEI / CUSTÓDIA' :
+                  row.tipoTransacao === 'AJUSTE_PLATAFORMA' ? 'AJUSTE ENTRE PLATAFORMAS' :
+                  (row.tipoTransacao || 'CONSUMO')
+                );
+
+                return (
+                <TableRow
+                  key={row.id || i}
+                  className={cn(
+                    "border-b border-slate-50 hover:bg-slate-50/60 transition-colors",
+                    isAjuste ? "bg-teal-50/30" : ""
+                  )}
+                >
+
+                  {/* RENDERIZAÇÃO: MOVIMENTAÇÃO / CRÉDITOS / ORIGINAÇÃO */}
+                  {isMovimentacao && (
                     <>
-                      <TableCell className="px-1 py-1 text-center">
+                      {/* — TIPO — */}
+                      <TableCell className="pl-5 pr-3 py-3 w-[150px]">
                         {isEditing ? (
                           <Select
-                            value={row.tipoTransacao || "CONSUMO"}
-                            onValueChange={(v) => onUpdateItem?.(row.id, { tipoTransacao: v })}
+                            value={row.tipoTransacao || 'CONSUMO'}
+                            onValueChange={(val) => onUpdateItem?.(row.id, { tipoTransacao: val })}
                           >
-                            <SelectTrigger className="h-7 rounded-lg bg-white/50 text-[8px] font-black uppercase border-slate-100 focus:bg-white transition-all">
-                              <SelectValue />
+                            <SelectTrigger className={cn("h-7 w-full text-[8px] font-black uppercase border-0 px-2 rounded-lg", tipoColor.bg, tipoColor.text)}>
+                              <SelectValue placeholder="Tipo" />
                             </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="CONSUMO">CONSUMO</SelectItem>
-                              <SelectItem value="TRANSFERENCIA">TRANSFERÊNCIA</SelectItem>
-                              <SelectItem value="ORIGINACAO">ORIGINAÇÃO</SelectItem>
-                              <SelectItem value="IMEI / CUSTODIA">IMEI / CUSTODIA</SelectItem>
-                              <SelectItem value="AJUSTE ENTRE PLATAFORMAS">AJUSTE</SelectItem>
-                              <SelectItem value="RESERVA OPERACIONAL">RESERVA</SelectItem>
+                            <SelectContent className="bg-white border-slate-100 rounded-xl shadow-xl">
+                              <SelectItem value="CONSUMO" className="text-[10px] font-bold text-rose-600 uppercase">Consumo</SelectItem>
+                              <SelectItem value="TRANSFERENCIA" className="text-[10px] font-bold text-indigo-600 uppercase">Transferência</SelectItem>
+                              <SelectItem value="RESERVA" className="text-[10px] font-bold text-amber-600 uppercase">Reserva</SelectItem>
+                              <SelectItem value="CREDITO" className="text-[10px] font-bold text-emerald-600 uppercase">Crédito</SelectItem>
+                              <SelectItem value="ORIGINACAO" className="text-[10px] font-bold text-slate-700 uppercase">Originação</SelectItem>
+                              <SelectItem value="IMEI_CUSTODIA" className="text-[10px] font-bold text-violet-600 uppercase">IMEI / Custódia</SelectItem>
+                              <SelectItem value="AJUSTE_PLATAFORMA" className="text-[10px] font-bold text-teal-600 uppercase">Ajuste entre Plataformas</SelectItem>
                             </SelectContent>
                           </Select>
                         ) : (
-                          <Badge variant="outline" className="text-[7px] font-black uppercase px-2 py-0 border-slate-100 text-slate-400 bg-slate-50/50">
-                            {row.tipoTransacao || "CONSUMO"}
-                          </Badge>
+                          <span className={cn("text-[9px] font-black uppercase tracking-wider leading-tight", tipoColor.text)}>
+                            {tipoLabel}
+                          </span>
                         )}
                       </TableCell>
-                      <TableCell className="px-1 py-1">
+
+                      {/* — ID/REF — */}
+                      <TableCell className="px-3 py-3 w-[80px]">
+                        <CellInput val={row.plataforma || row.id || ''} bold color="text-slate-600" onChange={(e: any) => onUpdateItem?.(row.id, { plataforma: e.target.value })} />
+                      </TableCell>
+
+                      {/* — DIST. — */}
+                      <TableCell className="px-3 py-3 w-[70px]">
                         {isEditing ? (
-                          <Input value={row.linkNxt || ''} onChange={e => onUpdateItem?.(row.id, { linkNxt: e.target.value })} className="h-7 bg-slate-50/50 border-slate-100 text-[10px] font-mono font-bold text-slate-500 rounded-lg" />
+                          <CellInput val={row.dist || ''} bold color="text-teal-600" onChange={(e: any) => onUpdateItem?.(row.id, { dist: e.target.value })} />
                         ) : (
-                          <span className="text-[10px] font-mono font-bold text-slate-400 pl-2">{row.linkNxt || '---'}</span>
+                          <span className="text-[10px] font-black text-teal-600 tabular-nums px-2">{row.dist || '—'}</span>
                         )}
                       </TableCell>
-                      <TableCell className="px-1 py-1">
-                        {isEditing ? (
-                          <Input value={row.dist || ''} onChange={e => onUpdateItem?.(row.id, { dist: e.target.value })} className="h-7 bg-slate-50/50 border-slate-100 text-[10px] font-mono font-bold text-primary rounded-lg" />
-                        ) : (
-                          <span className="text-[10px] font-bold text-primary uppercase">{row.dist || '---'}</span>
-                        )}
+
+                      {/* — DATA — */}
+                      <TableCell className="px-3 py-3 w-[90px]">
+                        <CellInput val={row.data || ''} color="text-slate-500" onChange={(e: any) => onUpdateItem?.(row.id, { data: e.target.value })} />
                       </TableCell>
-                      <TableCell className="px-1 py-1">
-                        {isEditing ? (
-                          <Input value={row.data || ''} onChange={e => onUpdateItem?.(row.id, { data: e.target.value })} className="h-7 bg-slate-50/50 border-slate-100 text-[10px] font-mono font-bold text-slate-500 rounded-lg" />
-                        ) : (
-                          <span className="text-[10px] font-bold text-slate-500">{row.data || '---'}</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="px-1 py-1">
-                        {isEditing ? (
-                          <Input value={row.plataformaOrigem || ''} onChange={e => onUpdateItem?.(row.id, { plataformaOrigem: e.target.value })} className="h-7 bg-slate-50/50 border-slate-100 text-[9px] font-bold text-slate-700 rounded-lg uppercase" placeholder="Origem" />
-                        ) : (
-                          <span className="text-[9px] font-black text-slate-700 uppercase">{row.plataformaOrigem || '---'}</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="px-1 py-1">
-                        <div className="flex flex-col gap-0.5 py-0.5">
-                          {row.tipoUsuarioOrigem && (
-                            <Badge variant="outline" className={cn(
-                              "w-fit text-[6px] font-black uppercase px-1 py-0 border-transparent leading-none",
-                              row.tipoUsuarioOrigem.includes('PRODUTOR') ? "bg-amber-100/50 text-amber-600" :
-                                row.tipoUsuarioOrigem.includes('CLIENTE') || row.tipoUsuarioOrigem.includes('SAAS') ? "bg-emerald-100/50 text-emerald-600" :
-                                  "bg-slate-100 text-slate-500"
-                            )}>
-                              {row.tipoUsuarioOrigem || ''}
-                            </Badge>
-                          )}
-                          {isEditing ? (
-                            <Input value={row.usuarioOrigem || ''} onChange={e => onUpdateItem?.(row.id, { usuarioOrigem: e.target.value })} className="h-7 bg-slate-50/50 border-slate-100 text-[9px] text-slate-500 rounded-lg" placeholder="Nome" />
-                          ) : (
-                            <span className="text-[9px] font-bold text-slate-500 truncate">{row.usuarioOrigem || '---'}</span>
-                          )}
+
+                      {/* — ORIGEM — stacked label + name */}
+                      <TableCell className="px-3 py-3 min-w-[130px]">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-[8px] font-black uppercase tracking-widest text-amber-500">PRODUTOR</span>
+                          <CellInput val={row.usuarioOrigem || row.origem || ''} bold color="text-slate-800" onChange={(e: any) => onUpdateItem?.(row.id, { usuarioOrigem: e.target.value })} />
                         </div>
                       </TableCell>
-                      <TableCell className="px-1 py-1">
-                        {isEditing ? (
-                          <Input value={row.destino || ''} onChange={e => onUpdateItem?.(row.id, { destino: e.target.value })} className="h-7 bg-slate-50/50 border-slate-100 text-[9px] font-bold text-slate-700 rounded-lg uppercase" placeholder="Destino" />
-                        ) : (
-                          <span className="text-[9px] font-black text-slate-700 uppercase">{row.destino || '---'}</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="px-1 py-1">
-                        <div className="flex flex-col gap-0.5 py-0.5">
-                          {row.tipoUsuarioDestino && (
-                            <Badge variant="outline" className={cn(
-                              "w-fit text-[6px] font-black uppercase px-1 py-0 border-transparent leading-none",
-                              row.tipoUsuarioDestino.includes('PRODUTOR') ? "bg-amber-100/50 text-amber-600" :
-                                row.tipoUsuarioDestino.includes('CLIENTE') || row.tipoUsuarioDestino.includes('SAAS') ? "bg-emerald-100/50 text-emerald-600" :
-                                  "bg-slate-100 text-slate-500"
-                            )}>
-                              {row.tipoUsuarioDestino || ''}
-                            </Badge>
-                          )}
-                          {isEditing ? (
-                            <Input value={row.usuarioDestino || ''} onChange={e => onUpdateItem?.(row.id, { usuarioDestino: e.target.value })} className="h-7 bg-slate-50/50 border-slate-100 text-[9px] text-slate-500 rounded-lg" placeholder="Nome" />
-                          ) : (
-                            <span className="text-[9px] font-bold text-slate-500 truncate">{row.usuarioDestino || '---'}</span>
-                          )}
+
+                      {/* — DESTINO — stacked label + name */}
+                      <TableCell className="px-3 py-3 min-w-[180px]">
+                        <div className="flex flex-col gap-0.5">
+                          <span className={cn("text-[8px] font-black uppercase tracking-widest",
+                            isAjuste ? "text-teal-500" : "text-slate-400"
+                          )}>{isAjuste ? 'PRÓPRIA CONTA' : 'CLIENTE / DESTINO'}</span>
+                          <CellInput val={row.cliente || row.usuarioDestino || ''} bold={isAjuste} color={isAjuste ? "text-teal-700" : "text-slate-700"} onChange={(e: any) => onUpdateItem?.(row.id, { usuarioDestino: e.target.value })} />
                         </div>
                       </TableCell>
-                      <TableCell className="px-1 py-1">
-                        {isEditing ? (
-                          <Input value={row.statusAuditoria || ''} onChange={e => onUpdateItem?.(row.id, { statusAuditoria: e.target.value })} className="h-7 bg-slate-50/50 border-slate-100 text-[9px] font-mono font-black text-slate-400 text-center rounded-lg" placeholder="Saldos" />
-                        ) : (
-                          <div className="text-center font-mono text-[9px] text-slate-300 uppercase">{row.statusAuditoria || '---'}</div>
-                        )}
-                      </TableCell>
-                      <TableCell className="px-1 py-1 pr-4">
-                        <div className="text-right">
+
+                      {/* — SITUAÇÃO — */}
+                      <TableCell className="px-3 py-3 w-[100px]">
+                        <div className="flex flex-col gap-1">
                           {isEditing ? (
-                            <Input
-                              type="number"
-                              value={row.valor || 0}
-                              onChange={e => onUpdateItem?.(row.id, { valor: parseFloat(e.target.value) || 0 })}
-                              className={cn(
-                                "h-7 bg-slate-50/30 border-slate-100 text-[10px] font-mono font-black text-right rounded-lg",
-                                (!row.tipoTransacao || row.tipoTransacao === 'CONSUMO') ? "text-rose-500 border-rose-100 bg-rose-50/30" : "text-slate-400 border-slate-100 bg-slate-50/30"
-                              )}
-                            />
+                            <Select
+                              value={row.situacao || 'A conferir'}
+                              onValueChange={(val) => onUpdateItem?.(row.id, { situacao: val })}
+                            >
+                              <SelectTrigger className="h-7 w-[90px] text-[8px] font-black uppercase border-slate-200 bg-white/50 px-2 rounded-lg">
+                                <SelectValue placeholder="Sit." />
+                              </SelectTrigger>
+                              <SelectContent className="bg-white border-slate-100 rounded-xl shadow-xl">
+                                <SelectItem value="Pago" className="text-[10px] font-bold uppercase">Pago</SelectItem>
+                                <SelectItem value="CONCLUÍDO" className="text-[10px] font-bold uppercase">Concluído</SelectItem>
+                                <SelectItem value="A conferir" className="text-[10px] font-bold uppercase">A conferir</SelectItem>
+                                <SelectItem value="Pendente" className="text-[10px] font-bold uppercase">Pendente</SelectItem>
+                              </SelectContent>
+                            </Select>
                           ) : (
-                            <span className={cn(
-                              "text-[12px] font-black",
-                              (!row.tipoTransacao || row.tipoTransacao === 'CONSUMO') ? "text-rose-600" : "text-slate-500"
-                            )}>
-                              {(!row.tipoTransacao || row.tipoTransacao === 'CONSUMO') ? '- ' : '+ '}
-                              {Math.floor(row.valor || 0).toLocaleString('pt-BR')}
+                            <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider px-2">
+                              {row.situacao || 'CONCLUÍDO'}
                             </span>
                           )}
-                          {row.tipoTransacao && row.tipoTransacao !== 'CONSUMO' && (
-                            <p className="text-[6px] font-black text-slate-400 uppercase pr-1">Não deduzido</p>
+                          {isAjuste && !isEditing && (
+                            <span className="text-[8px] font-black uppercase text-teal-500 tracking-wider px-2">NÃO DEDUZIDO</span>
                           )}
                         </div>
                       </TableCell>
-                    </>
-                  ) : isLegado ? (
-                    <>
-                      <TableCell className="pl-4 py-0.5 text-center"><span className="text-[10px] font-black text-slate-400">{row.id?.substring(0, 5)}</span></TableCell>
-                      <TableCell className="px-0.5 py-0.5"><Input value={row.data || ''} onChange={e => onUpdateItem(row.id, { data: e.target.value })} className="h-6 bg-transparent border-transparent hover:border-slate-200 text-[10px] font-mono text-slate-500 rounded-none text-center shadow-none focus-visible:ring-0" /></TableCell>
-                      <TableCell className="px-0.5 py-0.5"><Input value={row.plataforma || ''} onChange={e => onUpdateItem(row.id, { plataforma: e.target.value })} className="h-6 bg-transparent border-transparent hover:border-slate-200 text-[10px] font-bold text-slate-700 rounded-none uppercase shadow-none focus-visible:ring-0" /></TableCell>
-                      <TableCell className="px-0.5 py-0.5"><Input value={row.disponivel || 0} type="number" onChange={e => onUpdateItem(row.id, { disponivel: parseFloat(e.target.value) || 0 })} className="h-6 bg-transparent border-transparent hover:border-slate-200 text-[11px] font-black text-emerald-700 rounded-none text-right shadow-none focus-visible:ring-0" /></TableCell>
-                      <TableCell className="px-0.5 py-0.5"><Input value={row.reservado || 0} type="number" onChange={e => onUpdateItem(row.id, { reservado: parseFloat(e.target.value) || 0 })} className="h-6 bg-transparent border-transparent hover:border-slate-200 text-[11px] font-black text-orange-700 rounded-none text-right shadow-none focus-visible:ring-0" /></TableCell>
-                      <TableCell className="px-0.5 py-0.5"><Input value={row.bloqueado || 0} type="number" onChange={e => onUpdateItem(row.id, { bloqueado: parseFloat(e.target.value) || 0 })} className="h-6 bg-transparent border-transparent hover:border-slate-200 text-[11px] font-black text-amber-800 rounded-none text-right shadow-none focus-visible:ring-0" /></TableCell>
-                      <TableCell className="px-0.5 py-0.5 pr-4"><Input value={row.aposentado || 0} type="number" onChange={e => onUpdateItem(row.id, { aposentado: parseFloat(e.target.value) || 0 })} className="h-6 bg-transparent border-transparent hover:border-slate-200 text-[11px] font-black text-slate-500 rounded-none text-right shadow-none focus-visible:ring-0" /></TableCell>
-                    </>
-                  ) : isAquisicao ? (
-                    <>
-                      <TableCell className="pl-4 py-0.5 text-center"><span className="text-[10px] font-black text-slate-400">{row.id?.substring(0, 5)}</span></TableCell>
-                      <TableCell className="px-0.5 py-0.5"><Input value={row.data || ''} onChange={e => onUpdateItem(row.id, { data: e.target.value })} className="h-6 bg-transparent border-transparent hover:border-slate-200 text-[10px] font-mono text-slate-500 rounded-none text-center shadow-none focus-visible:ring-0" /></TableCell>
-                      <TableCell className="px-0.5 py-0.5"><Input value={row.adquirente || 'BMTCA / IMEI'} onChange={e => onUpdateItem(row.id, { adquirente: e.target.value })} className="h-6 bg-transparent border-transparent hover:border-slate-200 text-[10px] font-bold text-indigo-700 rounded-none uppercase shadow-none focus-visible:ring-0" /></TableCell>
-                      <TableCell className="px-0.5 py-0.5"><Input value={row.observacao || ''} onChange={e => onUpdateItem(row.id, { observacao: e.target.value })} className="h-6 bg-transparent border-transparent hover:border-slate-200 text-[10px] text-slate-400 rounded-none shadow-none focus-visible:ring-0" placeholder="Contrato" /></TableCell>
-                      <TableCell className="px-0.5 py-0.5"><Input value={row.status || 'CONCLUÍDO'} onChange={e => onUpdateItem(row.id, { status: e.target.value })} className="h-6 bg-transparent border-transparent hover:border-slate-200 text-[10px] font-black text-slate-400 rounded-none text-center shadow-none focus-visible:ring-0" /></TableCell>
-                      <TableCell className="px-0.5 py-0.5 pr-4"><Input value={row.valor || 0} type="number" onChange={e => onUpdateItem(row.id, { valor: parseFloat(e.target.value) || 0 })} className="h-6 bg-transparent border-transparent hover:border-slate-200 text-[11px] font-black text-indigo-700 rounded-none text-right shadow-none focus-visible:ring-0" /></TableCell>
-                    </>
-                  ) : (
-                    <>
-                      <TableCell className="pl-4 py-0.5 text-center"><span className="text-[10px] font-black text-slate-400">{row.id?.substring(0, 5)}</span></TableCell>
-                      <TableCell className="px-0.5 py-0.5"><Input value={row.dist || ''} onChange={e => onUpdateItem?.(row.id, { dist: e.target.value })} className="h-6 bg-transparent border-transparent hover:border-slate-200 text-[10px] font-mono font-bold text-primary rounded-none text-center shadow-none focus-visible:ring-0" /></TableCell>
-                      <TableCell className="px-0.5 py-0.5"><Input value={row.data || ''} onChange={e => onUpdateItem?.(row.id, { data: e.target.value })} className="h-6 bg-transparent border-transparent hover:border-slate-200 text-[10px] font-mono font-bold text-slate-500 rounded-none text-center shadow-none focus-visible:ring-0" /></TableCell>
-                      <TableCell className="px-0.5 py-0.5"><Input value={isImei ? (row.valorDebito || 0) : (row.plataforma || '')} onChange={e => onUpdateItem?.(row.id, isImei ? { valorDebito: parseFloat(e.target.value) || 0 } : { plataforma: e.target.value })} className="h-6 bg-transparent border-transparent hover:border-slate-200 text-[10px] font-bold text-slate-500 rounded-none uppercase shadow-none focus-visible:ring-0" /></TableCell>
-                      <TableCell className="px-0.5 py-0.5"><Input value={isImei ? (row.valorCredito || 0) : (row.statusAuditoria || '')} onChange={e => onUpdateItem?.(row.id, isImei ? { valorCredito: parseFloat(e.target.value) || 0 } : { statusAuditoria: e.target.value })} className="h-6 bg-transparent border-transparent hover:border-slate-200 text-[10px] font-bold text-slate-500 rounded-none uppercase shadow-none focus-visible:ring-0" /></TableCell>
-                      <TableCell className="px-0.5 py-0.5 pr-4"><Input type="number" value={row.valor || 0} onChange={e => onUpdateItem?.(row.id, { valor: parseFloat(e.target.value) || 0 })} className="h-6 bg-transparent border-transparent hover:border-slate-200 text-[11px] font-mono font-black text-emerald-600 text-right rounded-none shadow-none focus-visible:ring-0" /></TableCell>
+
+                      {/* — UCS / VALOR — */}
+                      <TableCell className="px-3 py-3 pr-6 text-right w-[90px]">
+                        {isAjuste && !isEditing ? (
+                          <div className="flex flex-col items-end gap-0.5">
+                            <span className={cn("text-[11px] font-black tabular-nums",
+                              (row.valor || 0) >= 0 ? "text-emerald-500" : "text-rose-500"
+                            )}>
+                              {(row.valor || 0) > 0 ? '+' : ''}{(row.valor || 0).toLocaleString('pt-BR')}
+                            </span>
+                            <span className="text-[8px] font-black text-teal-500 uppercase">Não deduzido</span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-end">
+                            <CellInput
+                              type="number" align="right" bold
+                              color={(row.valor || 0) >= 0 ? "text-emerald-500" : "text-rose-500"}
+                              val={row.valor || 0}
+                              onChange={(e: any) => onUpdateItem?.(row.id, { valor: parseFloat(e.target.value) || 0 })}
+                            />
+                          </div>
+                        )}
+                      </TableCell>
                     </>
                   )}
+
+                  {/* RENDERIZAÇÃO: AQUISIÇÃO */}
+                  {isAquisicao && (
+                    <>
+                      <TableCell className="pl-4 py-1 text-[10px] font-mono font-bold text-slate-400">{row.id}</TableCell>
+                      <TableCell className="px-2 py-1"><CellInput val={row.data || ''} onChange={(e: any) => onUpdateItem?.(row.id, { data: e.target.value })} /></TableCell>
+                      <TableCell className="px-2 py-1"><CellInput val={row.adquirente || ''} bold color="text-slate-700" onChange={(e: any) => onUpdateItem?.(row.id, { adquirente: e.target.value })} /></TableCell>
+                      <TableCell className="px-2 py-1"><CellInput val={row.observacao || ''} onChange={(e: any) => onUpdateItem?.(row.id, { observacao: e.target.value })} /></TableCell>
+                      <TableCell className="px-2 py-1"><CellInput val={row.status || ''} bold onChange={(e: any) => onUpdateItem?.(row.id, { status: e.target.value })} /></TableCell>
+                      <TableCell className="px-2 py-1 pr-6"><CellInput type="number" align="right" bold color="text-indigo-600" val={row.valor || 0} onChange={(e: any) => onUpdateItem?.(row.id, { valor: parseFloat(e.target.value) || 0 })} /></TableCell>
+                    </>
+                  )}
+
+                  {/* RENDERIZAÇÃO: IMEI */}
+                  {isImei && (
+                    <>
+                      <TableCell className="pl-4 py-1"><CellInput val={row.dist || ''} bold color="text-slate-700" onChange={(e: any) => onUpdateItem?.(row.id, { dist: e.target.value })} /></TableCell>
+                      <TableCell className="px-2 py-1"><CellInput val={row.data || ''} onChange={(e: any) => onUpdateItem?.(row.id, { data: e.target.value })} /></TableCell>
+                      <TableCell className="px-2 py-1"><CellInput val={row.origem || ''} bold onChange={(e: any) => onUpdateItem?.(row.id, { origem: e.target.value })} /></TableCell>
+                      <TableCell className="px-2 py-1"><CellInput val={row.usuarioDestino || ''} onChange={(e: any) => onUpdateItem?.(row.id, { usuarioDestino: e.target.value })} /></TableCell>
+                      <TableCell className="px-2 py-1"><CellInput type="number" align="right" bold color="text-emerald-600" val={row.credito || 0} onChange={(e: any) => onUpdateItem?.(row.id, { credito: parseFloat(e.target.value) || 0 })} /></TableCell>
+                      <TableCell className="px-2 py-1 pr-6"><CellInput type="number" align="right" bold color="text-rose-600" val={row.debito || 0} onChange={(e: any) => onUpdateItem?.(row.id, { debito: parseFloat(e.target.value) || 0 })} /></TableCell>
+                    </>
+                  )}
+
+                  {/* RENDERIZAÇÃO: LEGADO */}
+                  {isLegado && (
+                    <>
+                      <TableCell className="pl-4 py-1 text-[10px] font-mono font-bold text-slate-400">{row.id}</TableCell>
+                      <TableCell className="px-2 py-1"><CellInput val={row.data || ''} onChange={(e: any) => onUpdateItem?.(row.id, { data: e.target.value })} /></TableCell>
+                      <TableCell className="px-2 py-1"><CellInput val={row.plataforma || ''} bold onChange={(e: any) => onUpdateItem?.(row.id, { plataforma: e.target.value })} /></TableCell>
+                      <TableCell className="px-2 py-1"><CellInput type="number" align="right" val={row.disponivel || 0} onChange={(e: any) => onUpdateItem?.(row.id, { disponivel: parseFloat(e.target.value) || 0 })} /></TableCell>
+                      <TableCell className="px-2 py-1"><CellInput type="number" align="right" bold color="text-amber-600" val={row.reservado || 0} onChange={(e: any) => onUpdateItem?.(row.id, { reservado: parseFloat(e.target.value) || 0 })} /></TableCell>
+                      <TableCell className="px-2 py-1"><CellInput type="number" align="right" bold color="text-slate-600" val={row.bloqueado || 0} onChange={(e: any) => onUpdateItem?.(row.id, { bloqueado: parseFloat(e.target.value) || 0 })} /></TableCell>
+                      <TableCell className="px-2 py-1 pr-6"><CellInput type="number" align="right" bold color="text-emerald-600" val={row.aposentado || 0} onChange={(e: any) => onUpdateItem?.(row.id, { aposentado: parseFloat(e.target.value) || 0 })} /></TableCell>
+                    </>
+                  )}
+
+                  {/* BOTÃO DE DELETAR (MÓDULO DE EDIÇÃO) */}
                   {isEditing && (
-                    <TableCell className="w-[40px] px-1 py-1 text-center">
-                      <button onClick={() => onRemove?.(row.id)} className="p-1 text-slate-300 hover:text-rose-500 transition-colors">
-                        <Trash2 className="w-3 h-3" />
+                    <TableCell className="w-[40px] px-2 py-1 text-center">
+                      <button onClick={() => onRemove?.(row.id)} className="p-1.5 rounded-md text-slate-300 hover:text-rose-500 hover:bg-rose-50 transition-colors">
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </TableCell>
                   )}
+
                 </TableRow>
-              ))
+              );})
             )}
           </TableBody>
         </Table>
@@ -292,9 +451,9 @@ export function SectionTable({ data, type, onRemove, onUpdateItem, isEditing }: 
 
 export function PropDetail({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className="flex justify-between items-center py-1">
-      <span className="text-[12px] font-bold text-slate-400 uppercase tracking-tight">{label}</span>
-      <span className={cn("text-[12px] font-black uppercase", highlight ? "text-emerald-600" : "text-slate-800")}>{value}</span>
+    <div className="flex justify-between items-center py-2 border-b border-slate-50/80">
+      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{label}</span>
+      <span className={cn("text-[11px] font-black uppercase", highlight ? "text-emerald-600" : "text-slate-800")}>{value}</span>
     </div>
   );
 }

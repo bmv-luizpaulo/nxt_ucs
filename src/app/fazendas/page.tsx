@@ -37,7 +37,10 @@ function FazendasContent() {
   const [isSafraDialogOpen, setIsSafraDialogOpen] = useState(false);
   const [editingFazenda, setEditingFazenda] = useState<Fazenda | null>(null);
   const [viewingFazenda, setViewingFazenda] = useState<Fazenda | null>(null);
+  const [filterOrphans, setFilterOrphans] = useState(false);
+  const [filterPJ, setFilterPJ] = useState(false);
   const itemsPerPage = 50;
+
 
   useEffect(() => {
     if (!isUserLoading && !user) router.push("/");
@@ -52,19 +55,30 @@ function FazendasContent() {
 
   const { data: allFazendas, isLoading } = useCollection<Fazenda>(fazendasQuery);
 
+  const isOrphan = (f: Fazenda) =>
+    !(f.proprietarios || []).some(p => (p.documento || '').trim() || (p.nome || '').trim());
+
+  const hasPJ = (f: Fazenda) =>
+    (f.proprietarios || []).some(p => p.tipo === 'PJ' && (p.documento || '').trim());
+
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    return (allFazendas || []).filter(f =>
-      !q ||
-      f.nome?.toLowerCase().includes(q) ||
-      f.idf?.toLowerCase().includes(q) ||
-      f.municipio?.toLowerCase().includes(q) ||
-      f.nucleo?.toLowerCase().includes(q) ||
-      f.proprietarios?.some(p => p.nome?.toLowerCase().includes(q) || p.documento?.includes(q))
-    );
-  }, [allFazendas, search]);
+    return (allFazendas || []).filter(f => {
+      if (filterOrphans && !isOrphan(f)) return false;
+      if (filterPJ && !hasPJ(f)) return false;
+      return (
+        !q ||
+        f.nome?.toLowerCase().includes(q) ||
+        f.idf?.toLowerCase().includes(q) ||
+        f.municipio?.toLowerCase().includes(q) ||
+        f.nucleo?.toLowerCase().includes(q) ||
+        f.proprietarios?.some(p => p.nome?.toLowerCase().includes(q) || p.documento?.includes(q))
+      );
+    });
+  }, [allFazendas, search, filterOrphans, filterPJ]);
 
-  useEffect(() => { setCurrentPage(1); setSelectedIds([]); }, [search]);
+  useEffect(() => { setCurrentPage(1); setSelectedIds([]); }, [search, filterOrphans, filterPJ]);
+
 
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const paginated = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -281,7 +295,7 @@ function FazendasContent() {
 
           {/* STATS */}
           {(allFazendas?.length || 0) > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
               <StatCard label="Total Registradas" value={allFazendas?.length || 0} unit="fazendas" color="emerald" />
               <StatCard
                 label="Área Total"
@@ -296,13 +310,31 @@ function FazendasContent() {
                 color="indigo"
               />
               <StatCard
-                label="Núcleos"
-                value={new Set(allFazendas?.map(f => f.nucleo).filter(Boolean)).size}
-                unit="associações"
+                label="Pessoa Jurídica (PJ)"
+                value={new Set(
+                  allFazendas?.flatMap(f =>
+                    (f.proprietarios || [])
+                      .filter(p => p.tipo === 'PJ' && p.documento)
+                      .map(p => p.documento)
+                  ) || []
+                ).size}
+                unit="empresas"
                 color="amber"
+                active={filterPJ}
+                onClick={() => setFilterPJ(v => !v)}
+              />
+              <StatCard
+                label="Sem Proprietário"
+                value={allFazendas?.filter(isOrphan).length || 0}
+                unit="sem vínculo"
+                color="rose"
+                active={filterOrphans}
+                onClick={() => setFilterOrphans(v => !v)}
               />
             </div>
           )}
+
+
 
           {/* TABLE */}
           <div className="bg-white rounded-[2rem] border border-slate-200 overflow-hidden shadow-sm">
@@ -487,18 +519,37 @@ function FazendasContent() {
   );
 }
 
-function StatCard({ label, value, unit, color }: { label: string; value: any; unit: string; color: string }) {
+function StatCard({ label, value, unit, color, onClick, active }: {
+  label: string; value: any; unit: string; color: string;
+  onClick?: () => void; active?: boolean;
+}) {
   const colors: Record<string, string> = {
     emerald: "bg-emerald-50 border-emerald-100 text-emerald-700",
     teal: "bg-teal-50 border-teal-100 text-teal-700",
     indigo: "bg-indigo-50 border-indigo-100 text-indigo-700",
     amber: "bg-amber-50 border-amber-100 text-amber-700",
+    rose: "bg-rose-50 border-rose-100 text-rose-600",
+  };
+  const activeRing: Record<string, string> = {
+    rose: "ring-2 ring-rose-400 ring-offset-1 shadow-rose-100 shadow-md",
+    amber: "ring-2 ring-amber-400 ring-offset-1 shadow-amber-100 shadow-md",
   };
   return (
-    <div className={cn("rounded-2xl border p-5", colors[color] || colors.emerald)}>
-      <p className="text-[8px] font-black uppercase tracking-widest opacity-60 mb-1">{label}</p>
+    <div
+      className={cn(
+        "rounded-2xl border p-5 transition-all duration-200",
+        colors[color] || colors.emerald,
+        onClick ? "cursor-pointer hover:opacity-80 select-none" : "",
+        active ? (activeRing[color] || "ring-2 ring-slate-400") : "",
+      )}
+      onClick={onClick}
+    >
+      <p className="text-[8px] font-black uppercase tracking-widest opacity-60 mb-1 flex items-center gap-1.5">
+        {label}
+        {active && <span className="bg-rose-500 text-white text-[7px] px-1.5 py-0.5 rounded-full font-black">ATIVO</span>}
+      </p>
       <p className="text-[22px] font-black leading-none">{value}</p>
-      <p className="text-[9px] font-bold opacity-50 mt-0.5">{unit}</p>
+      <p className="text-[9px] font-bold opacity-50 mt-0.5">{active ? 'clique para limpar' : unit}</p>
     </div>
   );
 }
