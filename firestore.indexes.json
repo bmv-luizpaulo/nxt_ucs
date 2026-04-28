@@ -1,27 +1,33 @@
-
 {
   "indexes": [
     {
-      "collectionGroup": "pedidos",
+      "collectionGroup": "produtores",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "categoria", "order": "ASCENDING" },
-        { "fieldPath": "data", "order": "DESCENDING" }
+        { "fieldPath": "isProdutor", "order": "ASCENDING" },
+        { "fieldPath": "nome", "order": "ASCENDING" }
       ]
     },
     {
       "collectionGroup": "produtores",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "isCliente", "order": "ASCENDING" },
         { "fieldPath": "nome", "order": "ASCENDING" }
       ]
     },
     {
-      "collectionGroup": "associacoes",
+      "collectionGroup": "produtores",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "isParceiro", "order": "ASCENDING" },
+        { "fieldPath": "nome", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "fazendas",
+      "queryScope": "COLLECTION",
+      "fields": [
         { "fieldPath": "nome", "order": "ASCENDING" }
       ]
     }

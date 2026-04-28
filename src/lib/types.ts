@@ -34,6 +34,8 @@ export interface FazendaProprietario {
   documento: string;    // CPF ou CNPJ
   percentual: number;   // % de participação sobre a terra
   tipo?: 'PF' | 'PJ';
+  razaoSocial?: string;
+  nomeResponsavel?: string;
 }
 
 export interface Fazenda {
@@ -254,6 +256,12 @@ export interface EntidadeSaldo {
 
   // UI helper
   isGroup?: boolean;
+  // Auditoria e Motor de Partição
+  isAuditRecord?: boolean;
+  categoria?: "fazenda" | "participante" | string;
+  tipo?: "produtor" | "associacao" | "imei" | string;
+  entidade?: string;
+  volumeContextual?: number;
 }
 
 export interface EntidadeSaldoGroup {

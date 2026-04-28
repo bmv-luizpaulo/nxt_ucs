@@ -190,7 +190,7 @@ function FazendasContent() {
     const byIdf: Record<string, string> = {}; // idfLocalizado → docId
     allFazendas.forEach(f => {
       if (f.idf) {
-        const cleanIdf = f.idf.toString().trim().replace(/^0+/, '');
+        const cleanIdf = f.idf.toString().trim();
         byIdf[cleanIdf] = f.id;
       }
     });
@@ -382,7 +382,7 @@ function FazendasContent() {
                         <td className="py-4 px-4">
                           <div className="flex items-center gap-3"></div>
                           <div 
-                            onClick={() => { setViewingFazenda(fazenda); setIsDetailOpen(true); }}
+                            onClick={() => router.push(`/fazendas/${fazenda.id}`)}
                             className="flex items-center gap-3 cursor-pointer group/name hover:opacity-80 transition-all"
                           >
                             <div className="w-9 h-9 bg-emerald-50 rounded-xl flex items-center justify-center shrink-0 group-hover/name:bg-emerald-100 transition-colors">
@@ -417,7 +417,9 @@ function FazendasContent() {
                               <div key={i} className="flex items-center gap-1.5">
                                 <Users className="w-3 h-3 text-slate-300 shrink-0" />
                                 <span className="text-[11px] font-bold text-slate-700 truncate max-w-[160px]">{p.nome}</span>
-                                <span className="text-[9px] text-slate-400">({p.percentual}%)</span>
+                                {p.percentual !== 100 && (
+                                  <span className="text-[9px] text-slate-400">({p.percentual}%)</span>
+                                )}
                               </div>
                             ))}
                           </div>
@@ -442,13 +444,13 @@ function FazendasContent() {
                           </Badge>
                         </td>
                         <td className="py-4 px-4 pr-8 text-right">
-                          <div className="flex items-center gap-2 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex items-center gap-2 justify-end">
                             {!fazenda.polygonCoordinates?.length && (
                               <SingleFazendaKMLImport fazendaId={fazenda.id} />
                             )}
                             <Button
                               variant="ghost" size="sm"
-                              onClick={() => { setViewingFazenda(fazenda); setIsDetailOpen(true); }}
+                              onClick={() => router.push(`/fazendas/${fazenda.id}`)}
                               className="h-8 px-3 rounded-lg text-emerald-600 hover:bg-emerald-50 font-black uppercase text-[10px] tracking-widest gap-1.5 transition-all"
                             >
                               <Eye className="w-3.5 h-3.5" /> Visualizar

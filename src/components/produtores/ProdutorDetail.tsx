@@ -429,7 +429,9 @@ export function ProdutorDetail({ produtor, open, onOpenChange }: ProdutorDetailP
                           </div>
                           <p className="text-[11px] font-mono text-slate-400 tracking-tight">IDF: {String(f.idf || '').padStart(11, '0')}</p>
                         </div>
-                        <Badge className="bg-slate-100 text-slate-500 border-none font-black text-[10px]">{f.percentual}%</Badge>
+                        {f.percentual !== 100 && (
+                          <Badge className="bg-slate-100 text-slate-500 border-none font-black text-[10px]">{f.percentual}%</Badge>
+                        )}
                       </div>
 
                       <div className="space-y-3">

@@ -143,7 +143,9 @@ export function FazendaDetail({ fazenda, open, onOpenChange }: FazendaDetailProp
                               <p className="text-[10px] font-mono text-slate-400 mt-0.5">{p.documento}</p>
                             </div>
                             <div className="text-right flex flex-col items-end gap-1">
-                              <p className="text-[14px] font-black text-emerald-600 leading-none">{p.percentual}%</p>
+                              {p.percentual !== 100 && (
+                                <p className="text-[14px] font-black text-emerald-600 leading-none">{p.percentual}%</p>
+                              )}
                               <MoveUpRight className="w-3 h-3 text-emerald-300 opacity-0 group-hover/prod:opacity-100 transition-all" />
                             </div>
                           </div>

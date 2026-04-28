@@ -170,6 +170,8 @@ export function EntityTable({ data, selectedIds, onSelectionChange, onUpdate, is
                     <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Aposentadas</TableHead>
                     <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Bloqueadas</TableHead>
                     <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Aquisição</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Ajuste IMEI</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Legado</TableHead>
                     <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Saldo Final</TableHead>
                     <TableHead className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Tipo</TableHead>
                   </>

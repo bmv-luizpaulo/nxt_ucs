@@ -50,8 +50,7 @@ export function parseKML(xml: string, filename: string): KMLParseResult {
   // Extrai o IDF: tudo antes do primeiro '_' e remove zeros à esquerda
   // Ex: "07605101001_Lote_01_-_A.kml" → "7605101001"
   const nameWithoutExt = filename.replace(/\.kml$/i, '');
-  const idfRaw = nameWithoutExt.split('_')[0].trim();
-  const idf = idfRaw.replace(/^0+/, ''); // Remove zeros à esquerda
+  const idf = nameWithoutExt.split('_')[0].trim();
 
   try {
     const parser = new DOMParser();

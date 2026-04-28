@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Fazenda } from '@/lib/types';
+import { cn } from "@/lib/utils";
 import 'leaflet/dist/leaflet.css';
 
 // Carregamos os componentes do react-leaflet via dynamic p/ evitar SSR
@@ -36,6 +37,8 @@ export default function FarmMap({ fazenda }: FarmMapProps) {
     });
   }, []);
 
+  const [mapMode, setMapMode] = useState<'satellite' | 'streets'>('satellite');
+
   if (!mounted || !L || !fazenda.lat || !fazenda.long) {
     return (
       <div className="w-full h-full bg-slate-900 animate-pulse flex items-center justify-center">
@@ -52,13 +55,16 @@ export default function FarmMap({ fazenda }: FarmMapProps) {
       <MapContainer 
         center={center} 
         zoom={14} 
-        scrollWheelZoom={false} 
+        scrollWheelZoom={true} 
         style={{ height: '100%', width: '100%' }}
-        zoomControl={false}
+        zoomControl={true}
       >
         <TileLayer
-          attribution='&copy; ESRI Satellite'
-          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+          attribution={mapMode === 'satellite' ? '&copy; ESRI Satellite' : '&copy; OpenStreetMap'}
+          url={mapMode === 'satellite' 
+            ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          }
         />
         
         {positions.length > 0 && (
@@ -76,10 +82,25 @@ export default function FarmMap({ fazenda }: FarmMapProps) {
         <Marker position={center} />
       </MapContainer>
 
-      <div className="absolute top-6 right-6 z-[1000]">
-         <div className="bg-emerald-600 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase text-white shadow-xl flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> MODO SATÉLITE
-         </div>
+      <div className="absolute top-6 right-6 z-[1000] flex gap-2">
+         <button 
+           onClick={() => setMapMode('satellite')}
+           className={cn(
+             "px-3 py-1.5 rounded-xl text-[9px] font-black uppercase shadow-xl transition-all",
+             mapMode === 'satellite' ? "bg-emerald-600 text-white" : "bg-white text-slate-400 hover:text-slate-600"
+           )}
+         >
+            Satélite
+         </button>
+         <button 
+           onClick={() => setMapMode('streets')}
+           className={cn(
+             "px-3 py-1.5 rounded-xl text-[9px] font-black uppercase shadow-xl transition-all",
+             mapMode === 'streets' ? "bg-emerald-600 text-white" : "bg-white text-slate-400 hover:text-slate-600"
+           )}
+         >
+            Mapa
+         </button>
       </div>
     </div>
   );

@@ -1,31 +1,41 @@
 "use client"
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useFirestore } from "@/firebase";
-import { collection, writeBatch, doc, increment, arrayUnion, getDocs, query, where } from "firebase/firestore";
+import { collection, writeBatch, doc, increment, getDocs } from "firebase/firestore";
 import { 
   Loader2, 
-  Zap, 
   ShieldCheck, 
   AlertTriangle, 
   Calculator, 
-  Calendar, 
   Table as TableIcon,
   Trash2,
   CheckCircle2,
-  FileSpreadsheet,
-  Plus,
-  History
+  FileSpreadsheet
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Fazenda } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { imeiEngine } from "@/domain/calculos/imeiEngine";
+
+// Mapa de Governança para Depósito Automático
+const governanceMap: Record<string, string> = {
+  "XINGU MATA VIVA": "10.175.886/0001-68",
+  "TELES PIRES MATA VIVA": "11.271.788/0001-97",
+  "MADEIRA MATA VIVA": "12.741.679/0001-59",
+  "APRRIMA": "12.741.679/0001-59",
+  "ARINOS MATA VIVA": "11.952.411/0001-01"
+};
+
+// Remove acentos e minúsculas para encontrar as colunas no Excel
+const normalizeText = (str: string) => {
+  return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+};
 
 interface SafraBulkDialogProps {
   open: boolean;
@@ -58,78 +68,115 @@ export function SafraBulkDialog({ open, onOpenChange, onSuccess }: SafraBulkDial
   const [rawText, setRawText] = useState("");
   const [processedData, setProcessedData] = useState<ProcessedRow[]>([]);
 
-  // Lógica de Processamento de Colagem
+  // ── LÓGICA DE PROCESSAMENTO DE COLAGEM INTELIGENTE ──
   const handleProcessPaste = async () => {
     if (!rawText.trim() || !firestore) return;
     setLoading(true);
 
-    const lines = rawText.split('\n').filter(l => l.trim());
-    const rows: ProcessedRow[] = [];
+    try {
+      const lines = rawText.split('\n').filter(l => l.trim().length > 0);
+      if (lines.length < 2) {
+        toast({ variant: "destructive", title: "Dados Insuficientes", description: "Copie pelo menos o cabeçalho e uma linha de dados." });
+        setLoading(false);
+        return;
+      }
 
-    // Busca rápida de fazendas para cruzamento
-    const fazendasSnap = await getDocs(collection(firestore, "fazendas"));
-    const allFazendas = fazendasSnap.docs.map(d => ({ id: d.id, ...d.data() } as Fazenda));
-
-    for (const line of lines) {
-      // Split flexível: tab ou 2+ espaços
-      const parts = line.split(/\t+| {2,}/).map(p => p.trim()).filter(p => p !== "");
-      if (parts.length < 3) continue;
-
-      // Localização da Data como Âncora
-      const dateIdx = parts.findIndex(p => /^\d{2}\/\d{2}\/\d{4}/.test(p));
-      if (dateIdx === -1) continue;
-
-      const idf = parts[dateIdx - 1] || "";
-      const data = parts[dateIdx];
-      const farmName = parts[dateIdx + 3];
-      const nucleo = parts[dateIdx + 4];
-      const ucsStr = parts[dateIdx + 7];
+      // Identifica delimitador (Tab do Excel ou Ponto e Vírgula do CSV)
+      const delimiter = lines[0].includes('\t') ? '\t' : ';';
       
-      const parseVal = (str: string | undefined) => {
-        if (!str) return 0;
-        const clean = str.replace(/\s/g, "");
-        if (clean.includes(',')) return parseFloat(clean.replace(/\./g, "").replace(",", ".")) || 0;
-        return parseFloat(clean.replace(/\./g, "").replace(/[^\d.-]/g, "")) || 0;
+      const rawHeaders = lines[0].split(delimiter).map(h => h.replace(/^"|"$/g, '').trim());
+      const normHeaders = rawHeaders.map(normalizeText);
+
+      // Mapeamento dinâmico de colunas
+      const findCol = (names: string[]) => {
+        const normNames = names.map(normalizeText);
+        return normHeaders.findIndex(h => normNames.some(n => h.includes(n)));
       };
 
-      const ucsTotal = parseVal(ucsStr);
-      if (ucsTotal <= 0) continue;
+      const idx = {
+        data: findCol(['data', 'registro', 'emissao']),
+        idf: findCol(['idf', 'matricula']),
+        fazenda: findCol(['fazenda', 'propriedade', 'imovel']),
+        nucleo: findCol(['nucleo', 'polo']),
+        ucs: findCol(['ucs', 'saldo', 'volume', 'total']),
+        pNome: findCol(['produtor', 'titular', 'nome']),
+        pDoc: findCol(['cpf', 'cnpj', 'documento'])
+      };
 
-      // Extração de Produtor da Planilha
-      const sheetProdutor = parts[dateIdx + 9] || "";
-      const sheetCNPJ = parts[dateIdx + 10] || "";
-      const sheetCPF = parts[dateIdx + 11] || "";
-      const sheetDoc = (sheetCNPJ || sheetCPF || "").trim();
+      if (idx.ucs === -1) {
+        toast({ variant: "destructive", title: "Erro na leitura", description: "Não encontrei a coluna de 'UCS' ou 'Saldo'. Verifique o cabeçalho colado." });
+        setLoading(false);
+        return;
+      }
 
-      // Particionamento 33.33333% com Math.ceil
-      const p1 = Math.ceil(ucsTotal * 0.333333333);
-      const p2 = Math.ceil(ucsTotal * 0.333333333);
-      const p3 = Math.ceil(ucsTotal * 0.333333333);
+      // Busca fazendas do DB para cruzar
+      const fazendasSnap = await getDocs(collection(firestore, "fazendas"));
+      const allFazendas = fazendasSnap.docs.map(d => ({ id: d.id, ...d.data() } as Fazenda));
+      const rows: ProcessedRow[] = [];
 
-      // Cruzamento de dados com Fazendas no DB
-      const matchedFarm = allFazendas.find(f => 
-        f.idf === idf || 
-        f.nome?.toLowerCase() === farmName?.toLowerCase()
-      );
+      // Pula a linha 0 (cabeçalho)
+      for (let i = 1; i < lines.length; i++) {
+        // Divide lidando com possíveis aspas do Excel
+        const parts = lines[i].split(new RegExp(`\\s*${delimiter}\\s*(?=(?:[^"]*"[^"]*")*[^"]*$)`))
+                              .map(c => c.replace(/^"|"$/g, '').trim());
 
-      rows.push({
-        id: Math.random().toString(36).substr(2, 6).toUpperCase(),
-        idf,
-        fazendaNome: farmName || (matchedFarm?.nome || "FAZENDA NÃO ENCONTRADA"),
-        nucleo: nucleo || (matchedFarm?.nucleo || "SEM NÚCLEO"),
-        proprietario: sheetProdutor || (matchedFarm?.proprietarios?.[0]?.nome || "Não Informado"),
-        documento: sheetDoc || (matchedFarm?.proprietarios?.[0]?.documento || ""),
-        ucsTotal,
-        data,
-        p1, p2, p3,
-        matched: !!matchedFarm,
-        farmRef: matchedFarm
-      });
+        const parseVal = (str: string | undefined) => {
+          if (!str) return 0;
+          const clean = str.replace(/\s/g, "");
+          if (clean.includes(',')) return parseFloat(clean.replace(/\./g, "").replace(",", ".")) || 0;
+          return parseFloat(clean.replace(/\./g, "").replace(/[^\d.-]/g, "")) || 0;
+        };
+
+        const ucsTotal = parseVal(parts[idx.ucs]);
+        if (ucsTotal <= 0) continue; // Ignora saldos zerados
+
+        const idfRaw = idx.idf !== -1 ? parts[idx.idf] : "";
+        const idf = idfRaw.replace(/^0+/, ''); // Remove zeros à esquerda
+        
+        let dataRegistro = idx.data !== -1 ? parts[idx.data] : "";
+        // Se a data não foi encontrada ou não parece uma data, usa a data atual
+        if (!/^\d{2}\/\d{2}\/\d{4}/.test(dataRegistro)) {
+           const d = new Date();
+           dataRegistro = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth()+1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+        }
+
+        const farmName = idx.fazenda !== -1 ? parts[idx.fazenda] : "";
+        const nucleoRaw = idx.nucleo !== -1 ? parts[idx.nucleo]?.toUpperCase() : "";
+        const sheetProdutor = idx.pNome !== -1 ? parts[idx.pNome] : "";
+        const sheetDoc = idx.pDoc !== -1 ? parts[idx.pDoc]?.replace(/\D/g, '') : "";
+
+        // Motor Determinístico (Particiona os 33% exatos com resto no IMEI)
+        const { produtor: p1, associacao: p2, imei: p3 } = imeiEngine.partitionSafra(ucsTotal);
+
+        // Cruza os dados com o DB (Por IDF prioritariamente, depois por Nome)
+        const matchedFarm = allFazendas.find(f => 
+          (idf && f.idf === idf) || 
+          (farmName && f.nome?.toLowerCase() === farmName.toLowerCase())
+        );
+
+        rows.push({
+          id: Math.random().toString(36).substr(2, 6).toUpperCase(),
+          idf: idf || (matchedFarm?.idf || "---"),
+          fazendaNome: farmName || (matchedFarm?.nome || "NÃO IDENTIFICADA"),
+          nucleo: nucleoRaw || (matchedFarm?.nucleo || "SEM NÚCLEO"),
+          proprietario: sheetProdutor || (matchedFarm?.proprietarios?.[0]?.nome || "Não Informado"),
+          documento: sheetDoc || (matchedFarm?.proprietarios?.[0]?.documento || ""),
+          ucsTotal,
+          data: dataRegistro,
+          p1, p2, p3,
+          matched: !!matchedFarm,
+          farmRef: matchedFarm
+        });
+      }
+
+      setProcessedData(rows);
+      setStep(2);
+    } catch (e) {
+      console.error(e);
+      toast({ variant: "destructive", title: "Erro de Processamento", description: "O formato colado não pôde ser lido." });
+    } finally {
+      setLoading(false);
     }
-
-    setProcessedData(rows);
-    setStep(2);
-    setLoading(false);
   };
 
   const handleConfirmGeneration = async () => {
@@ -138,7 +185,7 @@ export function SafraBulkDialog({ open, onOpenChange, onSuccess }: SafraBulkDial
 
     try {
       let successCount = 0;
-      const CHUNK_SIZE = 50; 
+      const CHUNK_SIZE = 400; // Limite do Firestore é 500
       
       for (let i = 0; i < processedData.length; i += CHUNK_SIZE) {
         const batch = writeBatch(firestore);
@@ -146,6 +193,9 @@ export function SafraBulkDialog({ open, onOpenChange, onSuccess }: SafraBulkDial
 
         for (const row of chunk) {
           if (!row.matched || !row.farmRef) continue;
+
+          const nucleoNormalizado = row.nucleo.toUpperCase();
+          const assocCnpj = governanceMap[nucleoNormalizado] || row.farmRef.nucleoCnpj || "00.000.000/0001-00";
 
           // 1. Registro Central de Safra
           const safraRef = doc(collection(firestore, "safras_registros"));
@@ -162,7 +212,7 @@ export function SafraBulkDialog({ open, onOpenChange, onSuccess }: SafraBulkDial
             documento: row.documento,
             produtorSaldo: row.p1,
             associacaoNome: row.nucleo,
-            associacaoCnpj: row.farmRef.nucleoCnpj || "00.000.000/0001-00",
+            associacaoCnpj: assocCnpj,
             associacaoSaldo: row.p2,
             imeiNome: "INSTITUTO MATA VIVA",
             imeiCnpj: "00.000.000/0001-00",
@@ -174,7 +224,7 @@ export function SafraBulkDialog({ open, onOpenChange, onSuccess }: SafraBulkDial
           // 2. Distribuição nas Carteiras
           const distribution = [
             { nome: row.proprietario, doc: row.documento, valor: row.p1 },
-            { nome: row.nucleo, doc: safraDoc.associacaoCnpj, valor: row.p2 },
+            { nome: row.nucleo, doc: assocCnpj, valor: row.p2 },
             { nome: "INSTITUTO MATA VIVA", doc: "00.000.000/0001-00", valor: row.p3 }
           ].filter(e => e.doc && e.valor > 0);
 
@@ -183,15 +233,6 @@ export function SafraBulkDialog({ open, onOpenChange, onSuccess }: SafraBulkDial
             if (!entId) continue;
             const entRef = doc(firestore, "produtores", entId);
 
-            const trans = {
-              id: `SAFRA-${ano}-${row.id}`,
-              data: row.data,
-              dist: row.fazendaNome,
-              plataforma: ano,
-              valor: ent.valor,
-              statusAuditoria: 'valido'
-            };
-
             batch.set(entRef, {
               id: entId,
               nome: ent.nome,
@@ -199,7 +240,6 @@ export function SafraBulkDialog({ open, onOpenChange, onSuccess }: SafraBulkDial
               status: 'disponivel',
               originacao: increment(ent.valor),
               saldoFinalAtual: increment(ent.valor),
-              tabelaOriginacao: arrayUnion(trans),
               updatedAt: new Date().toISOString()
             }, { merge: true });
           }
@@ -263,20 +303,20 @@ export function SafraBulkDialog({ open, onOpenChange, onSuccess }: SafraBulkDial
                      </div>
                      <p className="text-[10px] font-bold text-emerald-700 uppercase leading-relaxed">
                        Motor de particionamento ativo: 33.33333% por entidade. <br/>
-                       Arredondamento: <span className="font-black underline">Math.ceil (Saldos Inteiros)</span>
+                       Arredondamento: <span className="font-black underline">Matemático no IMEI</span>
                      </p>
                   </div>
                </div>
                <div className="flex-1 flex flex-col space-y-3">
                   <div className="flex items-center justify-between px-1">
                     <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Colar Tabela (Excel/Sheets)</label>
-                    <Badge variant="outline" className="text-[9px] font-bold text-slate-400 border-slate-200">Formato Robusto Identificado</Badge>
+                    <Badge variant="outline" className="text-[9px] font-bold text-slate-400 border-slate-200">Exige Cabeçalho na 1ª Linha</Badge>
                   </div>
                   <textarea 
                     value={rawText}
                     onChange={e => setRawText(e.target.value)}
-                    placeholder="Cole aqui as colunas da planilha de auditoria..."
-                    className="flex-1 bg-slate-50 border border-slate-100 rounded-[2rem] p-8 font-mono text-[11px] focus:ring-2 focus:ring-emerald-500/10 focus:outline-none resize-none transition-all"
+                    placeholder="Copie no Excel e cole aqui. Certifique-se de copiar a linha de cabeçalho junto (Ex: Data | IDF | Fazenda | UCS)..."
+                    className="flex-1 bg-slate-50 border border-slate-100 rounded-[2rem] p-8 font-mono text-[11px] focus:ring-2 focus:ring-emerald-500/20 focus:outline-none resize-none transition-all custom-scrollbar"
                   />
                </div>
             </div>
@@ -284,13 +324,13 @@ export function SafraBulkDialog({ open, onOpenChange, onSuccess }: SafraBulkDial
             <div className="flex-1 flex flex-col gap-6 overflow-hidden">
                <div className="rounded-[2rem] border border-slate-100 overflow-hidden flex-1 flex flex-col">
                   <ScrollArea className="flex-1">
-                    <table className="w-full text-left border-collapse">
+                    <table className="w-full text-left border-collapse min-w-[800px]">
                       <thead className="bg-slate-50 sticky top-0 z-10 border-b border-slate-100">
                         <tr>
-                          <th className="py-4 px-6 text-[9px] font-black uppercase text-slate-400 tracking-widest">IDF / Fazenda / Safra</th>
+                          <th className="py-4 px-6 text-[9px] font-black uppercase text-slate-400 tracking-widest">IDF / Fazenda / Data</th>
                           <th className="py-4 px-6 text-[9px] font-black uppercase text-slate-400 tracking-widest">Volume Original</th>
-                          <th className="py-4 px-6 text-[9px] font-black uppercase text-slate-400 tracking-widest">Particionamento 33%</th>
-                          <th className="py-4 px-6 text-[9px] font-black uppercase text-slate-400 tracking-widest">Status / Vínculo</th>
+                          <th className="py-4 px-6 text-[9px] font-black uppercase text-slate-400 tracking-widest">Particionamento Automático</th>
+                          <th className="py-4 px-6 text-[9px] font-black uppercase text-slate-400 tracking-widest">Status de Banco</th>
                           <th className="py-4 px-6 text-right pr-10"></th>
                         </tr>
                       </thead>
@@ -298,7 +338,7 @@ export function SafraBulkDialog({ open, onOpenChange, onSuccess }: SafraBulkDial
                         {processedData.map((row) => (
                           <tr key={row.id} className={cn(
                             "border-b border-slate-50 group hover:bg-slate-50/50 transition-colors",
-                            !row.matched && "bg-rose-50/30"
+                            !row.matched && "bg-rose-50/30 hover:bg-rose-50/50"
                           )}>
                             <td className="py-5 px-6">
                               <div className="flex flex-col">
@@ -314,17 +354,17 @@ export function SafraBulkDialog({ open, onOpenChange, onSuccess }: SafraBulkDial
                             </td>
                             <td className="py-5 px-6">
                                <div className="flex gap-2">
-                                  <div className="bg-emerald-50 px-2 py-1 rounded-lg">
-                                    <p className="text-[8px] font-black text-emerald-400 uppercase leading-none mb-1">Produtor</p>
-                                    <p className="text-[11px] font-black text-emerald-700">{row.p1}</p>
+                                  <div className="bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-100/50">
+                                    <p className="text-[8px] font-black text-emerald-500 uppercase leading-none mb-1">Produtor</p>
+                                    <p className="text-[11px] font-black text-emerald-700">{row.p1.toLocaleString('pt-BR')}</p>
                                   </div>
-                                  <div className="bg-indigo-50 px-2 py-1 rounded-lg">
-                                    <p className="text-[8px] font-black text-indigo-400 uppercase leading-none mb-1">Assoc</p>
-                                    <p className="text-[11px] font-black text-indigo-700">{row.p2}</p>
+                                  <div className="bg-indigo-50 px-2 py-1 rounded-lg border border-indigo-100/50">
+                                    <p className="text-[8px] font-black text-indigo-500 uppercase leading-none mb-1">Assoc</p>
+                                    <p className="text-[11px] font-black text-indigo-700">{row.p2.toLocaleString('pt-BR')}</p>
                                   </div>
-                                  <div className="bg-slate-100 px-2 py-1 rounded-lg">
-                                    <p className="text-[8px] font-black text-slate-400 uppercase leading-none mb-1">IMEI</p>
-                                    <p className="text-[11px] font-black text-slate-600">{row.p3}</p>
+                                  <div className="bg-slate-100 px-2 py-1 rounded-lg border border-slate-200/50">
+                                    <p className="text-[8px] font-black text-slate-500 uppercase leading-none mb-1">IMEI</p>
+                                    <p className="text-[11px] font-black text-slate-700">{row.p3.toLocaleString('pt-BR')}</p>
                                   </div>
                                </div>
                             </td>
@@ -332,7 +372,7 @@ export function SafraBulkDialog({ open, onOpenChange, onSuccess }: SafraBulkDial
                                {row.matched ? (
                                  <div className="flex items-center gap-2 text-emerald-600">
                                    <CheckCircle2 className="w-3.5 h-3.5" />
-                                   <span className="text-[10px] font-black uppercase">Vínculo Ativo</span>
+                                   <span className="text-[10px] font-black uppercase">Pronto p/ Lançamento</span>
                                  </div>
                                ) : (
                                  <div className="flex items-center gap-2 text-rose-500">
@@ -342,7 +382,7 @@ export function SafraBulkDialog({ open, onOpenChange, onSuccess }: SafraBulkDial
                                )}
                             </td>
                             <td className="py-5 px-6 text-right pr-10">
-                              <button onClick={() => setProcessedData(prev => prev.filter(p => p.id !== row.id))} className="text-slate-200 hover:text-rose-500 transition-colors">
+                              <button onClick={() => setProcessedData(prev => prev.filter(p => p.id !== row.id))} className="text-slate-300 hover:text-rose-500 transition-colors p-2 rounded-lg hover:bg-rose-50">
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </td>
@@ -359,30 +399,30 @@ export function SafraBulkDialog({ open, onOpenChange, onSuccess }: SafraBulkDial
         <div className="p-8 bg-slate-50 border-t border-slate-100 shrink-0 flex gap-4">
           {step === 1 ? (
             <>
-              <Button variant="ghost" onClick={() => onOpenChange(false)} className="px-10 h-14 rounded-2xl font-black uppercase text-[11px] tracking-widest text-slate-400">
-                Fechar
+              <Button variant="ghost" onClick={() => onOpenChange(false)} className="px-10 h-14 rounded-2xl font-black uppercase text-[11px] tracking-widest text-slate-400 hover:text-slate-600">
+                Cancelar
               </Button>
               <Button 
                 onClick={handleProcessPaste}
                 disabled={loading || !rawText.trim()}
-                className="flex-1 h-14 rounded-2xl bg-emerald-600 text-white font-black uppercase text-[11px] tracking-widest shadow-xl shadow-emerald-100 gap-2 transition-all active:scale-95"
+                className="flex-1 h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase text-[11px] tracking-widest shadow-xl shadow-emerald-500/20 gap-2 transition-all active:scale-95"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <TableIcon className="w-4 h-4" />}
-                Processar e Particionar Tabela
+                Ler e Particionar Safra
               </Button>
             </>
           ) : (
             <>
-              <Button variant="ghost" onClick={() => setStep(1)} className="px-10 h-14 rounded-2xl font-black uppercase text-[11px] tracking-widest text-slate-400">
-                Voltar
+              <Button variant="ghost" onClick={() => setStep(1)} className="px-10 h-14 rounded-2xl font-black uppercase text-[11px] tracking-widest text-slate-400 hover:text-slate-600">
+                Voltar e Editar
               </Button>
               <Button 
                 onClick={handleConfirmGeneration}
-                disabled={loading || processedData.length === 0}
-                className="flex-1 h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase text-[11px] tracking-widest shadow-xl shadow-emerald-100 gap-3 transition-all active:scale-95"
+                disabled={loading || processedData.length === 0 || !processedData.some(r => r.matched)}
+                className="flex-1 h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase text-[11px] tracking-widest shadow-xl shadow-emerald-500/20 gap-3 transition-all active:scale-95"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
-                Lançar {processedData.length} Safra(s) em Lote
+                Registrar {processedData.filter(r => r.matched).length} Safra(s) Auditada(s)
               </Button>
             </>
           )}

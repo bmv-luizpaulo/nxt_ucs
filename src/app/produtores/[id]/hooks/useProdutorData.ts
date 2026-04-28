@@ -11,12 +11,13 @@ function buildProdutores(fazendas: Fazenda[], safras: any[]): any[] {
     for (const prop of fazenda.proprietarios || []) {
       const key = (prop.documento || prop.nome || "").replace(/[^\d]/g, '') || prop.nome;
       if (!key) continue;
+
       const areaProdutor = ((fazenda.areaTotal || 0) * (prop.percentual || 100)) / 100;
       if (!map[key]) {
         map[key] = {
           documento: prop.documento,
           id: key,
-          nome: prop.nome,
+          nome: prop.nome?.trim() || prop.razaoSocial || prop.nomeResponsavel || "Sem Nome",
           tipo: prop.tipo || 'PF',
           fazendas: [],
           totalFazendas: 0,
@@ -71,13 +72,7 @@ export function useProdutorData(id: string) {
   const { data: safras } = useCollection<any>(safrasQuery);
 
   const walletId = useMemo(() => id?.replace(/\D/g, ''), [id]);
-  const produtor = useMemo(() => {
-    if (!fazendas || !safras || !id) return null;
-    const all = buildProdutores(fazendas, safras);
-    const cleanId = id.replace(/\D/g, '');
-    return all.find(p => p.id === cleanId || p.documento === id) || all[0];
-  }, [fazendas, safras, id]);
-
+  
   const entityRef = useMemo(() =>
     firestore && walletId ? doc(firestore, "produtores", walletId) : null,
     [firestore, walletId]
@@ -90,6 +85,33 @@ export function useProdutorData(id: string) {
   ));
 
   const entityData = entityDataPlain || entityDataFormatted;
+
+  const produtor = useMemo(() => {
+    if (!fazendas || !safras || !id) return null;
+    const all = buildProdutores(fazendas, safras);
+    const cleanId = id.replace(/\D/g, '');
+    const found = all.find(p => p.id === cleanId || p.documento === id);
+    
+    if (found) return found;
+
+    // Fallback para quando temos o dado na coleção 'produtores' mas sem fazendas vinculadas
+    if (entityData) {
+      return {
+        documento: entityData.documento || id,
+        id: (entityData.documento || id).replace(/\D/g, ''),
+        nome: entityData.nome?.trim() || entityData.razaoSocial || entityData.nomeResponsavel || "Sem Nome",
+        tipo: entityData.tipo || 'PF',
+        fazendas: [],
+        totalFazendas: 0,
+        totalAreaHa: 0,
+        baseOriginacao: 0,
+        isExternal: true
+      };
+    }
+
+    return null;
+  }, [fazendas, safras, id, entityData]);
+
   const isWalletLoading = (isPlainLoading || isFormattedLoading) && !entityData;
 
   return {

@@ -224,7 +224,9 @@ export default function ProdutorDetailPage() {
 
                     <div className="max-w-xl">
                       <div className="flex items-center gap-3 mb-1">
-                        <Badge className="bg-emerald-500 text-[9px] font-black uppercase px-2 py-0 border-none">PF</Badge>
+                        <Badge className={cn("text-[9px] font-black uppercase px-2 py-0 border-none", produtor.tipo === 'PJ' ? "bg-indigo-500" : "bg-emerald-500")}>
+                          {produtor.tipo}
+                        </Badge>
                         <p className="text-slate-500 font-mono text-[10px] font-bold tracking-tight">{produtor.documento}</p>
                         {currentStats.bloqueado > 0 && (
                           <Badge className="bg-rose-600 text-white border-none font-black text-[9px] uppercase px-4 py-1.5 rounded-lg flex items-center gap-2 animate-pulse shadow-lg shadow-rose-200">
@@ -237,8 +239,10 @@ export default function ProdutorDetailPage() {
                         {produtor.nome}
                       </h1>
                       <div className="mt-2 flex items-center gap-2">
-                         <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                         <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{produtor.fazendas.length} PROPRIEDADES</p>
+                         <div className={cn("w-2 h-2 rounded-full", produtor.fazendas.length > 0 ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" : "bg-slate-500")} />
+                         <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">
+                            {produtor.fazendas.length > 0 ? `${produtor.fazendas.length} PROPRIEDADES` : 'Sem Fazendas Vinculadas'}
+                         </p>
                       </div>
                       <button onClick={() => router.push('/produtores')} className="mt-2 flex items-center gap-1 text-[8px] font-black text-slate-600 hover:text-white transition-colors uppercase tracking-widest">
                         <ChevronLeft className="w-2 h-2" /> Voltar para Lista

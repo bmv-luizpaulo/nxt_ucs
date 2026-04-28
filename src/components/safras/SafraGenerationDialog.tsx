@@ -11,6 +11,16 @@ import { collection, getDocs, query, where, doc, writeBatch, increment, arrayUni
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
+import { imeiEngine } from "@/domain/calculos/imeiEngine";
+
+// Mapa de Governança para Depósito Automático
+const governanceMap: Record<string, string> = {
+  "XINGU MATA VIVA": "10.175.886/0001-68",
+  "TELES PIRES MATA VIVA": "11.271.788/0001-97",
+  "MADEIRA MATA VIVA": "12.741.679/0001-59",
+  "APRRIMA": "12.741.679/0001-59",
+  "ARINOS MATA VIVA": "11.952.411/0001-01"
+};
 
 interface SafraGenerationDialogProps {
   open: boolean;
@@ -80,10 +90,11 @@ export function SafraGenerationDialog({ open, onOpenChange }: SafraGenerationDia
       const batch = writeBatch(firestore);
       const ucsVal = parseFloat(ucs);
       
-      // Particionamento 33.33333% com Math.ceil
-      const p1 = Math.ceil(ucsVal * 0.333333333); // Produtor
-      const p2 = Math.ceil(ucsVal * 0.333333333); // Associação
-      const p3 = Math.ceil(ucsVal * 0.333333333); // IMEI
+      // UTILIZAÇÃO DO MOTOR DETERMINÍSTICO (1/3 com absorção IMEI)
+      const { produtor: p1, associacao: p2, imei: p3 } = imeiEngine.partitionSafra(ucsVal);
+
+      const nucleoNormalizado = (selectedFazenda.nucleo || "").toUpperCase();
+      const assocCnpj = governanceMap[nucleoNormalizado] || selectedFazenda.nucleoCnpj || "00.000.000/0001-00";
 
       const mainData = {
         safra: year,
@@ -98,24 +109,24 @@ export function SafraGenerationDialog({ open, onOpenChange }: SafraGenerationDia
         documento: selectedFazenda.proprietarios?.[0]?.documento || "",
         produtorSaldo: p1,
         associacaoNome: selectedFazenda.nucleo || "ASSOCIAÇÃO MATA VIVA",
-        associacaoCnpj: selectedFazenda.nucleoCnpj || "00.000.000/0001-00",
+        associacaoCnpj: assocCnpj,
         associacaoSaldo: p2,
         imeiNome: "INSTITUTO MATA VIVA",
         imeiCnpj: "00.000.000/0001-00",
         imeiSaldo: p3,
-        status: 'disponivel',
+        status: 'valido',
         createdAt: new Date().toISOString()
       };
 
-      // 1. Registro na tabela de auditoria
+      // 1. Registro na tabela de auditoria (IMUTÁVEL)
       const safraRef = doc(collection(firestore, "safras_registros"));
       batch.set(safraRef, mainData);
 
       // 2. Distribuição nas Carteiras
       const entities = [
         { nome: mainData.nome, doc: mainData.documento, valor: p1 },
-        { nome: mainData.associacaoNome, doc: mainData.associacaoCnpj, valor: p2 },
-        { nome: mainData.imeiNome, doc: mainData.imeiCnpj, valor: p3 }
+        { nome: mainData.associacaoNome, doc: assocCnpj, valor: p2 },
+        { nome: mainData.imeiNome, doc: "00.000.000/0001-00", valor: p3 }
       ].filter(e => e.doc && e.valor > 0);
 
       for (const ent of entities) {
@@ -123,23 +134,14 @@ export function SafraGenerationDialog({ open, onOpenChange }: SafraGenerationDia
         if (!entId) continue;
 
         const entRef = doc(firestore, "produtores", entId);
-        const trans = {
-          id: `MANUAL-${Date.now()}`,
-          data: mainData.dataRegistro,
-          dist: mainData.propriedade,
-          plataforma: mainData.safra,
-          valor: ent.valor,
-          statusAuditoria: 'valido'
-        };
-
+        
         batch.set(entRef, {
           id: entId,
           nome: ent.nome,
           documento: ent.doc,
           status: 'disponivel',
-          originacao: increment(ent.valor),
-          saldoFinalAtual: increment(ent.valor),
-          tabelaOriginacao: arrayUnion(trans),
+          originacao: increment(ent.valor),      // Gênese Imutável
+          saldoFinalAtual: increment(ent.valor), // Saldo Disponível
           updatedAt: new Date().toISOString()
         }, { merge: true });
       }

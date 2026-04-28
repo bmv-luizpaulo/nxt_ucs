@@ -47,22 +47,37 @@ export function ProducerViewDialog({ entity, open, onOpenChange, onEdit, allData
   const { data: dbFarms, isLoading: isFetching } = useCollection<EntidadeSaldo>(relatedQuery);
 
   const relatedFarms = useMemo(() => {
-    if (isFetching) return [];
-    if (dbFarms && dbFarms.length > 0) return dbFarms;
+    if (isFetching || !entity) return [];
+    const source = (dbFarms && dbFarms.length > 0) ? dbFarms : (allData?.filter(e => e.documento === entity.documento) || []);
     
-    // Fallback para dados locais
-    if (!entity || !allData) return [];
-    return allData.filter(e => e.documento === entity.documento);
+    // Filtrar registros válidos (com saldo ou histórico) e remover duplicatas por IDF/Propriedade
+    const unique = new Map<string, EntidadeSaldo>();
+    source.forEach(item => {
+      const key = (item.idf || item.propriedade || item.id).toString();
+      if (!unique.has(key)) {
+        unique.set(key, item);
+      } else {
+        // Se já existe, fundir dados (preferir o que tem nome de propriedade)
+        const existing = unique.get(key)!;
+        if (!existing.propriedade && item.propriedade) {
+          unique.set(key, { ...existing, ...item });
+        }
+      }
+    });
+
+    return Array.from(unique.values())
+      .filter(f => (f.saldoFinalAtual || 0) > 0 || (f.originacao || 0) > 0 || (f.aquisicao || 0) > 0);
   }, [dbFarms, isFetching, entity, allData]);
 
   const formatUCS = (val: number | undefined) => (val || 0).toLocaleString('pt-BR');
 
-  // Consolidação de todas as fazendas
+  // Consolidação de estatísticas
   const consolidated = useMemo(() => {
     if (relatedFarms.length === 0) return { orig: 0, origFazenda: 0, mov: 0, apo: 0, bloq: 0, aq: 0, imei: 0, legado: 0, final: 0 };
     
-    const orig = relatedFarms.reduce((sum, f) => sum + (f.saldoParticionado || 0), 0);
-    const origFazenda = relatedFarms.reduce((sum, f) => sum + (f.originacaoFazendaTotal || f.originacao || 0), 0);
+    const orig = relatedFarms.reduce((sum, f) => sum + (f.saldoParticionado || f.originacao || 0), 0);
+    // Para originacaoFazendaTotal, usamos o valor bruto da fazenda para auditoria
+    const origFazenda = relatedFarms.reduce((sum, f) => sum + (f.originacaoFazendaTotal || (f.originacao ? f.originacao * 3 : 0) || 0), 0);
     const mov = relatedFarms.reduce((sum, f) => sum + (f.movimentacao || 0), 0);
     const apo = relatedFarms.reduce((sum, f) => sum + (f.aposentado || 0), 0);
     const bloq = relatedFarms.reduce((sum, f) => sum + (f.bloqueado || 0), 0);
@@ -90,15 +105,21 @@ export function ProducerViewDialog({ entity, open, onOpenChange, onEdit, allData
     if (!entity) return null;
     return {
       ...entity,
-      tabelaOriginacao: relatedFarms.length > 0 ? relatedFarms.map(f => ({
+      tabelaOriginacao: relatedFarms.filter(f => (f.originacao || 0) > 0).map(f => ({
         id: f.id,
         data: f.safra || f.dataRegistro || "-",
         plataforma: f.propriedade || "FAZENDA",
-        valor: f.saldoParticionado || 0,
+        valor: f.saldoParticionado || f.originacao || 0,
         dist: "ORIGINAÇÃO"
-      })) : (entity.tabelaOriginacao || []),
+      })),
       tabelaMovimentacao: relatedFarms.flatMap(f => f.tabelaMovimentacao || []),
-      tabelaAquisicao: relatedFarms.flatMap(f => f.tabelaAquisicao || []),
+      tabelaAquisicao: relatedFarms.filter(f => (f.aquisicao || 0) > 0).map(f => ({
+        id: f.id,
+        data: f.dataRegistro || "-",
+        plataforma: f.propriedade || "ATIVO ADQUIRIDO",
+        valor: f.aquisicao || 0,
+        dist: "AQUISIÇÃO"
+      })),
       tabelaLegado: relatedFarms.flatMap(f => f.tabelaLegado || []),
       tabelaImei: relatedFarms.flatMap(f => f.tabelaImei || [])
     } as EntidadeSaldo;
@@ -132,12 +153,17 @@ export function ProducerViewDialog({ entity, open, onOpenChange, onEdit, allData
             <div className="flex justify-between items-start mb-10">
               <div className="space-y-2">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-6 h-6 bg-[#10B981]/20 rounded-md flex items-center justify-center">
-                    <ShieldCheck className="w-4 h-4 text-[#10B981]" />
+                  <div className="w-6 h-6 bg-emerald-500/20 rounded-md flex items-center justify-center">
+                    <Database className="w-4 h-4 text-emerald-400" />
                   </div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#10B981]">Auditoria de Precisão · Produtor</p>
+                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-400">Auditoria Técnica de Originação · Safra {entity.safra || '-'}</p>
                 </div>
-                <h1 className="text-[32px] font-black tracking-tight uppercase leading-none font-headline">{entity.nome}</h1>
+                <h1 className="text-[32px] font-black tracking-tight uppercase leading-none font-headline flex items-center gap-4">
+                  {entity.nome}
+                  <Badge variant="outline" className="text-[14px] border-emerald-500/30 text-emerald-400 py-1.5 px-4 rounded-xl">
+                    S{entity.safra || '-'}
+                  </Badge>
+                </h1>
                 <div className="flex items-center gap-4">
                   <p className="text-[14px] font-bold text-slate-500 font-mono tracking-widest">{entity.documento}</p>
                   <Badge className={cn(
@@ -264,7 +290,7 @@ export function ProducerViewDialog({ entity, open, onOpenChange, onEdit, allData
                         )}
                         {farm.imeiSaldo !== undefined && (
                           <Link 
-                            href={getLinkWithFilter("/imeis", farm.imeiNome || "IMEI")}
+                            href={getLinkWithFilter("/imei", farm.imeiNome || "IMEI")}
                             onClick={() => onOpenChange(false)}
                             className="bg-white p-4 rounded-xl border border-slate-200 hover:border-violet-300 transition-all cursor-pointer group"
                           >

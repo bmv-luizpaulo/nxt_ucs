@@ -12,7 +12,7 @@ import { collection, doc, writeBatch, query, orderBy, updateDoc, where } from "f
 import { EntidadeSaldo, EntityStatus, EntidadeSaldoGroup } from "@/lib/types";
 import { toast } from "@/hooks/use-toast";
 import { EntityTable } from "@/components/entities/EntityTable";
-import { SafraBulkImport } from "@/components/entities/SafraBulkImport";
+import { SafraBulkImport } from "@/components/safras/SafraBulkImport";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -38,73 +38,83 @@ export default function SafraDetailPage() {
   const safraQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
     return query(
-      collection(firestore, "produtores"), 
-      where("safra", "==", safraId),
-      orderBy("nome", "asc")
+      collection(firestore, "safras", safraId, "originacao"), 
+      orderBy("entidade", "asc")
     );
   }, [firestore, user, safraId]);
 
-  const { data: produtorData, isLoading } = useCollection<EntidadeSaldo>(safraQuery);
+  const auditQuery = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return query(
+      collection(firestore, "safras"),
+      where("ano", "==", safraId)
+    );
+  }, [firestore, user, safraId]);
 
-  const counts = useMemo(() => {
-    const items = produtorData || [];
+  const { data: produtorData, isLoading: loadingProds } = useCollection<EntidadeSaldo>(safraQuery);
+  const { data: auditData, isLoading: loadingAudit } = useCollection<any>(auditQuery);
+
+  const isLoading = loadingProds || loadingAudit;
+
+  const stats = useMemo(() => {
+    const pData = produtorData || [];
+    
+    // Somar apenas registros de auditoria (categoria fazenda)
+    const auditRecords = pData.filter(p => p.categoria === "fazenda" || p.isAuditRecord);
+    const totalUCS = auditRecords.reduce((acc, d) => acc + (Number(d.originacao) || 0), 0);
+    const totalFarms = auditRecords.length;
+
     return {
-      disponivel: items.filter(i => i.status === 'disponivel').length,
-      bloqueado: items.filter(i => i.status === 'bloqueado').length,
-      inapto: items.filter(i => i.status === 'inapto').length,
+      totalUCS,
+      totalFarms,
+      totalEntityCount: new Set(pData.map(p => p.documento)).size,
+      disponivelCount: pData.filter(i => i.status === 'disponivel').length,
+      bloqueadoCount: pData.filter(i => i.status === 'bloqueado').length,
+      inaptoCount: pData.filter(i => i.status === 'inapto').length,
+      disponivel: totalUCS, 
+      bloqueado: 0
     };
   }, [produtorData]);
 
-  const filteredData = useMemo(() => {
-    let items = produtorData || [];
+  const preparedData = useMemo(() => {
+    const pData = produtorData || [];
     
-    // Filter by Search
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      items = items.filter(p => 
-        p.nome.toLowerCase().includes(q) || 
-        p.documento.includes(q) ||
-        p.propriedade?.toLowerCase().includes(q) ||
-        p.associacaoNome?.toLowerCase().includes(q) ||
-        p.imeiNome?.toLowerCase().includes(q) ||
-        p.nucleo?.toLowerCase().includes(q)
+    // 1. Separar registros mestre (Auditoria) dos stakeholders
+    const auditRecords = pData.filter(p => p.categoria === "fazenda" || p.isAuditRecord);
+    const stakeholders = pData.filter(p => p.categoria === "participante" || !p.isAuditRecord);
+
+    let baseList: any[] = [];
+
+    // 2. Lógica por Aba (ViewMode)
+    if (viewMode === 'fazenda') {
+      baseList = auditRecords;
+    } else {
+      // Filtro por stakeholders e tipo
+      let filtered = stakeholders;
+      
+      if (viewMode === 'produtor') {
+        baseList = filtered.filter(s => s.tipo === 'produtor');
+      } else if (viewMode === 'nucleo') {
+        baseList = filtered.filter(s => s.tipo === 'associacao');
+      } else if (viewMode === 'imei') {
+        baseList = filtered.filter(s => s.tipo === 'imei');
+      } else {
+        baseList = filtered;
+      }
+    }
+
+    // 3. Aplicação do Filtro de Busca Global
+    const q = searchQuery.toLowerCase();
+    if (q) {
+      baseList = baseList.filter((item: any) => 
+        item.entidade?.toLowerCase().includes(q) || 
+        item.documento?.toLowerCase().includes(q) ||
+        item.fazenda?.toLowerCase().includes(q)
       );
     }
 
-    // Filter by Active Tab (Status)
-    items = items.filter(p => p.status === activeTab);
-
-    return items;
-  }, [produtorData, activeTab, searchQuery]);
-
-  // Aggregation and Filtering for View Modes
-  const preparedData = useMemo(() => {
-    let data = filteredData;
-
-    if (viewMode === 'fazenda') {
-      return [...data].sort((a, b) => {
-        const propA = (a.propriedade || "").toLowerCase();
-        const propB = (b.propriedade || "").toLowerCase();
-        return propA.localeCompare(propB);
-      });
-    }
-
-    if (viewMode === 'imei') {
-      return data
-        .filter(item => (item.imeiSaldo || 0) > 0)
-        .map(item => ({ ...item, volumeContextual: item.imeiSaldo || 0 }));
-    }
-
-    if (viewMode === 'nucleo') {
-      return data.map(item => ({ ...item, volumeContextual: item.associacaoSaldo || 0 }));
-    }
-
-    if (viewMode === 'produtor') {
-      return data.map(item => ({ ...item, volumeContextual: item.saldoFinalAtual || 0 }));
-    }
-
-    return data;
-  }, [filteredData, viewMode]);
+    return baseList;
+  }, [produtorData, viewMode, activeTab, searchQuery]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -177,16 +187,16 @@ export default function SafraDetailPage() {
           {!isLoading && (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                <div className="bg-[#0B0F1A] rounded-3xl p-6 text-white border border-white/5 shadow-xl flex flex-col justify-between h-[120px]">
-                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Total Produtores</p>
-                  <p className="text-3xl font-black">{counts.disponivel + counts.bloqueado + counts.inapto}</p>
+                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Total Stakeholders</p>
+                  <p className="text-3xl font-black">{stats.totalEntityCount}</p>
                </div>
                <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between h-[120px]">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">UCS Disponíveis</p>
-                  <p className="text-3xl font-black text-primary">{Math.floor(produtorData?.filter(p => p.status === 'disponivel').reduce((acc, p) => acc + (p.saldoFinalAtual || 0), 0) || 0).toLocaleString('pt-BR')}</p>
+                  <p className="text-3xl font-black text-primary">{stats.totalUCS.toLocaleString('pt-BR')}</p>
                </div>
                <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between h-[120px]">
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">UCS Bloqueadas</p>
-                  <p className="text-3xl font-black text-rose-500">{Math.floor(produtorData?.filter(p => p.status === 'bloqueado').reduce((acc, p) => acc + (p.saldoFinalAtual || 0), 0) || 0).toLocaleString('pt-BR')}</p>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Fazendas Auditadas</p>
+                  <p className="text-3xl font-black text-rose-500">{stats.totalFarms}</p>
                </div>
                <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between h-[120px]">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Certificados Emitidos</p>
@@ -215,9 +225,9 @@ export default function SafraDetailPage() {
                     <div className="w-px h-8 bg-slate-200 mx-2" />
                     <Tabs value={activeTab} onValueChange={v => setActiveTab(v as EntityStatus)} className="w-auto">
                       <TabsList className="bg-slate-100/50 p-1 border rounded-full h-12 gap-1">
-                        <TabWithCount label="Disponíveis" value="disponivel" count={counts.disponivel} isActive={activeTab === 'disponivel'} />
-                        <TabWithCount label="Bloqueados" value="bloqueado" count={counts.bloqueado} isActive={activeTab === 'bloqueado'} />
-                        <TabWithCount label="Inaptos" value="inapto" count={counts.inapto} isActive={activeTab === 'inapto'} />
+                        <TabWithCount label="Disponíveis" value="disponivel" count={stats.disponivelCount} isActive={activeTab === 'disponivel'} />
+                        <TabWithCount label="Bloqueados" value="bloqueado" count={stats.bloqueadoCount} isActive={activeTab === 'bloqueado'} />
+                        <TabWithCount label="Inaptos" value="inapto" count={stats.inaptoCount} isActive={activeTab === 'inapto'} />
                       </TabsList>
                     </Tabs>
                   </div>
@@ -228,17 +238,7 @@ export default function SafraDetailPage() {
                       <Trash2 className="w-4 h-4 mr-2" /> EXCLUIR ({selectedIds.length})
                     </Button>
                   )}
-                  <SafraBulkImport safraId={safraId} onImport={async (data) => {
-                    if (!firestore) return;
-                    // Firestore batch limit = 500
-                    const chunkSize = 499;
-                    for (let i = 0; i < data.length; i += chunkSize) {
-                      const batch = writeBatch(firestore);
-                      data.slice(i, i + chunkSize).forEach(item => batch.set(doc(firestore, "produtores", item.id), item));
-                      await batch.commit();
-                    }
-                    toast({ title: `Importação concluída — ${data.length} registros na Safra ${safraId}` });
-                  }} />
+                  <SafraBulkImport targetSafra={safraId} onComplete={() => router.refresh()} />
                 </div>
               </div>
 

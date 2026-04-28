@@ -317,7 +317,7 @@ export function FazendaBulkImport({ onImport }: FazendaImportProps) {
                     <table className="w-full text-[11px]">
                       <thead className="bg-slate-50 border-b border-slate-200">
                         <tr>
-                          {['Status', 'Nome', 'IDF', 'Proprietários', 'Área (ha)', 'Município/UF', 'Núcleo'].map(h => (
+                          {['Status', 'Nome', 'IDF', 'Proprietários', 'Área (ha)', 'Núcleo'].map(h => (
                             <th key={h} className="text-left py-3 px-4 text-[9px] font-black uppercase tracking-widest text-slate-400">{h}</th>
                           ))}
                         </tr>
@@ -337,12 +337,13 @@ export function FazendaBulkImport({ onImport }: FazendaImportProps) {
                               {row.proprietarios.map((p, j) => (
                                 <div key={j} className="text-[10px]">
                                   <span className="font-bold text-slate-700">{p.nome}</span>
-                                  <span className="text-slate-400 ml-1">({p.percentual}%)</span>
+                                  {p.percentual !== 100 && (
+                                    <span className="text-slate-400 ml-1">({p.percentual}%)</span>
+                                  )}
                                 </div>
                               ))}
                             </td>
                             <td className="py-3 px-4 font-bold text-slate-700">{row.areaTotal?.toLocaleString('pt-BR')}</td>
-                            <td className="py-3 px-4 text-slate-500">{row.municipio}{row.uf ? `/${row.uf}` : ''}</td>
                             <td className="py-3 px-4 text-slate-500">{row.nucleo}</td>
                           </tr>
                         ))}
