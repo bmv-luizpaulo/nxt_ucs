@@ -1,0 +1,405 @@
+id,name,description,category
+1,adm:dashboard:list,"Permite acesso ao dashboard da página inicial, que apresenta os principais indices das plataformas",ADM - Dashboard
+2,adm:akses-purchase-order:list,Permite acesso a listagem dos pedidos de compra da Plataforma Akses,ADM - Gestão de pedidos de compra
+3,adm:akses-purchase-order:details,Permite visualizar os detalhes dos pedidos de compra da Plataforma Akses,ADM - Gestão de pedidos de compra
+4,adm:akses-purchase-order:evaluate,"Permite avaliar os pedidos de compra da Plataforma Akses, podendo aprovar, recusar, aprovar pagamento, aprovar pré processamento, reprocessar, restaurar  e arquivar os mesmos.",ADM - Gestão de pedidos de compra
+5,adm:akses-purchase-order:download-negotiation-invoices,Permite fazer download das notas de negociação de pedidos de compra na Plataforma Akses,ADM - Gestão de pedidos de compra
+6,adm:akses-transfer-order:list,Permite acesso a listagem dos pedidos de transferência da Plataforma Akses,ADM - Gestão de pedidos de transferência
+7,adm:akses-transfer-order:details,Permite visualizar os detalhes dos pedidos de transferência da Plataforma Akses,ADM - Gestão de pedidos de transferência
+8,adm:akses-transfer-order:evaluate,"Permite avaliar os pedidos de transferência da Plataforma Akses, podendo aprovar, recusar, aprovar pagamento, aprovar pré processamento, reprocessar, restaurar  e arquivar os mesmos.",ADM - Gestão de pedidos de transferência
+9,adm:akses-sale-order:list,Permite acesso a listagem dos pedidos de venda da Plataforma Akses,ADM - Gestão de pedidos de venda
+10,adm:akses-sale-order:details,Permite visualizar os detalhes dos pedidos de venda da Plataforma Akses,ADM - Gestão de pedidos de venda
+11,adm:akses-sale-order:evaluate,"Permite avaliar os pedidos de venda da Plataforma Akses, podendo aprovar, recusar, aprovar pagamento, aprovar pré processamento, reprocessar, restaurar  e arquivar os mesmos.",ADM - Gestão de pedidos de venda
+12,adm:akses-client-certificate-order:list,Permite acesso a listagem dos pedidos de selos para clientes da Plataforma Akses,ADM Akses- Gestão de pedidos de selo do cliente
+13,adm:akses-client-certificate-order:details,Permite visualizar os detalhes dos pedidos de selos para clientes da Plataforma Akses,ADM Akses- Gestão de pedidos de selo do cliente
+14,adm:akses-client-certificate-order:evaluate,"Permite avaliar os pedidos de selo da Plataforma Akses, podendo aprovar, recusar, aprovar pagamento, aprovar pré processamento, reprocessar, restaurar  e arquivar os mesmos.",ADM Akses- Gestão de pedidos de selo do cliente
+15,adm:akses-client-certificate-order:send-nxt,Permite enviar ao NXT os pedidos de selos aposentados do cliente da Plataforma Akses,ADM Akses- Gestão de pedidos de selo do cliente
+16,adm:akses-client-certificate-order:view-certificate,Permite visualizar os certificados gerados pelo cliente na Plataforma Akses,ADM Akses- Gestão de pedidos de selo do cliente
+17,adm:akses-client-certificate-order:download-negotiation-invoices,Permite fazer download das notas de negociação de pedidos de selo do cliente na Plataforma Akses,ADM Akses- Gestão de pedidos de selo do cliente
+18,adm:akses-financial-dist-order:list,Permite acesso a listagem dos pedidos de selos para distribuidoras financeiras da Plataforma Akses,ADM Akses- Gestão de pedidos de selo do Distribuidor Financeiro
+19,adm:akses-financial-dist-order:details,Permite visualizar os detalhes dos pedidos de selos para distribuidoras financeiras da Plataforma Akses,ADM Akses- Gestão de pedidos de selo do Distribuidor Financeiro
+20,adm:akses-financial-dist-order:evaluate,"Permite avaliar os pedidos de selo do Distribuidor Financeiro da Plataforma Akses, podendo aprovar, recusar, aprovar pagamento, aprovar pré processamento, reprocessar, restaurar  e arquivar os mesmos.",ADM Akses- Gestão de pedidos de selo do Distribuidor Financeiro
+21,adm:akses-financial-dist-order:send-nxt,Permite enviar ao NXT os pedidos de selos aposentados do distribuidor financeiro da Plataforma Akses,ADM Akses- Gestão de pedidos de selo do Distribuidor Financeiro
+22,adm:akses-financial-dist-order:view-certificate,Permite visualizar os certificados gerados pelo distribuidor financeiro na Plataforma Akses,ADM Akses- Gestão de pedidos de selo do Distribuidor Financeiro
+23,adm:akses-financial-dist-order:download-negotiation-invoices,Permite fazer download das notas de negociação de pedidos distribuidor financeiro na Plataforma Akses,ADM Akses- Gestão de pedidos de selo do Distribuidor Financeiro
+24,adm:akses-general-dist-order:list,Permite acesso a listagem dos pedidos de selos para distribuidor geral da Plataforma Akses,ADM Akses- Gestão de pedidos de selo do Distribuidor Geral
+25,adm:akses-general-dist-order:details,Permite visualizar os detalhes dos pedidos de selos para distribuidor geral da Plataforma Akses,ADM Akses- Gestão de pedidos de selo do Distribuidor Geral
+26,adm:akses-general-dist-order:evaluate,"Permite avaliar os pedidos de selo do Distribuidor Geral da Plataforma Akses, podendo aprovar, recusar, aprovar pagamento, aprovar pré processamento, reprocessar, restaurar  e arquivar os mesmos.",ADM Akses- Gestão de pedidos de selo do Distribuidor Geral
+27,adm:akses-general-dist-order:send-nxt,Permite enviar ao NXT os pedidos de selos aposentados do distribuidor geral da Plataforma Akses,ADM Akses- Gestão de pedidos de selo do Distribuidor Geral
+28,adm:akses-general-dist-order:view-certificate,Permite visualizar os certificados gerados pelo distribuidor geral na Plataforma Akses,ADM Akses- Gestão de pedidos de selo do Distribuidor Geral
+29,adm:akses-general-dist-order:download-negotiation-invoices,Permite fazer download das notas de negociação de pedidos distribuidor geral na Plataforma Akses,ADM Akses- Gestão de pedidos de selo do Distribuidor Geral
+30,adm:akses-credentialed-dist-order:list,Permite acesso a listagem dos pedidos de selos para distribuidor credenciado da Plataforma Akses,ADM Akses- Gestão de pedidos de selo do Distribuidor Credenciado
+31,adm:akses-credentialed-dist-order:details,Permite visualizar os detalhes dos pedidos de selos para distribuidor credenciado da Plataforma Akses,ADM Akses- Gestão de pedidos de selo do Distribuidor Credenciado
+32,adm:akses-credentialed-dist-order:evaluate,"Permite avaliar os pedidos de selo do Distribuidor Geral da Plataforma Akses, podendo aprovar, recusar, aprovar pagamento, aprovar pré processamento, reprocessar, restaurar  e arquivar os mesmos.",ADM Akses- Gestão de pedidos de selo do Distribuidor Credenciado
+33,adm:akses-credentialed-dist-order:edit-queue,Permite alterar a fila de pre-processamento dos pedidos de selos do distribuidor credenciado da Plataforma Akses,ADM Akses- Gestão de pedidos de selo do Distribuidor Credenciado
+220,adm:financial-cost-center:delete,Permite remover uma conta do centro de custo.,ADM - Gestão Financeira
+34,adm:akses-credentialed-dist-order:send-nxt,Permite enviar ao NXT os pedidos de selos aposentados do distribuidor credenciado da Plataforma Akses,ADM Akses- Gestão de pedidos de selo do Distribuidor Credenciado
+35,adm:akses-credentialed-dist-order:view-certificate,Permite visualizar os certificados gerados pelo distribuidor credenciado na Plataforma Akses,ADM Akses- Gestão de pedidos de selo do Distribuidor Credenciado
+36,adm:akses-credentialed-dist-order:download-negotiation-invoices,Permite fazer download das notas de negociação de pedidos distribuidor credenciado na Plataforma Akses,ADM Akses- Gestão de pedidos de selo do Distribuidor Credenciado
+37,adm:certificate-template:list,Permite listar todos os  modelos de certificados configurados,ADM - Configuração de Certificados
+38,adm:certificate-template:add,Permite vincular um novo modelo a determinado tipo de certificado,ADM - Configuração de Certificados
+39,adm:certificate-template:details,Permite visualizar os detalhes de um modelo de certificado,ADM - Configuração de Certificados
+40,adm:certificate-template:edit,Permite editar as configurações de um modelo de certificado,ADM - Configuração de Certificados
+41,adm:certificate-template:delete,Permite deletar um modelo de certificado,ADM - Configuração de Certificados
+42,adm:certificate-template:preview,Permite previsualizar um modelo de certificado,ADM - Configuração de Certificados
+43,adm:tesouro-verde-partners:list,Permite listar todos os parceiros cadastrados na Plataforma Tesouro Verde,ADM Tesouro Verde - Gestão de Parceiros
+44,adm:tesouro-verde-partners:add,Permite cadastrar um novo parceiro na Plataforma Tesouro Verde,ADM Tesouro Verde - Gestão de Parceiros
+45,adm:tesouro-verde-partners:details,Permite visualizar detalhes do cadastro do parceiro na Plataforma Tesouro Verde,ADM Tesouro Verde - Gestão de Parceiros
+46,adm:tesouro-verde-partners:edit,Permite editar as configurações do parceiro na Plataforma Tesouro Verde,ADM Tesouro Verde - Gestão de Parceiros
+47,adm:tesouro-verde-partners:change-status,Permite ativar ou inativar um parceiro na Plataforma Tesouro Verde,ADM Tesouro Verde - Gestão de Parceiros
+48,adm:tesouro-verde-programs:list,Permite listar todos os programas cadastrados na Plataforma Tesouro Verde,ADM Tesouro Verde - Gestão de Programas
+49,adm:tesouro-verde-programs:add,Permite cadastrar um novo programa na Plataforma Tesouro Verde,ADM Tesouro Verde - Gestão de Programas
+50,adm:tesouro-verde-programs:details,Permite visualizar detalhes do cadastro do programa na Plataforma Tesouro Verde,ADM Tesouro Verde - Gestão de Programas
+51,adm:tesouro-verde-programs:edit,Permite editar as configurações do programa na Plataforma Tesouro Verde,ADM Tesouro Verde - Gestão de Programas
+52,adm:tesouro-verde-programs:change-status,Permite ativar ou inativar um programa na Plataforma Tesouro Verde,ADM Tesouro Verde - Gestão de Programas
+53,adm:tesouro-verde-certificate-orders:list,Permite acesso a listagem dos pedidos de selo da Plataforma Tesouro Verde,ADM Tesouro Verde - Gestão de pedidos de selo
+54,adm:tesouro-verde-certificate-orders:sync-nxt,Permite sincronizar os status dos eventos com a blockchain.,ADM Tesouro Verde - Gestão de pedidos de selo
+55,adm:tesouro-verde-certificate-orders:evaluate,"Permite avaliar os pedidos de selo da Plataforma Tesouro Verde, podendo aprovar, recusar, aprovar pagamento, aprovar pré processamento, reprocessar, restaurar  e arquivar os mesmos.",ADM Tesouro Verde - Gestão de pedidos de selo
+56,adm:tesouro-verde-certificate-orders:send-nxt,Permite enviar ao NXT os pedidos de selos aposentados do distribuidor geral da Plataforma Akses,ADM Tesouro Verde - Gestão de pedidos de selo
+57,adm:tesouro-verde-certificate-orders:view-certificate,Permite visualizar os certificados gerados na Plataforma Tesouro Verde,ADM Tesouro Verde - Gestão de pedidos de selo
+58,adm:tesouro-verde-certificate-orders:mark-documentation-as-viewed,"Permite marcar ou desmarcar documentos como visualizados, gerando uma sinalização visual no pedido",ADM Tesouro Verde - Gestão de pedidos de selo
+59,adm:tesouro-verde-certificate-orders:analyze-documentation,Permite analisar os documentos enviados pelos clientes do Tesouro Verde para comprovação dos indíces informados no calculo das UCS do pedido.,ADM Tesouro Verde - Gestão de pedidos de selo
+60,adm:tesouro-verde-certificate-orders:download-negotiation-invoices,Permite fazer download das notas de negociação e contrato de cessão de direitos de comercialização das UCS da Plataforma Tesouro Verde,ADM Tesouro Verde - Gestão de pedidos de selo
+61,adm:tesouro-verde-certificate-orders:details,Permite visualizar detalhes de um pedido feito na Plataforma Tesouro Verde,ADM Tesouro Verde - Gestão de pedidos de selo
+62,adm:tesouro-verde-dare-royalties:list,Permite listar informações do DARE e Royalties para todos os pedidos de selo processados na Plataforma Tesouro Verde,ADM Tesouro Verde - DARE e Royalties 
+63,adm:tesouro-verde-dare-royalties:add,Permite cadastrar um novo dare ou royalty de um pedido de selo processado na Plataforma Tesouro Verde,ADM Tesouro Verde - DARE e Royalties 
+64,adm:tesouro-verde-dare-royalties:details,Permite visualizar detalhes de dare e royalts do pedido de selo já processado na Plataforma Tesouro Verde,ADM Tesouro Verde - DARE e Royalties 
+65,adm:tesouro-verde-dare-royalties:edit,Permite editar dare e royalty já cadastrados de um pedido de selo processado na Plataforma Tesouro Verde,ADM Tesouro Verde - DARE e Royalties 
+66,adm:tesouro-verde-dare-royalties:download,Permite baixar arquivo enviado de dare ou royalty de um pedido selo processado na Plataforma Tesouro Verde,ADM Tesouro Verde - DARE e Royalties 
+67,adm:stock:view-stats,"Permite apresentar dados estatísticos, saldos por plataforma, últimas transações com opção de ver todas",ADM - Gestão de Safras
+68,adm:stock-harvest:list,Permite apresentar os saldos por perfil para o ano selecionado.,ADM - Gestão de Safras
+69,adm:stock-harvest:add,Permite a Inclusão de uma nova safra.,ADM - Gestão de Safras
+70,adm:stock-harvest:sync-nxt,Permite sincronizar os status dos eventos com a blockchain.,ADM - Gestão de Safras
+71,adm:stock-harvest:export,Permite baixar um arquivo tipo csv com safras geradas do respectivo ano.,ADM - Gestão de Safras
+72,adm:stock-harvest:send-nxt,Permite enviar ao NXT os pedidos de selos aposentados do produtor da Plataforma Akses.,ADM - Gestão de Safras
+73,adm:stock-harvest:view-certificate,Permite visualizar os certificados do produtor.,ADM - Gestão de Safras
+74,adm:stock-repartition:list,Permite listar os reparticionamentos realizados no ano escolhido,ADM - Gestão de Estoque das Plataformas
+75,adm:stock-repartition:add,Permite a Inclusão de um novo reparticionamento. ,ADM - Gestão de Estoque das Plataformas
+76,adm:supply-custody:list,Permite listar os abastecimentos realizados na plataforma Custódia,ADM - Gestão de Estoque das Plataformas
+77,adm:supply-custody:add,Permite realizar um novo abastecimento da plataforma custódia a partir de uma configuração de distribuição,ADM - Gestão de Estoque das Plataformas
+78,adm:supply-akses:list,Permite listar os abastecimentos anteriores da plataforma AKSES,ADM - Gestão de Estoque das Plataformas
+79,adm:supply-akses:add,Permite realizar um novo abastecimento da plataforma AKSES a partir de uma configuração de distribuição,ADM - Gestão de Estoque das Plataformas
+80,adm:supply-tesouro-verde:list,Permite listar os abastecimentos anteriores da plataforma TESOURO VERDE,ADM - Gestão de Estoque das Plataformas
+81,adm:supply-tesouro-verde:add,Permite realizar um novo abastecimento da plataforma Tesouro Verde a partir de uma configuração de distribuição,ADM - Gestão de Estoque das Plataformas
+82,adm:stock-distribution-config:list,Permite listar as configurações de distribuição cadastradas,ADM - Gestão de Estoque das Plataformas
+83,adm:stock-distribution-config:add,Permite o cadastro de uma nova configuração de distribuição,ADM - Gestão de Estoque das Plataformas
+84,adm:stock-distribution-config:active,Permite alterar a situação de uma configuração de distribuição para inativo,ADM - Gestão de Estoque das Plataformas
+85,adm:stock-distribution-config:edit,Permite a edição de uma configuração de distribuição,ADM - Gestão de Estoque das Plataformas
+86,adm:stock-distribution-config:delete,Permite a exclusão de uma configuração de distribuição,ADM - Gestão de Estoque das Plataformas
+87,adm:stock-distribution-config:copy,Permite a inclusão de uma nova configuração com base em uma já existente,ADM - Gestão de Estoque das Plataformas
+88,adm:stock-transactions:list,"Permite listar as movimentações aplicando vários filtros como intervalo de datas, plataformas, tipo.",ADM - Gestão de Estoque das Plataformas
+89,adm:user-balance:list,Permite listar os saldos por usuário.,ADM - Gestão de Estoque das Plataformas
+90,adm:order-book:list,Permite e gerenciar o book de ofertas da plataforma Tesouro Verde e Akses.,ADM - Gestão de Estoque das Plataformas
+91,adm:ownership-transfer-orders:list,Permite listar os pedidos de transferência de titularidade.,ADM - Gestão de Estoque das Plataformas
+92,adm:ownership-transfer-orders:add,Permite a inclusão de um novo pedido de transferência de titularidade.,ADM - Gestão de Estoque das Plataformas
+93,adm:ownership-transfer-orders:details,Permite visualizar os detalhes do pedido de transferência de titularidade.,ADM - Gestão de Estoque das Plataformas
+94,adm:ownership-transfer-orders:evaluate,"Permite avaliar os pedidos de transferência de titularidade, podendo aprovar, recusar, aprovar pagamento, aprovar pré processamento, reprocessar, restaurar  e arquivar os mesmos.",ADM - Gestão de Estoque das Plataformas
+95,adm:ownership-transfer-types:list,Permite listar os tipos de pedidos de transferência de titularidade.,ADM - Gestão de Estoque das Plataformas
+96,adm:ownership-transfer-types:edit,Permite a edição dos tipos de transferência de titularidade cadastrados no sistema.,ADM - Gestão de Estoque das Plataformas
+97,adm:ownership-transfer-types:change-status,Permite alterar a situação de um tipo de transferência para ativo ou inativo.,ADM - Gestão de Estoque das Plataformas
+98,adm:ownership-transfer-types:add,Permite cadastrar um novo tipo de transferência de titularidade.,ADM - Gestão de Estoque das Plataformas
+99,adm:areas:list,Permite listar áreas cadastradas.,ADM - Gestão das Áreas
+100,adm:areas:details,Permite visualizar os detalhes da área.,ADM - Gestão das Áreas
+101,adm:areas:add,Permite cadastrar novas área.,ADM - Gestão das Áreas
+102,adm:areas:edit,Permite edição de dados da área.,ADM - Gestão das Áreas
+103,adm:areas-additional-info:edit,Permite edição nos dados das dimensões da área.,ADM - Gestão das Áreas
+104,adm:areas-documentation:add,Permite o upload de documentos.,ADM - Gestão das Áreas
+105,adm:areas-documentation-evaluation:list,Permite listar os documentos enviados.,ADM - Gestão das Áreas
+106,adm:areas-documentation-evaluation:evaluate,Permite a análise e gerenciamento de documentos enviados.,ADM - Gestão das Áreas
+107,adm:area-documentation-folders:list,Permite visualizar a listagem de pastas de arquivos de áreas.,ADM - Gestão das Áreas
+108,adm:area-documentation-folders:add,Permite o gerenciamento de pastas de arquivos de áreas associadas a tipos.,ADM - Gestão das Áreas
+109,adm:area-documentation-types:list,Permite visualizar a listagem de tipos de documentos cadastrados para as áreas.,ADM - Gestão das Áreas
+110,adm:area-documentation-types:add,Permite a inclusão de um novo tipo de documento para área.,ADM - Gestão das Áreas
+111,adm:project:list,Permite exibir a lista dos núcleos cadastrados.,ADM - Gestão dos Núcleos
+112,adm:project:add,Permite o cadastro de um novo núcleo.,ADM - Gestão dos Núcleos
+113,adm:project:edit,Permite editar um núcleo existente.,ADM - Gestão dos Núcleos
+114,adm:project-documentation:add,Permite envio de arquivos referentes  a documentação de um núcleo.,ADM - Gestão dos Núcleos
+115,adm:project-gallery:edit,Permite acrescentar arquivos na galeria de imagens do núcleo.,ADM - Gestão dos Núcleos
+116,adm:project-documentation-validation:list,Permite exibir a lista dos documentos de núcleos a serem validados.,ADM - Gestão dos Núcleos
+117,adm:project-documentation-validation:evaluate,Permite a análise e gerenciamento de documentos de núcleos enviados.,ADM - Gestão dos Núcleos
+118,adm:project-documentation-folders:list,Permite exibir a listagem de pastas de arquivos de núcleos.,ADM - Gestão dos Núcleos
+119,adm:project-documentation-folders:add,Permite a criação de uma nova pasta de arquivos para documentos de núcleos.,ADM - Gestão dos Núcleos
+120,adm:all-project-documentation-types:list,Permite exibir a listagem de tipos de documentos cadastrados para núcleos.,ADM - Gestão dos Núcleos
+121,adm:all-project-documentation-types:add,Permite adicionar um novo tipo de documento cadastrado para todos os núcleos,ADM - Gestão dos Núcleos
+122,adm:associations:list,Permite exibir a listagem das associações cadastradas.,ADM - Gestão das Associações
+123,adm:associations:add,Permite cadastrar nova associação.,ADM - Gestão das Associações
+124,adm:user:list,Permite exibir a listagem de usuários cadastrados.,ADM - Manutenção dos Usuários
+125,adm:user:details,Permite exibir a listagemos detalhes do cadastro de um usuário.,ADM - Manutenção dos Usuários
+126,adm:user:add,Permite cadastrar um novo usuário.,ADM - Manutenção dos Usuários
+127,adm:user-profiles:list,Permite exibir a listagem de perfis associados a usuário.,ADM - Manutenção dos Usuários
+128,adm:user:edit,Permite editar o  cadastro de um usuário.,ADM - Manutenção dos Usuários
+129,adm:user:change-status,Permite alterar a situação de um usuário para ativo ou inativo.,ADM - Manutenção dos Usuários
+130,adm:account-associations:list,"Permite exibir a listagem dos relacionamentos entre perfil, conta e o vínculo existente.",ADM - Manutenção dos Usuários
+131,adm:account-associations:add,"Permite cadastrar um  novo relacionamento entre perfil, conta e o vínculo existente.",ADM - Manutenção dos Usuários
+132,adm:account-associations:delete,"Permite excluir um relacionamento entre perfil, conta e o vínculo existente.",ADM - Manutenção dos Usuários
+133,adm:invoices:list,Permite exibir a listagem das notas fiscais cadastradas.,ADM - Gestão Financeira
+134,adm:invoices:edit,Permite editar os dados de uma nota fiscal já cadastrada no sistema.,ADM - Gestão Financeira
+135,adm:invoices:download,Permite fazer o download de notas fiscais.,ADM - Gestão Financeira
+136,adm:banks:list,Permite exibir a listagem dos  bancos cadastrados.,ADM - Manutenção dos Bancos
+137,adm:banks:add,Permite o cadastro de um novo banco.,ADM - Manutenção dos Bancos
+138,adm:banks:edit,Permite editar os dados de um banco cadastrado.,ADM - Manutenção dos Bancos
+139,adm:digital-collection:list,Permite exibir a listagem do acervo de documentos.,ADM - Gestão de Documentos
+140,adm:digital-collection:add,Permite a criação de um novo documento para acervo.,ADM - Gestão de Documentos
+141,adm:digital-collection:download,Permite realizar download de um documento do acervo.,ADM - Gestão de Documentos
+142,adm:digital-collection:edit,Permite editar as  informações sobre um documento do acervo.,ADM - Gestão de Documentos
+143,adm:digital-collection:change-status,Permite alterar a situação de um documento.,ADM - Gestão de Documentos
+144,adm:digital-collection:delete,Permite remover documento do acervo.,ADM - Gestão de Documentos
+145,adm:reports:individual-sales,Permite a emissão do relatório de vendas individualmente.,ADM - Relatórios
+146,adm:reports:gov-sales,Permite a emissão do relatório de vendas por período para o perfil de governo.,ADM - Relatórios
+147,adm:reports:provider-payments,Permite a emissão do relatório financeiro para pagamentos a fornecedores do Tesouro Verde.,ADM - Relatórios
+148,adm:quotes:list,Permite exibir a listagem das cotações.,ADM - Manutenção das Cotações
+149,adm:quotes:edit,Permite editar os valores das cotações.,ADM - Manutenção das Cotações
+150,adm:indexes:list,Permite exibir a listagem dos  índices de cálculo.,ADM - Manutenção dos Índices
+151,adm:indexes:edit,Permite a edição dos valores dos índices.,ADM - Manutenção dos Índices
+152,adm:fees:list,Permite exibir a listagem dos valores das taxas.,ADM - Manutenção das Taxas
+153,adm:fees:edit,Permite a edição dos valores de taxas.,ADM - Manutenção das Taxas
+154,adm:nxt:list,Permite exibir a listagem das contas NXT. ,ADM - Gestão das Contas NXT
+155,adm:nxt:add,Permite o cadastro de uma nova conta NXT.,ADM - Gestão das Contas NXT
+156,adm:nxt:edit,Permite editar os dados de uma conta NXT.,ADM - Gestão das Contas NXT
+157,adm:nxt:details,Permite visualizar as informações de uma conta NXT.,ADM - Gestão das Contas NXT
+158,adm:nxt:delete,Permite a exclusão de uma conta NXT.,ADM - Gestão das Contas NXT
+159,adm:system-config:list,Permite a exibição das configurações de parâmetros do sistema.,ADM - Configurações
+160,adm:system-config:edit,Permite a edição das configurações de parâmetros do sistema.,ADM - Configurações
+161,adm:model-certificate-links:list,Permite a listagem de vínculos entre modelos e tipos de certificados,ADM Akses - Configuração dos Certificados
+162,adm:model-certificate-links:add,Permite adicionar um novo vínculo entre modelos e tipos de certificados,ADM Akses - Configuração dos Certificados
+163,adm:model-certificate-links:edit,Permite editar um vínculo entre modelos e tipos de certificados,ADM Akses - Configuração dos Certificados
+164,adm:model-certificate-links:delete,Permite deletar um vínculo entre modelos e tipos de certificados ,ADM Akses - Configuração dos Certificados
+165,tesouro-verde:certificate-order:list,Permite ao usuário autenticado no sistema visualizar seus pedidos de UCS na Plataforma Tesouro Verde.,Tesouro Verde - Meus Pedidos
+166,tesouro-verde:my-certificates:list,Permite ao usuário autenticado no sistema visualizar seus SELOS gerados na Plataforma Tesouro Verde.,Tesouro Verde - Meus Selos
+167,tesouro-verde:certificate-order:add,Permite ao usuário autenticado no sistema pedir um novo SELO na Plataforma Tesouro Verde.,Tesouro Verde - Meus Selos
+168,akses:account-summary:details,Permite ao usuário autenticado no sistema visualizar um resumo da sua conta.,Akses - Home
+169,akses:my-certificates:list,Permite ao usuário autenticado no sistema visualizar os certificados gerados na Plataforma Akses com aquele perfil.,Akses - Meus Selos
+170,akses:purchase-order:add,Permite ao usuário autenticado no sistema solicitar novas UCS. ,Akses - Comprar
+171,akses:purchase-order:list,Permite ao usuário autenticado no sistema listar seus pedidos de compra.,Akses - Comprar
+172,akses:transfer-order:add,Permite ao usuário autenticado no sistema solicitar transferência das suas UCS disponíveis.,Akses - Transferir
+173,akses:transfer-order:list,Permite ao usuário autenticado no sistema listar seus pedidos de transferência  de UCS.,Akses - Transferir
+174,akses:client-certificate:add,Permite ao usuário autenticado no sistema listar os pedidos de selo a partir das suas UCS. ,Akses - Selo com Saldo
+175,akses:client-certificate:list,Permite ao usuário autenticado no sistema solicitar geração de SELO a partir das suas UCS. ,Akses - Selo com Saldo
+176,akses:account-statement:list,Permite ao usuário autenticado no sistema visualizar as movimentações das UCS daquele perfil. ,Akses - Extrato
+177,akses:digital-collection:list,Permite ao usuário autenticado no sistema visualizar documentos enviados ao seu usuário e/ou perfil.,Akses - Acervo
+178,akses:general-distributor-certificate:list,"Permite ao usuário autenticado no sistema listar os SELOS e a situação atual de cada um, com o perfil de Distribuidor Geral.",Akses - Selo Distribuidor Geral
+179,akses:general-distributor-certificate:add,Permite ao usuário autenticado no sistema solicitar a geração de SELO com o perfil de Distribuidor Geral.,Akses - Selo Distribuidor Geral
+180,akses:financial-distributor-certificate:list,"Permite ao usuário autenticado no sistema listar os SELOS e a situação atual de cada um, com o perfil de Distribuidor Financeiro.",Akses - Selo Distribuidor Financeiro
+181,akses:financial-distributor-certificate:add,Permite ao usuário autenticado no sistema solicitar a geração de SELO com o perfil de Distribuidor Financeiro.,Akses - Selo Distribuidor Financeiro
+182,akses:credentialed-distributor-certificate:list,"Permite ao usuário autenticado no sistema listar os SELOS e a situação atual de cada um, com o perfil de Distribuidor Credenciado.",Akses - Selo Distribuidor Credenciado
+183,akses:credentialed-distributor-certificate:add,Permite ao usuário autenticado no sistema solicitar a geração de SELO com o perfil de Distribuidor Credenciado.,Akses - Selo Distribuidor Credenciado
+184,akses:sale-order:add,Permite ao usuário autenticado no sistema vender suas UCS. ,Akses - Venda
+185,akses:sale-order:list,Permite ao usuário autenticado no sistema listar seus pedidos de venda.,Akses - Venda
+186,akses:reports:gov-sales,Permite ao usuário com perfil governo visualizar o relatório de vendas por governo do seu perfil.,Akses - Relatórios
+187,adm:permissions:list,Permite ao usuário visualizar a listagem de todas as permissões cadastradas.,ADM - Permissões
+188,adm:permissions:details,Permite visualizar informações detalhadas sobre cada permissão.,ADM - Permissões
+189,adm:permissions:edit,Permite alterar usuários e perfis vinculados à uma permissão.,ADM - Permissões
+190,adm:account-adjustments-orders:list,Permite listar os pedidos de ajustes entre contas.,ADM - Gestão de Estoque das Plataformas
+191,adm:account-adjustments-orders:add,Permite adicionar pedidos de ajustes entre contas.,ADM - Gestão de Estoque das Plataformas
+192,adm:account-adjustments-orders:details,Permite visualizar detalhes dos pedidos de ajustes entre contas.,ADM - Gestão de Estoque das Plataformas
+193,adm:account-adjustments-orders:evaluate,"Permite avaliar os pedidos de ajustes entre contas, podendo aprovar, recusar, aprovar pagamento, aprovar pré processamento, reprocessar.",ADM - Gestão de Estoque das Plataformas
+194,adm:email-confirmation:send,Permite reenviar email de confirmação de conta para usuários inativos.,ADM - Manutenção dos Usuários
+195,adm:user:export,Permite exportar em formato CSV dados dos os usuários do sistema.,ADM - Manutenção dos Usuários
+196,adm:financial-participants:list,Permite exibir a listagem das participantes cadastrados.,ADM - Gestão Financeira
+197,adm:financial-participants:edit,Permite alterar participantes.,ADM - Gestão Financeira
+198,adm:financial-participants:details,Permite visualizar cadastro de participante.,ADM - Gestão Financeira
+199,adm:financial-participants:change-status,Permite ativar/desativar participante.,ADM - Gestão Financeira
+200,adm:financial-participants:add,Permite cadastrar novo participante.,ADM - Gestão Financeira
+201,adm:financial-participants-authorization:list,Permite ao usuário autenticado no sistema listar as autorizações de pagamento de um participante credor a terceiros favorecidos.,ADM - Gestão Financeira
+202,adm:financial-participants-authorization:add,Permite cadastrar uma autorização de pagamento vinculando um favorecido ao participante credor.,ADM - Gestão Financeira
+203,adm:financial-participants-authorization:edit,Permite editar autorizações de pagamento.,ADM - Gestão Financeira
+204,adm:financial-participants-authorization:details,Permite visualizar detalhes do cadastro de autorizações de pagamento.,ADM - Gestão Financeira
+205,adm:financial-participants-authorization:change-status,Permite ativar/desativar autorizações de pagamentos.,ADM - Gestão Financeira
+206,adm:financial-participants-authorization:download,Permite baixar documento de autorização de pagamento.,ADM - Gestão Financeira
+207,adm:financial-holiday:list,Permite exibir a listagem dos  feriados cadastrados.,ADM - Gestão Financeira
+208,adm:financial-holiday:add,Permite cadastrar novo feriado e definir o próximo dia útil.,ADM - Gestão Financeira
+209,adm:financial-holiday:edit,Permite editar um cadastro de feriado.,ADM - Gestão Financeira
+210,adm:financial-holiday:delete,Permite remover um feriado cadastrado.,ADM - Gestão Financeira
+211,adm:financial-cash-flow:list,Permite exibir a listagem de contas fluxo de caixa.,ADM - Gestão Financeira
+212,adm:financial-cash-flow:details,Permite visualizar detalhes de contas de fluxo de caixa.,ADM - Gestão Financeira
+213,adm:financial-cash-flow:add,Permite cadastrar uma nova conta de fluxo de caixa.,ADM - Gestão Financeira
+214,adm:financial-cash-flow:edit,Permite editar uma conta de fluxo de caixa,ADM - Gestão Financeira
+215,adm:financial-cash-flow:delete,Permite remover uma conta do fluxo de caixa.,ADM - Gestão Financeira
+216,adm:financial-cost-center:list,Permite exibir a listagem de contas do centro de custo.,ADM - Gestão Financeira
+217,adm:financial-cost-center:details,Permite visualizar detalhes de contas do centro de custo.,ADM - Gestão Financeira
+218,adm:financial-cost-center:add,Permite cadastrar uma nova conta do centro de custo.,ADM - Gestão Financeira
+219,adm:financial-cost-center:edit,Permite editar uma conta do centro de custo.,ADM - Gestão Financeira
+221,adm:financial-company:list,Permite exibir a listagem de empresas.,ADM - Gestão Financeira
+222,adm:financial-company:details,Permite visualizar detalhes de empresas,ADM - Gestão Financeira
+223,adm:financial-company:add,Permite cadastrar uma nova empresa.,ADM - Gestão Financeira
+224,adm:financial-company:edit,Permite editar uma empresa.,ADM - Gestão Financeira
+225,adm:financial-company:delete,Permite remover uma empresa.,ADM - Gestão Financeira
+226,adm:financial-branch-company:list,Permite exibir a listagem de filiais de uma empresa.,ADM - Gestão Financeira
+227,adm:financial-branch-company:details,Permite visualizar detalhes de filial de uma empresa.,ADM - Gestão Financeira
+228,adm:financial-branch-company:add,Permite cadastrar uma nova filial.,ADM - Gestão Financeira
+229,adm:financial-branch-company:edit,Permite editar uma filial.,ADM - Gestão Financeira
+230,adm:financial-branch-company:delete,Permite remover uma filial.,ADM - Gestão Financeira
+231,adm:financial-branch-company:change-status,Permite ativar/desativar filial.,ADM - Gestão Financeira
+232,adm:financial-register-bank:list,Permite exibir a listagem de contas bancárias de uma filial.,ADM - Gestão Financeira
+233,adm:financial-register-bank:details,Permite visualizar detalhes de contas bancárias de uma filial.,ADM - Gestão Financeira
+234,adm:financial-register-bank:add,Permite cadastrar uma nova conta bancária de uma filial.,ADM - Gestão Financeira
+235,adm:financial-register-bank:edit,Permite editar uma conta bancária de uma filial.,ADM - Gestão Financeira
+236,adm:financial-register-bank:delete,Permite remover uma conta bancária de uma filial.,ADM - Gestão Financeira
+237,adm:financial-register-bank:change-status,Permite ativar/desativar contas bancárias de uma filial.,ADM - Gestão Financeira
+238,adm:financial-register-bank-statement:list,Permite exibir a listagem de movimentações financeiras da filial.,ADM - Gestão Financeira
+239,adm:financial-register-bank-statement:details,Permite visualizar detalhes de uma movimentações financeiras da filial.,ADM - Gestão Financeira
+240,adm:financial-register-bank-statement:add,Permite cadastrar uma nova movimentação financeira da filial.,ADM - Gestão Financeira
+241,adm:financial-register-bank-statement:edit,Permite editar uma movimentação financeira da filial.,ADM - Gestão Financeira
+242,adm:financial-register-bank-statement:delete,Permite remover uma movimentação financeira da filial.,ADM - Gestão Financeira
+243,adm:financial-payout-configurations:list,Permite listar configurações de repasse de valores para usuários e perfis.,ADM - Financeiro - Configurações de Repasse
+244,adm:financial-payout-configurations:edit,Permite editar as configurações de repasse de valores para usuários e perfis.,ADM - Gestão Financeira - Configurações de Repasse
+245,adm:financial-payout-configurations:delete,Permite deletar as configurações de repasse para usuários.,ADM - Gestão Financeira - Configurações de Repasse
+246,adm:financial-compositions:list,Permite listar composições de contas a pagar.,ADM - Gestão Financeira - Composições
+247,adm:financial-compositions:add,Permite cadastrar uma nova composicao ou nova composição em lote.,ADM - Gestão Financeira - Composições
+248,adm:financial-compositions:details,Permite visualizar detalhes de uma composição.,ADM - Gestão Financeira - Composições
+249,adm:financial-compositions:edit,Permite editar uma composição cadastrada.,ADM - Gestão Financeira - Composições
+250,adm:financial-compositions:delete,Permite deletar uma composição cadastrada.,ADM - Gestão Financeira - Composições
+251,adm:financial-bill-to-pay:list,Permite listar todas as contas a pagar cadastradas.,ADM - Gestão Financeira - Contas a Pagar
+252,adm:financial-bill-to-pay:add,Permite cadastrar uma nova conta a pagar.,ADM - Gestão Financeira - Contas a Pagar
+253,adm:financial-bill-to-pay:details,Permite visualizar detalhes de uma conta a pagar.,ADM - Gestão Financeira - Contas a Pagar
+254,adm:financial-bill-to-pay:edit,Permite editar uma conta a pagar.,ADM - Gestão Financeira - Contas a Pagar
+255,adm:financial-bill-to-pay:delete,Permite deletar uma conta a pagar cadastrada.,ADM - Gestão Financeira - Contas a Pagar
+256,adm:financial-bill-to-pay-write-offs:list,Permite listar as baixas de uma conta a pagar.,ADM - Gestão Financeira - Baixa de Conta a Pagar
+257,adm:financial-bill-to-pay-write-offs:add,Permite efetuar uma nova baixa para uma conta a pagar.,ADM - Gestão Financeira - Baixa de Conta a Pagar
+258,adm:financial-bill-to-pay-write-offs:edit,Permite editar uma baixa existente em uma conta a pagar.,ADM - Gestão Financeira - Baixa de Conta a Pagar
+259,adm:financial-bill-to-pay-write-offs:delete,Permite remover uma baixa existente em uma conta a pagar.,ADM - Gestão Financeira - Baixa de Conta a Pagar
+260,adm:financial-configurations:list,Permite visualizar as configurações do módulo financeiro.,ADM - Gestão Financeira - Configurações
+261,adm:financial-configurations:edit,Permite editar as configurações do módulo financeiro.,ADM - Gestão Financeira - Configurações
+262,adm:financial-remittances:list,Permite listar todas as remessas.,ADM - Gestão Financeira - Remessas
+263,adm:financial-remittances:add,Permite adicionar uma nova remessa.,ADM - Gestão Financeira - Remessas
+264,adm:financial-remittances:details,Permite visualizar detalhes de uma remessa.,ADM - Gestão Financeira - Remessas
+265,adm:financial-remittances:edit,Permite editar informações de uma remessa.,ADM - Gestão Financeira - Remessas
+266,adm:financial-remittances:delete,Permite remover uma remessa.,ADM - Gestão Financeira - Remessas
+267,adm:financial-remittances:send,Permite enviar um documento de retorno da remessa para leitura.,ADM - Gestão Financeira - Remessas
+268,adm:financial-remittances:read-response,Permite confirmar a baixa após a pré-visualização da remessa.,ADM - Gestão Financeira - Remessas
+269,adm:financial-remittances:download,Permite baixar o arquivo REM de uma remessa.,ADM - Gestão Financeira - Remessas
+270,adm:master-child-accounts:list,Permite listar os usuários vinculados a uma conta master.,ADM - Usuários - Gerenciar Contas
+271,adm:master-child-accounts:add,Permite adicionar vinculo de contas a uma conta master.,ADM - Usuários - Gerenciar Contas
+272,adm:master-child-accounts:delete,Permite remover os usuários vinculados a uma conta master.,ADM - Usuários - Gerenciar Contas
+273,adm:blocked-ucs:list,Permite listar os bloqueios de UCS ativos no sistema.,ADM - Bloqueio de UCS
+274,adm:blocked-ucs:process,Permite processar um bloqueio de UCS pendente.,ADM - Bloqueio de UCS
+275,adm:blocked-ucs:add,Permite criar um novo bloqueio de UCS.,ADM - Bloqueio de UCS
+276,adm:blocked-ucs:delete,Permite cancelar um bloqueio de UCS.,ADM - Bloqueio de UCS
+277,adm:endpoints:list,Permite listar os endpoints e suas permissões.,ADM - Endpoints
+278,adm:endpoints:details,Permite visualizar detalhes dos endpoints.,ADM - Endpoints
+279,adm:endpoints:add,Permite cadastrar um endpoint e incluir suas permissões.,ADM - Endpoints
+280,adm:endpoints:edit,Permite editar um endpoint e  suas permissões.,ADM - Endpoints
+281,adm:endpoints:delete,Permite remover um endpoint e suas permissões.,ADM - Endpoints
+282,akses:living-carbon-certificate-order:list,Permite listar todos os pedidos de certificado carbono vivo de um usuário e suas unidades,Akses - Selo Carbono Vivo
+283,akses:living-carbon-certificate-order:add,Permite adicionar um novo pedido de certificado carbono vivo,Akses - Selo Carbono Vivo
+284,adm:akses-living-carbon-certificate-order:list,Permite listar os Selos de Carbono vivo,ADM - Selo Carbono Vivo
+285,adm:akses-living-carbon-certificate-order:change-status,Permite alterar o status de um pedido de Selo Carbono Vivo.,ADM - Selo Carbono Vivo
+286,adm:akses-living-carbon-certificate-order:view-certificate,Permite visualar o certificado vinculado a um pedido de Selo Carbono Vivo,ADM - Selo Carbono Vivo
+287,adm:akses-living-carbon-certificate-order:sync-nxt,Permite sincronizar o nxt para pedidos de Selo Carbono Vivo,ADM - Selo Carbono Vivo
+288,adm:akses-living-carbon-certificate-order:mark-documentation-as-viewed,Permite marcar a documentação de um pedido Selo Carbono Vivo como visualizada.,ADM - Selo Carbono Vivo
+289,adm:akses-living-carbon-certificate-order:send-nxt,Permite enviar o NXT para um pedido Selo Carbono Vivo.,ADM - Selo Carbono Vivo
+290,adm:akses-living-carbon-certificate-order:analyze-documentation,Permite substituir um arquivo da documentação de um pedido Selo Carbono Vivo.,ADM - Selo Carbono Vivo
+291,akses:accounts-receivable:list,Permite listar as contas a receber de um usuário,Akses - Contas a Receber
+292,adm:financial-participants:sync-users,Permite sincronizar os cadastros de usuários com os cadastros de participantes.,ADM - Gestão Financeira
+293,adm:financial-participants:sync-accounts,Permite sincronizar as informações bancárias de participantes que diferem das informações cadastradas pelo usuário de mesmo documento.,ADM - Gestão Financeira
+294,adm:reports:general-sales,Permite a emissão do relatório financeiro de vendas gerais (Repasse ao Fornecedor),ADM - Relatórios
+295,akses:advanced-payments:list,Permite listar os adiantamentos de um produtor,Akses - Adiantamentos
+296,adm:client-api:list,Permite listar tokens cadastrados para clientes de integração.,ADM - Tokens de Integração
+297,adm:client-api:add,Permite adicionar um novo token para um cliente de integração.,ADM - Tokens de Integração
+298,adm:client-api:change-status,Permite alterar o status de um token de integração.,ADM - Tokens de Integração
+299,adm:client-api:delete,Permite remover um token de integração de um cliente.,ADM - Tokens de Integração
+300,adm:financial-bill-to-pay:export,Permite exportar em formato CSV dados das Contas a Pagar cadastradas no sistema.,ADM - Gestão Financeira - Contas a Pagar
+301,adm:promo-codes:list,Permite listar todos os cupons cadastrados no sistema.,ADM - Cupons de Desconto
+302,adm:promo-codes:add,Permite adicionar um novo cupom de desconto.,ADM - Cupons de Desconto
+303,adm:promo-codes:edit,Permite editar um cupom de desconto existente.,ADM - Cupons de Desconto
+304,adm:promo-codes:details,Permite visualizar detalhes de um cupom de desconto específico.,ADM - Cupons de Desconto
+305,adm:promo-codes:delete,Permite deletar um cupom de desconto.,ADM - Cupons de Desconto
+306,adm:promo-codes:change-status,Permite ativar/inativar um cupom de desconto.,ADM - Cupons de Desconto
+307,adm:commission:list,Permite listar todas as comissões configuradas no sistema.,ADM - Comissões
+308,adm:commission:add,Permite cadastrar uma nova configuração de comissões.,ADM - Comissões
+309,adm:commission:edit,Permite editar uma configuração de comissão existente.,ADM - Comissões
+310,adm:commission:details,Permite visualizar detalhes de uma configuração de comissões específicas.,ADM - Comissões
+311,adm:akses-purchase-order:apply-discount,Permite aplicar um cupom de desconto ou definir um valor de desconto avulso para Pedidos de Compra.,ADM - Gestão de pedidos de compra
+312,adm:akses-transfer-order:apply-discount,Permite aplicar um cupom de desconto ou definir um valor de desconto avulso para Pedidos de Transferência.,ADM - Gestão de pedidos de transferência
+313,adm:akses-sale-order:apply-discount,Permite aplicar um cupom de desconto ou definir um valor de desconto avulso para Pedidos de Venda.,ADM - Gestão de pedidos de venda
+314,adm:akses-client-certificate-order:apply-discount,Permite aplicar um cupom de desconto ou definir um valor de desconto avulso para Pedidos de Certificado Cliente (Selo com Saldo).,ADM Akses- Gestão de pedidos de selo do cliente
+315,adm:akses-financial-dist-order:apply-discount,Permite aplicar um cupom de desconto ou definir um valor de desconto avulso para Pedidos de Certificado Distribuidor Financeira.,ADM Akses- Gestão de pedidos de selo do Distribuidor Financeiro
+316,adm:akses-general-dist-order:apply-discount,Permite aplicar um cupom de desconto ou definir um valor de desconto avulso para Pedidos de Certificado Distribuidor Geral.,ADM Akses- Gestão de pedidos de selo do Distribuidor Geral
+317,adm:akses-credentialed-dist-order:apply-discount,Permite aplicar um cupom de desconto ou definir um valor de desconto avulso para Pedidos de Certificado SAAS Tesouro Verde.,ADM Akses- Gestão de pedidos de selo do Distribuidor Credenciado
+318,adm:akses-living-carbon-certificate-order:apply-discount,Permite aplicar um cupom de desconto ou definir um valor de desconto avulso para Pedidos de Certificado Carbono Vivo.,ADM - Selo Carbono Vivo
+319,adm:tesouro-verde-certificate-orders:apply-discount,Permite aplicar um cupom de desconto ou definir um valor de desconto avulso para Pedidos de Certificado Tesouro Verde.,ADM Tesouro Verde - Gestão de pedidos de selo
+320,adm:akses-purchase-order:remove-discount,Permite remover um cupom de desconto em Pedidos de Compra.,ADM - Gestão de pedidos de compra
+321,adm:akses-transfer-order:remove-discount,Permite remover um cupom de desconto em Pedidos de Transferência.,ADM - Gestão de pedidos de transferência
+322,adm:akses-sale-order:remove-discount,Permite remover um cupom de desconto em Pedidos de Venda.,ADM - Gestão de pedidos de venda
+323,adm:akses-client-certificate-order:remove-discount,Permite remover um cupom de desconto em Pedidos de Certificado Cliente (Selo com Saldo).,ADM Akses- Gestão de pedidos de selo do cliente
+324,adm:akses-financial-dist-order:remove-discount,Permite remover um cupom de desconto em Pedidos de Certificado Distribuidor Financeira.,ADM Akses- Gestão de pedidos de selo do Distribuidor Financeiro
+325,adm:akses-general-dist-order:remove-discount,Permite remover um cupom de desconto em Pedidos de Certificado Distribuidor Geral.,ADM Akses- Gestão de pedidos de selo do Distribuidor Geral
+326,adm:akses-credentialed-dist-order:remove-discount,Permite remover um cupom de desconto em Pedidos de Certificado SAAS Tesouro Verde.,ADM Akses- Gestão de pedidos de selo do Distribuidor Credenciado
+327,adm:akses-living-carbon-certificate-order:remove-discount,Permite remover um cupom de desconto em Pedidos de Certificado Carbono Vivo.,ADM - Selo Carbono Vivo
+328,adm:tesouro-verde-certificate-orders:remove-discount,Permite remover um cupom de desconto em Pedidos de Certificado Tesouro Verde.,ADM Tesouro Verde - Gestão de pedidos de selo
+329,adm:platforms:list,Permite listar todas as platformas cadastradas no sistema.,ADM - Plataformas
+330,adm:platforms:add,Permite cadastrar uma nova plataforma.,ADM - Plataformas
+331,adm:platforms:edit,Permite editar uma plataforma  existente.,ADM - Plataformas
+332,adm:platforms:details,Permite visualizar detalhes de uma plataforma especifica,ADM - Plataformas
+333,adm:cpr:list,Permite listar todas as CPR's cadastradas no sistema.,ADM - CPR
+334,adm:cpr:details,Permite visualizar detalhes de uma CPR especifica,ADM - CPR
+335,adm:cpr:add,Permite cadastrar uma nova CPR.,ADM - CPR
+336,adm:cpr:edit,Permite editar uma CPR existente.,ADM - CPR
+337,adm:cpr:analyze-documentation,Permite gerenciar a documentação das CPRs Verde cadastradas no sistema,ADM - CPR
+338,adm:cpr:change-status,Permite alterar o status de uma CPR.,ADM - CPR
+339,adm:cpr:revoke,Permite revogar uma CPR,ADM - CPR
+340,adm:cpr:execute,Permite executar garantia em uma CPR.,ADM - CPR
+341,akses:cpr:list,Permite Listar as CPR's do usuário cadastrada no sistema,AKSES - CPR
+342,akses:cpr:details,Permite visualizar a CPR do usuário cadastrada no sistema,AKSES - CPR
+343,akses:cpr:add,Permite cadastrar uma nova CPR,AKSES - CPR
+344,akses:cpr:flag-revoke,Permite ao usuário alterar o status de cpr como sinalizar  para revogar,AKSES - CPR
+345,akses:cpr:flag-execute,Permite ao usuário alterar o status de cpr como sinalizar para executar,AKSES - CPR
+346,adm:akses-living-carbon-certificate-order:download-negotiation-invoices,Permite fazer download das notas de negociação e contrato de cessão de direitos de comercialização das UCS de pedidios SaaS BMV.,ADM - Selo Carbono Vivo
+347,adm:minting:list,Permite listar os Mitings cadastrados no sistema.,ADM - Mundi Token - Minting
+348,adm:minting:details,Permite visualizar o Minting cadastrado no sistema.,ADM - Mundi Token - Minting
+349,adm:minting:add,Permite cadastrar um Minting.,ADM - Mundi Token - Minting
+350,adm:minting:edit,Permite editar um Minting cadastrado no sistema.,ADM - Mundi Token - Minting
+351,adm:minting:change-status,Permite alterar o status de um Minting.,ADM - Mundi Token - Minting
+352,adm:burned-token-orders:list,Permite listar os BurnedTokenOrders cadastrados no sistema.,ADM - Mundi Token - Burned Token Orders
+353,adm:burned-token-orders:details,Permite visualizar o BurnedTokenOrder cadastrado no sistema.,ADM - Mundi Token - Burned Token Orders
+354,adm:burned-token-orders:edit,Permite editar o BurnedTokenOrder cadastrado no sistema.,ADM - Mundi Token - Burned Token Orders
+355,adm:burned-token-orders:change-status,Permite mudar o status dos BurnedTokenOrders cadastrados no sistema.,ADM - Mundi Token - Burned Token Orders
+356,adm:burned-token-orders:send-nxt,Permite enviar NXT dos BurnedTokenOrders cadastrados no sistema.,ADM - Mundi Token - Burned Token Orders
+357,adm:burned-token-orders:view-certificate,Permite visualizar o certicado do pedido BurnedTokenOrder,ADM - Mundi Token - Burned Token Orders
+358,adm:burned-token-orders:sync-nxt,Permite sincronizar o nxt para pedidos de BurnedTokenOrder,ADM - Mundi Token - Burned Token Orders
+359,akses:stock-availability-certificate:list,Permite listar os pedidos de Certidão de Disponibilidade de Estoque,AKSES - Certidão de Disponibilidade de Estoque
+360,akses:stock-availability-certificate:add,Permite criar um novo pedido de Certidão de Disponibilidade de Estoque,AKSES - Certidão de Disponibilidade de Estoque
+361,akses:stock-availability-certificate:details,Permite visualizar os detalhes de um pedido de Certidão de Disponibilidade de Estoque,AKSES - Certidão de Disponibilidade de Estoque
+362,adm:stock-availability-certificate:list,Permite listar os pedidos de Certidão de Disponibilidade de Estoque,ADM - Certidão de Disponibilidade de Estoque
+363,adm:stock-availability-certificate:details,Permite visualizar os detalhes de um pedido de Certidão de Disponibilidade de Estoque,ADM - Certidão de Disponibilidade de Estoque
+364,adm:stock-availability-certificate:change-status,Permite mudar o status dos Stocks Availability Certicates Orders cadastrados no sistema.,ADM - Certidão de Disponibilidade de Estoque
+365,adm:tesouro-verde-certificate-orders:audit-documentation,Permite auditar os documentos enviados pelos clientes do Tesouro Verde.,ADM Tesouro Verde - Gestão de pedidos de selo
+366,adm:supply-platforms:list,Permite listar os abastecimentos anteriores das plataformas,ADM - Gestão de Estoque das Plataformas
+367,adm:supply-platforms:add,Permite realizar um novo abastecimento de plataformas a partir de uma configuração de distribuição,ADM - Gestão de Estoque das Plataformas
+368,adm:akses-living-carbon-certificate-order:audit-documentation,Permite auditar a documentação de um pedido Selo Carbono Vivo.,ADM - Selo Carbono Vivo
+369,akses:stock-availability-certificate:view-certificate,Permite visualizar a Certidão de Disponibilidade de Estoque,AKSES - Certidão de Disponibilidade de Estoque
+370,adm:stock-availability-certificate:view-certificate,Permite visualizar a Certidão de Disponibilidade de Estoque,ADM - Certidão de Disponibilidade de Estoque
+371,adm:reports:participants,Permite a emissão do relatório de participantes (Credores e seus favorecidos),ADM - Gestão Financeira
+372,adm:akses-movement-intention-order:list,Permite listar as Intenções de Movimentações,ADM - Intenção de Movimentação
+373,adm:akses-movement-intention-order:details,Permite visualizar com detalhes uma Intenção de Movimentação,ADM - Intenção de Movimentação
+374,adm:akses-movement-intention-order:change-status,Permite mudar o status de Intenções de Movimentação,ADM - Intenção de Movimentação
+375,akses:movement-intention-order:list,Permite listar as Intenções de Movimentações,AKSES - Intenção de Movimentação
+376,akses:movement-intention-order:add,Permite adicionar uma nova Intenção de Movimentação,AKSES - Intenção de Movimentação
+377,akses:movement-intention-order:details,Permite visualizar com detalhes uma Intenção de Movimentação,AKSES - Intenção de Movimentação
+378,adm:platform-tags:list,Permite listar as tags de plataformas,ADM - Tags de Plataformas
+379,adm:platform-tags:edit,Permite editar as tags vinculadas às plataformas,ADM - Tags de Plataformas
+380,adm:platform-workflows:list,Permite listar os fluxos de trabalho que envolvem plataformas,ADM - Workflows de Plataformas
+381,adm:platform-workflows:edit,Permite editar os fluxos de trabalho que envolvem plataformas,ADM - Workflows de Plataformas
+382,adm:financial-jobs:list,Permite listar os serviços do módulo financeiro para aplicação de taxa.,ADM - Financeiro - Serviços
+383,adm:financial-jobs:add,Permite adicionar um novo serviço do módulo financeiro.,ADM - Financeiro - Serviços
+384,adm:financial-jobs:edit,Permite editar um serviço do módulo financeiro.,ADM - Financeiro - Serviços
+385,adm:financial-jobs:delete,Permite deletar um serviço do módulo financeiro.,ADM - Financeiro - Serviços
+386,adm:financial-jobs:details,Permite visualizar detalhes de um serviço do módulo financeiro.,ADM - Financeiro - Serviços
+387,adm:fee-availability:list,Permite listar as aplicações de taxas para um determinado serviço.,ADM - Financeiro - Aplicação de Taxas
+388,adm:fee-availability:add,Permite criar uma nova aplicação de taxa.,ADM - Financeiro - Aplicação de Taxas
+389,adm:fee-availability:edit,Permite editar uma aplicação de taxa existente.,ADM - Financeiro - Aplicação de Taxas
+390,adm:fee-availability:details,Permite visualizar detalhes de uma aplicação de taxa existente.,ADM - Financeiro - Aplicação de Taxas
+391,adm:fee-availability:delete,Permite remover uma aplicação de taxa.,ADM - Financeiro - Aplicação de Taxas
+392,adm:feature-settings:list,Permite listar as configurações de workflow.,ADM -Configuração de Workflow de Plataformas
+393,adm:feature-settings:edit,Permite editar as configurações de workflow.,ADM -Configuração de Workflow de Plataformas
+394,adm:feature-settings:details,Permite visualizar uma configuração de workflow.,ADM -Configuração de Workflow de Plataformas
+395,adm:financial-billing:list,Permite listas as contas a receber.,ADM - Financeiro - Contas a Receber
+396,adm:financial-billing:add,Permite criar uma nova conta a receber.,ADM - Financeiro - Contas a Receber
+397,adm:financial-billing:details,Permite visualizar uma conta a receber.,ADM - Financeiro - Contas a Receber
+398,adm:financial-billing:edit,Permite editar uma conta a receber.,ADM - Financeiro - Contas a Receber
+399,adm:financial-billing:remove-discount,Permite remover um desconto de um pedido vinculado a uma conta a receber,ADM - Financeiro - Contas a Receber
+400,akses:billing:list,Permite listar contas a pagar no sistema AKSES.,AKSES - Pagamentos
+401,akses:billing:add,Permite fazer pagamento de contas a pagar no sistema AKSES.,AKSES - Pagamentos
+402,tesouro-verde:billing:list,Permite listar contas a pagar no sistema Plataforma Tesouro Verde.,Tesouro Verde - Pagamentos
+403,tesouro-verde:billing:add,Permite fazer pagamento de contas a pagar no sistema Plataforma Tesouro Verde.,Tesouro Verde - Pagamentos
+404,adm:financial-summary-cash-flow:list,Permite Listar os resumos de fluxo de caixa mensal e diário,ADM - Financeiro - Resumo Fluxo de Caixa

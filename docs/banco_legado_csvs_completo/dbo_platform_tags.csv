@@ -1,0 +1,6 @@
+id,code,name,description,immutable,status,created_by,created_date,last_modified_by,last_modified_date
+1,RETIREMENT,Aposentadoria,Permite aposentar UCSs na plataforma definida,t,ACTIVE,,,,
+2,PRIVATE_UCS,UCSs Privadas,Permite existir UCS privadas na plataforma definida,t,ACTIVE,,,,
+3,PUBLIC_UCS,UCSs Públicas,Permite existir UCS públicas na plataforma definida,t,ACTIVE,,,,
+4,HARVEST,Geração Safra,Permite a geração de safras com destino na plataforma definida,t,ACTIVE,,,,
+5,ORDER_BOOK,Livro de Ofertas,Permite a utilização do Livro de Ofertas para a plataforma definida.,t,ACTIVE,,,,

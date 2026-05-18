@@ -1,0 +1,2 @@
+id,config
+1,"{""purchaseOrder"": {""cashFlowId"": 19, ""costCenterId"": 1, ""businessUnitId"": 1}, ""livingCarbonOrder"": {""cashFlowId"": 19, ""costCenterId"": 1, ""businessUnitId"": 1}, ""tesouroVerdeOrder"": {""cashFlowId"": 19, ""costCenterId"": 1, ""businessUnitId"": 1}, ""generalDistributorOrder"": {""cashFlowId"": 19, ""costCenterId"": 1, ""businessUnitId"": 1}, ""financialDistributorOrder"": {""cashFlowId"": 19, ""costCenterId"": 1, ""businessUnitId"": 1}, ""credentialedDistributorOrder"": {""cashFlowId"": 19, ""costCenterId"": 1, ""businessUnitId"": 1}}"

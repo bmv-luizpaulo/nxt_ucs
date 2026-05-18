@@ -1,194 +1,145 @@
-"use client"
+'use client';
 
-import { useState, useEffect, useMemo } from "react";
-import { 
-  Leaf, Search, Wand2, X, Calendar, Calculator, Landmark, 
-  ShieldCheck, Loader2, Plus, ArrowUpRight, Database,
-  TrendingUp, FileText, LayoutGrid, List
-} from "lucide-react";
-import { useFirestore } from "@/firebase";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
-import { SafraBulkImport } from "@/components/safras/SafraBulkImport";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useState } from 'react';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { useLegacyData } from '@/hooks/useLegacyData';
+import { Leaf, Search, ChevronLeft, ChevronRight, Loader2, RefreshCw, Calendar, BarChart2, TreePine } from 'lucide-react';
 
-export default function SafrasPage() {
-  const [loading, setLoading] = useState(true);
-  const [safras, setSafras] = useState<any[]>([]);
-  const [isImportOpen, setIsImportOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const db = useFirestore();
-  const router = useRouter();
+export default function SafrasLegadoPage() {
+  const [selectedYear, setSelectedYear] = useState('');
 
-  const loadSafras = async () => {
-    setLoading(true);
-    try {
-      // No novo modelo, as safras são identificadas pelos anos nos documentos de originação
-      // Buscamos a coleção 'safras' direto (onde estão os documentos de cada ano)
-      const safrasSnap = await getDocs(collection(db, "safras"));
-      const list = safrasSnap.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setSafras(list.sort((a, b) => b.id.localeCompare(a.id)));
-    } catch (e) {
-      console.error("Erro ao carregar safras:", e);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { rows, pagination, extra, loading, error, search, handleSearch, handlePageChange, refresh } = useLegacyData({
+    domain: 'harvests',
+    params: selectedYear ? { year: selectedYear } : {},
+    pageSize: 50,
+  });
 
-  useEffect(() => {
-    loadSafras();
-  }, [db]);
+  const harvests = rows as Record<string, string & { area: Record<string, string> | null }>[];
+  const byYear = (extra?.byYear as Record<string, { count: number; totalUcs: number }>) || {};
+  const years = (extra?.years as string[]) || [];
 
-  const filteredSafras = safras.filter(s => 
-    s.id.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const stats = useMemo(() => {
-    const totalUCS = safras.reduce((acc, curr) => acc + (curr.totalUCS || 0), 0);
-    return {
-      totalUCS,
-      totalSafras: safras.length,
-      totalFazendas: safras.reduce((acc, curr) => acc + (curr.totalFazendas || 0), 0)
-    };
-  }, [safras]);
+  const totalUcs = Object.values(byYear).reduce((s, y) => s + y.totalUcs, 0);
 
   return (
-    <div className="p-8 space-y-10 max-w-[1600px] mx-auto animate-in fade-in duration-700">
-      
-      {/* HEADER DA CENTRAL DE SAFRAS */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-             <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-600">
-                <Leaf className="w-6 h-6" />
-             </div>
-             <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tighter">Minhas Safras</h1>
+    <div className="flex min-h-screen bg-[#F8FAFC]">
+      <Sidebar />
+      <main className="flex-1 flex flex-col overflow-hidden">
+
+        {/* Header */}
+        <header className="h-24 bg-white px-10 flex items-center justify-between border-b border-slate-100 shrink-0">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+              <Leaf className="w-6 h-6 text-emerald-600" />
+              Safras — Banco Legado
+            </h1>
+            <p className="text-[11px] font-medium text-slate-400">
+              Lendo de <code className="bg-slate-100 px-1.5 py-0.5 rounded text-emerald-600 text-[10px]">dbo_harvest.csv</code> · {pagination.total.toLocaleString('pt-BR')} safras
+            </p>
           </div>
-          <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] ml-15">
-            Gestão de Auditoria e Originação Técnica
-          </p>
-        </div>
+          <button onClick={refresh} className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors"><RefreshCw size={16} /></button>
+        </header>
 
-        <div className="flex items-center gap-3">
-           <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
-              <Input 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Buscar Safra (Ano)..."
-                className="w-full md:w-72 h-14 pl-12 bg-white border-slate-100 rounded-2xl font-bold text-xs uppercase tracking-widest focus:ring-emerald-500/20 shadow-sm"
-              />
-           </div>
-           
-           <Button 
-            onClick={() => setIsImportOpen(true)}
-            className="h-14 px-8 rounded-2xl bg-slate-900 text-white font-black uppercase text-[11px] tracking-widest gap-3 shadow-xl hover:bg-emerald-600 transition-all border-b-4 border-slate-950 hover:border-emerald-800"
-           >
-              <Plus className="w-4 h-4" /> Nova Carga de Safra
-           </Button>
-        </div>
-      </div>
+        <div className="flex-1 p-8 space-y-6 overflow-y-auto">
 
-      {/* DASHBOARD DE MONITORAMENTO */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-         <StatCard 
-            icon={<Calculator className="w-6 h-6" />}
-            label="Total UCS Gênese"
-            value={stats.totalUCS.toLocaleString('pt-BR')}
-            color="text-emerald-600"
-            trend="+12.4% vs 2023"
-         />
-         <StatCard 
-            icon={<Landmark className="w-6 h-6" />}
-            label="Fazendas Auditadas"
-            value={stats.totalFazendas}
-            color="text-blue-600"
-         />
-          <StatCard 
-            icon={<FileText className="w-6 h-6" />}
-            label="Ciclos Registrados"
-            value={stats.totalSafras}
-            color="text-amber-500"
-         />
-      </div>
-
-      {/* GRID DE SAFRAS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {loading ? (
-          Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-64 rounded-[2.5rem] bg-slate-100 animate-pulse border border-slate-50"></div>
-          ))
-        ) : filteredSafras.map((safra) => (
-          <div 
-            key={safra.id}
-            onClick={() => router.push(`/safras/${safra.id}`)}
-            className="group relative bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all cursor-pointer overflow-hidden"
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full -mr-16 -mt-16 group-hover:bg-emerald-500/10 transition-colors"></div>
-            
-            <div className="flex items-center justify-between relative z-10 mb-8">
-              <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-emerald-500 group-hover:text-white transition-all shadow-inner">
-                 <Calendar className="w-7 h-7" />
+          {/* Stats cards by year */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: 'Total Safras', value: pagination.total, unit: 'registros', icon: <Calendar size={18}/>, color: 'emerald' },
+              { label: 'Total UCS (all)', value: Math.round(totalUcs).toLocaleString('pt-BR'), unit: 'UCS emitidas', icon: <BarChart2 size={18}/>, color: 'teal' },
+              { label: 'Anos distintos', value: years.length, unit: 'ciclos', icon: <TreePine size={18}/>, color: 'green' },
+              { label: 'Média por safra', value: pagination.total > 0 ? Math.round(totalUcs / pagination.total).toLocaleString('pt-BR') : '—', unit: 'UCS/safra', icon: <Leaf size={18}/>, color: 'amber' },
+            ].map(s => (
+              <div key={s.label} className={`rounded-2xl border p-5 bg-white border-slate-100 shadow-sm`}>
+                <div className={`w-10 h-10 rounded-xl bg-${s.color}-50 flex items-center justify-center text-${s.color}-600 mb-3`}>{s.icon}</div>
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">{s.label}</p>
+                <p className="text-xl font-black text-slate-800">{s.value}</p>
+                <p className="text-[9px] text-slate-400 font-bold mt-0.5">{s.unit}</p>
               </div>
-              <Badge className="bg-emerald-50 text-emerald-600 border-none font-black text-[10px] px-4 py-1.5 rounded-full uppercase tracking-tighter shadow-sm">Auditada</Badge>
-            </div>
-
-            <div className="space-y-4 relative z-10">
-               <div>
-                  <h3 className="text-3xl font-black text-slate-900 group-hover:text-emerald-600 transition-colors">SAFRA {safra.id}</h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Ciclo de Originação Ativo</p>
-               </div>
-
-               <div className="pt-4 border-t border-slate-50 flex items-center justify-between">
-                  <div className="space-y-1">
-                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Volume Total</p>
-                     <p className="text-lg font-black text-slate-700">{(safra.totalUCS || 0).toLocaleString('pt-BR')} <span className="text-[10px] text-slate-400">UCS</span></p>
-                  </div>
-                  <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-emerald-50 transition-colors">
-                     <ArrowUpRight className="w-5 h-5 text-slate-300 group-hover:text-emerald-500" />
-                  </div>
-               </div>
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {/* MODAL DE IMPORTAÇÃO (BULK IMPORT REFORMADO) */}
-      <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
-         <DialogContent className="max-w-[1200px] w-[95vw] h-[90vh] p-0 overflow-hidden bg-white border-none shadow-2xl rounded-[3rem]">
-            <ScrollArea className="h-full">
-               <SafraBulkImport onComplete={() => {
-                 setIsImportOpen(false);
-                 loadSafras();
-               }} />
-            </ScrollArea>
-         </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
+          {/* Year selector chips */}
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => setSelectedYear('')}
+              className={`px-4 py-2 text-xs font-bold rounded-full transition-all border ${!selectedYear ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-500 border-slate-200 hover:border-emerald-400'}`}>
+              Todos os anos
+            </button>
+            {years.map(y => (
+              <button key={y} onClick={() => setSelectedYear(y)}
+                className={`px-4 py-2 text-xs font-bold rounded-full transition-all border ${selectedYear === y ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-500 border-slate-200 hover:border-emerald-400'}`}>
+                {y}
+                {byYear[y] && <span className="ml-1.5 text-[9px] opacity-70">({Math.round(byYear[y].totalUcs / 1e6).toLocaleString('pt-BR')}M UCS)</span>}
+              </button>
+            ))}
+          </div>
 
-function StatCard({ icon, label, value, color, trend }: any) {
-  return (
-    <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm relative overflow-hidden group">
-      <div className="flex items-center gap-6 relative z-10">
-        <div className={cn("w-16 h-16 rounded-[1.5rem] bg-slate-50 flex items-center justify-center group-hover:scale-110 transition-transform", color)}>{icon}</div>
-        <div className="space-y-1">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{label}</p>
-          <div className="flex items-baseline gap-3">
-             <h4 className="text-3xl font-black text-slate-900 tracking-tight">{value}</h4>
-             {trend && <span className="text-[9px] font-black text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-full">{trend}</span>}
+          {/* Table */}
+          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+            {loading ? (
+              <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 text-emerald-600 animate-spin" /></div>
+            ) : error ? (
+              <div className="flex items-center justify-center h-64 text-red-500 text-sm">{error}</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-slate-50 border-b border-slate-100">
+                    <tr>
+                      {['ID', 'Ano', 'Fazenda', 'Código', 'UCS Emitidas', 'Data Registro', 'Plataforma'].map(h => (
+                        <th key={h} className="text-left py-3 px-4 text-[9px] font-black uppercase tracking-widest text-slate-400">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {harvests.map(h => {
+                      const area = h.area as unknown as Record<string, string> | null;
+                      return (
+                        <tr key={h.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60 transition-colors">
+                          <td className="py-3 px-4 font-mono text-[11px] text-blue-500 font-bold">{h.id}</td>
+                          <td className="py-3 px-4">
+                            <span className="bg-emerald-100 text-emerald-700 text-[11px] font-black px-3 py-1 rounded-full">{h.year}</span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <div className="flex items-center gap-2">
+                              <div className="w-7 h-7 bg-emerald-50 rounded-lg flex items-center justify-center shrink-0">
+                                <Leaf className="w-3.5 h-3.5 text-emerald-600" />
+                              </div>
+                              <span className="text-[12px] font-bold text-slate-800">{area?.name || `Área ${h.area_id}`}</span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 font-mono text-[10px] text-slate-400">{area?.code || '—'}</td>
+                          <td className="py-3 px-4">
+                            <span className="text-[13px] font-black text-slate-800">
+                              {parseInt(h.amount || '0').toLocaleString('pt-BR')}
+                            </span>
+                            <span className="text-[9px] text-slate-400 ml-1">UCS</span>
+                          </td>
+                          <td className="py-3 px-4 text-[11px] text-slate-400">{h.registered_on?.split(' ')[0] || '—'}</td>
+                          <td className="py-3 px-4 text-[11px] text-slate-400 font-mono">{h.platform_id || '—'}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {pagination.totalPages > 1 && (
+              <div className="h-14 flex items-center justify-between px-8 border-t border-slate-100 bg-slate-50/30">
+                <p className="text-[10px] font-bold text-slate-400 uppercase">Página {pagination.page}/{pagination.totalPages} · {pagination.total} safras</p>
+                <div className="flex gap-2">
+                  <button onClick={() => handlePageChange(pagination.page - 1)} disabled={pagination.page <= 1}
+                    className="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center disabled:opacity-30 hover:bg-slate-50">
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => handlePageChange(pagination.page + 1)} disabled={pagination.page >= pagination.totalPages}
+                    className="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center disabled:opacity-30 hover:bg-slate-50">
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

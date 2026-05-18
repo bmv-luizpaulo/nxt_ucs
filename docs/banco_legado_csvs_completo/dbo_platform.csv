@@ -1,0 +1,9 @@
+id,name,alias,status,final_platform,description,created_by,created_date,last_modified_by,last_modified_date,public_only
+2,Plataforma Custodia,CUSTODIA,ACTIVE,f,Plataforma de gestão e custódia da BMV,,2023-03-23 19:05:00.70812,,2023-03-23 19:05:00.70812,f
+1,Plataforma Mateus,MATEUS,ACTIVE,f,Plataforma de originação.,,2023-03-23 19:05:00.70812,,2023-03-23 19:05:00.70812,f
+5,Plataforma Cpr Verde,CPR_VERDE,ACTIVE,t,,,2023-05-08 19:09:31.837925,,2023-05-08 19:09:31.837925,f
+6,Plataforma Mundi,MUNDI,ACTIVE,t,,,2023-05-08 19:09:31.931023,,2023-05-08 19:09:31.931023,f
+4,Plataforma de Investimentos,INVESTMENT,ACTIVE,t,Plataforma de negociação e gestão de ativos.,,2023-03-23 19:05:00.70812,,2023-03-23 19:05:00.70812,f
+3,Plataforma de Trading,TRADING,ACTIVE,t,Plataforma pública de ativos.,,2023-03-23 19:05:00.70812,,2023-03-23 19:05:00.70812,f
+7,Plataforma Governo,GOV,ACTIVE,t,Plataforma destinada para o armazenamento de UCS públicas,,,,,t
+8,Plataforma de Movimentação,MOV,ACTIVE,t,Plataforma destinada a movimentaões de UCS,933,2023-09-16 17:58:23.569217,933,2023-09-16 17:58:23.569217,f

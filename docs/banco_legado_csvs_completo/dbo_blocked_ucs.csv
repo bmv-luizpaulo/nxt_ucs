@@ -1,0 +1,296 @@
+id,role_user_id,user_id,status,processing_message,reason,description,active,block,area_id,amount,created_by,created_date,last_modified_by,last_modified_date
+1,,296,FINISHED,,OTHERS,Falecimento sócio Carlos Malva,t,t,,,933,2022-09-20 14:09:38.872413,933,2022-09-20 14:09:38.872413
+3,54,,FINISHED,,OTHERS,Vendeu a propriedade - Tem CPR,t,t,10,,933,2022-09-21 11:31:39.259511,933,2022-09-21 11:31:39.259511
+4,74,,FINISHED,,BREACH_OF_CONTRACT,Desmate - confirmado,t,t,16,,933,2022-09-21 11:33:10.466393,933,2022-09-21 11:33:10.466393
+5,122,,FINISHED,,CONTRACT_CANCELLATION,Não está no Programa / Sem CPR,t,t,27,,933,2022-09-21 11:35:10.624376,933,2022-09-21 11:35:10.624376
+6,162,,FINISHED,,CONTRACT_CANCELLATION,Não está no Programa / Sem CPR,t,t,34,,933,2022-09-21 11:36:33.690263,933,2022-09-21 11:36:33.690263
+7,230,,FINISHED,,CONTRACT_CANCELLATION,Não está no Programa / Sem CPR,t,t,44,,933,2022-09-21 11:38:13.454875,933,2022-09-21 11:38:13.454875
+8,240,,FINISHED,,OTHERS,Vendeu a propriedade / Tem CPR,t,t,47,,933,2022-09-21 11:40:13.483374,933,2022-09-21 11:40:13.483374
+9,268,,FINISHED,,OTHERS,Vendeu a propriedade / Tem CPR,t,t,49,,933,2022-09-21 11:41:18.953071,933,2022-09-21 11:41:18.953071
+10,260,,FINISHED,,BREACH_OF_CONTRACT,Desmate - confirmado / Tem CPR,t,t,216,,933,2022-09-21 11:42:22.135791,933,2022-09-21 11:42:22.135791
+11,258,,FINISHED,,OTHERS,Desmate - confirmado,t,t,217,,933,2022-09-21 11:43:10.908698,933,2022-09-21 11:43:10.908698
+12,168,,FINISHED,,CONTRACT_CANCELLATION,Não está no programa / Sem CPR,t,t,35,,933,2022-09-21 11:44:28.029815,933,2022-09-21 11:44:28.029815
+13,318,,FINISHED,,BREACH_OF_CONTRACT,Confirmar desmate,t,t,114,,933,2022-09-21 11:49:11.338068,933,2022-09-21 11:49:11.338068
+14,52,,FINISHED,,BREACH_OF_CONTRACT,Desmate - confirmado / Tem CPR,t,t,71,,933,2022-09-21 11:50:18.242799,933,2022-09-21 11:50:18.242799
+15,84,,FINISHED,,BREACH_OF_CONTRACT,Desmate - confirmado / Tem CPR,t,t,75,,933,2022-09-21 11:51:15.784005,933,2022-09-21 11:51:15.784005
+16,126,,FINISHED,,BREACH_OF_CONTRACT,Desmate confirmado / Tem CPR,t,t,82,,933,2022-09-21 11:52:05.475682,933,2022-09-21 11:52:05.475682
+17,60,,FINISHED,,BREACH_OF_CONTRACT,Desmate - confirmado / Tem CPR,t,t,74,,933,2022-09-21 11:52:59.208095,933,2022-09-21 11:52:59.208095
+18,56,,FINISHED,,BREACH_OF_CONTRACT,Desmate - confirmado / Tem CPR,t,t,73,,933,2022-09-21 11:54:07.530466,933,2022-09-21 11:54:07.530466
+19,196,,FINISHED,,BREACH_OF_CONTRACT,Desmate - confirmado / Tem CPR,t,t,93,,933,2022-09-21 11:54:47.120254,933,2022-09-21 11:54:47.120254
+20,246,,FINISHED,,CONTRACT_CANCELLATION,Solicitado saída do Programa,t,t,170,,905,2022-10-26 14:17:20.97475,905,2022-10-26 14:17:20.97475
+27,4,,FINISHED,,OTHERS,66.460 - UCSs ficam alienadas fiduciariamente a TERRA e a MONETAR,t,t,,,933,2022-11-08 14:49:23.701911,933,2022-11-08 14:49:23.701911
+23,4,,FINISHED,,OTHERS,66.460 UCSs com gravame em razão da promessa de entrega do Produto pelo Emitente ao \nCredor formalizada pela presente CPR.,f,f,,,933,2022-11-08 14:37:52.706294,933,2022-11-08 14:44:05.303587
+71,,250,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:45:39.635264,933,2024-06-18 00:30:16.596457
+70,,249,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:45:29.739518,933,2024-06-18 00:30:21.79369
+58,,237,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:43:29.609654,933,2024-06-18 00:31:30.570243
+57,,236,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:43:19.772894,933,2024-06-18 00:31:34.805223
+56,,235,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:43:10.355251,933,2024-06-18 00:31:38.804887
+55,,234,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:43:00.882199,933,2024-06-18 00:31:43.204009
+54,,233,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:42:48.061222,933,2024-06-18 00:31:48.116224
+53,,232,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:42:35.82619,933,2024-06-18 00:31:52.59825
+52,,231,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:42:22.017468,933,2024-06-18 00:31:57.228711
+51,,230,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:42:11.685246,933,2024-06-18 00:32:01.584702
+50,,229,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:42:01.843617,933,2024-06-18 00:32:05.319252
+49,,228,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:41:51.510702,933,2024-06-18 00:32:09.416154
+48,,227,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:41:41.451971,933,2024-06-18 00:32:13.820531
+47,,226,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:41:31.542511,933,2024-06-18 00:32:18.034158
+46,,225,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:41:21.868057,933,2024-06-18 00:32:21.911178
+45,,222,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:41:12.662799,933,2024-06-18 00:32:25.804332
+44,,221,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:40:59.488966,933,2024-06-18 00:32:29.488507
+43,,220,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:40:47.543169,933,2024-06-18 00:32:33.588235
+42,,219,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:40:37.980843,933,2024-06-18 00:32:37.479751
+41,,218,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:40:27.888618,933,2024-06-18 00:32:43.31776
+40,,217,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:40:18.773466,933,2024-06-18 00:32:46.999821
+39,,216,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:40:09.33825,933,2024-06-18 00:32:50.586365
+38,,214,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:39:59.112187,933,2024-06-18 00:32:54.481421
+37,,213,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:39:49.074023,933,2024-06-18 00:32:58.576307
+35,,211,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:39:29.146784,933,2024-06-18 00:33:07.396474
+34,,210,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:39:18.86634,933,2024-06-18 00:33:12.189026
+33,,209,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:39:09.565691,933,2024-06-18 00:33:15.882925
+32,,208,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:38:58.400129,933,2024-06-18 00:33:19.459684
+31,,207,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:38:46.913614,933,2024-06-18 00:33:23.992745
+29,,205,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:38:21.853301,933,2024-06-18 00:33:28.778245
+30,,206,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:38:32.973147,933,2024-06-18 00:33:33.281353
+2,,47,FINISHED,,OTHERS,Suspensão de vendas a pedido da senhora SANDRA REGINA BOND CARRENHO,f,f,,,933,2022-09-20 17:52:46.57909,933,2022-11-10 08:26:46.538125
+74,,1042,FINISHED,,OTHERS,Registro por CPR Verde na B3,f,f,,,933,2022-12-15 16:04:37.729067,933,2023-05-09 09:33:39.838145
+75,,976,FINISHED,,OTHERS,Alienação por CPR como garantia,t,t,,,1411,2023-02-16 14:13:05.93622,1411,2023-02-16 14:13:05.93622
+77,,469,FINISHED,,OTHERS,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a bloqueio estratégico BMV.",t,t,,,933,2023-03-16 11:10:51.988662,933,2023-03-16 11:10:51.988662
+78,,415,FINISHED,,OTHERS,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a bloqueio estratégico BMV.",t,t,,,933,2023-03-16 11:11:37.527991,933,2023-03-16 11:11:37.527991
+79,,658,FINISHED,,OTHERS,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a bloqueio estratégico BMV.",t,t,,,933,2023-03-16 11:12:45.642618,933,2023-03-16 11:12:45.642618
+80,,268,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 11:13:29.899265,933,2023-03-16 11:13:29.899265
+81,,259,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 11:15:26.943033,933,2023-03-16 11:15:26.943033
+82,,270,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 11:16:56.061915,933,2023-03-16 11:16:56.061915
+83,,256,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 11:17:35.345336,933,2023-03-16 11:17:35.345336
+84,,260,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 11:18:22.874678,933,2023-03-16 11:18:22.874678
+85,,263,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 11:19:59.43088,933,2023-03-16 11:19:59.43088
+86,,385,FINISHED,,CONTRACT_CANCELLATION,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , deverá transferir os créditos para IMEI.",t,t,,,933,2023-03-16 11:21:08.746285,933,2023-03-16 11:21:08.746285
+97,,298,FINISHED,,OTHERS,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a bloqueio estratégico BMV.",f,f,,,933,2023-03-16 11:37:10.301282,933,2023-06-02 15:29:54.797581
+88,,265,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 11:29:45.664389,933,2023-03-16 11:29:45.664389
+89,,267,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 11:30:29.705863,933,2023-03-16 11:30:29.705863
+90,,338,FINISHED,,CONTRACT_CANCELLATION,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente ao falecimento do mesmo.",t,t,,,933,2023-03-16 11:31:15.052175,933,2023-03-16 11:31:15.052175
+91,,275,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 11:31:57.164317,933,2023-03-16 11:31:57.164317
+92,,574,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 11:32:35.052285,933,2023-03-16 11:32:35.052285
+93,,456,FINISHED,,OTHERS,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a bloqueio estratégico BMV.",t,t,,,933,2023-03-16 11:33:16.228292,933,2023-03-16 11:33:16.228292
+94,,255,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 11:34:25.706791,933,2023-03-16 11:34:25.706791
+95,,566,FINISHED,,OTHERS,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a bloqueio estratégico BMV.",t,t,,,933,2023-03-16 11:34:53.862712,933,2023-03-16 11:34:53.862712
+96,,470,FINISHED,,OTHERS,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a bloqueio estratégico BMV.",t,t,,,933,2023-03-16 11:36:22.421585,933,2023-03-16 11:36:22.421585
+98,,471,FINISHED,,OTHERS,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a bloqueio estratégico BMV.",t,t,,,933,2023-03-16 11:37:37.072499,933,2023-03-16 11:37:37.072499
+99,,264,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 11:38:36.612314,933,2023-03-16 11:38:36.612314
+101,,258,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 11:40:04.910875,933,2023-03-16 11:40:04.910875
+102,,261,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 11:40:50.787911,933,2023-03-16 11:40:50.787911
+103,,266,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 11:41:21.207895,933,2023-03-16 11:41:21.207895
+104,,379,FINISHED,,CONTRACT_CANCELLATION,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a cancelamento de contrato .",t,t,,,933,2023-03-16 11:42:15.258372,933,2023-03-16 11:42:15.258372
+105,,366,FINISHED,,OTHERS,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a bloqueio estratégico BMV.",t,t,,,933,2023-03-16 11:43:30.440274,933,2023-03-16 11:43:30.440274
+68,,247,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:45:08.972571,933,2024-06-18 00:30:34.59436
+67,,246,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:44:59.185647,933,2024-06-18 00:30:39.826426
+66,,245,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:44:49.615728,933,2024-06-18 00:30:53.450343
+65,,244,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:44:39.390148,933,2024-06-18 00:30:58.646283
+64,,243,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:44:29.177893,933,2024-06-18 00:31:04.130475
+62,,241,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:44:09.796458,933,2024-06-18 00:31:12.788972
+61,,240,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:44:00.260932,933,2024-06-18 00:31:16.997854
+60,,239,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:43:49.756597,933,2024-06-18 00:31:21.390529
+59,,238,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:43:39.101928,933,2024-06-18 00:31:25.690178
+28,,215,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:38:10.667561,933,2024-06-18 00:33:37.686627
+106,,5,FINISHED,,BREACH_OF_CONTRACT,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a desmatamento de propriedade rural.",t,t,,,933,2023-03-16 11:45:57.817029,933,2023-03-16 11:45:57.817029
+107,,8,FINISHED,,BREACH_OF_CONTRACT,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a desmatamento de propriedade rural.",t,t,,,933,2023-03-16 11:46:55.780559,933,2023-03-16 11:46:55.780559
+108,,9,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 11:47:51.383681,933,2023-03-16 11:47:51.383681
+109,,12,FINISHED,,BREACH_OF_CONTRACT,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a desmatamento de propriedade rural.",t,t,,,933,2023-03-16 11:49:04.407533,933,2023-03-16 11:49:04.407533
+110,,13,FINISHED,,BREACH_OF_CONTRACT,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a desmatamento de propriedade rural.",t,t,,,933,2023-03-16 11:49:35.800131,933,2023-03-16 11:49:35.800131
+111,,15,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 11:50:29.943814,933,2023-03-16 11:50:29.943814
+112,,20,FINISHED,,BREACH_OF_CONTRACT,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a desmatamento de propriedade rural.",t,t,,,933,2023-03-16 11:51:26.644517,933,2023-03-16 11:51:26.644517
+113,,34,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 14:00:01.660077,933,2023-03-16 14:00:01.660077
+114,,35,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 14:00:43.399387,933,2023-03-16 14:00:43.399387
+115,,38,FINISHED,,BREACH_OF_CONTRACT,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a desmatamento de propriedade rural.",t,t,,,933,2023-03-16 14:02:09.582217,933,2023-03-16 14:02:09.582217
+116,,49,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 14:03:28.134161,933,2023-03-16 14:03:28.134161
+117,,52,FINISHED,,BREACH_OF_CONTRACT,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a desmatamento de propriedade rural.",t,t,,,933,2023-03-16 14:05:45.500774,933,2023-03-16 14:05:45.500774
+118,,54,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 14:07:23.153312,933,2023-03-16 14:07:23.153312
+119,,56,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 14:09:49.785963,933,2023-03-16 14:09:49.785963
+120,,65,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 14:11:48.34404,933,2023-03-16 14:11:48.34404
+121,,68,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 14:21:29.948819,933,2023-03-16 14:21:29.948819
+122,,69,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 14:23:25.175542,933,2023-03-16 14:23:25.175542
+123,,70,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 14:24:11.579537,933,2023-03-16 14:24:11.579537
+124,,71,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 14:25:28.677828,933,2023-03-16 14:25:28.677828
+125,,76,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 14:26:20.079879,933,2023-03-16 14:26:20.079879
+126,,77,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 14:27:09.189145,933,2023-03-16 14:27:09.189145
+127,,78,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 14:27:44.155541,933,2023-03-16 14:27:44.155541
+128,,80,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 14:28:51.98929,933,2023-03-16 14:28:51.98929
+129,,89,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 14:30:12.672077,933,2023-03-16 14:30:12.672077
+130,,91,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 14:32:21.496041,933,2023-03-16 14:32:21.496041
+131,,99,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 14:33:02.456325,933,2023-03-16 14:33:02.456325
+132,,107,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 14:34:47.720394,933,2023-03-16 14:34:47.720394
+133,,112,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendência cadastral.",t,t,,,933,2023-03-16 14:36:30.491227,933,2023-03-16 14:36:30.491227
+134,,127,FINISHED,,BREACH_OF_CONTRACT,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a desmatamento de propriedade rural.",t,t,,,933,2023-03-16 14:37:40.647923,933,2023-03-16 14:37:40.647923
+135,,137,FINISHED,,BREACH_OF_CONTRACT,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a desmatamento de propriedade rural.",t,t,,,933,2023-03-16 14:38:53.650984,933,2023-03-16 14:38:53.650984
+76,,262,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 11:09:24.254615,933,2023-03-16 11:09:24.254615
+148,,269,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendência cadastral.",t,t,,,933,2023-03-16 16:19:44.114062,933,2023-03-16 16:19:44.114062
+100,,273,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendencia cadastral.",t,t,,,933,2023-03-16 11:39:27.793776,933,2023-03-16 11:39:27.793776
+149,,19,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendência cadastral.",t,t,,,933,2023-03-16 16:25:26.907903,933,2023-03-16 16:25:26.907903
+136,,139,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendência cadastral.",t,t,,,933,2023-03-16 14:39:39.113075,933,2023-03-16 14:39:39.113075
+137,,149,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendência cadastral.",t,t,,,933,2023-03-16 14:40:41.952379,933,2023-03-16 14:40:41.952379
+138,,151,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendência cadastral.",t,t,,,933,2023-03-16 14:41:24.364602,933,2023-03-16 14:41:24.364602
+140,,156,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendência cadastral.",t,t,,,933,2023-03-16 14:43:47.733426,933,2023-03-16 14:43:47.733426
+141,,161,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendência cadastral.",t,t,,,933,2023-03-16 14:44:39.391146,933,2023-03-16 14:44:39.391146
+142,,164,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendência cadastral.",t,t,,,933,2023-03-16 14:45:43.198405,933,2023-03-16 14:45:43.198405
+144,,173,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendência cadastral.",t,t,,,933,2023-03-16 14:48:30.072377,933,2023-03-16 14:48:30.072377
+145,,183,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendência cadastral.",t,t,,,933,2023-03-16 14:52:18.691891,933,2023-03-16 14:52:18.691891
+146,,189,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendência cadastral.",t,t,,,933,2023-03-16 14:52:43.97858,933,2023-03-16 14:52:43.97858
+147,,193,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendência cadastral.",t,t,,,933,2023-03-16 14:53:25.927843,933,2023-03-16 14:53:25.927843
+87,,914,FINISHED,,OTHERS,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a bloqueio estratégico BMV.",f,f,,,933,2023-03-16 11:27:30.876983,933,2023-05-18 10:52:28.934868
+150,,26,FINISHED,,REGISTRATION_PENDING,Solicitação de Bloqueio em todos os perfis no dia 26/05,t,t,,,933,2023-05-26 15:35:17.495239,933,2023-05-26 15:35:17.495239
+157,,166,FINISHED,,CONTRACT_CANCELLATION,VENDA DA PROPRIEDADE E PERDA DO INTERESSE NO PROJETO BMV - Solicitação por Luzia Umbelino na data 11/07/2023 através de e-mail,t,t,,,933,2023-07-11 10:30:41.505943,933,2023-07-11 10:30:41.505943
+151,1495,,FINISHED,,OTHERS,Bloqueio estrategico para não venda dia 29/05/2023,f,f,,,933,2023-05-29 20:24:46.839929,933,2023-05-29 20:44:56.158569
+158,,101,FINISHED,,CONTRACT_CANCELLATION,VENDA DA PROPRIEDADE E PERDA DO INTERESSE NO PROJETO BMV - Solicitação por Luzia Umbelino na data 11/07/2023 através de e-mail,t,t,,,933,2023-07-11 10:32:20.930054,933,2023-07-11 10:32:20.930054
+153,,1200,FINISHED,,OTHERS,Decisão estratégica,f,f,,,933,2023-05-29 20:45:50.159006,933,2023-05-30 11:11:46.840934
+154,,298,FINISHED,,OTHERS,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a bloqueio estratégico BMV.",t,t,,,933,2023-06-02 15:30:08.725788,933,2023-06-02 15:30:08.725788
+159,,136,FINISHED,,CONTRACT_CANCELLATION,"Suspensão de contrato, autorizado por Luzia Umbelino no dia 12/07/2023 as 19:30h",f,f,,,933,2023-07-12 19:31:05.676925,933,2023-08-31 09:20:15.329299
+152,,943,FINISHED,,OTHERS,Decisão estratégica,f,f,,,933,2023-05-29 20:45:19.733945,933,2023-06-22 09:47:03.246483
+155,,916,FINISHED,,OTHERS,"Bloqueio estratégico solicitado pela diretoria, com aprovação no dia 23/06/2023 pela Luzia, solicitada por whatsapp",t,t,,,933,2023-06-23 15:42:31.013876,933,2023-06-23 15:42:31.013876
+156,,148,FINISHED,,CONTRACT_CANCELLATION,VENDA DA PROPRIEDADE E PERDA DO INTERESSE NO PROJETO BMV - Solicitação via e-mail por Luzia Umbelino na data 11/07/2023,t,t,,,933,2023-07-11 10:26:51.635564,933,2023-07-11 10:26:51.635564
+160,,136,FINISHED,,OTHERS,Bloqueio estratégico solicitado por Luzia Umbelino,t,t,,,933,2023-09-01 09:16:21.988475,933,2023-09-01 09:16:21.988475
+166,1090,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,240,,933,2023-09-18 16:04:38.126559,933,2024-04-04 17:56:08.387554
+167,1566,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,240,,933,2023-09-18 16:05:16.058914,933,2024-04-04 17:56:05.377969
+161,3,,FINISHED,,OTHERS,Bloquei para pagamento de UCS a Mateus Santos.,f,f,243,,933,2023-09-16 20:12:31.268925,933,2023-09-16 20:13:35.875675
+162,3,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,240,,933,2023-09-18 15:50:26.215681,933,2024-04-04 17:56:19.909655
+163,834,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,240,,933,2023-09-18 15:58:02.94887,933,2024-04-04 17:56:17.070956
+164,1088,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,240,,933,2023-09-18 16:03:45.498129,933,2024-04-04 17:56:13.869454
+165,1089,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,240,,933,2023-09-18 16:04:12.186767,933,2024-04-04 17:56:11.113601
+168,1585,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,240,,933,2023-09-18 16:05:42.339196,933,2024-04-04 17:56:00.053539
+169,3,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,241,,933,2023-09-18 16:32:06.216628,933,2024-04-04 17:55:57.254824
+170,834,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,241,,933,2023-09-18 16:38:28.205811,933,2024-04-04 17:55:53.238113
+171,1088,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,241,,933,2023-09-18 16:42:50.951814,933,2024-04-04 17:55:49.975821
+172,1089,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,241,,933,2023-09-18 16:43:09.637386,933,2024-04-04 17:55:46.443092
+173,1090,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,241,,933,2023-09-18 16:43:28.34823,933,2024-04-04 17:55:43.201319
+139,,152,FINISHED,,REGISTRATION_PENDING,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a pendência cadastral.",f,f,,,933,2023-03-16 14:42:20.3925,851,2024-05-15 11:37:16.99776
+143,,165,FINISHED,,BREACH_OF_CONTRACT,"Solicitação de Bloqueio por Luzia Umbelino no dia 16/03/2023 , referente a desmatamento de propriedade rural.",f,f,,,933,2023-03-16 14:46:53.967272,933,2024-09-24 14:47:26.288805
+176,3,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,242,,933,2023-09-18 16:46:55.90813,933,2024-04-04 17:55:33.50523
+177,834,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,242,,933,2023-09-18 16:47:15.037247,933,2024-04-04 17:55:30.404815
+178,1088,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,242,,933,2023-09-18 16:47:34.207865,933,2024-04-04 17:55:27.319485
+179,1089,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,242,,933,2023-09-18 16:47:53.293273,933,2024-04-04 17:55:24.844049
+180,1090,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,242,,933,2023-09-18 16:48:12.42131,933,2024-04-04 17:55:22.281041
+181,1566,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,242,,933,2023-09-18 16:48:31.580047,933,2024-04-04 17:55:19.69585
+182,1583,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,242,,933,2023-09-18 16:48:50.708687,933,2024-04-04 17:55:16.92027
+183,3,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,243,,933,2023-09-18 16:49:25.779699,933,2024-04-04 17:55:13.771868
+184,834,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,243,,933,2023-09-18 16:49:44.781548,933,2024-04-04 17:55:10.959046
+185,1088,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,243,,933,2023-09-18 16:50:03.889379,933,2024-04-04 17:55:07.750161
+186,1089,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,243,,933,2023-09-18 16:50:23.058218,933,2024-04-04 17:55:05.200478
+187,1090,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,243,,933,2023-09-18 16:50:42.135457,933,2024-04-04 17:55:02.124638
+188,1566,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,243,,933,2023-09-18 16:51:01.27879,933,2024-04-04 17:54:57.997766
+189,1583,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,243,,933,2023-09-18 16:51:20.38191,933,2024-04-04 17:54:55.388027
+190,3,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,244,,933,2023-09-18 16:51:55.302948,933,2024-04-04 17:54:52.788129
+191,834,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,244,,933,2023-09-18 16:52:14.419568,933,2024-04-04 17:54:50.31011
+192,1088,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,244,,933,2023-09-18 16:52:33.586441,933,2024-04-04 17:54:47.982855
+193,1089,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,244,,933,2023-09-18 16:52:52.75034,933,2024-04-04 17:54:45.258913
+194,1090,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,244,,933,2023-09-18 16:53:11.904506,933,2024-04-04 17:54:42.153867
+175,1582,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,241,,933,2023-09-18 16:44:05.7549,933,2024-04-04 17:55:36.596819
+196,1583,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,244,,933,2023-09-18 16:53:50.036687,933,2024-04-04 17:54:36.520725
+197,3,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,245,,933,2023-09-18 16:54:25.286174,933,2024-04-04 17:54:32.973164
+198,834,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,245,,933,2023-09-18 16:54:44.488949,933,2024-04-04 17:54:29.876213
+199,1088,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,245,,933,2023-09-18 16:55:03.645646,933,2024-04-04 17:54:25.51637
+200,1089,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,245,,933,2023-09-18 16:55:22.744906,933,2024-04-04 17:54:22.182588
+201,1090,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,245,,933,2023-09-18 16:55:41.855962,933,2024-04-04 17:54:19.324643
+202,1566,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,245,,933,2023-09-18 16:56:00.951981,933,2024-04-04 17:54:16.23917
+203,1582,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,245,,933,2023-09-18 16:56:20.040941,933,2024-04-04 17:54:13.355458
+204,3,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,246,,933,2023-09-18 16:56:54.973203,933,2024-04-04 17:54:10.54927
+205,834,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,246,,933,2023-09-18 16:57:14.107379,933,2024-04-04 17:54:07.593016
+206,1088,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,246,,933,2023-09-18 16:57:33.27919,933,2024-04-04 17:54:04.768199
+207,1089,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,246,,933,2023-09-18 16:57:52.404475,933,2024-04-04 17:54:01.730721
+210,1582,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,246,,933,2023-09-18 16:58:49.727148,933,2024-04-04 17:53:52.51277
+211,3,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,247,,933,2023-09-18 16:59:24.775886,933,2024-04-04 17:53:41.775022
+212,834,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,247,,933,2023-09-18 16:59:43.899343,933,2024-04-04 17:53:38.840658
+213,3,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,249,,933,2023-09-18 17:28:50.076558,933,2024-04-04 17:53:35.416548
+215,1088,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,247,,933,2023-09-18 17:30:21.626318,933,2024-04-04 17:53:27.263555
+216,1089,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,247,,933,2023-09-18 17:30:40.648964,933,2024-04-04 17:53:24.191825
+217,1090,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,247,,933,2023-09-18 17:30:59.407391,933,2024-04-04 17:53:20.883666
+218,1566,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,247,,933,2023-09-18 17:31:18.152775,933,2024-04-04 17:53:17.99457
+219,1582,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,247,,933,2023-09-18 17:31:36.684023,933,2024-04-04 17:53:15.234059
+214,834,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,249,,933,2023-09-18 17:29:08.832701,933,2024-04-04 17:53:30.662119
+220,3,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,248,,933,2023-09-18 17:32:18.772985,933,2024-04-04 17:53:12.254489
+221,834,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,248,,933,2023-09-18 17:32:37.443514,933,2024-04-04 17:53:09.187984
+222,1088,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,248,,933,2023-09-18 17:32:56.122934,933,2024-04-04 17:53:05.921714
+223,1089,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,248,,933,2023-09-18 17:33:14.790731,933,2024-04-04 17:53:03.054856
+224,1090,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,248,,933,2023-09-18 17:33:33.474667,933,2024-04-04 17:53:00.294426
+225,1566,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,248,,933,2023-09-18 17:33:52.121298,933,2024-04-04 17:52:57.270777
+226,1582,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,248,,933,2023-09-18 17:34:10.814785,933,2024-04-04 17:52:54.638017
+227,1088,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,249,,933,2023-09-18 17:34:45.372613,933,2024-04-04 17:52:51.97326
+228,1089,,FINISHED,,OTHERS,,f,f,249,,933,2023-09-18 17:36:46.324358,933,2024-04-04 17:52:49.277884
+229,1090,,FINISHED,,OTHERS,,f,f,249,,933,2023-09-18 17:37:02.194585,933,2024-04-04 17:52:46.231522
+230,1566,,FINISHED,,OTHERS,,f,f,249,,933,2023-09-18 17:37:18.050118,933,2024-04-04 17:52:43.507732
+231,1582,,FINISHED,,OTHERS,,f,f,249,,933,2023-09-18 17:37:33.97897,933,2024-04-04 17:52:32.309737
+232,3,,FINISHED,,OTHERS,,f,f,250,,933,2023-09-18 17:38:05.686143,933,2024-04-04 17:52:40.643457
+233,834,,FINISHED,,OTHERS,,f,f,250,,933,2023-09-18 17:38:21.675794,933,2024-04-04 17:52:27.975824
+234,1088,,FINISHED,,OTHERS,,f,f,250,,933,2023-09-18 17:38:37.584555,933,2024-04-04 17:48:30.072291
+235,1089,,FINISHED,,OTHERS,,f,f,250,,933,2023-09-18 17:38:53.498028,933,2024-04-04 17:48:27.30975
+236,1090,,FINISHED,,OTHERS,,f,f,250,,933,2023-09-18 17:39:09.329977,933,2024-04-04 17:48:24.440413
+237,1566,,FINISHED,,OTHERS,,f,f,250,,933,2023-09-18 17:39:25.169432,933,2024-04-04 17:48:21.043223
+238,1584,,FINISHED,,OTHERS,,f,f,250,,933,2023-09-18 17:39:41.068185,933,2024-04-04 17:48:17.763828
+239,3,,FINISHED,,OTHERS,,f,f,251,,933,2023-09-18 17:40:12.882652,933,2024-04-04 17:52:37.871396
+240,834,,FINISHED,,OTHERS,,f,f,251,,933,2023-09-18 17:40:28.766922,933,2024-04-04 17:48:13.824586
+241,1088,,FINISHED,,OTHERS,,f,f,251,,933,2023-09-18 17:40:44.627256,933,2024-04-04 17:48:10.5976
+242,1089,,FINISHED,,OTHERS,,f,f,251,,933,2023-09-18 17:41:00.545146,933,2024-04-04 17:48:07.912292
+243,1090,,FINISHED,,OTHERS,,f,f,251,,933,2023-09-18 17:41:16.429066,933,2024-04-04 17:48:05.083949
+244,1566,,FINISHED,,OTHERS,,f,f,251,,933,2023-09-18 17:41:32.333228,933,2024-04-04 17:48:01.885118
+245,1585,,FINISHED,,OTHERS,,f,f,251,,933,2023-09-18 17:41:48.263304,933,2024-04-04 17:47:59.116312
+246,3,,FINISHED,,OTHERS,,f,f,252,,933,2023-09-18 17:42:20.088077,933,2024-04-04 17:47:55.695426
+247,834,,FINISHED,,OTHERS,,f,f,252,,933,2023-09-18 17:42:35.905755,933,2024-04-04 17:47:53.07896
+248,1088,,FINISHED,,OTHERS,,f,f,252,,933,2023-09-18 17:43:05.745569,933,2024-04-04 17:47:50.259946
+249,1089,,FINISHED,,OTHERS,,f,f,252,,933,2023-09-18 17:43:20.939282,933,2024-04-04 17:47:47.621001
+250,1090,,FINISHED,,OTHERS,,f,f,252,,933,2023-09-18 17:43:36.842877,933,2024-04-04 17:47:44.739159
+251,1566,,FINISHED,,OTHERS,,f,f,252,,933,2023-09-18 17:43:52.754468,933,2024-04-04 17:47:41.843173
+252,1582,,FINISHED,,OTHERS,,f,f,252,,933,2023-09-18 17:44:08.628618,933,2024-04-04 17:47:32.288814
+209,1566,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,246,,933,2023-09-18 16:58:30.650204,933,2024-04-04 17:53:55.398578
+208,1090,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,246,,933,2023-09-18 16:58:11.529395,933,2024-04-04 17:53:58.294458
+195,1566,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,244,,933,2023-09-18 16:53:30.944098,933,2024-04-04 17:54:39.390964
+174,1566,,FINISHED,,OTHERS,"Bloquei estratégico solicitado por Luzia Umbelino, para finalização de tramites da geração da safra de 2022",f,f,241,,933,2023-09-18 16:43:47.06608,933,2024-04-04 17:55:40.129502
+253,,153,FINISHED,,REGISTRATION_PENDING,"Não possui CPR, a pedido da Maria Tereza 15/05/2024.",t,t,,,851,2024-05-15 11:38:42.701431,851,2024-05-15 11:38:42.701431
+254,1908,,FINISHED,,CONTRACT_CANCELLATION,"Propriedade excluida do BMV por falta de documentação de titularidade, não atendimento das regras do contrato.",t,t,178,,851,2024-06-04 10:14:53.022078,851,2024-06-04 10:14:53.022078
+73,,252,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:46:14.286277,933,2024-06-18 00:30:00.304895
+72,,251,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:45:50.518214,933,2024-06-18 00:30:10.73855
+69,,248,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:45:20.11098,933,2024-06-18 00:30:27.018991
+63,,242,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:44:18.950851,933,2024-06-18 00:31:08.614586
+36,,212,FINISHED,,OTHERS,SOLICITAÇÃO LUZIA DIA 09/11/2022,f,f,,,933,2022-11-09 17:39:39.771944,933,2024-06-18 00:33:03.185251
+255,3,,PENDING,,OTHERS,,f,t,6,,933,2024-07-05 10:15:32.475443,933,2024-07-05 10:15:32.475443
+257,3,,PENDING,,OTHERS,,f,t,7,,933,2024-07-05 10:16:26.076321,933,2024-07-05 10:16:26.076321
+256,3,,PENDING,,OTHERS,,f,t,6,,933,2024-07-05 10:16:19.97342,933,2024-07-05 10:16:19.97342
+274,3,,FINISHED,,OTHERS,,t,t,74,,933,2024-07-05 10:22:00.642253,933,2024-07-05 10:22:00.642253
+275,3,,FINISHED,,OTHERS,,t,t,75,,933,2024-07-05 10:22:08.737636,933,2024-07-05 10:22:08.737636
+258,3,,FINISHED,,OTHERS,,f,f,6,,933,2024-07-05 10:16:56.498228,933,2024-07-05 10:18:41.06815
+259,3,,PENDING,,OTHERS,,f,t,6,,933,2024-07-05 10:18:57.852286,933,2024-07-05 10:18:57.852286
+260,3,,FINISHED,,OTHERS,,t,t,6,,933,2024-07-05 10:19:31.1082,933,2024-07-05 10:19:31.1082
+261,3,,FINISHED,,OTHERS,,t,t,7,,933,2024-07-05 10:19:39.325868,933,2024-07-05 10:19:39.325868
+262,3,,FINISHED,,OTHERS,,t,t,28,,933,2024-07-05 10:19:54.548032,933,2024-07-05 10:19:54.548032
+263,3,,FINISHED,,OTHERS,,t,t,29,,933,2024-07-05 10:20:02.69494,933,2024-07-05 10:20:02.69494
+264,3,,FINISHED,,OTHERS,,t,t,31,,933,2024-07-05 10:20:10.851103,933,2024-07-05 10:20:10.851103
+265,3,,FINISHED,,OTHERS,,t,t,35,,933,2024-07-05 10:20:26.077022,933,2024-07-05 10:20:26.077022
+266,3,,FINISHED,,OTHERS,,t,t,37,,933,2024-07-05 10:20:34.153585,933,2024-07-05 10:20:34.153585
+267,3,,FINISHED,,OTHERS,,t,t,46,,933,2024-07-05 10:20:49.432078,933,2024-07-05 10:20:49.432078
+268,3,,FINISHED,,OTHERS,,t,t,47,,933,2024-07-05 10:20:57.587362,933,2024-07-05 10:20:57.587362
+269,3,,FINISHED,,OTHERS,,t,t,49,,933,2024-07-05 10:21:05.618781,933,2024-07-05 10:21:05.618781
+270,3,,FINISHED,,OTHERS,,t,t,70,,933,2024-07-05 10:21:28.060368,933,2024-07-05 10:21:28.060368
+271,3,,FINISHED,,OTHERS,,t,t,71,,933,2024-07-05 10:21:36.157549,933,2024-07-05 10:21:36.157549
+272,3,,FINISHED,,OTHERS,,t,t,72,,933,2024-07-05 10:21:44.205994,933,2024-07-05 10:21:44.205994
+273,3,,FINISHED,,OTHERS,,t,t,73,,933,2024-07-05 10:21:52.401226,933,2024-07-05 10:21:52.401226
+276,3,,FINISHED,,OTHERS,,t,t,82,,933,2024-07-05 10:22:16.827002,933,2024-07-05 10:22:16.827002
+277,3,,FINISHED,,OTHERS,,t,t,93,,933,2024-07-05 10:22:39.339551,933,2024-07-05 10:22:39.339551
+278,3,,FINISHED,,OTHERS,,t,t,113,,933,2024-07-05 10:23:01.74683,933,2024-07-05 10:23:01.74683
+279,3,,FINISHED,,OTHERS,,t,t,127,,933,2024-07-05 10:23:16.918296,933,2024-07-05 10:23:16.918296
+280,3,,FINISHED,,OTHERS,,t,t,136,,933,2024-07-05 10:23:39.441876,933,2024-07-05 10:23:39.441876
+281,3,,FINISHED,,OTHERS,,t,t,167,,933,2024-07-05 10:23:54.681699,933,2024-07-05 10:23:54.681699
+282,3,,FINISHED,,OTHERS,,t,t,170,,933,2024-07-05 10:24:02.804885,933,2024-07-05 10:24:02.804885
+283,3,,FINISHED,,OTHERS,,t,t,176,,933,2024-07-05 10:24:10.978179,933,2024-07-05 10:24:10.978179
+284,3,,FINISHED,,OTHERS,,t,t,177,,933,2024-07-05 10:24:19.070981,933,2024-07-05 10:24:19.070981
+285,3,,FINISHED,,OTHERS,,t,t,178,,933,2024-07-05 10:24:27.099138,933,2024-07-05 10:24:27.099138
+286,3,,FINISHED,,OTHERS,,t,t,187,,933,2024-07-05 10:24:35.177683,933,2024-07-05 10:24:35.177683
+287,3,,FINISHED,,OTHERS,,t,t,204,,933,2024-07-05 10:24:43.257653,933,2024-07-05 10:24:43.257653
+288,3,,FINISHED,,OTHERS,,t,t,213,,933,2024-07-05 10:24:51.300362,933,2024-07-05 10:24:51.300362
+289,3,,FINISHED,,OTHERS,,t,t,214,,933,2024-07-05 10:24:59.395335,933,2024-07-05 10:24:59.395335
+290,3,,FINISHED,,OTHERS,,t,t,216,,933,2024-07-05 10:25:07.527719,933,2024-07-05 10:25:07.527719
+291,3,,FINISHED,,OTHERS,,t,t,224,,933,2024-07-05 10:25:15.548042,933,2024-07-05 10:25:15.548042
+292,3,,FINISHED,,OTHERS,,t,t,232,,933,2024-07-05 10:25:30.687473,933,2024-07-05 10:25:30.687473
+294,1593,,FINISHED,,OTHERS,Ajustando Saldos,f,f,258,,933,2024-10-11 10:21:02.391559,933,2024-10-11 10:37:51.490377
+300,2099,,PENDING,,COURT_BLOCK,Indisponibilidade em 23/03/2026 por decisão judicial: Caução ofertada nos autos n.º 1000463-89.2025.8.11.0090 da Vara Única de Nova Canaã do Norte/MT,f,t,,,2161,2026-03-24 14:03:14.826892,2161,2026-03-24 14:03:14.826892
+296,1593,,FINISHED,,OTHERS,Ajustando Saldo Governo,f,f,253,,933,2024-10-11 10:22:34.526356,933,2024-10-11 10:37:42.788572
+298,,1747,FINISHED,,OTHERS,UCS bloqueada - CPR Aluguel \nContrato de Cessão de Garantia\nCódigo IF: 25C03389583,f,f,,,890,2025-03-20 11:45:23.806444,2161,2026-01-23 09:42:07.821849
+297,1593,,FINISHED,,OTHERS,Ajustando saldo governo,f,f,257,,933,2024-10-11 10:23:27.015568,933,2024-10-11 10:37:38.139618
+293,1401,,FINISHED,,OTHERS,Ajustando Saldos Governo,f,f,258,,933,2024-10-11 10:16:06.242236,933,2024-10-11 10:37:56.425809
+295,1593,,FINISHED,,OTHERS,Ajustando saldo Governo,f,f,259,,933,2024-10-11 10:22:05.528311,933,2024-10-11 10:37:47.136734
+299,73,,FINISHED,,OTHERS,bloqueio sync,f,f,,,2161,2026-01-21 17:37:40.903147,2161,2026-01-23 09:38:19.644358

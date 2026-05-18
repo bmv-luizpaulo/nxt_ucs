@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { FlowNode } from '../types';
+import { FlowNode } from './types';
 
 interface PasteTableModalProps {
   pasteModalOpen: boolean;

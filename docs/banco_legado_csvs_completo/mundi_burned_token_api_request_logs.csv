@@ -1,0 +1,1050 @@
+id,created_date,response_body,response_status
+1,2023-05-09 01:00:00.187,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-09T04:00:00.170Z""}}",200
+2,2023-05-10 01:00:00.173,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-10T04:00:00.169Z""}}",200
+3,2023-05-11 01:00:00.159,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-11T04:00:00.152Z""}}",200
+4,2023-05-12 01:00:00.156,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-12T04:00:00.152Z""}}",200
+5,2023-05-13 01:00:00.162,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-13T04:00:00.157Z""}}",200
+6,2023-05-14 01:00:00.171,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-14T04:00:00.167Z""}}",200
+7,2023-05-15 01:00:00.156,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-15T04:00:00.152Z""}}",200
+8,2023-05-16 01:00:00.238,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-16T04:00:00.234Z""}}",200
+9,2023-05-17 01:00:00.168,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-17T04:00:00.164Z""}}",200
+10,2023-05-18 01:00:00.163,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-18T04:00:00.159Z""}}",200
+11,2023-05-19 01:00:00.184,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-19T04:00:00.181Z""}}",200
+12,2023-05-20 01:00:00.169,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-20T04:00:00.166Z""}}",200
+13,2023-05-21 01:00:00.187,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-21T04:00:00.184Z""}}",200
+14,2023-05-22 01:00:00.181,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-22T04:00:00.177Z""}}",200
+15,2023-05-23 01:00:00.211,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-23T04:00:00.204Z""}}",200
+16,2023-05-24 01:00:00.265,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-24T04:00:00.261Z""}}",200
+17,2023-05-25 01:00:00.277,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-25T04:00:00.274Z""}}",200
+18,2023-05-26 01:00:00.227,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-26T04:00:00.224Z""}}",200
+19,2023-05-27 01:00:00.167,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-27T04:00:00.164Z""}}",200
+20,2023-05-28 01:00:00.177,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-28T04:00:00.174Z""}}",200
+21,2023-05-29 01:00:00.251,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-29T04:00:00.248Z""}}",200
+22,2023-05-30 01:00:00.153,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-30T04:00:00.150Z""}}",200
+23,2023-05-31 01:00:00.297,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-05-31T04:00:00.294Z""}}",200
+24,2023-06-01 01:00:00.144,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-01T04:00:00.141Z""}}",200
+25,2023-06-02 01:00:00.158,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-02T04:00:00.155Z""}}",200
+26,2023-06-03 01:00:00.221,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-03T04:00:00.219Z""}}",200
+27,2023-06-04 01:00:00.164,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-04T04:00:00.162Z""}}",200
+28,2023-06-05 01:00:00.15,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-05T04:00:00.147Z""}}",200
+29,2023-06-06 01:00:00.145,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-06T04:00:00.143Z""}}",200
+30,2023-06-07 01:00:00.235,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-07T04:00:00.232Z""}}",200
+31,2023-06-08 01:00:00.18,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-08T04:00:00.178Z""}}",200
+32,2023-06-09 01:00:00.163,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-09T04:00:00.160Z""}}",200
+33,2023-06-10 01:00:00.273,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-10T04:00:00.271Z""}}",200
+34,2023-06-11 01:00:00.167,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-11T04:00:00.164Z""}}",200
+35,2023-06-12 01:00:00.159,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-12T04:00:00.157Z""}}",200
+36,2023-06-13 01:00:00.171,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-13T04:00:00.169Z""}}",200
+37,2023-06-14 01:00:00.17,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-14T04:00:00.168Z""}}",200
+38,2023-06-15 01:00:00.271,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-15T04:00:00.269Z""}}",200
+39,2023-06-16 01:00:00.167,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-16T04:00:00.164Z""}}",200
+40,2023-06-17 01:00:00.149,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-17T04:00:00.146Z""}}",200
+41,2023-06-18 01:00:00.171,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-18T04:00:00.168Z""}}",200
+42,2023-06-19 01:00:00.242,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-19T04:00:00.239Z""}}",200
+43,2023-06-20 01:00:00.275,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-20T04:00:00.272Z""}}",200
+44,2023-06-21 01:00:00.274,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-21T04:00:00.271Z""}}",200
+45,2023-06-22 01:00:00.128,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-22T04:00:00.125Z""}}",200
+46,2023-06-23 01:00:00.191,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-23T04:00:00.187Z""}}",200
+47,2023-06-24 01:00:00.149,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-24T04:00:00.146Z""}}",200
+48,2023-06-25 01:00:00.196,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-25T04:00:00.192Z""}}",200
+49,2023-06-26 01:00:00.155,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-26T04:00:00.152Z""}}",200
+50,2023-06-27 01:00:00.156,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-27T04:00:00.154Z""}}",200
+51,2023-06-28 01:00:00.136,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-28T04:00:00.134Z""}}",200
+52,2023-06-29 01:00:00.196,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-29T04:00:00.178Z""}}",200
+53,2023-06-30 01:00:00.171,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-06-30T04:00:00.162Z""}}",200
+54,2023-07-01 01:00:00.163,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-01T04:00:00.157Z""}}",200
+55,2023-07-02 01:00:00.169,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-02T04:00:00.165Z""}}",200
+56,2023-07-03 01:00:00.169,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-03T04:00:00.164Z""}}",200
+57,2023-07-04 01:00:00.287,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-04T04:00:00.274Z""}}",200
+58,2023-07-05 01:00:00.17,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-05T04:00:00.164Z""}}",200
+59,2023-07-06 01:00:00.184,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-06T04:00:00.174Z""}}",200
+60,2023-07-07 01:00:00.159,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-07T04:00:00.156Z""}}",200
+61,2023-07-08 01:00:00.155,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-08T04:00:00.152Z""}}",200
+62,2023-07-09 01:00:00.148,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-09T04:00:00.145Z""}}",200
+63,2023-07-10 01:00:00.154,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-10T04:00:00.149Z""}}",200
+64,2023-07-11 01:00:00.179,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-11T04:00:00.176Z""}}",200
+65,2023-07-12 01:00:00.138,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-12T04:00:00.135Z""}}",200
+66,2023-07-13 01:00:00.186,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-13T04:00:00.183Z""}}",200
+67,2023-07-14 01:00:00.171,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-14T04:00:00.167Z""}}",200
+68,2023-07-15 01:00:00.247,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-15T04:00:00.243Z""}}",200
+69,2023-07-16 01:00:00.176,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-16T04:00:00.173Z""}}",200
+70,2023-07-17 01:00:00.184,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-17T04:00:00.181Z""}}",200
+71,2023-07-18 01:00:00.177,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-18T04:00:00.172Z""}}",200
+72,2023-07-19 01:00:00.187,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-19T04:00:00.183Z""}}",200
+73,2023-07-20 01:00:00.173,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-20T04:00:00.169Z""}}",200
+74,2023-07-21 01:00:00.16,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-21T04:00:00.156Z""}}",200
+75,2023-07-22 01:00:00.159,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-22T04:00:00.155Z""}}",200
+76,2023-07-23 01:00:00.248,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-23T04:00:00.246Z""}}",200
+77,2023-07-24 01:00:00.272,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-24T04:00:00.269Z""}}",200
+78,2023-07-25 01:00:00.173,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-25T04:00:00.171Z""}}",200
+79,2023-07-26 01:00:00.173,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-26T04:00:00.171Z""}}",200
+80,2023-07-27 01:00:00.165,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-27T04:00:00.162Z""}}",200
+81,2023-07-28 01:00:00.172,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-28T04:00:00.169Z""}}",200
+82,2023-07-29 01:00:00.19,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-29T04:00:00.187Z""}}",200
+83,2023-07-30 01:00:00.168,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-30T04:00:00.165Z""}}",200
+84,2023-07-31 01:00:00.197,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-07-31T04:00:00.194Z""}}",200
+85,2023-08-01 01:00:00.192,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-01T04:00:00.189Z""}}",200
+86,2023-08-02 01:00:00.161,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-02T04:00:00.158Z""}}",200
+87,2023-08-03 01:00:00.177,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-03T04:00:00.175Z""}}",200
+88,2023-08-04 01:00:00.175,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-04T04:00:00.172Z""}}",200
+89,2023-08-05 01:00:00.27,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-05T04:00:00.268Z""}}",200
+90,2023-08-06 01:00:00.172,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-06T04:00:00.169Z""}}",200
+91,2023-08-07 01:00:00.195,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-07T04:00:00.192Z""}}",200
+92,2023-08-08 01:00:00.174,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-08T04:00:00.171Z""}}",200
+93,2023-08-09 01:00:00.165,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-09T04:00:00.163Z""}}",200
+94,2023-08-10 01:00:00.266,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-10T04:00:00.216Z""}}",200
+95,2023-08-11 01:00:00.215,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-11T04:00:00.208Z""}}",200
+96,2023-08-12 01:00:00.212,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-12T04:00:00.197Z""}}",200
+97,2023-08-13 01:00:00.19,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-13T04:00:00.174Z""}}",200
+98,2023-08-14 01:00:00.172,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-14T04:00:00.168Z""}}",200
+99,2023-08-15 01:00:00.203,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-15T04:00:00.198Z""}}",200
+100,2023-08-16 01:00:00.175,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-16T04:00:00.167Z""}}",200
+101,2023-08-17 01:00:00.194,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-17T04:00:00.185Z""}}",200
+102,2023-08-18 01:00:00.144,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-18T04:00:00.140Z""}}",200
+103,2023-08-19 01:00:00.172,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-19T04:00:00.164Z""}}",200
+104,2023-08-20 01:00:00.192,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-20T04:00:00.188Z""}}",200
+105,2023-08-21 01:00:00.281,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-21T04:00:00.274Z""}}",200
+106,2023-08-22 01:00:00.178,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-22T04:00:00.172Z""}}",200
+107,2023-08-23 01:00:00.17,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-23T04:00:00.163Z""}}",200
+108,2023-08-24 01:00:00.335,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-24T04:00:00.329Z""}}",200
+109,2023-08-25 01:00:00.157,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-25T04:00:00.152Z""}}",200
+110,2023-08-26 01:00:00.166,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-26T04:00:00.162Z""}}",200
+111,2023-08-27 01:00:00.19,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-27T04:00:00.187Z""}}",200
+112,2023-08-28 01:00:00.268,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-28T04:00:00.265Z""}}",200
+113,2023-08-29 01:00:00.166,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-29T04:00:00.161Z""}}",200
+114,2023-08-30 01:00:00.233,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-30T04:00:00.230Z""}}",200
+115,2023-08-31 01:00:00.169,"{""data"":{""burnedAmount"":""4.0"",""timestamp"":""2023-08-31T04:00:00.165Z""}}",200
+116,2023-09-01 01:00:10.061,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+117,2023-09-02 01:00:10.042,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+118,2023-09-03 01:00:10.078,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+119,2023-09-04 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+120,2023-09-05 01:00:10.055,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+121,2023-09-06 01:00:10.061,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+122,2023-09-07 01:00:10.077,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+123,2023-09-08 01:00:10.081,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+124,2023-09-09 01:00:10.056,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+125,2023-09-10 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+126,2023-09-11 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+127,2023-09-12 01:00:10.03,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+128,2023-09-13 01:00:10.037,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+129,2023-09-14 01:00:10.097,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+130,2023-09-15 01:00:10.078,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+131,2023-09-16 01:00:10.098,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+132,2023-09-17 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+133,2023-09-18 01:00:10.033,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+134,2023-09-19 01:00:10.027,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+135,2023-09-20 01:00:10.062,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+136,2023-09-21 01:00:10.031,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+137,2023-09-22 01:00:10.039,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+138,2023-09-23 01:00:10.031,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+139,2023-09-24 01:00:10.032,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+140,2023-09-25 01:00:10.105,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+141,2023-09-26 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+142,2023-09-27 01:00:10.031,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+143,2023-09-28 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+144,2023-09-29 01:00:10.033,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+145,2023-09-30 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+146,2023-10-01 01:00:10.06,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+147,2023-10-02 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+148,2023-10-03 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+149,2023-10-04 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+150,2023-10-05 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+151,2023-10-06 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+152,2023-10-07 01:00:10.05,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+153,2023-10-08 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+154,2023-10-09 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+155,2023-10-10 01:00:10.039,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+156,2023-10-11 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+157,2023-10-12 01:00:10.032,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+158,2023-10-13 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+159,2023-10-14 01:00:10.03,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+160,2023-10-15 01:00:10.036,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+161,2023-10-16 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+162,2023-10-17 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+163,2023-10-18 01:00:10.033,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+164,2023-10-19 01:00:10.03,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+165,2023-10-20 01:00:10.035,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+166,2023-10-21 01:00:10.033,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+167,2023-10-22 01:00:10.03,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+168,2023-10-23 01:00:10.036,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+169,2023-10-24 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+170,2023-10-25 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+171,2023-10-26 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+172,2023-10-27 01:00:10.055,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+173,2023-10-28 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+174,2023-10-29 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+175,2023-10-30 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+176,2023-10-31 01:00:10.03,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+177,2023-11-01 01:00:10.107,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+178,2023-11-02 01:00:10.04,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+179,2023-11-03 01:00:10.047,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+180,2023-11-04 01:00:10.04,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+181,2023-11-05 01:00:10.06,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+182,2023-11-06 01:00:10.057,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+183,2023-11-07 01:00:10.052,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+184,2023-11-08 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+185,2023-11-09 01:00:10.061,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+186,2023-11-10 01:00:10.044,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+187,2023-11-11 01:00:10.038,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+188,2023-11-12 01:00:10.054,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+189,2023-11-13 01:00:10.03,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+190,2023-11-14 01:00:10.033,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+191,2023-11-15 01:00:10.167,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+192,2023-11-18 01:00:00.124,PKIX path validation failed: java.security.cert.CertPathValidatorException: validity check failed executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+193,2023-11-19 01:00:00.054,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+194,2023-11-20 01:00:00.054,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+195,2023-11-21 01:00:00.06,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+196,2023-11-22 01:00:00.05,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+197,2023-11-23 01:00:00.194,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+198,2023-11-24 01:00:00.052,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+199,2023-11-25 01:00:00.028,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+200,2023-11-26 01:00:00.05,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+201,2023-11-27 01:00:00.18,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+202,2023-11-28 01:00:00.034,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+203,2023-11-29 01:00:00.035,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+204,2023-11-30 01:00:00.033,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+205,2023-12-01 01:00:00.042,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+206,2023-12-02 01:00:00.054,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+207,2023-12-03 01:00:00.037,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+298,2024-03-04 01:00:10.032,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+301,2024-03-07 01:00:10.026,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+208,2023-12-04 01:00:00.037,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+209,2023-12-05 01:00:00.057,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+210,2023-12-06 01:00:00.038,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+211,2023-12-07 01:00:00.034,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+212,2023-12-08 01:00:00.074,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+213,2023-12-09 01:00:00.037,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+214,2023-12-10 01:00:00.059,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+215,2023-12-11 01:00:00.041,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+216,2023-12-12 01:00:00.054,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+217,2023-12-13 01:00:00.062,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+218,2023-12-14 01:00:00.041,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+219,2023-12-15 01:00:00.092,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+220,2023-12-16 01:00:00.034,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+221,2023-12-17 01:00:00.03,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+222,2023-12-18 01:00:00.055,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+223,2023-12-19 01:00:00.063,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+224,2023-12-21 01:00:00.11,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+225,2023-12-22 01:00:00.039,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+226,2023-12-23 01:00:00.032,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+227,2023-12-24 01:00:00.032,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+228,2023-12-25 01:00:00.035,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+299,2024-03-05 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+229,2023-12-26 01:00:00.035,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+230,2023-12-27 01:00:00.032,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+231,2023-12-28 01:00:00.04,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+232,2023-12-29 01:00:00.035,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+233,2023-12-30 01:00:00.029,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+234,2023-12-31 01:00:00.036,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+235,2024-01-01 01:00:00.036,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+236,2024-01-02 01:00:00.037,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+237,2024-01-03 01:00:00.035,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+238,2024-01-04 01:00:00.032,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+239,2024-01-05 01:00:00.037,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+240,2024-01-06 01:00:00.033,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+241,2024-01-07 01:00:00.045,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+242,2024-01-08 01:00:00.099,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+243,2024-01-09 01:00:00.037,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+244,2024-01-10 01:00:00.031,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+245,2024-01-11 01:00:00.029,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+246,2024-01-12 01:00:00.049,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+247,2024-01-13 01:00:00.037,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+248,2024-01-14 01:00:00.03,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+249,2024-01-15 01:00:00.037,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+300,2024-03-06 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+250,2024-01-16 01:00:00.027,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+251,2024-01-17 01:00:00.041,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+252,2024-01-18 01:00:00.031,[502 Bad Gateway] during [GET] to [https://api.munditoken.inspireip.io/ucs/burned-amount] [MundiApi#getBurnedTokenAmount()]: [<html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.18.0 (Ubuntu)</center>\r\n</body>\r\n</html>\r\n],feign.FeignException$BadGateway
+253,2024-01-19 01:00:10.055,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+254,2024-01-20 01:00:10.052,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+255,2024-01-21 01:00:10.031,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+256,2024-01-22 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+257,2024-01-23 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+258,2024-01-24 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+259,2024-01-25 01:00:10.02,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+260,2024-01-26 01:00:10.049,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+261,2024-01-27 01:00:10.054,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+262,2024-01-28 01:00:10.034,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+263,2024-01-29 01:00:10.056,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+264,2024-01-30 01:00:10.036,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+265,2024-01-31 01:00:10.03,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+266,2024-02-01 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+267,2024-02-02 01:00:10.035,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+268,2024-02-03 01:00:10.034,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+269,2024-02-04 01:00:10.031,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+270,2024-02-05 01:00:10.032,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+271,2024-02-06 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+272,2024-02-07 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+273,2024-02-08 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+274,2024-02-09 01:00:10.03,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+275,2024-02-10 01:00:10.055,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+276,2024-02-11 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+277,2024-02-12 01:00:10.033,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+278,2024-02-13 01:00:10.037,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+279,2024-02-14 01:00:10.032,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+280,2024-02-15 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+281,2024-02-16 01:00:10.025,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+282,2024-02-17 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+283,2024-02-18 01:00:10.025,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+284,2024-02-19 01:00:10.046,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+285,2024-02-20 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+286,2024-02-21 01:00:10.025,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+287,2024-02-22 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+288,2024-02-23 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+289,2024-02-24 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+290,2024-02-25 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+291,2024-02-26 01:00:10.03,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+292,2024-02-27 01:00:10.036,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+293,2024-02-28 01:00:10.03,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+294,2024-02-29 01:00:10.031,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+295,2024-03-01 01:00:10.026,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+296,2024-03-02 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+297,2024-03-03 01:00:10.031,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+302,2024-03-08 01:00:10.041,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+303,2024-03-09 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+304,2024-03-10 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+305,2024-03-11 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+306,2024-03-12 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+307,2024-03-13 01:00:10.025,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+308,2024-03-14 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+309,2024-03-15 01:00:10.071,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+310,2024-03-16 01:00:10.032,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+311,2024-03-17 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+312,2024-03-18 01:00:10.025,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+313,2024-03-19 01:00:10.032,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+314,2024-03-20 01:00:10.031,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+315,2024-03-21 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+316,2024-03-22 01:00:10.03,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+317,2024-03-23 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+318,2024-03-24 01:00:10.03,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+319,2024-03-25 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+320,2024-03-26 01:00:10.03,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+321,2024-03-27 01:00:10.032,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+322,2024-03-28 01:00:10.052,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+323,2024-03-29 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+324,2024-03-30 01:00:10.068,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+325,2024-03-31 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+326,2024-04-01 01:00:10.092,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+327,2024-04-02 01:00:10.085,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+328,2024-04-03 01:00:10.03,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+329,2024-04-04 01:00:10.027,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+330,2024-04-05 01:00:10.032,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+331,2024-04-06 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+332,2024-04-07 01:00:10.027,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+333,2024-04-08 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+334,2024-04-09 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+335,2024-04-10 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+336,2024-04-11 01:00:10.027,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+337,2024-04-12 01:00:10.027,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+338,2024-04-13 01:00:10.052,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+339,2024-04-14 01:00:10.049,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+340,2024-04-15 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+341,2024-04-16 01:00:10.032,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+342,2024-04-17 01:00:10.092,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+343,2024-04-18 01:00:10.094,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+344,2024-04-19 01:00:10.033,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+345,2024-04-20 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+346,2024-04-21 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+347,2024-04-22 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+348,2024-04-23 01:00:10.031,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+349,2024-04-24 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+350,2024-04-25 01:00:10.087,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+351,2024-04-26 01:00:10.177,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+352,2024-04-27 01:00:10.043,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+353,2024-04-28 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+354,2024-04-29 01:00:10.035,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+355,2024-04-30 01:00:10.058,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+356,2024-05-01 01:00:10.036,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+357,2024-05-02 01:00:10.047,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+358,2024-05-03 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+359,2024-05-04 01:00:10.03,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+360,2024-05-05 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+361,2024-05-06 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+362,2024-05-07 01:00:10.027,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+363,2024-05-08 01:00:10.031,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+364,2024-05-09 01:00:10.03,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+365,2024-05-10 01:00:10.049,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+366,2024-05-11 01:00:10.051,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+367,2024-05-12 01:00:10.053,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+368,2024-05-13 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+369,2024-05-14 01:00:10.052,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+370,2024-05-15 01:00:10.044,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+371,2024-05-16 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+372,2024-05-17 01:00:10.031,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+373,2024-05-18 01:00:10.03,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+374,2024-05-19 01:00:10.03,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+375,2024-05-20 01:00:10.03,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+376,2024-05-21 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+377,2024-05-22 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+378,2024-05-23 01:00:10.094,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+379,2024-05-24 01:00:10.031,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+380,2024-05-25 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+381,2024-05-26 01:00:10.031,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+382,2024-05-27 01:00:10.053,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+383,2024-05-28 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+384,2024-05-29 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+385,2024-05-30 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+386,2024-05-31 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+387,2024-06-01 01:00:10.033,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+388,2024-06-02 01:00:10.033,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+389,2024-06-03 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+390,2024-06-04 01:00:10.028,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+391,2024-06-05 01:00:10.032,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+392,2024-06-06 01:00:10.175,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+393,2024-06-07 01:00:10.033,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+394,2024-06-08 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+395,2024-06-09 01:00:10.034,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+396,2024-06-10 01:00:10.031,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+397,2024-06-11 01:00:10.037,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+398,2024-06-12 01:00:10.033,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+399,2024-06-13 01:00:10.03,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+400,2024-06-14 01:00:10.034,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+401,2024-06-15 01:00:10.029,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+402,2024-06-16 01:00:10.033,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+403,2024-06-17 01:00:10.025,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+404,2024-06-18 01:00:10.024,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+405,2024-06-19 01:00:10.033,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+406,2024-06-20 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+407,2024-06-21 13:32:31.114,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+408,2024-06-22 01:00:10.079,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+409,2024-06-23 01:00:10.025,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+410,2024-06-24 01:00:10.177,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+411,2024-06-25 01:00:10.097,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+412,2024-06-26 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+413,2024-06-27 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+414,2024-06-28 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+415,2024-06-29 01:00:10.067,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+416,2024-06-30 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+417,2024-07-01 01:00:10.067,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+418,2024-07-02 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+419,2024-07-03 01:00:10.06,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+420,2024-07-04 01:00:10.061,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+421,2024-07-05 01:00:10.067,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+422,2024-07-06 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+423,2024-07-07 01:00:10.072,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+424,2024-07-08 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+425,2024-07-09 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+426,2024-07-10 01:00:10.1,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+427,2024-07-11 01:00:10.067,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+428,2024-07-12 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+429,2024-07-13 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+430,2024-07-14 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+431,2024-07-15 01:00:10.193,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+432,2024-07-16 01:00:10.094,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+433,2024-07-17 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+434,2024-07-18 01:00:10.068,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+435,2024-07-19 01:00:10.096,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+436,2024-07-20 01:00:10.073,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+437,2024-07-21 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+438,2024-07-22 01:00:10.067,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+439,2024-07-23 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+440,2024-07-24 01:00:10.081,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+441,2024-07-25 01:00:10.074,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+442,2024-07-26 01:00:10.098,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+443,2024-07-27 01:00:10.067,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+444,2024-07-28 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+445,2024-07-29 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+446,2024-07-30 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+447,2024-07-31 01:00:10.076,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+448,2024-08-01 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+449,2024-08-02 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+450,2024-08-03 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+451,2024-08-04 01:00:10.094,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+452,2024-08-05 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+453,2024-08-06 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+454,2024-08-07 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+455,2024-08-08 01:00:10.112,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+456,2024-08-09 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+457,2024-08-10 01:00:10.077,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+458,2024-08-11 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+459,2024-08-12 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+460,2024-08-13 01:00:10.153,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+461,2024-08-14 01:00:10.115,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+462,2024-08-15 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+463,2024-08-16 01:00:10.097,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+464,2024-08-17 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+465,2024-08-18 01:00:10.072,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+466,2024-08-19 01:00:10.098,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+467,2024-08-20 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+468,2024-08-21 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+469,2024-08-22 01:00:10.189,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+470,2024-08-23 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+471,2024-08-24 01:00:10.124,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+472,2024-08-25 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+473,2024-08-26 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+474,2024-08-27 01:00:10.071,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+475,2024-08-28 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+476,2024-08-29 01:00:10.085,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+477,2024-08-30 01:00:10.105,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+478,2024-08-31 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+479,2024-09-01 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+480,2024-09-02 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+481,2024-09-03 01:00:10.193,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+482,2024-09-04 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+483,2024-09-05 01:00:10.067,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+484,2024-09-06 01:00:10.074,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+485,2024-09-07 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+486,2024-09-08 01:00:10.196,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+487,2024-09-09 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+488,2024-09-10 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+489,2024-09-11 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+490,2024-09-12 01:00:10.096,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+491,2024-09-13 01:00:10.094,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+492,2024-09-14 01:00:10.192,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+493,2024-09-15 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+494,2024-09-16 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+495,2024-09-17 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+496,2024-09-18 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+497,2024-09-19 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+498,2024-09-20 01:00:10.033,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+499,2024-09-21 01:00:10.197,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+500,2024-09-22 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+501,2024-09-23 01:00:10.068,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+502,2024-09-24 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+503,2024-09-27 11:19:04.095,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+504,2024-09-28 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+505,2024-09-29 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+506,2024-09-30 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+507,2024-10-01 01:00:10.118,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+508,2024-10-02 01:00:10.143,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+509,2024-10-03 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+510,2024-10-04 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+511,2024-10-05 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+512,2024-10-06 01:00:10.192,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+513,2024-10-07 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+514,2024-10-08 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+515,2024-10-09 01:00:10.074,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+516,2024-10-10 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+517,2024-10-11 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+518,2024-10-12 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+519,2024-10-13 01:00:10.09,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+520,2024-10-14 01:00:10.075,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+521,2024-10-15 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+522,2024-10-16 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+523,2024-10-17 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+524,2024-10-18 01:00:10.074,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+525,2024-10-19 01:00:10.074,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+526,2024-10-20 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+527,2024-10-21 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+528,2024-10-22 01:00:10.132,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+529,2024-10-23 01:00:10.073,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+530,2024-10-24 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+531,2024-10-25 01:00:10.098,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+532,2024-10-26 01:00:10.166,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+533,2024-10-28 01:00:10.16,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+534,2024-10-29 01:00:10.072,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+535,2024-10-30 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+536,2024-10-31 01:00:10.06,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+537,2024-11-01 01:00:10.071,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+538,2024-11-02 01:00:10.088,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+539,2024-11-03 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+540,2024-11-04 01:00:10.099,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+541,2024-11-05 01:00:10.068,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+542,2024-11-06 01:00:10.09,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+543,2024-11-07 01:00:10.097,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+544,2024-11-08 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+545,2024-11-09 01:00:10.072,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+546,2024-11-10 01:00:10.085,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+547,2024-11-11 01:00:10.122,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+548,2024-11-12 01:00:10.097,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+549,2024-11-13 01:00:10.147,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+550,2024-11-14 01:00:10.073,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+551,2024-11-15 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+552,2024-11-16 01:00:10.094,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+553,2024-11-17 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+554,2024-11-18 01:00:10.072,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+555,2024-11-19 01:00:10.169,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+556,2024-11-20 01:00:10.097,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+557,2024-11-21 01:00:10.077,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+558,2024-11-22 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+559,2024-11-23 01:00:10.072,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+560,2024-11-24 01:00:10.193,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+561,2024-11-25 01:00:10.062,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+562,2024-11-26 01:00:10.079,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+563,2024-11-27 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+564,2024-11-28 01:00:10.09,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+565,2024-11-29 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+566,2024-11-30 01:00:10.046,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+567,2024-12-01 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+568,2024-12-02 01:00:10.081,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+569,2024-12-03 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+570,2024-12-04 01:00:10.192,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+571,2024-12-05 01:00:10.141,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+572,2024-12-06 01:00:10.068,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+573,2024-12-07 01:00:10.149,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+574,2024-12-08 01:00:10.193,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+575,2024-12-09 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+576,2024-12-10 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+577,2024-12-11 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+578,2024-12-12 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+579,2024-12-13 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+580,2024-12-14 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+581,2024-12-15 01:00:10.095,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+582,2024-12-16 01:00:10.068,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+583,2024-12-17 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+584,2024-12-18 01:00:10.081,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+585,2024-12-19 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+586,2024-12-20 01:00:10.081,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+587,2024-12-21 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+588,2024-12-22 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+589,2024-12-23 01:00:10.145,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+590,2024-12-24 01:00:10.096,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+591,2024-12-25 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+592,2024-12-26 01:00:10.085,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+593,2024-12-27 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+594,2024-12-28 01:00:10.143,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+595,2024-12-29 01:00:10.068,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+596,2024-12-30 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+597,2024-12-31 01:00:10.103,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+598,2025-01-01 01:00:10.068,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+599,2025-01-02 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+600,2025-01-03 01:00:10.145,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+601,2025-01-04 01:00:10.078,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+602,2025-01-05 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+603,2025-01-06 01:00:10.068,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+604,2025-01-07 01:00:10.096,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+605,2025-01-08 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+606,2025-01-09 01:00:10.067,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+607,2025-01-10 01:00:10.083,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+608,2025-01-11 01:00:10.088,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+609,2025-01-12 01:00:10.085,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+610,2025-01-13 01:00:10.09,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+611,2025-01-14 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+612,2025-01-15 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+613,2025-01-16 01:00:10.189,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+614,2025-01-17 01:00:10.149,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+615,2025-01-18 01:00:10.099,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+616,2025-01-19 01:00:10.068,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+617,2025-01-20 01:00:10.068,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+618,2025-01-21 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+619,2025-01-22 01:00:10.078,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+620,2025-01-23 01:00:10.194,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+621,2025-01-24 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+622,2025-01-25 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+623,2025-01-26 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+624,2025-01-27 01:00:10.081,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+625,2025-01-28 01:00:10.09,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+626,2025-01-29 01:00:10.092,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+627,2025-01-30 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+628,2025-01-31 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+629,2025-02-01 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+630,2025-02-02 01:00:10.075,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+631,2025-02-03 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+632,2025-02-04 01:00:10.078,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+633,2025-02-05 01:00:10.076,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+634,2025-02-06 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+635,2025-02-07 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+636,2025-02-08 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+637,2025-02-09 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+638,2025-02-10 01:00:10.085,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+639,2025-02-11 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+640,2025-02-12 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+641,2025-02-13 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+642,2025-02-14 01:00:10.09,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+643,2025-02-15 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+644,2025-02-16 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+645,2025-02-17 01:00:10.081,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+646,2025-02-18 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+647,2025-02-19 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+648,2025-02-20 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+649,2025-02-21 01:00:10.086,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+650,2025-02-22 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+651,2025-02-23 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+652,2025-02-24 01:00:10.067,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+653,2025-02-25 01:00:10.09,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+654,2025-02-26 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+655,2025-02-27 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+656,2025-02-28 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+657,2025-03-01 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+658,2025-03-02 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+659,2025-03-03 01:00:10.085,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+660,2025-03-04 01:00:10.148,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+661,2025-03-05 01:00:10.122,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+662,2025-03-06 01:00:10.107,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+663,2025-03-07 01:00:10.104,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+664,2025-03-08 01:00:10.077,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+665,2025-03-09 01:00:10.141,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+666,2025-03-10 01:00:10.145,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+667,2025-03-11 01:00:10.079,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+668,2025-03-12 01:00:10.145,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+669,2025-03-13 01:00:10.104,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+670,2025-03-14 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+671,2025-03-15 01:00:10.081,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+672,2025-03-16 01:00:10.091,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+673,2025-03-17 01:00:10.067,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+674,2025-03-18 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+675,2025-03-19 01:00:10.085,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+676,2025-03-20 01:00:10.068,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+677,2025-03-21 01:00:10.105,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+678,2025-03-22 01:00:10.09,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+679,2025-03-23 01:00:10.145,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+680,2025-03-24 01:00:10.193,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+681,2025-03-25 01:00:10.148,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+682,2025-03-26 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+683,2025-03-27 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+684,2025-03-28 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+685,2025-03-29 01:00:10.087,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+686,2025-03-30 01:00:10.082,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+687,2025-03-31 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+688,2025-04-01 01:00:10.097,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+689,2025-04-02 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+690,2025-04-03 01:00:10.092,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+691,2025-04-04 01:00:10.085,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+692,2025-04-05 01:00:10.067,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+693,2025-04-06 01:00:10.078,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+694,2025-04-07 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+695,2025-04-08 01:00:10.081,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+696,2025-04-09 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+697,2025-04-10 01:00:10.092,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+698,2025-04-11 01:00:10.096,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+699,2025-04-12 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+700,2025-04-13 01:00:10.075,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+701,2025-04-14 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+702,2025-04-15 01:00:10.064,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+703,2025-04-16 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+704,2025-04-17 01:00:10.229,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+705,2025-04-18 01:00:10.071,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+706,2025-04-19 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+707,2025-04-20 01:00:10.097,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+708,2025-04-21 01:00:10.091,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+709,2025-04-22 01:00:10.091,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+710,2025-04-23 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+711,2025-04-24 01:00:10.094,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+712,2025-04-25 01:00:10.097,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+713,2025-04-26 01:00:10.092,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+714,2025-04-27 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+715,2025-04-28 01:00:10.145,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+716,2025-04-29 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+717,2025-04-30 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+718,2025-05-01 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+719,2025-05-02 01:00:10.146,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+720,2025-05-03 01:00:10.068,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+721,2025-05-04 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+722,2025-05-05 01:00:10.148,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+723,2025-05-06 01:00:10.081,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+724,2025-05-07 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+725,2025-05-08 01:00:10.072,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+726,2025-05-09 01:00:10.142,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+727,2025-05-10 01:00:10.078,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+728,2025-05-11 01:00:10.077,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+729,2025-05-12 01:00:10.101,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+730,2025-05-13 01:00:10.097,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+731,2025-05-14 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+732,2025-05-15 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+733,2025-05-16 01:00:10.072,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+734,2025-05-17 01:00:10.04,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+735,2025-05-18 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+736,2025-05-19 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+737,2025-05-20 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+738,2025-05-21 01:00:10.091,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+739,2025-05-22 01:00:10.145,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+740,2025-05-23 01:00:10.085,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+741,2025-05-24 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+742,2025-05-25 01:00:10.145,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+743,2025-05-26 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+744,2025-05-27 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+745,2025-05-28 01:00:10.098,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+746,2025-05-29 01:00:10.077,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+747,2025-05-30 01:00:10.083,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+748,2025-05-31 01:00:10.09,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+749,2025-06-01 01:00:10.145,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+750,2025-06-22 01:00:10.106,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+751,2025-06-23 01:00:10.078,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+752,2025-06-24 01:00:10.08,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+753,2025-06-25 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+754,2025-06-26 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+755,2025-06-27 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+756,2025-06-28 01:00:10.067,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+757,2025-06-29 01:00:10.147,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+758,2025-06-30 01:00:10.09,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+759,2025-07-01 01:00:10.105,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+760,2025-07-02 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+761,2025-07-03 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+762,2025-07-04 01:00:10.08,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+763,2025-07-05 01:00:10.085,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+764,2025-07-06 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+765,2025-07-07 01:00:10.199,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+766,2025-07-08 01:00:10.071,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+767,2025-07-09 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+768,2025-07-10 01:00:10.073,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+769,2025-07-11 01:00:10.082,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+770,2025-07-12 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+771,2025-07-13 01:00:10.072,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+772,2025-07-14 01:00:10.091,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+773,2025-07-15 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+774,2025-07-16 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+775,2025-07-17 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+776,2025-07-18 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+777,2025-07-19 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+778,2025-07-20 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+779,2025-07-21 01:00:10.075,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+780,2025-07-22 01:00:10.081,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+781,2025-07-23 01:00:10.116,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+782,2025-07-24 01:00:10.096,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+783,2025-07-25 01:00:10.064,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+784,2025-07-26 01:00:10.159,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+785,2025-07-27 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+786,2025-07-28 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+787,2025-07-29 01:00:10.087,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+788,2025-07-30 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+789,2025-07-31 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+790,2025-08-01 01:00:10.079,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+791,2025-08-02 01:00:10.092,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+792,2025-08-03 01:00:10.094,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+793,2025-08-04 01:00:10.189,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+794,2025-08-05 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+795,2025-08-06 01:00:10.083,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+796,2025-08-07 01:00:10.092,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+797,2025-08-08 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+798,2025-08-09 01:00:10.097,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+799,2025-08-10 01:00:10.205,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+800,2025-08-11 01:00:10.081,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+801,2025-08-12 01:00:10.08,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+802,2025-08-13 01:00:10.193,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+803,2025-08-14 01:00:10.097,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+804,2025-08-15 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+805,2025-08-16 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+806,2025-08-17 01:00:10.078,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+807,2025-08-18 01:00:10.077,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+808,2025-08-19 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+809,2025-08-20 01:00:10.097,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+810,2025-08-21 01:00:10.081,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+811,2025-08-22 01:00:10.099,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+812,2025-08-23 01:00:10.062,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+813,2025-08-24 01:00:10.06,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+814,2025-08-25 01:00:10.068,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+815,2025-08-26 01:00:10.094,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+816,2025-08-27 01:00:10.076,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+817,2025-08-28 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+818,2025-08-29 01:00:10.101,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+819,2025-08-30 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+820,2025-08-31 01:00:10.08,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+821,2025-09-01 01:00:10.094,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+822,2025-09-02 01:00:10.077,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+823,2025-09-03 01:00:10.078,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+824,2025-09-04 01:00:10.081,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+825,2025-09-05 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+826,2025-09-06 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+827,2025-09-07 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+828,2025-09-08 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+829,2025-09-09 01:00:10.082,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+830,2025-09-10 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+831,2025-09-11 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+832,2025-09-12 01:00:10.097,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+833,2025-09-13 01:00:10.192,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+834,2025-09-14 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+835,2025-09-15 01:00:10.086,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+836,2025-09-16 01:00:10.092,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+837,2025-09-17 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+838,2025-09-18 01:00:10.079,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+839,2025-09-19 01:00:10.088,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+840,2025-09-20 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+841,2025-09-21 01:00:10.045,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+842,2025-09-22 01:00:10.09,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+843,2025-09-23 01:00:10.096,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+844,2025-09-24 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+845,2025-09-25 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+846,2025-09-26 01:00:10.064,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+847,2025-09-27 01:00:10.072,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+848,2025-09-28 01:00:10.162,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+849,2025-09-29 01:00:10.072,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+850,2025-09-30 01:00:10.068,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+851,2025-10-01 01:00:10.098,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+852,2025-10-02 01:00:10.169,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+853,2025-10-03 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+854,2025-10-04 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+855,2025-10-05 01:00:10.17,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+856,2025-10-06 01:00:10.073,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+857,2025-10-07 01:00:10.102,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+858,2025-10-08 01:00:10.079,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+859,2025-10-09 01:00:10.173,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+860,2025-10-10 01:00:10.146,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+861,2025-10-11 01:00:10.083,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+862,2025-10-12 01:00:10.081,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+863,2025-10-13 01:00:10.123,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+864,2025-10-14 01:00:10.172,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+865,2025-10-15 01:00:10.11,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+866,2025-10-16 01:00:10.064,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+867,2025-10-17 01:00:10.098,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+868,2025-10-18 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+869,2025-10-19 01:00:10.159,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+870,2025-10-20 01:00:10.068,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+871,2025-10-21 01:00:10.206,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+872,2025-10-22 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+873,2025-10-23 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+874,2025-10-24 01:00:10.116,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+875,2025-10-25 01:00:10.209,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+876,2025-10-26 01:00:10.078,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+877,2025-10-27 01:00:10.061,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+878,2025-10-28 01:00:10.124,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+879,2025-10-29 01:00:10.144,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+880,2025-10-30 01:00:10.071,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+881,2025-10-31 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+882,2025-11-01 01:00:10.073,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+883,2025-11-02 01:00:10.064,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+884,2025-11-03 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+885,2025-11-04 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+886,2025-11-05 01:00:10.08,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+887,2025-11-06 01:00:10.145,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+888,2025-11-07 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+889,2025-11-08 01:00:10.12,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+890,2025-11-09 01:00:10.135,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+891,2025-11-10 01:00:10.134,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+892,2025-11-11 01:00:10.141,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+893,2025-11-12 01:00:10.172,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+894,2025-11-13 01:00:10.064,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+895,2025-11-14 01:00:10.094,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+896,2025-11-15 01:00:10.064,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+897,2025-11-16 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+898,2025-11-17 01:00:10.044,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+899,2025-11-18 01:00:10.141,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+900,2025-11-19 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+901,2025-11-20 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+902,2025-11-21 01:00:10.064,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+903,2025-11-22 01:00:10.173,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+904,2025-11-23 01:00:10.064,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+905,2025-11-24 01:00:10.064,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+906,2025-11-25 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+907,2025-11-26 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+908,2025-11-27 01:00:10.091,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+909,2025-11-28 01:00:10.09,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+910,2025-11-29 01:00:10.041,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+911,2025-11-30 01:00:10.141,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+912,2025-12-01 01:00:10.064,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+913,2025-12-02 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+914,2025-12-03 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+915,2025-12-04 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+916,2025-12-05 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+917,2025-12-06 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+918,2025-12-07 01:00:10.139,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+919,2025-12-08 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+920,2025-12-09 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+921,2025-12-10 01:00:10.091,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+922,2025-12-11 01:00:10.089,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+923,2025-12-12 01:00:10.164,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+924,2025-12-13 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+925,2025-12-14 01:00:10.148,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+926,2025-12-15 01:00:10.041,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+927,2025-12-16 01:00:10.09,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+928,2025-12-17 01:00:10.146,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+929,2025-12-18 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+930,2025-12-19 01:00:10.064,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+931,2025-12-20 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+932,2025-12-21 01:00:10.096,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+933,2025-12-22 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+934,2025-12-23 01:00:10.145,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+935,2025-12-24 01:00:10.174,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+936,2025-12-25 01:00:10.048,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+937,2025-12-26 01:00:10.145,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+938,2025-12-27 01:00:10.047,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+939,2025-12-28 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+940,2025-12-29 01:00:10.07,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+941,2025-12-30 01:00:10.149,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+942,2025-12-31 01:00:10.072,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+943,2026-01-01 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+944,2026-01-02 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+945,2026-01-03 01:00:10.041,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+946,2026-01-04 01:00:10.064,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+947,2026-01-05 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+948,2026-01-06 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+949,2026-01-07 01:00:10.06,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+950,2026-01-08 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+951,2026-01-09 01:00:10.137,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+952,2026-01-10 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+953,2026-01-11 01:00:10.146,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+954,2026-01-12 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+955,2026-01-13 01:00:11.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+956,2026-01-14 01:00:10.068,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+957,2026-01-15 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+958,2026-01-16 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+959,2026-01-17 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+960,2026-01-18 01:00:10.173,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+961,2026-01-19 01:00:10.141,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+962,2026-01-20 01:00:10.045,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+963,2026-01-21 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+964,2026-01-22 01:00:10.054,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+965,2026-01-23 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+966,2026-01-24 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+967,2026-01-25 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+968,2026-01-26 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+969,2026-01-27 01:00:10.042,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+970,2026-01-28 01:00:10.064,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+971,2026-01-29 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+972,2026-01-30 01:00:10.046,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+973,2026-01-31 01:00:10.149,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+974,2026-02-01 01:00:10.071,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+975,2026-02-02 01:00:10.199,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+976,2026-02-03 01:00:10.149,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+977,2026-02-04 01:00:10.057,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+978,2026-02-05 01:00:10.056,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+979,2026-02-06 01:00:10.165,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+980,2026-02-07 01:00:10.073,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+981,2026-02-08 01:00:10.091,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+982,2026-02-09 01:00:10.057,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+983,2026-02-10 01:00:10.061,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+984,2026-02-11 01:00:10.093,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+985,2026-02-12 01:00:10.197,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+986,2026-02-13 01:00:10.055,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+987,2026-02-14 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+988,2026-02-15 01:00:10.054,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+989,2026-02-16 01:00:10.053,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+990,2026-02-17 01:00:10.196,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+991,2026-02-18 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+992,2026-02-19 01:00:10.071,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+993,2026-02-20 01:00:10.071,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+994,2026-02-21 01:00:10.073,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+995,2026-02-22 01:00:10.044,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+996,2026-02-23 01:00:10.061,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+997,2026-02-24 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+998,2026-02-25 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+999,2026-02-26 01:00:10.105,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1000,2026-02-27 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1001,2026-02-28 01:00:10.207,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1002,2026-03-01 01:00:10.069,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1003,2026-03-02 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1004,2026-03-03 01:00:10.167,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1005,2026-03-04 01:00:10.064,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1006,2026-03-05 01:00:10.068,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1007,2026-03-06 01:00:10.057,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1008,2026-03-07 01:00:10.074,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1009,2026-03-08 01:00:10.068,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1010,2026-03-09 01:00:10.068,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1011,2026-03-10 01:00:10.097,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1012,2026-03-11 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1013,2026-03-12 01:00:10.064,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1014,2026-03-13 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1015,2026-03-14 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1016,2026-03-15 01:00:10.179,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1017,2026-03-16 01:00:10.071,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1018,2026-03-17 01:00:10.172,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1019,2026-03-18 01:00:10.054,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1020,2026-03-19 01:00:10.064,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1021,2026-03-20 01:00:10.056,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1022,2026-03-21 01:00:00.267,PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1023,2026-03-22 01:00:00.101,PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1024,2026-03-23 01:00:00.092,PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1025,2026-03-24 01:00:00.067,PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1026,2026-03-25 01:00:00.091,PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1027,2026-03-26 01:00:00.108,PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1028,2026-03-27 01:00:00.123,PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1029,2026-03-28 01:00:00.076,PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1030,2026-03-29 01:00:00.182,PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1031,2026-03-30 01:00:10.057,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1032,2026-03-31 01:00:00.163,No subject alternative DNS name matching api.munditoken.inspireip.io found. executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1033,2026-04-01 01:00:00.095,No subject alternative DNS name matching api.munditoken.inspireip.io found. executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1034,2026-04-02 01:00:00.062,No subject alternative DNS name matching api.munditoken.inspireip.io found. executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1035,2026-04-03 01:00:00.068,No subject alternative DNS name matching api.munditoken.inspireip.io found. executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1036,2026-04-04 01:00:00.059,No subject alternative DNS name matching api.munditoken.inspireip.io found. executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1037,2026-04-05 01:00:00.081,No subject alternative DNS name matching api.munditoken.inspireip.io found. executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1038,2026-04-06 01:00:00.055,No subject alternative DNS name matching api.munditoken.inspireip.io found. executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1039,2026-04-07 01:00:00.191,No subject alternative DNS name matching api.munditoken.inspireip.io found. executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1040,2026-04-08 01:00:00.062,No subject alternative DNS name matching api.munditoken.inspireip.io found. executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1041,2026-04-09 01:00:10.056,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1042,2026-04-10 01:00:10.065,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1043,2026-04-11 01:00:10.044,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1044,2026-04-12 01:00:10.056,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1045,2026-04-13 01:00:10.193,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1046,2026-04-14 01:00:10.073,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1047,2026-04-15 01:00:10.068,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1048,2026-04-16 01:00:10.066,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException
+1049,2026-04-17 01:00:10.088,Connect timed out executing GET https://api.munditoken.inspireip.io/ucs/burned-amount,feign.RetryableException

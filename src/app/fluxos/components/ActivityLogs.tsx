@@ -1,7 +1,7 @@
 import React from 'react';
 import { Clock, Trash2, User, Send } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { FlowNode, Flow } from '../types';
+import { FlowNode, Flow } from './types';
 
 interface ActivityLogsProps {
   editingNode: Partial<FlowNode>;
@@ -40,7 +40,7 @@ export const ActivityLogs: React.FC<ActivityLogsProps> = ({
             onChange={e => setLogUser(e.target.value)}
             className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-[11px] font-bold outline-none"
           >
-            {activeFlow?.participants.map(p => (
+            {activeFlow?.participants.map((p: any) => (
               <option key={p} value={p}>{p}</option>
             ))}
           </select>
@@ -83,7 +83,7 @@ export const ActivityLogs: React.FC<ActivityLogsProps> = ({
                       {new Date(log.timestamp).toLocaleDateString('pt-BR')} {new Date(log.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                     <button 
-                      onClick={() => setEditingNode({ ...editingNode, logs: editingNode.logs?.filter(l => l.id !== log.id) })}
+                      onClick={() => setEditingNode({ ...editingNode, logs: editingNode.logs?.filter((l: any) => l.id !== log.id) })}
                       className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-opacity"
                     ><Trash2 className="w-2.5 h-2.5" /></button>
                   </div>

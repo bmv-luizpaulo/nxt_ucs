@@ -1,0 +1,43 @@
+installed_rank,version,description,type,script,checksum,installed_by,installed_on,execution_time,success
+2,1.1,insert initial data,SQL,V1.1__insert_initial_data.sql,-1669036207,postgres,2021-10-10 15:08:12.309574,12,t
+3,1.2,insert banks,SQL,V1.2__insert_banks.sql,1695770725,postgres,2021-10-10 15:08:12.391638,555,t
+4,1.3,insert location,SQL,V1.3__insert_location.sql,1356537476,postgres,2021-10-10 15:08:15.413591,16065,t
+5,1.4,create triggers,SQL,V1_4__create_triggers.sql,-1865052058,postgres,2021-10-10 15:08:31.513205,53,t
+6,1.5,create permissions,SQL,V1.5__create_permissions.sql,784519712,postgres,2022-09-06 18:17:56.391517,135,t
+7,1.6,create account adjustments,SQL,V1.6__create_account_adjustments.sql,1695174206,postgres,2022-09-06 18:17:56.680032,63,t
+8,1.7,create financial schema,SQL,V1.7__create_financial_schema.sql,922086335,postgres,2022-09-06 18:17:57.342541,525,t
+9,1.8,create payouts,SQL,V1.8__create_payouts.sql,409942628,postgres,2022-09-06 18:17:57.922235,82,t
+10,1.9,create child accounts master,SQL,V1.9__create_child_accounts_master.sql,1875418502,postgres,2022-09-06 18:17:58.038503,68,t
+11,1.10,create endpoints permissions,SQL,V1.10__create_endpoints_permissions.sql,2061335555,postgres,2022-09-06 18:17:58.165113,53,t
+12,1.11,create ucs block,SQL,V1.11__create_ucs_block.sql,-992957303,postgres,2022-09-06 18:17:58.325057,15241,t
+13,1.12,create living carbon certificate order,SQL,V1.12__create_living_carbon_certificate_order.sql,155436483,postgres,2022-09-06 18:18:13.633909,123,t
+14,1.13,update digital collection file,SQL,V1.13__update_digital_collection_file.sql,1785850097,postgres,2022-09-23 17:38:28.56638,64,t
+15,1.14,update bill write off,SQL,V1.14__update_bill_write_off.sql,-596965394,postgres,2022-10-18 13:00:52.249386,22,t
+16,1.15,alter payout configuration,SQL,V1.15__alter_payout_configuration.sql,-159660090,postgres,2022-10-19 20:13:23.015015,19,t
+1,1.0,create schema,SQL,V1.0__create_schema.sql,-1064913894,postgres,2021-10-10 15:08:09.98358,2178,t
+17,1.16,update certificate templates,SQL,V1.16__update_certificate_templates.sql,-1383873414,postgres,2022-11-21 19:28:59.072289,37,t
+18,1.17,alter bill to pay,SQL,V1.17__alter_bill_to_pay.sql,-210357480,postgres,2022-11-21 19:28:59.130191,2,t
+19,1.18,update user auditable,SQL,V1.18__update_user_auditable.sql,-563666751,postgres,2022-11-21 19:28:59.14594,13,t
+20,1.19,create client api,SQL,V1.19__create_client_api.sql,-625080912,postgres,2022-11-24 22:11:45.546751,20,t
+21,1.20,create promo code,SQL,V1.20__create_promo_code.sql,-364203208,postgres,2023-02-02 17:30:19.499252,44,t
+22,1.21,alter basket fee,SQL,V1.21__alter_basket_fee.sql,-14148566,postgres,2023-02-02 17:30:19.561055,10,t
+23,1.22,create commissions,SQL,V1.22__create_commissions.sql,-1473926033,postgres,2023-02-02 17:30:19.605766,26,t
+24,1.23,create platform,SQL,V1.23__create_platform.sql,-1697731652,postgres,2023-03-23 19:05:00.70812,6519,t
+25,1.24,create cpr verde,SQL,V1.24__create_cpr_verde.sql,1738862124,postgres,2023-05-08 19:09:31.837925,34,t
+26,1.25,alter basket fee min max,SQL,V1.25__alter_basket_fee_min_max.sql,-1448802758,postgres,2023-05-08 19:09:31.895089,3,t
+27,1.26,alter certificate template,SQL,V1.26__alter_certificate_template.sql,685187206,postgres,2023-05-08 19:09:31.906339,5,t
+28,1.27,create platform mundi and minting and burned token,SQL,V1.27__create_platform_mundi_and_minting_and_burned_token.sql,1987541435,postgres,2023-05-08 19:09:31.931023,26,t
+29,1.28,alter financial numerics,SQL,V1.28__alter_financial_numerics.sql,-1977790278,postgres,2023-09-02 12:08:23.038468,888,t
+30,1.29,create stock availability certificate,SQL,V1.29__create_stock_availability_certificate.sql,-247771104,postgres,2023-09-02 12:08:24.160835,111,t
+31,1.30,alter cpr drop unique constraint,SQL,V1.30__alter_cpr_drop_unique_constraint.sql,-1591687168,postgres,2023-09-02 12:08:24.58275,74,t
+32,1.31,update certificate orders alter documentation status,SQL,V1.31__update_certificate_orders_alter_documentation_status.sql,1807338709,postgres,2023-09-02 12:08:24.892454,119,t
+33,1.32,create sale intention order,SQL,V1.32__create_sale_intention_order.sql,-140335618,postgres,2023-09-02 12:08:25.70016,530,t
+34,1.33,create movement intention order,SQL,V1.33__create_movement_intention_order.sql,-582442255,postgres,2023-09-02 12:08:26.352221,84,t
+35,1.34,create platform workflows and tags,SQL,V1.34__create_platform_workflows_and_tags.sql,-1593603346,postgres,2023-09-02 12:08:26.930846,1243,t
+36,1.34.1,update order platforms,SQL,V1.34.1__update_order_platforms.sql,-1971359219,postgres,2023-09-02 12:08:28.362395,82,t
+37,1.34.2,update harvest producer certificate platform,SQL,V1.34.2__update_harvest_producer_certificate_platform.sql,-156258517,postgres,2023-09-02 12:08:28.614335,39,t
+38,1.34.3,add default recipient platform to cpr,SQL,V1.34.3__add_default_recipient_platform_to_cpr.sql,2098542119,postgres,2023-09-02 12:08:28.720123,69,t
+39,1.35,alter certificate template add issuer logo,SQL,V1.35__alter_certificate_template_add_issuer_logo.sql,-526708347,postgres,2023-09-02 12:08:28.971867,110,t
+40,1.34.4,add default platform to certificate harvests,SQL,V1.34.4__add_default_platform_to_certificate_harvests.sql,-1604599320,postgres,2023-09-05 14:04:11.406335,237,t
+41,1.43,alter billet webhooks,SQL,V1.43__alter_billet_webhooks.sql,-1880727713,postgres,2023-10-26 19:46:53.004766,64,t
+42,2.1,tesver compensation intent,SQL,V2.1__tesver_compensation_intent.sql,904760240,postgres,2023-12-07 15:16:31.807033,1038,t

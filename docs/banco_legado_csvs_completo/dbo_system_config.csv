@@ -1,0 +1,2 @@
+id,config
+1,"{""daysToArchiveOrders"": 180, ""royaltyPercentageRate"": 0.1, ""daysUntilBilletExpires"": 10, ""generateCertificatesForHarvest"": false, ""validateDocumentsBeforeHarvest"": true}"

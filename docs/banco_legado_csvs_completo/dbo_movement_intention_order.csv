@@ -1,0 +1,1 @@
+id,processing_message,commission_sum,commission_id,billet_id,payment_type,intention_type,order_book_queue_id,distribution_id,issuer_id,fee,basket_fee_id,discount,promo_code_id,additional_info,ucs_amount,price,total,status,reason_description,type_reason,created_by,created_date,last_modified_by,last_modified_date,origin_platform_id,recipient_platform_id

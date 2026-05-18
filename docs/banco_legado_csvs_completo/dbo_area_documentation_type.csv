@@ -1,0 +1,63 @@
+id,abbreviation,name
+2,LAW,Lei / Law
+6,CNPJ,CNPJ / Entity Tax ID number
+9,ID,RG / ID
+10,CPF,CPF / Tax ID Number
+12,PAPA,PAPA - Plano de Atividade Produtiva e Adequação Ambiental / Productive Activity Plan and Environmental Adequacy
+15,CITR,Certidão do ITR – Imposto Territorial Rural / Rural Land Tax 
+5,MMDE,Memorial Descritivo / Descriptive memorandum
+8,PROC,Procuração – Representante Legal / Letter of attorney - Legal Representative
+19,DPOS,Declaração de Posse / Statement of Ownership
+14,CCIR,Certidão do CCIR – Certificado de Cadastro de Imóvel Rural - INCRA / Rural Property Registration Certificate
+3,MATR,Certidão de Matrícula do Imóvel / Registration
+46,PGEO,Planta do Imóvel Georeferenciada
+11,ENDT,Endereço Titular / Proof of address
+47,PMF,Plano de Manejo Florestal
+7,CSES,Contrato Social / Estatuto Social e Alterações / Articles of incorporation
+48,TAC,Termo de Ajuste de Conduta
+20,CERTI,Certificado de Titularidade / Certificate of Ownership
+49,LO,Licença de Operação
+50,ITBI,Imposto de Transmissão de Bens Imóveis
+51,QI,Questionário Inicial
+16,CAR,Certidão do CAR – Cadastro Ambiental Rural / Rural Environmental Registry
+18,TACE,Termo de Aceite / Term of Acceptance in association powers
+22,PRAD,Plano de Recuperação de Área Degradada / Plano de Manejo
+1,TAD,Termo de Adesão BMV / Adhesion agreement
+17,GEO,Georreferenciamento INCRA / Georeferencing Record (INCRA)
+13,DORSA,DORSA - Documento de Reconhecimento da Servidão da Área
+21,AMOS,Relatório de Amostras  - Inventário BMV
+4,MAPA,Mapa Propriedade/ Croqui / Map
+23,RG,Registro Geral
+24,CNH,CNH FORNECEDOR
+25,CIP,Carteira de Identidade Profissional
+26,cc,Certidão de Casamento-Fornecedor
+27,CO,Certidão de Óbito
+28,RG-CJ,RG CI Conjuge
+29,RG-Soc,RG Sócio
+30,CPF-SOC,CPF Sócio
+31,CNH-SOC,CNH Sócio
+32,CIP-SOC,Carteira de Identidade Profissional Sócio
+33,CC-SOC,Certidão de Casamento-Sócio
+34,CEND-SOC,Comprovante de Endereço Sócio
+35,CPF-PROC,CPF Procurador
+36,CNH-PROC,CNH Procurador
+37,RG-PROC,RG Procurador
+38,CEND-PROC,Comprovante de Endereço Procurador
+39,CS,Contrato Social
+40,AI,Ação de Interdição
+41,MAT,Registro de Matrícula de Imóvel
+42,ECP,Escritura Pública de Compra e Venda
+43,CIT,Certidão de Inteiro Teor
+44,MDESC,Memorial Descritivo
+45,CINCRA,Certificação Incra
+52,CPS,Contrato de Prestação de Serviços
+53,KIT,Kit Adesão
+54,TCI,Termo de confidencialidade
+55,TPR,Termo de Parceria Rural
+56,ASL,Amostra de Solo
+57,FAA,Ficha de Amostra de Árvores
+58,DPD,Declaração de Posse e Domínio
+59,CDE,Certificado de Disponibilidade de Estoques
+60,DIST,Distrato BMV
+61,STT,Solicitação de Transferência para Terceiros
+62,CPMA,Consultoria e Projetos de Meio ambiente

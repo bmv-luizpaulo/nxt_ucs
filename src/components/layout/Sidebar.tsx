@@ -55,6 +55,7 @@ export function Sidebar() {
       label: "Gestão Comercial",
       items: [
         { icon: ShoppingBag, label: "Pedidos", href: "/pedidos", color: "text-amber-500 group-hover:text-amber-600" },
+        { icon: Wallet, label: "DARE / Royalties", href: "/dare-royalties", color: "text-emerald-500 group-hover:text-emerald-600" },
         { icon: Leaf, label: "Clientes", href: "/clientes", color: "text-lime-600 group-hover:text-lime-700" },
         { icon: Building2, label: "Parceiros", href: "/parceiros", color: "text-blue-500 group-hover:text-blue-600" },
       ]

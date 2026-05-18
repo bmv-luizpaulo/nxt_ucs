@@ -1,0 +1,160 @@
+id,code,name
+1,654,Banco A.J.Renner
+2,724,Banco Porto Seguro
+3,735,Banco Pottencial
+4,638,Banco Prosper
+5,M24,Banco PSA Finance Brasil
+6,747,Banco Rabobank International Brasil
+7,356,Banco Real
+8,643,Banco Pine
+9,633,Banco Rendimento
+10,M16,Banco Rodobens
+11,072,Banco Rural Mais
+12,453,Banco Rural
+13,422,Banco Safra
+14,033,Banco Santander(Brasil);
+15,250,Banco Schahin
+16,741,Banco Ribeirão Preto
+17,613,Banco Pecúnia
+18,611,Banco Pauli
+19,623,Banco Panamericano
+20,074,Banco J. Safra
+21,217,Banco John Deere
+22,076,Banco KDB
+23,757,Banco KEB do Brasil
+24,600,Banco Luso Brasileiro
+26,M12,Banco Maxinvest
+27,389,Banco Mercantil do Brasil
+28,746,Banco Modal
+29,M10,Banco Moneo
+30,738,Banco Morada
+31,066,Banco Morgan
+32,243,Banco Máxima
+33,045,Banco Opportunity
+34,M17,Banco Ourinvest
+35,743,Banco Semear
+36,749,Banco Simples
+37,366,Banco Société Générale Brasil
+38,637,Banco Sofisa
+39,487,Deutsche Bank
+40,751,Dresdner Bank Brasil
+41,064,Goldman Sachs do Brasil Banco Múltiplo
+42,062,Hipercard Banco Múltiplo
+43,399,HSBC Bank Brasil
+44,168,HSBC Finance(Brasil);
+45,492,ING Bank N.V.
+46,652,Itaú Unibanco Holding
+47,341,Itaú Unibanco
+48,079,JBS Banco
+49,488,JPMorgan Chase Bank
+50,014,Natixis Brasil
+51,753,NBC Bank Brasil
+52,254,Paraná Banco
+53,409,UNIBANCO - União de Bancos Brasileiros
+54,477,Citibank N.A.
+55,376,Banco J. P.Morgan
+56,104,Caixa Econômica Federal
+57,069,BPN Brasil Banco Múltiplo
+58,464,Banco Sumitomo Mitsui Brasileiro
+59,M20,Banco Toyota do Brasil
+60,M13,Banco Tricury
+61,634,Banco Triângulo
+62,M14,Banco Volk
+63,M23,Banco Volvo(Brasil);
+64,655,Banco Votorantim
+65,610,Banco VR
+66,370,Banco WestLB do Brasil
+67,021,BANESTES
+68,719,Banif - Banco Internacional do Funchal(Brasil);
+69,755,Bank of America Merrill Lynch Banco Múltiplo
+70,744,BankBoston N.A.
+71,073,BB Banco Popular do Brasil
+72,078,BES Investimento do Brasil
+73,070,BRB - Banco de Brasília
+74,230,Unicard Banco Múltiplo
+75,479,Banco ItaúBank
+76,M09,Banco Itaucred Financiamentos
+77,394,Banco Bradesco Financiamentos
+78,237,Banco Bradesco
+79,225,Banco Bra
+80,M15,Banco BRJ
+81,208,Banco BTG Pactual
+82,044,Banco BVA
+83,204,Banco Bradesco Cartões
+84,263,Banco Cacique
+85,412,Banco Capital
+86,040,Banco Cargill
+87,745,Banco Citibank
+88,M08,Banco Citicard
+89,241,Banco Clássico
+90,M19,Banco CNH Capital
+91,473,Banco Caixa Geral - Brasil
+92,036,Banco Bradesco BBI
+93,065,Banco Bracce
+94,218,Banco Bonsucesso
+96,025,Banco Alfa
+97,641,Banco Alvorada
+98,213,Banco Arbi
+99,019,Banco Azteca do Brasil
+100,029,Banco Banerj
+101,000,Banco Bankpar
+102,740,Banco Barclays
+103,107,Banco BBM
+104,031,Banco Beg
+105,739,Banco BGN
+106,096,Banco BM&F de Serviços de Liquidação e Custódia
+107,318,Banco BMG
+108,752,Banco BNP Paribas Brasil
+109,248,Banco Boavi
+110,215,Banco Comercial e de Investimento Sudameris
+111,756,Banco Cooperativo do Brasil
+112,748,Banco Cooperativo Sicredi
+113,075,Banco CR2
+114,224,Banco Fibra
+115,626,Banco Ficsa
+116,M18,Banco Ford
+117,233,Banco GE Capital
+118,734,Banco Gerdau
+119,M07,Banco GMAC
+120,612,Banco Guanabara
+121,M22,Banco Honda
+122,063,Banco Ibi
+123,M11,Banco IBM
+124,604,Banco Industrial do Brasil
+125,320,Banco Industrial e Comercial
+126,653,Banco Indu
+127,630,Banco Intercap
+128,249,Banco Investcred Unibanco
+129,M03,Banco Fiat
+130,184,Banco Itaú BBA
+131,265,Banco Fator
+132,001,Banco do Brasil
+133,721,Banco Credibel
+134,222,Banco Credit Agricole Brasil
+135,505,Banco Credit Suisse(Brasil);
+136,229,Banco Cruzeiro do Sul
+137,266,Banco Cédula
+138,003,Banco da Amazônia
+139,M21,Banco Daimlerchrysler
+140,707,Banco Daycoval
+141,300,Banco de La Nacion Argentina
+142,495,Banco de La Provincia de Bueno
+143,494,Banco de La Republica Oriental del Uruguay
+144,M06,Banco de Lage Landen Brasil
+145,024,Banco de Pernambuco
+146,456,Banco de Tokyo - Mitsubishi UFJ Brasil
+147,214,Banco Dibens
+148,004,Banco do Nordeste do Brasil
+149,084,Unicred Norte do Paraná
+150,336,C6 bank
+151,260,Nubank
+152,077,Banco Inter S.A.
+153,290,PagSeguro Internet S. A. 
+154,279,Primacredi - Cooperativa de Crédito Rural de Primavera do Leste
+25,212,Banco Original S.A
+156,403,Banco Cora SCD
+157,136,Unicred do Brasil
+155,269,USAA Federal Savings BanK
+158,082,Banco Topázio S/A
+159,461,ASAAS
+95,246,Banco ABC Brasil

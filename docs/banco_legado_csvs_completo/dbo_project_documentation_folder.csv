@@ -1,0 +1,9 @@
+id,name,parent
+1,Projeto de Concepção / Conception Project,
+2,Relatório Inventário - Validação / Inventory Validation Report,
+3,Relatório Auditoria - Verificação / Auditing Report - Verification,
+4,CPR - Cédula de Produto Rural / Rural Product Bond - CPR,
+5,SKR - Custódia Jurídica / Legal Custody,
+6,Registro Bolsa de Mercado de Capitais (CETIP) / Exchange Stock Registration,4
+7,Registro Cartório - Registry in Notary CPR,4
+8,Documento SKR - SKR Document,5
