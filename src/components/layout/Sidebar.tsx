@@ -27,7 +27,7 @@ import { useAuth } from "@/firebase";
 import { toast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 
-export function Sidebar() {
+function SidebarContent() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -336,5 +336,15 @@ export function Sidebar() {
         </button>
       </div>
     </aside>
+  );
+}
+
+import { Suspense } from "react";
+
+export function Sidebar() {
+  return (
+    <Suspense fallback={<div className="w-64 bg-slate-50 animate-pulse border-r" />}>
+      <SidebarContent />
+    </Suspense>
   );
 }
