@@ -4,9 +4,7 @@ import {
   Settings, 
   LogOut,
   LayoutGrid,
-  Calendar,
   History,
-  MapPin,
   Users2,
   Cpu,
   Wallet,
@@ -17,21 +15,52 @@ import {
   ShoppingBag,
   LayoutTemplate,
   Tractor,
-  Network
+  Network,
+  Archive,
+  ChevronDown,
+  FileText
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/firebase";
 import { toast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentCategory = searchParams?.get("category") || "akses_compra";
   const auth = useAuth();
+  
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isAksesOpen, setIsAksesOpen] = useState(true);
+  const [isTesouroVerdeOpen, setIsTesouroVerdeOpen] = useState(false);
+  const [isEstoqueOpen, setIsEstoqueOpen] = useState(false);
+
+  // Auto-expand menus based on current URL path and category query param
+  useEffect(() => {
+    if (pathname === "/pedidos") {
+      if (currentCategory.startsWith("akses_") || currentCategory === "akses_compra") {
+        setIsAksesOpen(true);
+      } else if (currentCategory.startsWith("tv_")) {
+        setIsTesouroVerdeOpen(true);
+      }
+    } else if (
+      pathname.startsWith("/estoque") || 
+      pathname === "/safras" || 
+      pathname === "/abastecimento" || 
+      pathname === "/config-distribuicao" || 
+      pathname === "/movimentacoes" || 
+      pathname === "/transf-titularidade" || 
+      pathname === "/ajustes-contas" || 
+      pathname === "/bloqueio-ucs" ||
+      pathname === "/cpr-verde"
+    ) {
+      setIsEstoqueOpen(true);
+    }
+  }, [pathname, currentCategory]);
 
   const handleLogout = async () => {
     try {
@@ -43,7 +72,48 @@ export function Sidebar() {
     }
   };
 
-  const menuGroups = [
+  const isLinkActive = (href: string) => {
+    if (!href) return false;
+    const [path, query] = href.split("?");
+    const pathMatches = pathname === path;
+    if (!pathMatches) return false;
+    
+    if (query) {
+      const hrefParams = new URLSearchParams(query);
+      const categoryParam = hrefParams.get("category");
+      if (categoryParam) {
+        return currentCategory === categoryParam;
+      }
+    } else {
+      if (path === "/pedidos") {
+        return !currentCategory || currentCategory === "akses_compra";
+      }
+    }
+    return true;
+  };
+
+  interface MenuSubItem {
+    label: string;
+    href: string;
+  }
+
+  interface MenuItem {
+    icon: any;
+    label: string;
+    href?: string;
+    color: string;
+    isCollapsible?: boolean;
+    isOpen?: boolean;
+    setOpen?: (open: boolean) => void;
+    subItems?: MenuSubItem[];
+  }
+
+  interface MenuGroup {
+    label: string;
+    items: MenuItem[];
+  }
+
+  const menuGroups: MenuGroup[] = [
     {
       label: "Visão Geral",
       items: [
@@ -52,12 +122,68 @@ export function Sidebar() {
       ]
     },
     {
-      label: "Gestão Comercial",
+      label: "Plataformas",
       items: [
-        { icon: ShoppingBag, label: "Pedidos", href: "/pedidos", color: "text-amber-500 group-hover:text-amber-600" },
+        {
+          icon: Cpu,
+          label: "Akses",
+          color: "text-blue-500 group-hover:text-blue-600",
+          isCollapsible: true,
+          isOpen: isAksesOpen,
+          setOpen: setIsAksesOpen,
+          subItems: [
+            { label: "Pedidos Compra", href: "/pedidos?category=akses_compra" },
+            { label: "Pedidos de Venda", href: "/pedidos?category=akses_venda" },
+            { label: "Pedidos de Transferência", href: "/pedidos?category=akses_transferencia" },
+            { label: "Pedidos de Certificado (Cli.)", href: "/pedidos?category=akses_cert_cliente" },
+            { label: "Cert. Dist. Financeira", href: "/pedidos?category=akses_cert_distribuidor_financeiro" },
+            { label: "Cert. Dist. Geral", href: "/pedidos?category=akses_cert_distribuidor_geral" },
+            { label: "Cert. SaaS Tesouro Verde", href: "/pedidos?category=akses_cert_distribuidor_credenciado" },
+            { label: "Cert. SaaS BMV (Living Carbon)", href: "/pedidos?category=akses_living_carbon" },
+            { label: "Cert. CDE (Stock)", href: "/pedidos?category=akses_cde" },
+            { label: "Intenção de Movimentação", href: "/pedidos?category=akses_intencao_movimentacao" },
+          ]
+        },
+        {
+          icon: Leaf,
+          label: "Tesouro Verde",
+          color: "text-emerald-500 group-hover:text-emerald-600",
+          isCollapsible: true,
+          isOpen: isTesouroVerdeOpen,
+          setOpen: setIsTesouroVerdeOpen,
+          subItems: [
+            { label: "Pedidos Selo", href: "/pedidos?category=tv_pedidos_selo" },
+            { label: "DARE / Royalties", href: "/pedidos?category=tv_dare_royalties" },
+            { label: "Compensações", href: "/pedidos?category=tv_compensacao" },
+            { label: "Programas / Campanhas", href: "/pedidos?category=tv_programas" },
+          ]
+        }
+      ]
+    },
+    {
+      label: "Gestão",
+      items: [
+        {
+          icon: Archive,
+          label: "Estoque",
+          color: "text-indigo-500 group-hover:text-indigo-600",
+          isCollapsible: true,
+          isOpen: isEstoqueOpen,
+          setOpen: setIsEstoqueOpen,
+          subItems: [
+            { label: "Dashboard", href: "/estoque/dashboard" },
+            { label: "Safra", href: "/safras" },
+            { label: "Abastecimento", href: "/abastecimento" },
+            { label: "Config. Distribuição", href: "/config-distribuicao" },
+            { label: "Movimentações", href: "/movimentacoes" },
+            { label: "Transf. de Titularidade", href: "/transf-titularidade" },
+            { label: "Ajustes entre Contas", href: "/ajustes-contas" },
+            { label: "Bloqueio de UCS", href: "/bloqueio-ucs" },
+            { label: "CPR Verde", href: "/cpr-verde" },
+          ]
+        },
         { icon: Wallet, label: "DARE / Royalties", href: "/dare-royalties", color: "text-emerald-500 group-hover:text-emerald-600" },
-        { icon: Leaf, label: "Clientes", href: "/clientes", color: "text-lime-600 group-hover:text-lime-700" },
-        { icon: Building2, label: "Parceiros", href: "/parceiros", color: "text-blue-500 group-hover:text-blue-600" },
+        { icon: Building2, label: "Clientes / Parceiros", href: "/parceiros", color: "text-blue-500 group-hover:text-blue-600" },
       ]
     },
     {
@@ -66,7 +192,6 @@ export function Sidebar() {
         { icon: Users2, label: "Produtores", href: "/produtores", color: "text-orange-500 group-hover:text-orange-600" },
         { icon: Network, label: "Núcleos & Associações", href: "/nucleos", color: "text-rose-500 group-hover:text-rose-600" },
         { icon: Tractor, label: "Fazendas", href: "/fazendas", color: "text-amber-700 group-hover:text-amber-800" },
-        { icon: Calendar, label: "Safras", href: "/safras", color: "text-yellow-600 group-hover:text-yellow-700" },
       ]
     },
     {
@@ -111,12 +236,60 @@ export function Sidebar() {
               </p>
             )}
             <div className="space-y-1">
-              {group.items.map((item) => {
-                const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+              {group.items.map((item, idx) => {
                 const Icon = item.icon;
 
+                if (item.isCollapsible) {
+                  const isAnySubActive = item.subItems?.some(sub => isLinkActive(sub.href)) ?? false;
+                  return (
+                    <div key={idx} className="space-y-1">
+                      <div 
+                        onClick={() => item.setOpen?.(!item.isOpen)}
+                        className={cn(
+                          "flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group cursor-pointer font-bold text-slate-600 hover:bg-slate-50 hover:text-slate-900",
+                          isAnySubActive && "bg-slate-50/80 text-slate-900 font-extrabold"
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Icon className={cn("w-5 h-5 shrink-0 transition-colors", item.color)} />
+                          {!isCollapsed && (
+                            <span className="text-[13px] truncate">
+                              {item.label}
+                            </span>
+                          )}
+                        </div>
+                        {!isCollapsed && (
+                          <ChevronDown className={cn("w-4 h-4 transition-transform duration-200", item.isOpen ? "transform rotate-180" : "")} />
+                        )}
+                      </div>
+
+                      {!isCollapsed && item.isOpen && item.subItems && (
+                        <div className="pl-6 space-y-1 border-l border-slate-100 ml-6 mt-1">
+                          {item.subItems.map((sub, sIdx) => {
+                            const isSubActive = isLinkActive(sub.href);
+                            return (
+                              <Link key={sIdx} href={sub.href}>
+                                <div className={cn(
+                                  "flex items-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition-all duration-150 cursor-pointer",
+                                  isSubActive 
+                                    ? "bg-indigo-50 text-indigo-700 font-bold" 
+                                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-50/50"
+                                )}>
+                                  <span className="opacity-50">—</span>
+                                  <span>{sub.label}</span>
+                                </div>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
+                const isActive = item.href && isLinkActive(item.href);
                 return (
-                  <Link key={item.label} href={item.href}>
+                  <Link key={item.label} href={item.href || '#'}>
                     <div className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group cursor-pointer font-bold",
                       isActive 
