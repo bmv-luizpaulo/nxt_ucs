@@ -63,16 +63,15 @@ export default function GerenciarUsuariosPage() {
       <main className="flex-1 flex flex-col overflow-hidden">
         
         {/* Header */}
-        <header className="bg-white h-20 px-8 flex items-center justify-between border-b border-slate-200 shrink-0">
-          <div className="flex flex-col">
-            <h1 className="text-lg font-black text-slate-800 tracking-tight uppercase">
-              Gerenciar Usuários
+        <header className="h-24 bg-white px-10 flex items-center justify-between border-b border-slate-100 shrink-0">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+              <Users className="w-6 h-6 text-indigo-600" />
+              Usuários — Banco Legado
             </h1>
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 mt-0.5">
-              <span>Home</span>
-              <span className="opacity-50">/</span>
-              <span className="text-slate-500 font-bold">Gerenciar Usuários</span>
-            </div>
+            <p className="text-[11px] font-medium text-slate-400">
+              Lendo de <code className="bg-slate-100 px-1.5 py-0.5 rounded text-emerald-600 text-[10px]">dbo_user.csv</code> · {pagination.total.toLocaleString('pt-BR')} usuários
+            </p>
           </div>
           <button 
             onClick={refresh}

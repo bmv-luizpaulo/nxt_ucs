@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { useLegacyData } from '@/hooks/useLegacyData';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   Search, ChevronLeft, ChevronRight, Loader2, RefreshCw,
   GitBranch, Eye, DollarSign, X
@@ -17,6 +19,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function DareRoyaltiesPage() {
+  const router = useRouter();
   const [statusFilter, setStatusFilter] = useState('');
   const [selectedDareRoyalties, setSelectedDareRoyalties] = useState<any | null>(null);
 
@@ -42,29 +45,28 @@ export default function DareRoyaltiesPage() {
       <main className="flex-1 flex flex-col overflow-hidden">
 
         {/* Top Header */}
-        <header className="h-24 bg-[#080C11] px-10 flex items-center justify-between border-b border-white/5 shrink-0 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-1/4 h-full bg-emerald-500/5 blur-[80px] rounded-full pointer-events-none" />
-          <div className="flex items-center gap-4 relative z-10">
-            <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-white/5">
-              <DollarSign className="w-6 h-6 text-emerald-400" />
-            </div>
-            <div className="space-y-1">
-              <h1 className="text-2xl font-black text-white tracking-tight uppercase leading-none">Gerenciar DARE / Royalties</h1>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Faturamento Público/Privado e Divisão de Taxas</p>
-            </div>
+        <header className="h-24 bg-white px-10 flex items-center justify-between border-b border-slate-100 shrink-0">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+              <DollarSign className="w-6 h-6 text-emerald-600" />
+              DARE / Royalties — Banco Legado
+            </h1>
+            <p className="text-[11px] font-medium text-slate-400">
+              Lendo de <code className="bg-slate-100 px-1.5 py-0.5 rounded text-emerald-600 text-[10px]">plat_tesouro_verde_dare_royalties.csv</code> · {pagination.total.toLocaleString('pt-BR')} registros
+            </p>
           </div>
 
-          <div className="flex items-center gap-4 relative z-10">
+          <div className="flex items-center gap-4">
             <div className="relative w-72">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 value={search}
                 onChange={e => handleSearch(e.target.value)}
                 placeholder="Buscar por Pedido, Cliente, DARE..."
-                className="w-full pl-10 pr-4 h-11 bg-white/5 border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-400/50"
+                className="w-full pl-10 pr-4 h-11 bg-white border border-slate-200 rounded-xl text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-emerald-400"
               />
             </div>
-            <button onClick={refresh} className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors">
+            <button onClick={refresh} className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
               <RefreshCw size={16} />
             </button>
           </div>
@@ -274,7 +276,12 @@ export default function DareRoyaltiesPage() {
                 </div>
                 <div>
                   <h3 className="text-lg font-black text-white uppercase tracking-tight">Detalhamento de DARE e Royalties</h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pedido #{selectedDareRoyalties.order_id} • Dist. {selectedDareRoyalties.distribution_id}</p>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    Pedido #{selectedDareRoyalties.order_id} • Dist.{' '}
+                    <Link href={`/movimentacoes?distId=${selectedDareRoyalties.distribution_id}`} className="hover:underline text-indigo-400 font-black">
+                      {selectedDareRoyalties.distribution_id}
+                    </Link>
+                  </p>
                 </div>
               </div>
               <button 
@@ -395,11 +402,15 @@ export default function DareRoyaltiesPage() {
               <div className="flex justify-end pt-4 gap-3">
                 <button
                   onClick={() => {
-                    window.open(`/legado#trace=${selectedDareRoyalties.distribution_id}`, '_blank');
+                    if (selectedDareRoyalties.distribution_id) {
+                      router.push(`/movimentacoes?distId=${selectedDareRoyalties.distribution_id}`);
+                    } else {
+                      alert('Nenhuma movimentação (DIST) registrada para este registro.');
+                    }
                   }}
                   className="px-5 h-11 text-xs font-black uppercase tracking-wider rounded-xl bg-white hover:bg-slate-100 text-slate-900 flex items-center gap-2 transition-all shadow-sm"
                 >
-                  <GitBranch size={14} /> Rastrear Alocação no Legado
+                  <GitBranch size={14} /> Rastrear Alocação
                 </button>
               </div>
 

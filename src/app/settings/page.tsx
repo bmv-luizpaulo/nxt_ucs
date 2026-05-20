@@ -70,6 +70,8 @@ export default function SettingsPage() {
 
   const { data: appUsers, isLoading: isUsersLoading } = useCollection<AppUser>(usersQuery);
 
+  const staffUsers = appUsers ? appUsers.filter(u => !!u.email && !!u.role) : [];
+
   useEffect(() => {
     if (appUsers && user && !profileForm.nome) { // Só inicializa se o formulário estiver vazio
        const me = appUsers.find(u => u.email === user.email);
@@ -215,7 +217,7 @@ export default function SettingsPage() {
           
           <div className="flex items-center gap-5">
             <div className="text-right">
-              <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] leading-none mb-1.5">Auditor Autenticado</p>
+              <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] leading-none mb-1.5">Staff Autenticado</p>
               <p className="text-[14px] font-bold text-slate-900 leading-none">{user.email}</p>
             </div>
             <div className="w-14 h-14 bg-[#734DCC] rounded-full flex items-center justify-center text-white font-black text-lg shadow-xl shadow-indigo-100 uppercase">
@@ -230,7 +232,7 @@ export default function SettingsPage() {
               <div className="w-full lg:w-80">
                 <TabsList className="flex flex-col h-auto bg-transparent p-0 space-y-4">
                   <SettingsTabTrigger value="perfil" icon={User} label="Meu Perfil" />
-                  <SettingsTabTrigger value="usuarios" icon={Users} label="Gerenciar Usuários" />
+                  <SettingsTabTrigger value="usuarios" icon={Users} label="Gerenciar Staff" />
                   <SettingsTabTrigger value="seguranca" icon={Shield} label="Segurança & Logs" />
                 </TabsList>
               </div>
@@ -249,8 +251,8 @@ export default function SettingsPage() {
                           </div>
                           
                           <div className="space-y-1">
-                            <h3 className="text-white font-black uppercase tracking-tight text-lg line-clamp-1">{profileForm.nome || "AUDITOR"}</h3>
-                            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">{profileForm.cargo || "TECHNICAL AUDITOR"}</p>
+                            <h3 className="text-white font-black uppercase tracking-tight text-lg line-clamp-1">{profileForm.nome || "STAFF"}</h3>
+                            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">{profileForm.cargo || "STAFF MEMBER"}</p>
                           </div>
 
                           <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl py-3 px-4 flex items-center justify-center gap-2">
@@ -301,7 +303,7 @@ export default function SettingsPage() {
                           />
                         </div>
                         <div className="space-y-3">
-                          <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">E-mail de Auditoria</Label>
+                          <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">E-mail Corporativo</Label>
                           <Input value={user.email || ""} disabled className="h-14 bg-slate-100/50 border-none rounded-2xl px-6 font-bold text-slate-400 cursor-not-allowed italic" />
                         </div>
                         <div className="space-y-3">
@@ -338,8 +340,8 @@ export default function SettingsPage() {
                 <TabsContent value="usuarios" className="mt-0 space-y-10">
                   <div className="flex justify-between items-center">
                     <div>
-                      <h2 className="text-[32px] font-black uppercase text-slate-900 leading-none mb-2">Gestão de Auditores</h2>
-                      <p className="text-[14px] font-medium text-slate-400">Controle de acesso e permissões administrativas da rede.</p>
+                      <h2 className="text-[32px] font-black uppercase text-slate-900 leading-none mb-2">Gestão de Staff</h2>
+                      <p className="text-[14px] font-medium text-slate-400">Controle de acesso e permissões administrativas do staff do sistema.</p>
                     </div>
                     <div className="flex gap-4">
                       <Button onClick={handleSeedUsers} variant="outline" className="h-16 px-10 rounded-2xl text-[12px] font-black uppercase border-dashed border-slate-300 flex gap-3 hover:bg-slate-50">
@@ -349,13 +351,13 @@ export default function SettingsPage() {
                       <Dialog open={isAddingUser} onOpenChange={setIsAddingUser}>
                         <DialogTrigger asChild>
                           <Button className="h-16 px-12 rounded-2xl bg-primary hover:bg-primary/90 text-white font-black uppercase text-[12px] tracking-[0.2em] shadow-xl shadow-emerald-100 flex gap-3 transition-all active:scale-95">
-                            <UserPlus className="w-5 h-5" /> Novo Auditor
+                            <UserPlus className="w-5 h-5" /> Novo Staff
                           </Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-md bg-white rounded-3xl p-8 border-none">
                           <DialogHeader>
-                            <DialogTitle className="text-xl font-black uppercase text-slate-900">Novo Auditor</DialogTitle>
-                            <DialogDescription className="text-slate-400 font-medium">Cadastre um novo membro para a equipe de auditoria.</DialogDescription>
+                            <DialogTitle className="text-xl font-black uppercase text-slate-900">Novo Membro do Staff</DialogTitle>
+                            <DialogDescription className="text-slate-400 font-medium">Cadastre um novo membro para o staff do sistema.</DialogDescription>
                           </DialogHeader>
                           <div className="space-y-6 mt-6">
                             <div className="space-y-2">
@@ -381,7 +383,7 @@ export default function SettingsPage() {
                               <div className="space-y-2">
                                 <Label className="text-[10px] font-black uppercase text-slate-400">Cargo</Label>
                                 <Input 
-                                  placeholder="AUDITOR" 
+                                  placeholder="CARGO" 
                                   value={newUserData.cargo} 
                                   onChange={e => setNewUserData({...newUserData, cargo: e.target.value})}
                                   className="h-14 rounded-xl border-slate-100 bg-slate-50 uppercase font-bold"
@@ -421,15 +423,15 @@ export default function SettingsPage() {
                         <DialogContent className="max-w-md bg-white rounded-[2.5rem] p-10 border-none shadow-2xl">
                           <DialogHeader className="sr-only">
                             <DialogTitle>Convite Gerado</DialogTitle>
-                            <DialogDescription>Link de acesso e opções de compartilhamento para o novo auditor.</DialogDescription>
+                            <DialogDescription>Link de acesso e opções de compartilhamento para o novo membro do staff.</DialogDescription>
                           </DialogHeader>
                           <div className="flex flex-col items-center text-center space-y-6">
                             <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center">
                               <CheckCircle2 className="w-10 h-10 text-emerald-500" />
                             </div>
                             <div className="space-y-2">
-                              <h2 className="text-2xl font-black uppercase text-slate-900 tracking-tight">Convite Gerado!</h2>
-                              <p className="text-sm font-medium text-slate-400">O auditor {newUserData.nome} já pode acessar o sistema.</p>
+                              <h2 className="text-2xl font-black uppercase text-slate-950 tracking-tight">Convite Gerado!</h2>
+                              <p className="text-sm font-medium text-slate-400">O membro do staff {newUserData.nome} já pode acessar o sistema.</p>
                             </div>
 
                             <div className="w-full space-y-4">
@@ -472,7 +474,7 @@ export default function SettingsPage() {
                     <Table>
                       <TableHeader className="bg-slate-50/50">
                         <TableRow className="border-b border-slate-100 h-16">
-                          <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 pl-12">Auditor</TableHead>
+                          <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 pl-12">Membro</TableHead>
                           <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Nível</TableHead>
                           <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Status</TableHead>
                           <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 text-right pr-12">Ações</TableHead>
@@ -488,18 +490,18 @@ export default function SettingsPage() {
                               </div>
                             </TableCell>
                           </TableRow>
-                        ) : !appUsers || appUsers.length === 0 ? (
+                        ) : staffUsers.length === 0 ? (
                           <TableRow>
                             <TableCell colSpan={4} className="h-80 text-center">
                               <div className="flex flex-col items-center gap-6 opacity-30">
                                 <Users className="w-16 h-16 text-slate-300" />
-                                <span className="text-[14px] font-black uppercase text-slate-400 tracking-[0.2em]">Nenhum auditor encontrado</span>
+                                <span className="text-[14px] font-black uppercase text-slate-400 tracking-[0.2em]">Nenhum membro do staff encontrado</span>
                                 <Button onClick={handleSeedUsers} variant="link" className="text-[#734DCC] font-bold">Gerar Dados de Teste</Button>
                               </div>
                             </TableCell>
                           </TableRow>
                         ) : (
-                          appUsers.map((item) => (
+                          staffUsers.map((item) => (
                             <TableRow key={item.id} className="border-b border-slate-50 hover:bg-slate-50/80 transition-all h-24">
                               <TableCell className="pl-12">
                                 <div className="flex items-center gap-5">
@@ -507,7 +509,7 @@ export default function SettingsPage() {
                                     {item.nome ? item.nome.substring(0,1) : "U"}
                                   </div>
                                   <div className="flex flex-col gap-1">
-                                    <span className="text-[14px] font-black text-slate-900 uppercase tracking-tight">{item.nome || "AUDITOR"}</span>
+                                    <span className="text-[14px] font-black text-slate-900 uppercase tracking-tight">{item.nome || "STAFF"}</span>
                                     <span className="text-[11px] text-slate-400 font-bold">{item.email}</span>
                                   </div>
                                 </div>
@@ -557,8 +559,8 @@ export default function SettingsPage() {
                   <Dialog open={!!editingUser} onOpenChange={() => setEditingUser(null)}>
                     <DialogContent className="max-w-md bg-white rounded-3xl p-8 border-none">
                       <DialogHeader>
-                        <DialogTitle className="text-xl font-black uppercase text-slate-900">Editar Auditor</DialogTitle>
-                        <DialogDescription className="text-slate-400 font-medium">Atualize as informações cadastrais do auditor.</DialogDescription>
+                        <DialogTitle className="text-xl font-black uppercase text-slate-900">Editar Membro do Staff</DialogTitle>
+                        <DialogDescription className="text-slate-400 font-medium">Atualize as informações cadastrais do membro do staff.</DialogDescription>
                       </DialogHeader>
                       {editingUser && (
                          <div className="space-y-6 mt-6">
@@ -615,7 +617,7 @@ export default function SettingsPage() {
                     <div className="flex justify-between items-end">
                       <div>
                         <h2 className="text-[32px] font-black uppercase text-slate-900 leading-none mb-2">Segurança & Logs</h2>
-                        <p className="text-[14px] font-medium text-slate-400 italic">Rastreabilidade completa de todas as operações de auditoria no Ledger.</p>
+                        <p className="text-[14px] font-medium text-slate-400 italic">Rastreabilidade completa de todas as operações do staff no Ledger.</p>
                       </div>
                       <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-full">
                          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
@@ -672,7 +674,7 @@ export default function SettingsPage() {
 
                     <div className="bg-[#734DCC] rounded-[2.5rem] p-10 flex items-center justify-between shadow-2xl shadow-indigo-200 relative overflow-hidden">
                        <div className="relative z-10">
-                          <h4 className="text-white text-xl font-black uppercase mb-1">Exportar Log de Auditoria</h4>
+                          <h4 className="text-white text-xl font-black uppercase mb-1">Exportar Log de Operações</h4>
                           <p className="text-indigo-100/70 text-sm font-medium">Gere um documento assinado com todos os logs de integridade deste mês.</p>
                        </div>
                        <Button className="bg-white text-[#734DCC] hover:bg-indigo-50 h-14 px-10 rounded-2xl font-black uppercase text-[11px] tracking-widest relative z-10 transition-transform active:scale-95">

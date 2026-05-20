@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
@@ -126,7 +127,15 @@ export function IMEITransactionTable({ data }: { data: any[] }) {
                       <span className="text-[10px] text-slate-400 truncate max-w-[250px]">{tx.justificativa}</span>
                    </div>
                 </TableCell>
-                <TableCell className="text-[11px] font-mono text-slate-500">{tx.origem || '---'} → {tx.destino || '---'}</TableCell>
+                <TableCell className="text-[11px] font-mono text-slate-500">
+                  {tx.distribution_id ? (
+                    <Link href={`/movimentacoes?distId=${tx.distribution_id}`} className="hover:text-indigo-600 hover:underline transition-colors font-bold">
+                      {tx.origem || '---'} → {tx.destino || '---'}
+                    </Link>
+                  ) : (
+                    <span>{tx.origem || '---'} → {tx.destino || '---'}</span>
+                  )}
+                </TableCell>
                 <TableCell className={cn(
                   "text-right font-black text-[14px]",
                   tx.tipo === 'entrada' ? "text-emerald-600" : "text-red-500"

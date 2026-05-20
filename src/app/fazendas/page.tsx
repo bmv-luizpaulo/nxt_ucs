@@ -39,7 +39,7 @@ export default function FazendasLegadoPage() {
               Fazendas — Banco Legado
             </h1>
             <p className="text-[11px] font-medium text-slate-400">
-              Lendo diretamente de <code className="bg-slate-100 px-1.5 py-0.5 rounded text-emerald-600 text-[10px]">dbo_area.csv</code> · {pagination.total} áreas encontradas
+              Lendo de <code className="bg-slate-100 px-1.5 py-0.5 rounded text-emerald-600 text-[10px]">dbo_area.csv</code> · {pagination.total.toLocaleString('pt-BR')} fazendas
             </p>
           </div>
           <div className="flex items-center gap-3">

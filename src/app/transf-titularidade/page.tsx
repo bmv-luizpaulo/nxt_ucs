@@ -12,7 +12,12 @@ import {
   ChevronRight,
   Plus,
   RefreshCcw,
-  Trash2
+  Trash2,
+  MoreHorizontal,
+  X,
+  FileText,
+  ArrowUpCircle,
+  ArrowDownCircle
 } from "lucide-react";
 
 export default function TransfTitularidadePage() {
@@ -20,6 +25,8 @@ export default function TransfTitularidadePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [dateInicio, setDateInicio] = useState("");
   const [dateFim, setDateFim] = useState("");
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+  const [viewingTransfer, setViewingTransfer] = useState<any | null>(null);
 
   const { 
     rows, 
@@ -93,14 +100,13 @@ export default function TransfTitularidadePage() {
         {/* Header Block */}
         <header className="px-10 py-6 bg-white border-b border-slate-200 flex items-center justify-between shrink-0">
           <div className="space-y-1">
-            <h1 className="text-xl font-bold tracking-wider text-slate-900 uppercase">Gerenciar Transferência de Titularidade</h1>
-            <div className="flex items-center gap-2 text-xs text-slate-400 font-semibold">
-              <span>Home</span>
-              <span>&gt;</span>
-              <span>Transferência de Titularidade</span>
-              <span>&gt;</span>
-              <span className="text-indigo-600">Gerenciar Transferência de Titularidade</span>
-            </div>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+              <ArrowRightLeft className="w-6 h-6 text-indigo-600" />
+              Transferência de Titularidade — Banco Legado
+            </h1>
+            <p className="text-[11px] font-medium text-slate-400">
+              Lendo de <code className="bg-slate-100 px-1.5 py-0.5 rounded text-emerald-600 text-[10px]">dbo_ownership_transfer_order.csv</code> · {pagination.total.toLocaleString('pt-BR')} registros
+            </p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -220,32 +226,33 @@ export default function TransfTitularidadePage() {
                     <th className="py-5 px-6 text-[9px] font-black uppercase tracking-widest">Tipo</th>
                     <th className="py-5 px-6 text-[9px] font-black uppercase tracking-widest">Status</th>
                     <th className="py-5 px-6 text-[9px] font-black uppercase tracking-widest">Nxt</th>
+                    <th className="py-5 px-6 text-[9px] font-black uppercase tracking-widest text-right pr-12">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan={12} className="py-16 text-center">
+                      <td colSpan={13} className="py-16 text-center">
                         <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mx-auto mb-3" />
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Carregando transferências...</span>
                       </td>
                     </tr>
                   ) : transfers.length === 0 ? (
                     <tr>
-                      <td colSpan={12} className="py-16 text-center text-slate-400 text-xs font-bold uppercase tracking-wider">
+                      <td colSpan={13} className="py-16 text-center text-slate-400 text-xs font-bold uppercase tracking-wider">
                         Nenhum registro encontrado nesta aba
                       </td>
                     </tr>
                   ) : (
                     transfers.map((t) => {
                       const dt = formatDateTime(t.created_date);
-
+ 
                       return (
                         <tr key={t.id} className="border-b border-slate-100 hover:bg-slate-50/30 transition-colors text-slate-700">
                           <td className="py-4 px-6 text-center">
                             <input type="checkbox" className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
                           </td>
-                          <td className="py-4 px-6 text-[13px] font-black text-indigo-600 hover:underline cursor-pointer">
+                          <td className="py-4 px-6 text-[13px] font-black text-indigo-600 hover:underline cursor-pointer" onClick={() => setViewingTransfer(t)}>
                             #{t.id}
                           </td>
                           <td className="py-4 px-6 text-[11px] font-bold text-slate-700 leading-normal">
@@ -300,6 +307,57 @@ export default function TransfTitularidadePage() {
                           <td className="py-4 px-6 text-xs font-bold text-slate-400 font-mono">
                             {t.nxt_id}
                           </td>
+                          <td className="py-4 px-6 text-right pr-12">
+                            <div className="flex justify-end relative">
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setOpenDropdownId(openDropdownId === t.id ? null : t.id);
+                                }}
+                                className="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center transition-colors"
+                              >
+                                <MoreHorizontal size={14} />
+                              </button>
+                              
+                              {openDropdownId === t.id && (
+                                <>
+                                  <div 
+                                    className="fixed inset-0 z-10" 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setOpenDropdownId(null);
+                                    }}
+                                  />
+                                  <div className="absolute right-0 mt-8 w-56 bg-white border border-slate-200 rounded-xl shadow-xl py-1 z-20 text-left animate-in fade-in slide-in-from-top-1 duration-100">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setViewingTransfer(t);
+                                        setOpenDropdownId(null);
+                                      }}
+                                      className="w-full px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2"
+                                    >
+                                      Visualizar
+                                    </button>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenDropdownId(null);
+                                        if (t.distribution_id) {
+                                          window.location.href = `/movimentacoes?distId=${t.distribution_id}`;
+                                        } else {
+                                          alert("Este pedido não possui ID de Distribuição cadastrado.");
+                                        }
+                                      }}
+                                      className="w-full px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2"
+                                    >
+                                      Visualizar Movimentações
+                                    </button>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </td>
                         </tr>
                       );
                     })
@@ -337,6 +395,170 @@ export default function TransfTitularidadePage() {
             )}
           </div>
         </div>
+      {viewingTransfer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-[2rem] w-full max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-10 py-6 border-b border-slate-100 shrink-0">
+              <h2 className="text-lg font-black text-slate-800 tracking-tight">
+                Detalhes do Pedido de Transferência de Titularidade
+              </h2>
+              <button 
+                onClick={() => setViewingTransfer(null)}
+                className="p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-10 grid grid-cols-1 md:grid-cols-12 gap-10">
+              {/* Left Column: Stepper/Timeline */}
+              <div className="md:col-span-5 flex flex-col pt-4">
+                <div className="relative pl-10 border-l-2 border-indigo-100 space-y-12 ml-4">
+                  {/* Step 1: Aguardando validação */}
+                  <div className="relative">
+                    <div className="absolute -left-[51px] top-1 w-6 h-6 rounded-full border-4 border-white flex items-center justify-center shadow-sm bg-indigo-600" />
+                    <div className="space-y-1">
+                      <h4 className="text-sm font-black text-slate-800 uppercase tracking-tight">Aguardando validação</h4>
+                      <p className="text-xs text-slate-500 font-medium">Transferência aguardando validação</p>
+                    </div>
+                  </div>
+
+                  {/* Step 2: Pré-processado */}
+                  <div className="relative">
+                    <div className={`absolute -left-[51px] top-1 w-6 h-6 rounded-full border-4 border-white flex items-center justify-center shadow-sm ${
+                      (viewingTransfer.status === 'PRE_PROCESSED' || viewingTransfer.status === 'PROCESSED') 
+                        ? "bg-indigo-600" 
+                        : "bg-white border-2 border-indigo-200"
+                    }`} />
+                    <div className="space-y-1">
+                      <h4 className="text-sm font-black text-slate-800 uppercase tracking-tight">Pré-processado</h4>
+                      <p className="text-xs text-slate-500 font-medium">Transferência pré-processada</p>
+                    </div>
+                  </div>
+
+                  {/* Step 3: Processado / Finalizado */}
+                  <div className="relative">
+                    <div className={`absolute -left-[51px] top-1 w-6 h-6 rounded-full border-4 border-white flex items-center justify-center shadow-sm ${
+                      viewingTransfer.status === 'PROCESSED' 
+                        ? "bg-indigo-600" 
+                        : (viewingTransfer.status === 'DENIED' || viewingTransfer.status === 'FAILED')
+                        ? "bg-rose-500"
+                        : "bg-white border-2 border-indigo-200"
+                    }`} />
+                    <div className="space-y-1">
+                      <h4 className="text-sm font-black text-slate-800 uppercase tracking-tight">
+                        {viewingTransfer.status === 'DENIED' 
+                          ? 'Negado' 
+                          : viewingTransfer.status === 'FAILED' 
+                          ? 'Falha' 
+                          : 'Processado'}
+                      </h4>
+                      <p className="text-xs text-slate-500 font-medium">
+                        {viewingTransfer.status === 'DENIED' 
+                          ? 'Transferência negada' 
+                          : viewingTransfer.status === 'FAILED' 
+                          ? 'Falha no processamento' 
+                          : 'Transferência processada'}
+                      </p>
+                      {viewingTransfer.reason_description && viewingTransfer.reason_description !== '—' && (
+                        <div className="mt-2 bg-slate-50 border border-slate-100 rounded-xl p-3 text-[11px] text-slate-600 font-medium leading-relaxed max-w-xs">
+                          <span className="font-bold text-slate-700 block mb-0.5 uppercase tracking-wide text-[9px]">Motivo/Observação:</span>
+                          {viewingTransfer.reason_description}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Information Cards */}
+              <div className="md:col-span-7 space-y-6">
+                
+                {/* INFORMAÇÕES DO PEDIDO */}
+                <div className="bg-slate-50/50 border border-slate-100 rounded-[1.5rem] p-6 space-y-4">
+                  <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100 text-indigo-600">
+                    <FileText className="w-4 h-4" />
+                    <h3 className="text-xs font-black uppercase tracking-wider">Informações do Pedido</h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-xs">
+                    <div>
+                      <span className="text-slate-400 font-bold block mb-0.5">Pedido:</span>
+                      <span className="font-black text-slate-800">#{viewingTransfer.id}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 font-bold block mb-0.5">Data:</span>
+                      <span className="font-bold text-slate-700">
+                        {formatDateTime(viewingTransfer.created_date).date} <span className="text-slate-400 font-normal text-[10px]">{formatDateTime(viewingTransfer.created_date).time}</span>
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 font-bold block mb-0.5">Quantidade:</span>
+                      <span className="font-black text-slate-900">{parseFloat(viewingTransfer.ucs_transfer_amount || "0").toLocaleString("pt-BR")} UCS</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 font-bold block mb-0.5">Tipo de Transferência:</span>
+                      <span className="font-bold text-slate-700">{viewingTransfer.type_reason}</span>
+                    </div>
+                    <div className="col-span-2">
+                      <span className="text-slate-400 font-bold block mb-0.5">Plataforma:</span>
+                      <span className="font-black text-slate-800">{viewingTransfer.platform}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ORIGEM */}
+                <div className="bg-slate-50/50 border border-slate-100 rounded-[1.5rem] p-6 space-y-4">
+                  <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100 text-indigo-600">
+                    <ArrowUpCircle className="w-4 h-4" />
+                    <h3 className="text-xs font-black uppercase tracking-wider">Origem</h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-xs">
+                    <div className="col-span-2">
+                      <span className="text-slate-400 font-bold block mb-0.5">Nome:</span>
+                      <span className="font-black text-slate-800 uppercase leading-tight block">{viewingTransfer.seller_name}</span>
+                      <span className="inline-block bg-indigo-50 text-indigo-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase mt-1">
+                        {viewingTransfer.seller_role}
+                      </span>
+                    </div>
+                    <div className="col-span-2">
+                      <span className="text-slate-400 font-bold block mb-0.5">Cnpj / Cpf:</span>
+                      <span className="font-mono text-slate-700 font-bold">{viewingTransfer.seller_document}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* DESTINO */}
+                <div className="bg-slate-50/50 border border-slate-100 rounded-[1.5rem] p-6 space-y-4">
+                  <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100 text-indigo-600">
+                    <ArrowDownCircle className="w-4 h-4" />
+                    <h3 className="text-xs font-black uppercase tracking-wider">Destino</h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-xs">
+                    <div className="col-span-2">
+                      <span className="text-slate-400 font-bold block mb-0.5">Nome:</span>
+                      <span className="font-black text-slate-800 uppercase leading-tight block">{viewingTransfer.buyer_name}</span>
+                      <span className="inline-block bg-indigo-50 text-indigo-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase mt-1">
+                        {viewingTransfer.buyer_role}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 font-bold block mb-0.5">Cnpj / Cpf:</span>
+                      <span className="font-mono text-slate-700 font-bold">{viewingTransfer.buyer_document}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 font-bold block mb-0.5">Tipo de saldo de destino:</span>
+                      <span className="font-bold text-emerald-600">{viewingTransfer.retired ? "Aposentado" : "Disponível"}</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       </main>
     </div>
   );

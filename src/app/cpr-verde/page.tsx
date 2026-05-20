@@ -13,7 +13,8 @@ import {
   Trash2,
   User,
   Calendar,
-  MoreVertical
+  MoreVertical,
+  FileText
 } from "lucide-react";
 
 export default function CprVerdePage() {
@@ -109,14 +110,13 @@ export default function CprVerdePage() {
         {/* Header Block */}
         <header className="px-10 py-6 bg-white border-b border-slate-200 flex items-center justify-between shrink-0">
           <div className="space-y-1">
-            <h1 className="text-xl font-bold tracking-wider text-slate-900 uppercase">CPR Verde</h1>
-            <div className="flex items-center gap-2 text-xs text-slate-400 font-semibold">
-              <span>Home</span>
-              <span>&gt;</span>
-              <span>Estoque</span>
-              <span>&gt;</span>
-              <span className="text-indigo-600">CPR Verde</span>
-            </div>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+              <FileText className="w-6 h-6 text-emerald-600" />
+              CPR Verde — Banco Legado
+            </h1>
+            <p className="text-[11px] font-medium text-slate-400">
+              Lendo de <code className="bg-slate-100 px-1.5 py-0.5 rounded text-emerald-600 text-[10px]">dbo_cpr.csv</code> · {pagination.total.toLocaleString('pt-BR')} registros
+            </p>
           </div>
 
           <div className="flex items-center gap-3">

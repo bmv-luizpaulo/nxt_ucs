@@ -20,8 +20,26 @@ const BATCH_SIZE = 450;
 const SLEEP_MS = 2500;
 const CSV_PATH = path.resolve(process.cwd(), 'docs/banco_legado_csvs_completo/dbo_transaction.csv');
 
+function fixEncoding(str: string | undefined): string {
+  if (!str) return '';
+  try { return Buffer.from(str, 'latin1').toString('utf8'); } catch { return str; }
+}
+
 async function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function readCSVFile(file: string): Promise<any[]> {
+  return new Promise((resolve) => {
+    const filePath = path.resolve(process.cwd(), `docs/banco_legado_csvs_completo/${file}`);
+    if (!fs.existsSync(filePath)) return resolve([]);
+    const results: any[] = [];
+    fs.createReadStream(filePath, { encoding: 'latin1' })
+      .pipe(csv())
+      .on('data', (row) => results.push(row))
+      .on('end', () => resolve(results))
+      .on('error', () => resolve(results));
+  });
 }
 
 async function run() {
@@ -33,7 +51,43 @@ async function run() {
     process.exit(1);
   }
 
-  console.log(`\n🚀 Iniciando importação massiva das TRANSAÇÕES (Ledger) da tabela dbo_transaction...`);
+  console.log('⏳ Carregando dados auxiliares para desnormalização...');
+  const [users, roleUsers, platforms] = await Promise.all([
+    readCSVFile('dbo_user.csv'),
+    readCSVFile('dbo_role_user.csv'),
+    readCSVFile('dbo_platform.csv')
+  ]);
+
+  const platformMap: Record<string, string> = {};
+  for (const p of platforms) {
+    platformMap[p.id] = p.alias || p.name;
+  }
+
+  const userMap: Record<string, any> = {};
+  for (const u of users) {
+    userMap[u.id] = u;
+  }
+
+  const roleUserMap: Record<string, { name: string; role: string }> = {};
+  for (const ru of roleUsers) {
+    const u = userMap[ru.user_id] || {};
+    const name = [u.name, u.surname].filter(Boolean).join(' ').trim() || '—';
+    roleUserMap[ru.id] = {
+      name: fixEncoding(name),
+      role: ru.role,
+    };
+  }
+
+  const translatedRoles: Record<string, string> = {
+    'IMEI': 'IMEI',
+    'GOVERNMENT': 'Governo',
+    'CUSTOMER': 'Cliente',
+    'PRODUCER': 'Produtor',
+    'PARTNER': 'Parceiro',
+    'DISTRIBUTOR': 'Distribuidor',
+  };
+
+  console.log(`\n🚀 Iniciando importação massiva das TRANSAÇÕES (Ledger) com dados desnormalizados...`);
   
   let batch = writeBatch(db);
   let count = 0;
@@ -53,17 +107,28 @@ async function run() {
 
       const docRef = doc(db, 'transactions', row.id.toString());
       
+      const issuer = roleUserMap[row.issuer_id] || { name: '—', role: '—' };
+      const recipient = roleUserMap[row.recipient_id] || { name: '—', role: '—' };
+      
       const txData = {
         id: row.id.toString(),
         amount: row.amount ? parseFloat(row.amount) : 0,
         issuerId: row.issuer_id ? row.issuer_id.toString() : null,
         recipientId: row.recipient_id ? row.recipient_id.toString() : null,
-        description: row.description || null,
+        description: fixEncoding(row.description) || null,
         targetBalance: row.target_balance || null,
         originBalance: row.origin_balance || null,
         originalCreatedOn: row.created_on ? Timestamp.fromDate(new Date(row.created_on)) : null,
         originalFinishedOn: row.finished_on ? Timestamp.fromDate(new Date(row.finished_on)) : null,
         cprAreaId: row.cpr_area_id ? row.cpr_area_id.toString() : null,
+        distribution_id: row.distribution_id ? row.distribution_id.toString() : null,
+        // Campos desnormalizados para otimizar leitura no Firestore
+        issuer_name: issuer.name,
+        issuer_role: translatedRoles[issuer.role] || issuer.role || '—',
+        recipient_name: recipient.name,
+        recipient_role: translatedRoles[recipient.role] || recipient.role || '—',
+        origin_platform: platformMap[row.origin_platform_id] || row.origin_platform || '—',
+        recipient_platform: platformMap[row.recipient_platform_id] || '—',
         migratedAt: serverTimestamp()
       };
 

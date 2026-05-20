@@ -162,7 +162,7 @@ export async function GET(req: NextRequest) {
   const allOrders = [...aksesOrder, ...tvOrder];
   for (const ord of allOrders) {
     if (ord.issuer_id) allRoleUserIds.push(ord.issuer_id);
-    if (ord.created_by) allUserIds.push(ord.created_by);
+    if (ord.created_by) allRoleUserIds.push(ord.created_by);
   }
 
   const [roleUserMap, userMap] = await Promise.all([
@@ -208,12 +208,12 @@ export async function GET(req: NextRequest) {
   const enrichedAksesOrders = aksesOrder.map(o => ({
     ...o,
     issuer: enrichRoleUser(o.issuer_id),
-    createdByUser: userMap[o.created_by] ?? null,
+    createdByUser: enrichRoleUser(o.created_by),
   }));
   const enrichedTvOrders = tvOrder.map(o => ({
     ...o,
     issuer: enrichRoleUser(o.issuer_id),
-    createdByUser: userMap[o.created_by] ?? null,
+    createdByUser: enrichRoleUser(o.created_by),
   }));
 
   // ── 8. Summary ────────────────────────────────────────────────────────────

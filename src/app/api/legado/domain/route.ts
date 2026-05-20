@@ -19,7 +19,7 @@ function fixRow(row: Record<string, string>): Record<string, string> {
 function readCSVStream(
   file: string,
   filter?: (row: Record<string, string>) => boolean,
-  limit = 2000
+  limit = 200000
 ): Promise<Record<string, string>[]> {
   return new Promise((resolve) => {
     const filePath = path.join(CSV_DIR, file);
@@ -465,7 +465,8 @@ async function handleOrders(searchParams: URLSearchParams) {
 
   // Calculate status counts on all items belonging to this category
   const statusCounts: Record<string, number> = {
-    PENDING_APPROVAL: 0,
+    PENDING_VALIDATION: 0,
+    PENDING_DOCUMENTATION_VALIDATION: 0,
     PENDING_PAYMENT: 0,
     PAID: 0,
     PRE_PROCESSED: 0,
@@ -477,7 +478,7 @@ async function handleOrders(searchParams: URLSearchParams) {
   
   for (const o of orders) {
     let s = o.status || '';
-    if (s === 'PENDING') s = 'PENDING_APPROVAL';
+    if (s === 'PENDING' || s === 'PENDING_APPROVAL') s = 'PENDING_VALIDATION';
     if (s) {
       statusCounts[s] = (statusCounts[s] || 0) + 1;
     }
@@ -491,19 +492,33 @@ async function handleOrders(searchParams: URLSearchParams) {
   if (status) {
     filtered = filtered.filter(o => {
       let s = o.status || '';
-      if (s === 'PENDING') s = 'PENDING_APPROVAL';
+      if (s === 'PENDING' || s === 'PENDING_APPROVAL') s = 'PENDING_VALIDATION';
       return s === status;
     });
   }
 
   if (search) {
     filtered = filtered.filter(o =>
-      o._primaryName.toLowerCase().includes(search) ||
-      o._primaryDocument.includes(search) ||
+      (o.id || '').toLowerCase().includes(search) ||
+      (o.distribution_id || '').toLowerCase().includes(search) ||
+      (o._primaryName || '').toLowerCase().includes(search) ||
+      (o._primaryDocument || '').toLowerCase().includes(search) ||
+      (o._secondaryName || '').toLowerCase().includes(search) ||
+      (o._secondaryDocument || '').toLowerCase().includes(search) ||
       (o.responsibleName || '').toLowerCase().includes(search) ||
-      o.id.includes(search) ||
-      (o.distribution_id || '').includes(search)
+      (o.responsible_name || '').toLowerCase().includes(search) ||
+      (o.seller_name || '').toLowerCase().includes(search)
     );
+  }
+
+  const paymentType = searchParams.get('paymentType') || '';
+  if (paymentType) {
+    filtered = filtered.filter(o => o.payment_type === paymentType);
+  }
+
+  const nxtStatus = searchParams.get('nxtStatus') || '';
+  if (nxtStatus === 'fila') {
+    filtered = filtered.filter(o => o.order_book_queue_id && o.order_book_queue_id !== '—' && o.order_book_queue_id !== '');
   }
 
   const dateInicio = searchParams.get('dateInicio') || '';
@@ -916,8 +931,8 @@ async function handleTransfTitularidade(searchParams: URLSearchParams) {
   };
 
   const enriched = transfers.map(t => {
-    const requester = userMap[t.created_by] || {};
-    const requesterName = [requester.name, requester.surname].filter(Boolean).join(' ').trim() || '—';
+    const requester = roleUserMap[t.created_by] || { name: '—', document: '—', role: '—' };
+    const requesterName = requester.name;
     
     const seller = roleUserMap[t.issuer_id] || { name: '—', document: '—', role: '—' };
     const buyer = roleUserMap[t.recipient_id] || { name: '—', document: '—', role: '—' };
@@ -931,7 +946,7 @@ async function handleTransfTitularidade(searchParams: URLSearchParams) {
       status: t.status,
       type_reason: t.type_reason || t.reason_description || '—',
       nxt_id: t.nxt_id || '—',
-      requester_name: fixEncoding(requesterName),
+      requester_name: requesterName,
       requester_document: requester.document || '—',
       seller_name: seller.name,
       seller_document: seller.document,
@@ -940,6 +955,9 @@ async function handleTransfTitularidade(searchParams: URLSearchParams) {
       buyer_document: buyer.document,
       buyer_role: translatedRoles[buyer.role] || buyer.role || '—',
       platform: platformMap[t.origin_platform_id] || '—',
+      distribution_id: t.distribution_id || null,
+      retired: t.retired === 't' || t.retired === 'true',
+      reason_description: fixEncoding(t.reason_description) || null,
     };
   });
 
@@ -1042,8 +1060,8 @@ async function handleAjustesContas(searchParams: URLSearchParams) {
   };
 
   const enriched = adjustments.map(t => {
-    const requester = userMap[t.created_by] || {};
-    const requesterName = [requester.name, requester.surname].filter(Boolean).join(' ').trim() || '—';
+    const requester = roleUserMap[t.created_by] || { name: '—', document: '—', role: '—' };
+    const requesterName = requester.name;
     
     const sender = roleUserMap[t.issuer_id] || { name: '—', document: '—', role: '—' };
     const receiver = roleUserMap[t.recipient_id] || { name: '—', document: '—', role: '—' };
@@ -1051,10 +1069,13 @@ async function handleAjustesContas(searchParams: URLSearchParams) {
     return {
       id: t.id,
       ucs_transfer_amount: t.ucs_transfer_amount,
+      distribution_id: t.distribution_id || '',
+      reason_description: fixEncoding(t.reason_description) || '—',
+      type_reason: fixEncoding(t.type_reason) || '—',
       created_date: t.created_date,
       status: t.status,
       observations: fixEncoding(t.observations) || '—',
-      requester_name: fixEncoding(requesterName),
+      requester_name: requesterName,
       requester_document: requester.document || '—',
       sender_name: sender.name,
       sender_document: sender.document,
@@ -1131,12 +1152,14 @@ async function handleBloqueioUcs(searchParams: URLSearchParams) {
   const status = searchParams.get('status') || '';
   const areaQuery = searchParams.get('areaQuery')?.toLowerCase() || '';
 
-  const [blockedUcs, users, roleUsers, areas] = await Promise.all([
+  const [blockedUcsRaw, users, roleUsers, areas] = await Promise.all([
     readCSVStream('dbo_blocked_ucs.csv'),
     readCSVStream('dbo_user.csv'),
     readCSVStream('dbo_role_user.csv'),
     readCSVStream('dbo_area.csv'),
   ]);
+
+  const blockedUcs = blockedUcsRaw.filter(b => b.active === 't');
 
   const userMap: Record<string, Record<string, string>> = {};
   for (const u of users) {
@@ -1358,6 +1381,83 @@ async function handleCprVerde(searchParams: URLSearchParams) {
   };
 }
 
+async function handleCertificate(searchParams: URLSearchParams) {
+  const orderId = searchParams.get('orderId') || '';
+  const category = searchParams.get('category') || '';
+
+  if (!orderId || !category) {
+    throw new Error('Parâmetros orderId e category são obrigatórios.');
+  }
+
+  // 1. Determine files
+  let orderFile = '';
+  let certificateMappingFile = '';
+
+  if (category.startsWith('tv_')) {
+    orderFile = 'plat_tesouro_verde_certificate_order.csv';
+    certificateMappingFile = 'plat_tesouro_verde_certificate.csv';
+  } else if (category === 'akses_living_carbon') {
+    orderFile = 'plat_akses_living_carbon_certificate_order.csv';
+    certificateMappingFile = 'plat_akses_living_carbon_certificate.csv';
+  } else if (category === 'akses_cert_cliente') {
+    orderFile = 'plat_akses_client_certificate_order.csv';
+    certificateMappingFile = 'plat_akses_client_certificate.csv';
+  } else {
+    orderFile = 'plat_akses_distributor_certificate_order.csv';
+    certificateMappingFile = 'plat_akses_distributor_certificate.csv';
+  }
+
+  // 2. Fetch the order row
+  const orders = await readCSVStream(orderFile, (row) => row.id === orderId, 1);
+  const order = orders[0] || null;
+
+  if (!order) {
+    return { error: 'Pedido não encontrado.' };
+  }
+
+  // 3. Fetch the certificate mapping row
+  const mappings = await readCSVStream(certificateMappingFile, (row) => row.certificate_order_id === orderId, 1);
+  const mapping = mappings[0] || null;
+
+  if (!mapping) {
+    return {
+      order,
+      certificate: null,
+      nxt: null,
+      status: 'Aguardando Emissão',
+    };
+  }
+
+  const certId = mapping.id;
+
+  // 4. Fetch the core certificate from dbo_certificate
+  const certs = await readCSVStream('dbo_certificate.csv', (row) => row.id === certId, 1);
+  const certificate = certs[0] || null;
+
+  if (!certificate) {
+    return {
+      order,
+      certificate: null,
+      nxt: null,
+      status: 'Aguardando Emissão',
+    };
+  }
+
+  // 5. Fetch the NXT transaction row
+  let nxt = null;
+  if (certificate.nxt_id) {
+    const nxtRows = await readCSVStream('dbo_nxt.csv', (row) => row.id === certificate.nxt_id, 1);
+    nxt = nxtRows[0] || null;
+  }
+
+  return {
+    order,
+    certificate,
+    nxt,
+    status: order.status || 'PROCESSED',
+  };
+}
+
 async function handleEstoqueDashboard() {
   const [batches, blocked, transactions, transfers, adjustments] = await Promise.all([
     readCSVStream('dbo_ucs_batch.csv'),
@@ -1395,6 +1495,107 @@ async function handleEstoqueDashboard() {
   };
 }
 
+async function handleSaldos(searchParams: URLSearchParams) {
+  const search = searchParams.get('search')?.toLowerCase() || '';
+  const platformFilter = searchParams.get('platform') || '';
+  const page = parseInt(searchParams.get('page') || '1');
+  const pageSize = parseInt(searchParams.get('pageSize') || '50');
+
+  const [balances, users, roleUsers, platforms] = await Promise.all([
+    readCSVStream('dbo_consolidated_balance.csv'),
+    readCSVStream('dbo_user.csv'),
+    readCSVStream('dbo_role_user.csv'),
+    readCSVStream('dbo_platform.csv'),
+  ]);
+
+  const platformMap: Record<string, { name: string; alias: string }> = {};
+  for (const p of platforms) {
+    platformMap[p.id] = {
+      name: fixEncoding(p.name),
+      alias: fixEncoding(p.alias || p.name),
+    };
+  }
+
+  const userMap: Record<string, Record<string, string>> = {};
+  for (const u of users) {
+    userMap[u.id] = u;
+  }
+
+  const roleUserMap: Record<string, { name: string; document: string; role: string }> = {};
+  for (const ru of roleUsers) {
+    const u = userMap[ru.user_id] || {};
+    const name = [u.name, u.surname].filter(Boolean).join(' ').trim() || '—';
+    roleUserMap[ru.id] = {
+      name: fixEncoding(name),
+      document: u.document || '—',
+      role: ru.role,
+    };
+  }
+
+  const translatedRoles: Record<string, string> = {
+    'IMEI': 'IMEI',
+    'GOVERNMENT': 'Governo',
+    'CUSTOMER': 'Cliente',
+    'PRODUCER': 'Produtor',
+    'PARTNER': 'Parceiro',
+    'DISTRIBUTOR': 'Distribuidor',
+  };
+
+  const enriched = balances.map(b => {
+    const roleUser = roleUserMap[b.user_id] || { name: '—', document: '—', role: '—' };
+    const platform = platformMap[b.platform_id] || { name: '—', alias: '—' };
+
+    return {
+      id: b.id,
+      available_balance: b.available_balance,
+      reserved_balance: b.reserved_balance,
+      blocked_balance: b.blocked_balance,
+      retired_balance: b.retired_balance,
+      user_id: b.user_id,
+      updated_on: b.updated_on,
+      platform_id: b.platform_id,
+      platform_name: platform.name,
+      platform_alias: platform.alias,
+      user_name: roleUser.name,
+      user_document: roleUser.document,
+      user_role: translatedRoles[roleUser.role] || roleUser.role || '—',
+    };
+  });
+
+  const filtered = enriched.filter(b => {
+    if (search) {
+      const matchName = b.user_name.toLowerCase().includes(search);
+      const matchDoc = b.user_document.includes(search);
+      if (!matchName && !matchDoc) return false;
+    }
+    if (platformFilter) {
+      if (b.platform_id !== platformFilter && b.platform_alias !== platformFilter) return false;
+    }
+    return true;
+  });
+
+  // Sort by updated_on descending, then id descending
+  filtered.sort((a, b) => {
+    const dateA = a.updated_on || '';
+    const dateB = b.updated_on || '';
+    if (dateB !== dateA) return dateB.localeCompare(dateA);
+    return parseInt(b.id || '0') - parseInt(a.id || '0');
+  });
+
+  const total = filtered.length;
+  const rows = filtered.slice((page - 1) * pageSize, page * pageSize);
+
+  return {
+    rows,
+    pagination: {
+      page,
+      pageSize,
+      total,
+      totalPages: Math.ceil(total / pageSize),
+    },
+  };
+}
+
 // ─── Route handler ────────────────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
@@ -1403,6 +1604,7 @@ export async function GET(req: NextRequest) {
 
   try {
     switch (domain) {
+      case 'saldos':      return NextResponse.json(await handleSaldos(searchParams));
       case 'areas':       return NextResponse.json(await handleAreas(searchParams));
       case 'users':       return NextResponse.json(await handleUsers(searchParams));
       case 'harvests':    return NextResponse.json(await handleHarvests(searchParams));
@@ -1417,6 +1619,7 @@ export async function GET(req: NextRequest) {
       case 'ajustes-contas': return NextResponse.json(await handleAjustesContas(searchParams));
       case 'bloqueio-ucs': return NextResponse.json(await handleBloqueioUcs(searchParams));
       case 'cpr-verde': return NextResponse.json(await handleCprVerde(searchParams));
+      case 'certificate': return NextResponse.json(await handleCertificate(searchParams));
       case 'estoque-dashboard': return NextResponse.json(await handleEstoqueDashboard());
       default:
         return NextResponse.json({ error: `Domain desconhecido: ${domain}` }, { status: 400 });

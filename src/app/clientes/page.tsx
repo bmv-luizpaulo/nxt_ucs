@@ -45,7 +45,7 @@ export default function ClientesLegadoPage() {
               Clientes / Usuários — Banco Legado
             </h1>
             <p className="text-[11px] font-medium text-slate-400">
-              Lendo de <code className="bg-slate-100 px-1.5 py-0.5 rounded text-teal-600 text-[10px]">dbo_user.csv</code> + <code className="bg-slate-100 px-1.5 py-0.5 rounded text-teal-600 text-[10px]">dbo_role_user.csv</code> · {pagination.total.toLocaleString('pt-BR')} usuários
+              Lendo de <code className="bg-slate-100 px-1.5 py-0.5 rounded text-emerald-600 text-[10px]">dbo_user.csv</code> + <code className="bg-slate-100 px-1.5 py-0.5 rounded text-emerald-600 text-[10px]">dbo_role_user.csv</code> · {pagination.total.toLocaleString('pt-BR')} usuários
             </p>
           </div>
           <button onClick={refresh} className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors"><RefreshCw size={16} /></button>

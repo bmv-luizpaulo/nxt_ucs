@@ -29,7 +29,7 @@ export default function ParceirosLegadoPage() {
               Parceiros — Banco Legado
             </h1>
             <p className="text-[11px] font-medium text-slate-400">
-              Lendo de <code className="bg-slate-100 px-1.5 py-0.5 rounded text-indigo-600 text-[10px]">plat_tesouro_verde_partners.csv</code> · {pagination.total} parceiros
+              Lendo de <code className="bg-slate-100 px-1.5 py-0.5 rounded text-emerald-600 text-[10px]">plat_tesouro_verde_partners.csv</code> · {pagination.total.toLocaleString('pt-BR')} parceiros
             </p>
           </div>
           <button onClick={refresh} className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors"><RefreshCw size={16} /></button>

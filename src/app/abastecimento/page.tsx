@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react";
+import Link from "next/link";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { useLegacyData } from "@/hooks/useLegacyData";
 import { 
@@ -36,31 +37,30 @@ export default function AbastecimentoPage() {
       <main className="flex-1 flex flex-col overflow-hidden">
         
         {/* Header */}
-        <header className="h-24 bg-[#080C11] px-10 flex items-center justify-between border-b border-white/5 shrink-0 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-1/4 h-full bg-indigo-500/5 blur-[80px] rounded-full pointer-events-none" />
-          <div className="flex items-center gap-4 relative z-10">
-            <div className="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center border border-white/5">
-              <Boxes className="w-6 h-6 text-indigo-400" />
-            </div>
-            <div className="space-y-1">
-              <h1 className="text-2xl font-black text-white tracking-tight uppercase leading-none">Abastecimento (Lotes)</h1>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Registros de Lotes de UCS (dbo_ucs_batch.csv)</p>
-            </div>
+        <header className="h-24 bg-white px-10 flex items-center justify-between border-b border-slate-100 shrink-0">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+              <Boxes className="w-6 h-6 text-indigo-600" />
+              Abastecimento — Banco Legado
+            </h1>
+            <p className="text-[11px] font-medium text-slate-400">
+              Lendo de <code className="bg-slate-100 px-1.5 py-0.5 rounded text-emerald-600 text-[10px]">dbo_ucs_batch.csv</code> · {pagination.total.toLocaleString('pt-BR')} lotes
+            </p>
           </div>
 
-          <div className="flex items-center gap-4 relative z-10">
+          <div className="flex items-center gap-4">
             <div className="relative w-72">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 value={search}
                 onChange={e => handleSearch(e.target.value)}
                 placeholder="Buscar por ID, ano, distribuição..."
-                className="w-full pl-10 pr-4 h-11 bg-white/5 border border-white/10 rounded-xl text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-indigo-400/50"
+                className="w-full pl-10 pr-4 h-11 bg-white border border-slate-200 rounded-xl text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-indigo-400"
               />
             </div>
             <button 
               onClick={refresh} 
-              className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
+              className="p-2 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors"
             >
               <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
             </button>
@@ -118,9 +118,9 @@ export default function AbastecimentoPage() {
                         <td className="py-4 px-6 text-xs text-slate-500 font-mono">RU-{b.user_id}</td>
                         <td className="py-4 px-6">
                           {b.distribution_id ? (
-                            <span className="inline-block bg-slate-900 text-white text-[9px] font-black px-2 py-1 rounded">
+                            <Link href={`/movimentacoes?distId=${b.distribution_id}`} className="inline-block bg-slate-900 hover:bg-indigo-600 hover:scale-105 transition-all text-white text-[9px] font-black px-2 py-1 rounded">
                               {b.distribution_id}
-                            </span>
+                            </Link>
                           ) : (
                             <span className="text-slate-400">—</span>
                           )}

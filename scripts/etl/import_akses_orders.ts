@@ -167,6 +167,54 @@ async function run() {
     })
   );
 
+  // Pedidos de venda Akses
+  total += await processFile(
+    'plat_akses_sale_order.csv',
+    'aksesSaleOrders',
+    'Pedidos de Venda Akses',
+    (row) => ({
+      id: row.id.toString(),
+      sellerId: row.seller_id ? row.seller_id.toString() : null,
+      ucsAmount: row.ucs_amount ? parseFloat(row.ucs_amount) : 0,
+      price: row.price ? parseFloat(row.price) : 0,
+      status: row.status || null,
+      distributionId: row.distribution_id ? row.distribution_id.toString() : null,
+      originalCreatedAt: row.created_date ? Timestamp.fromDate(new Date(row.created_date)) : null,
+    })
+  );
+
+  // Certificados de Estoque CDE
+  total += await processFile(
+    'dbo_stock_availability_certificate_order.csv',
+    'stockAvailabilityCertOrders',
+    'Certificados de Estoque CDE (Stock)',
+    (row) => ({
+      id: row.id.toString(),
+      issuerId: row.issuer_id ? row.issuer_id.toString() : null,
+      ucsAmount: row.ucs_amount ? parseFloat(row.ucs_amount) : 0,
+      price: row.price ? parseFloat(row.price) : 0,
+      status: row.status || null,
+      distributionId: row.distribution_id ? row.distribution_id.toString() : null,
+      originalCreatedAt: row.created_date ? Timestamp.fromDate(new Date(row.created_date)) : null,
+    })
+  );
+
+  // Intenções de Movimentação
+  total += await processFile(
+    'dbo_movement_intention_order.csv',
+    'movementIntentionOrders',
+    'Intenções de Movimentação',
+    (row) => ({
+      id: row.id.toString(),
+      issuerId: row.issuer_id ? row.issuer_id.toString() : null,
+      ucsAmount: row.ucs_amount ? parseFloat(row.ucs_amount) : 0,
+      price: row.price ? parseFloat(row.price) : 0,
+      status: row.status || null,
+      distributionId: row.distribution_id ? row.distribution_id.toString() : null,
+      originalCreatedAt: row.created_date ? Timestamp.fromDate(new Date(row.created_date)) : null,
+    })
+  );
+
   console.log(`\n✅ Sucesso! Total Akses migrado: ${total} registros`);
   process.exit(0);
 }

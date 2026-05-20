@@ -13,7 +13,12 @@ import {
   Trash2,
   User,
   MapPin,
-  MoreVertical
+  MoreVertical,
+  Lock,
+  Eye,
+  Info,
+  Ban,
+  X
 } from "lucide-react";
 
 export default function BloqueioUcsPage() {
@@ -22,6 +27,13 @@ export default function BloqueioUcsPage() {
   const [perfil, setPerfil] = useState("");
   const [status, setStatus] = useState("");
   const [areaQuery, setAreaQuery] = useState("");
+
+  // Action Menu and Modal states
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [selectedBlock, setSelectedBlock] = useState<any | null>(null);
+  const [confirmDeleteBlock, setConfirmDeleteBlock] = useState<any | null>(null);
+  const [deletedIds, setDeletedIds] = useState<string[]>([]);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const { 
     rows, 
@@ -43,6 +55,14 @@ export default function BloqueioUcsPage() {
   });
 
   const records = rows as any[];
+  const visibleRecords = records.filter(r => !deletedIds.includes(r.id));
+
+  const triggerToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3000);
+  };
 
   const handleClearFilters = () => {
     setBlockId("");
@@ -78,14 +98,13 @@ export default function BloqueioUcsPage() {
         {/* Header Block */}
         <header className="px-10 py-6 bg-white border-b border-slate-200 flex items-center justify-between shrink-0">
           <div className="space-y-1">
-            <h1 className="text-xl font-bold tracking-wider text-slate-900 uppercase">Bloqueio de UCS</h1>
-            <div className="flex items-center gap-2 text-xs text-slate-400 font-semibold">
-              <span>Home</span>
-              <span>&gt;</span>
-              <span>Estoque</span>
-              <span>&gt;</span>
-              <span className="text-indigo-600">Bloqueio de UCS</span>
-            </div>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+              <Lock className="w-6 h-6 text-indigo-600" />
+              Bloqueio de UCS — Banco Legado
+            </h1>
+            <p className="text-[11px] font-medium text-slate-400">
+              Lendo de <code className="bg-slate-100 px-1.5 py-0.5 rounded text-emerald-600 text-[10px]">dbo_blocked_ucs.csv</code> · {pagination.total.toLocaleString('pt-BR')} bloqueios
+            </p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -207,7 +226,7 @@ export default function BloqueioUcsPage() {
                     <th className="py-5 px-6 text-[10px] font-black uppercase tracking-widest">Usuário</th>
                     <th className="py-5 px-6 text-[10px] font-black uppercase tracking-widest">Área</th>
                     <th className="py-5 px-6 text-[10px] font-black uppercase tracking-widest">Status</th>
-                    <th className="py-5 px-6 w-12"></th>
+                    <th className="py-5 px-6 w-16 text-center"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -218,14 +237,14 @@ export default function BloqueioUcsPage() {
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Carregando bloqueios...</span>
                       </td>
                     </tr>
-                  ) : records.length === 0 ? (
+                  ) : visibleRecords.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="py-16 text-center text-slate-400 text-xs font-bold uppercase tracking-wider">
                         Nenhum registro de bloqueio encontrado
                       </td>
                     </tr>
                   ) : (
-                    records.map((t) => {
+                    visibleRecords.map((t) => {
                       return (
                         <tr key={t.id} className="border-b border-slate-100 hover:bg-slate-50/30 transition-colors text-slate-700">
                           <td className="py-4 px-6 text-[13px] font-black text-indigo-600 hover:underline cursor-pointer">
@@ -257,20 +276,55 @@ export default function BloqueioUcsPage() {
                           <td className="py-4 px-6">
                             {t.status === "FINISHED" ? (
                               <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] font-bold px-2.5 py-1 rounded">
-                                <span className="w-1 h-1 rounded-full bg-emerald-500"></span>
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                 ✓ Processado
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 border border-amber-100 text-[10px] font-bold px-2.5 py-1 rounded">
-                                <span className="w-1 h-1 rounded-full bg-amber-500"></span>
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                                 Pendente
                               </span>
                             )}
                           </td>
-                          <td className="py-4 px-6 text-center">
-                            <button className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-600 transition-colors">
+                          <td className="py-4 px-6 text-center relative">
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveMenuId(activeMenuId === t.id ? null : t.id);
+                              }}
+                              className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-colors"
+                            >
                               <MoreVertical size={16} />
                             </button>
+                            
+                            {activeMenuId === t.id && (
+                              <>
+                                <div 
+                                  className="fixed inset-0 z-10" 
+                                  onClick={() => setActiveMenuId(null)}
+                                />
+                                <div className="absolute right-6 top-11 w-32 bg-white border border-slate-200/80 rounded-xl shadow-xl py-1 z-20 text-left overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                                  <button
+                                    onClick={() => {
+                                      setSelectedBlock(t);
+                                      setActiveMenuId(null);
+                                    }}
+                                    className="w-full px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors flex items-center justify-start"
+                                  >
+                                    Visualizar
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setConfirmDeleteBlock(t);
+                                      setActiveMenuId(null);
+                                    }}
+                                    className="w-full px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors flex items-center justify-start"
+                                  >
+                                    Remover
+                                  </button>
+                                </div>
+                              </>
+                            )}
                           </td>
                         </tr>
                       );
@@ -284,7 +338,7 @@ export default function BloqueioUcsPage() {
             {pagination && pagination.totalPages > 1 && (
               <div className="p-6 border-t border-slate-200 flex items-center justify-between bg-slate-50/50">
                 <span className="text-xs font-bold text-slate-400">
-                  Mostrando {records.length} de {pagination.total} registros
+                  Mostrando {visibleRecords.length} de {pagination.total} registros
                 </span>
                 <div className="flex gap-2">
                   <button
@@ -310,6 +364,113 @@ export default function BloqueioUcsPage() {
           </div>
         </div>
       </main>
+
+      {/* Details Modal */}
+      {selectedBlock && (
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100">
+              <h2 className="text-base font-black text-slate-800 tracking-tight">
+                Detalhes do bloqueio #{selectedBlock.id}
+              </h2>
+              <button 
+                onClick={() => setSelectedBlock(null)}
+                className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            
+            {/* Modal Body */}
+            <div className="p-6 space-y-6">
+              {/* Informações Gerais */}
+              <div className="space-y-4">
+                <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                  <Info size={14} className="text-indigo-600" />
+                  Informações Gerais
+                </h3>
+                <div className="grid grid-cols-3 gap-y-3.5 text-xs">
+                  <span className="font-semibold text-slate-400 col-span-1">Nome:</span>
+                  <span className="font-bold text-slate-800 col-span-2">{selectedBlock.user_name}</span>
+
+                  <span className="font-semibold text-slate-400 col-span-1">Perfil:</span>
+                  <span className="font-bold text-slate-800 col-span-2">{selectedBlock.user_role}</span>
+
+                  <span className="font-semibold text-slate-400 col-span-1">Área:</span>
+                  <span className="font-bold text-slate-800 col-span-2">{selectedBlock.area_name}</span>
+
+                  <span className="font-semibold text-slate-400 col-span-1">Status:</span>
+                  <span className="font-bold text-slate-800 col-span-2">
+                    {selectedBlock.status === "FINISHED" ? "Finalizado" : "Pendente"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Motivo */}
+              <div className="space-y-3 pt-4 border-t border-slate-100">
+                <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                  <Ban size={14} className="text-indigo-600" />
+                  Motivo
+                </h3>
+                <div className="text-xs font-bold text-slate-800 pl-6 leading-relaxed">
+                  <div>{selectedBlock.reason || "Outros"}</div>
+                  {selectedBlock.description && selectedBlock.description !== "—" && (
+                    <div className="text-slate-500 font-normal mt-2 leading-relaxed bg-slate-50 border border-slate-100 p-3 rounded-lg">
+                      {selectedBlock.description}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {confirmDeleteBlock && (
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-sm w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="p-6 text-center space-y-4">
+              <div className="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto">
+                <Trash2 size={24} />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-base font-black text-slate-800">Confirmar Remoção</h3>
+                <p className="text-xs text-slate-400">
+                  Tem certeza que deseja remover o bloqueio #{confirmDeleteBlock.id}? Esta ação não poderá ser desfeita.
+                </p>
+              </div>
+            </div>
+            <div className="bg-slate-50 px-6 py-4 flex gap-3 justify-end border-t border-slate-100">
+              <button
+                onClick={() => setConfirmDeleteBlock(null)}
+                className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  setDeletedIds(prev => [...prev, confirmDeleteBlock.id]);
+                  triggerToast(`Bloqueio #${confirmDeleteBlock.id} removido com sucesso!`);
+                  setConfirmDeleteBlock(null);
+                }}
+                className="px-4 py-2 text-xs font-bold text-white bg-red-650 hover:bg-red-750 rounded-lg shadow-lg shadow-red-100 transition-colors"
+              >
+                Confirmar Remoção
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Alert */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-xl flex items-center gap-2.5 text-xs font-bold animate-in slide-in-from-bottom-4 duration-200">
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+          {toastMessage}
+        </div>
+      )}
     </div>
   );
 }
