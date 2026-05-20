@@ -102,7 +102,7 @@ export const SIDEBAR_CONFIG: MenuGroup[] = [
       },
       { icon: Wallet, label: "DARE / Royalties", href: "/dare-royalties", color: "text-emerald-500 group-hover:text-emerald-600" },
       { icon: Building2, label: "Parceiros (Legado)", href: "/parceiros", color: "text-blue-500 group-hover:text-blue-600" },
-      { icon: Users2, label: "Usuários (Legado)", href: "/users", color: "text-indigo-500 group-hover:text-indigo-600" },
+      { icon: Users2, label: "Usuários (Legado)", href: "/users-legado", color: "text-indigo-500 group-hover:text-indigo-600" },
     ]
   },
   {
