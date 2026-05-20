@@ -7,12 +7,33 @@ import { useToast } from '@/hooks/use-toast';
 import {
   Search, ChevronLeft, ChevronRight, Loader2, RefreshCw,
   Download, Plus, Copy, MoreHorizontal, Calendar, X,
-  Users, UserCheck, UserMinus, FileText
+  Users, UserCheck, UserMinus, FileText, Eye, Shield, Leaf, ShoppingCart
 } from 'lucide-react';
 
 export default function GerenciarUsuariosPage() {
   const { toast } = useToast();
   
+  // Action Menu and Modal states
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<any | null>(null);
+
+  const formatDateTime = (dtStr: string) => {
+    if (!dtStr) return '—';
+    try {
+      const parts = dtStr.split(' ');
+      const datePart = parts[0];
+      const timePart = parts[1] ? parts[1].split('.')[0] : '';
+      
+      const dateSubparts = datePart.split('-');
+      if (dateSubparts.length === 3) {
+        return `${dateSubparts[2]}/${dateSubparts[1]}/${dateSubparts[0]}${timePart ? ' ' + timePart : ''}`;
+      }
+      return dtStr;
+    } catch {
+      return dtStr;
+    }
+  };
+
   // Filter states
   const [profileId, setProfileId] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
@@ -342,10 +363,37 @@ export default function GerenciarUsuariosPage() {
                           </td>
 
                           {/* Ações */}
-                          <td className="py-4 px-6">
-                            <button className="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-400 flex items-center justify-center transition-colors">
+                          <td className="py-4 px-6 relative">
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveMenuId(activeMenuId === u.id ? null : u.id);
+                              }}
+                              className="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-400 flex items-center justify-center transition-colors"
+                            >
                               <MoreHorizontal size={14} />
                             </button>
+
+                            {activeMenuId === u.id && (
+                              <>
+                                <div 
+                                  className="fixed inset-0 z-10" 
+                                  onClick={() => setActiveMenuId(null)}
+                                />
+                                <div className="absolute right-6 top-11 w-32 bg-white border border-slate-200/80 rounded-xl shadow-xl py-1 z-20 text-left overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                                  <button
+                                    onClick={() => {
+                                      setSelectedUser(u);
+                                      setActiveMenuId(null);
+                                    }}
+                                    className="w-full px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors flex items-center justify-start gap-2"
+                                  >
+                                    <Eye size={14} className="text-slate-400" />
+                                    Visualizar
+                                  </button>
+                                </div>
+                              </>
+                            )}
                           </td>
                         </tr>
                       );
@@ -421,6 +469,148 @@ export default function GerenciarUsuariosPage() {
 
         </div>
       </main>
+
+      {/* Details Modal */}
+      {selectedUser && (
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-4xl w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            {/* Modal Header */}
+            <div className="px-8 py-5 flex items-center justify-between border-b border-slate-100">
+              <h2 className="text-base font-black text-slate-800 tracking-tight flex items-center gap-2">
+                <Users className="w-5 h-5 text-indigo-650" />
+                detalhes {selectedUser.name ? selectedUser.name.split(' ')[0].toLowerCase() : ''}
+              </h2>
+              <button 
+                onClick={() => setSelectedUser(null)}
+                className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            
+            {/* Modal Body */}
+            <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+              {/* Left Column: CONTA and PERFIS */}
+              <div className="space-y-6">
+                {/* Section: CONTA */}
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 mb-4">Conta</h3>
+                  <div className="space-y-3.5 text-xs text-slate-700">
+                    <div className="grid grid-cols-3 gap-2">
+                      <span className="font-semibold text-slate-400">Tipo de conta</span>
+                      <span className="font-extrabold col-span-2">{selectedUser.type || '—'}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <span className="font-semibold text-slate-400">Documento</span>
+                      <span className="font-extrabold col-span-2 font-mono">{selectedUser.document || '—'}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <span className="font-semibold text-slate-400">Tipos de documento</span>
+                      <span className="font-extrabold col-span-2">{selectedUser.document_type || '—'}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <span className="font-semibold text-slate-400">Nome</span>
+                      <span className="font-extrabold col-span-2">{selectedUser.name || '—'}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <span className="font-semibold text-slate-400">Sobrenome</span>
+                      <span className="font-extrabold col-span-2">{selectedUser.surname || '—'}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <span className="font-semibold text-slate-400">Telefone</span>
+                      <span className="font-extrabold col-span-2">{selectedUser.phone || '—'}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <span className="font-semibold text-slate-400">Celular</span>
+                      <span className="font-extrabold col-span-2">{selectedUser.cell_phone || '—'}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <span className="font-semibold text-slate-400">E-mail</span>
+                      <span className="font-extrabold col-span-2 text-indigo-650 select-all">{selectedUser.email || '—'}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <span className="font-semibold text-slate-400">Data do registro</span>
+                      <span className="font-extrabold col-span-2">{formatDateTime(selectedUser.created_on)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section: PERFIS */}
+                <div className="pt-6 border-t border-slate-100">
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 mb-4">Perfis</h3>
+                  <div className="space-y-2">
+                    {/* Render systems/platforms */}
+                    {selectedUser.systems?.map((sys: string) => (
+                      <div key={sys} className="flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-xs font-bold text-slate-700">
+                        <Users className="w-4 h-4 text-purple-500" />
+                        <span>Platform | {sys}</span>
+                      </div>
+                    ))}
+                    {/* Render roles */}
+                    {selectedUser.roles?.map((r: any) => {
+                      let roleName = r.role;
+                      let icon = <Users className="w-4 h-4 text-slate-400" />;
+                      if (r.role === 'CUSTOMER') { roleName = 'Cliente'; icon = <ShoppingCart className="w-4 h-4 text-blue-500" />; }
+                      else if (r.role === 'PRODUCER') { roleName = 'Produtor'; icon = <Leaf className="w-4 h-4 text-emerald-500" />; }
+                      else if (r.role === 'PARTNER') { roleName = 'Parceiro'; icon = <Shield className="w-4 h-4 text-indigo-500" />; }
+                      else if (r.role === 'CREDENTIALED_DISTRIBUTOR') { roleName = 'Distribuidor'; icon = <Shield className="w-4 h-4 text-amber-500" />; }
+                      else if (r.role === 'GOVERNMENT') { roleName = 'Governo'; icon = <Shield className="w-4 h-4 text-rose-500" />; }
+                      else if (r.role === 'IMEI') { roleName = 'IMEI'; icon = <Users className="w-4 h-4 text-cyan-500" />; }
+                      
+                      return (
+                        <div key={r.id} className="flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-100 rounded-lg text-xs font-bold text-slate-700">
+                          {icon}
+                          <span>{roleName} | {roleName}</span>
+                        </div>
+                      );
+                    })}
+                    {(!selectedUser.systems || selectedUser.systems.length === 0) && (!selectedUser.roles || selectedUser.roles.length === 0) && (
+                      <span className="text-xs text-slate-400 font-semibold">Nenhum perfil cadastrado.</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: ENDEREÇO */}
+              <div className="space-y-6 md:pl-8 pt-6 md:pt-0 border-t md:border-t-0 md:border-l border-slate-100">
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 mb-4">Endereço</h3>
+                  <div className="space-y-3.5 text-xs text-slate-700">
+                    <div className="grid grid-cols-3 gap-2">
+                      <span className="font-semibold text-slate-400">CEP</span>
+                      <span className="font-extrabold col-span-2 font-mono">{selectedUser.postal_code || '—'}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <span className="font-semibold text-slate-400">Rua</span>
+                      <span className="font-extrabold col-span-2">{selectedUser.street || '—'}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <span className="font-semibold text-slate-400">Complemento</span>
+                      <span className="font-extrabold col-span-2">{selectedUser.complement || '—'}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <span className="font-semibold text-slate-400">Bairro</span>
+                      <span className="font-extrabold col-span-2">{selectedUser.neighborhood || '—'}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <span className="font-semibold text-slate-400">País</span>
+                      <span className="font-extrabold col-span-2">{selectedUser.country_name || '—'}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <span className="font-semibold text-slate-400">Estado</span>
+                      <span className="font-extrabold col-span-2">{selectedUser.state_name || '—'}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <span className="font-semibold text-slate-400">Cidade</span>
+                      <span className="font-extrabold col-span-2">{selectedUser.city_name || '—'}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

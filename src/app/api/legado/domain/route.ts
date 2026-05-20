@@ -86,23 +86,146 @@ async function handleUsers(searchParams: URLSearchParams) {
   const page = parseInt(searchParams.get('page') || '1');
   const pageSize = parseInt(searchParams.get('pageSize') || '10');
 
-  const [users, roleUsers] = await Promise.all([
+  const [
+    users,
+    roleUsers,
+    authentications,
+    userAddresses,
+    addresses,
+    cities,
+    states,
+    countries,
+    userSystems
+  ] = await Promise.all([
     readCSVStream('dbo_user.csv'),
     readCSVStream('dbo_role_user.csv'),
+    readCSVStream('dbo_authentication.csv'),
+    readCSVStream('dbo_rl_user_address.csv'),
+    readCSVStream('dbo_address.csv'),
+    readCSVStream('dbo_city.csv'),
+    readCSVStream('dbo_state.csv'),
+    readCSVStream('dbo_country.csv'),
+    readCSVStream('dbo_rl_user_system.csv'),
   ]);
+
+  // Map authentications by id
+  const authMap: Record<string, string> = {};
+  for (const auth of authentications) {
+    if (auth.id) {
+      authMap[auth.id] = auth.email || '';
+    }
+  }
+
+  // Map userAddress by user_id
+  const userAddressMap: Record<string, string> = {};
+  for (const ua of userAddresses) {
+    if (ua.user_id) {
+      userAddressMap[ua.user_id] = ua.address_id || '';
+    }
+  }
+
+  // Map address by id
+  const addressMap: Record<string, Record<string, string>> = {};
+  for (const addr of addresses) {
+    if (addr.id) {
+      addressMap[addr.id] = addr;
+    }
+  }
+
+  // Map city by id
+  const cityMap: Record<string, Record<string, string>> = {};
+  for (const city of cities) {
+    if (city.id) {
+      cityMap[city.id] = city;
+    }
+  }
+
+  // Map state by id
+  const stateMap: Record<string, Record<string, string>> = {};
+  for (const state of states) {
+    if (state.id) {
+      stateMap[state.id] = state;
+    }
+  }
+
+  // Map country by id
+  const countryMap: Record<string, Record<string, string>> = {};
+  for (const country of countries) {
+    if (country.id) {
+      countryMap[country.id] = country;
+    }
+  }
+
+  // Map userSystem by user_id
+  const systemMap: Record<string, string[]> = {};
+  for (const us of userSystems) {
+    if (us.user_id && us.system_type) {
+      if (!systemMap[us.user_id]) systemMap[us.user_id] = [];
+      systemMap[us.user_id].push(us.system_type);
+    }
+  }
 
   // Map roleUser by user_id
   const roleMap: Record<string, Record<string, string>[]> = {};
   for (const ru of roleUsers) {
-    if (!roleMap[ru.user_id]) roleMap[ru.user_id] = [];
-    roleMap[ru.user_id].push(ru);
+    if (ru.user_id) {
+      if (!roleMap[ru.user_id]) roleMap[ru.user_id] = [];
+      roleMap[ru.user_id].push(ru);
+    }
   }
 
-  const enriched: any[] = users.map(u => ({
-    ...u,
-    roles: roleMap[u.id] || [],
-    primaryRole: (roleMap[u.id] || [])[0]?.role || '—',
-  }));
+  const enriched: any[] = users.map(u => {
+    const authEmail = u.authentication_id ? authMap[u.authentication_id] : '';
+    const addressId = userAddressMap[u.id];
+    let postalCode = '';
+    let street = '';
+    let complement = '';
+    let neighborhood = '';
+    let cityName = '';
+    let stateName = '';
+    let countryName = '';
+
+    if (addressId) {
+      const addr = addressMap[addressId];
+      if (addr) {
+        postalCode = addr.postal_code || '';
+        street = addr.street || '';
+        complement = addr.complement || '';
+        neighborhood = addr.neighborhood || '';
+        const cityId = addr.city_id;
+        const countryId = addr.country_id;
+
+        if (cityId) {
+          const cityObj = cityMap[cityId];
+          if (cityObj) {
+            cityName = cityObj.name || '';
+            const stateId = cityObj.state_id;
+            if (stateId) {
+              stateName = stateMap[stateId]?.name || '';
+            }
+          }
+        }
+        if (countryId) {
+          countryName = countryMap[countryId]?.name || '';
+        }
+      }
+    }
+
+    return {
+      ...u,
+      email: authEmail || u.email || '',
+      systems: systemMap[u.id] || [],
+      roles: roleMap[u.id] || [],
+      primaryRole: (roleMap[u.id] || [])[0]?.role || '—',
+      postal_code: postalCode,
+      street,
+      complement,
+      neighborhood,
+      city_name: cityName,
+      state_name: stateName,
+      country_name: countryName,
+    };
+  });
 
   // Calculate global totals before filtering
   let totalUsers = enriched.length;
@@ -136,14 +259,14 @@ async function handleUsers(searchParams: URLSearchParams) {
 
   if (dateInicio) {
     filtered = filtered.filter(u => {
-      const d = u.created_on || '';
+      const d = u.created_on ? u.created_on.substring(0, 10) : '';
       return d >= dateInicio;
     });
   }
 
   if (dateFim) {
     filtered = filtered.filter(u => {
-      const d = u.created_on || '';
+      const d = u.created_on ? u.created_on.substring(0, 10) : '';
       return d <= dateFim;
     });
   }
@@ -174,18 +297,69 @@ async function handleHarvests(searchParams: URLSearchParams) {
   const page = parseInt(searchParams.get('page') || '1');
   const pageSize = parseInt(searchParams.get('pageSize') || '50');
 
-  const [harvests, areas] = await Promise.all([
+  const [harvests, areas, distributions, users, roleUsers] = await Promise.all([
     readCSVStream('dbo_harvest.csv', year ? (row) => row.year === year : undefined),
     readCSVStream('dbo_area.csv'),
+    readCSVStream('dbo_distribution.csv', (row) => row.type === 'PARTITION_HARVEST'),
+    readCSVStream('dbo_user.csv'),
+    readCSVStream('dbo_role_user.csv'),
   ]);
 
-  const areaMap: Record<string, Record<string, string>> = {};
-  for (const a of areas) areaMap[a.id] = a;
+  const userMap: Record<string, Record<string, string>> = {};
+  for (const u of users) {
+    userMap[u.id] = u;
+  }
 
-  const enriched = harvests.map(h => ({
-    ...h,
-    area: areaMap[h.area_id] || null,
-  }));
+  const roleUserMap: Record<string, { name: string; document: string; role: string }> = {};
+  for (const ru of roleUsers) {
+    const u = userMap[ru.user_id] || {};
+    const name = [u.name, u.surname].filter(Boolean).join(' ').trim() || '—';
+    roleUserMap[ru.id] = {
+      name: fixEncoding(name),
+      document: u.document || '—',
+      role: ru.role,
+    };
+  }
+
+  const distMap: Record<string, Record<string, string>> = {};
+  for (const d of distributions) {
+    if (d.harvest_id) {
+      distMap[d.harvest_id] = d;
+    }
+  }
+
+  const areaMap: Record<string, any> = {};
+  for (const a of areas) {
+    const ownerRoleUser = roleUserMap[a.owner_id] || null;
+    const assocRoleUser = roleUserMap[a.association_id] || null;
+
+    let nucleo = '';
+    let association = '';
+    if (assocRoleUser) {
+      if (assocRoleUser.name.toUpperCase().includes('MATA VIVA')) {
+        nucleo = assocRoleUser.name;
+      } else {
+        association = assocRoleUser.name;
+      }
+    }
+
+    areaMap[a.id] = {
+      ...a,
+      name: fixEncoding(a.name),
+      owner_name: ownerRoleUser?.name || '—',
+      association_name: association || '—',
+      nucleo_name: nucleo || '—',
+    };
+  }
+
+  const enriched = harvests.map(h => {
+    const dist = distMap[h.id] || null;
+    return {
+      ...h,
+      area: areaMap[h.area_id] || null,
+      distribution: dist,
+    };
+  });
 
   // Stats by year
   const byYear: Record<string, { count: number; totalUcs: number }> = {};
