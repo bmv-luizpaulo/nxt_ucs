@@ -27,6 +27,18 @@ export default function LoginPage() {
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
 
   useEffect(() => {
+    // Intercept legacy hash URLs (/#/certificate/[code]) and redirect them
+    if (typeof window !== "undefined" && window.location.hash) {
+      const hash = window.location.hash;
+      if (hash.startsWith("#/certificate/")) {
+        const code = hash.replace("#/certificate/", "");
+        if (code) {
+          router.push(`/certificate/${code}`);
+          return;
+        }
+      }
+    }
+
     if (!isUserLoading && user) {
       router.push("/dashboard");
     }

@@ -114,12 +114,38 @@ export default function SafrasLegadoPage() {
             ))}
           </div>
 
+          {/* Filter Bar */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <div className="relative max-w-md">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <input
+                value={search}
+                onChange={e => handleSearch(e.target.value)}
+                placeholder="Busque por propriedade, produtor, documento ou código..."
+                className="w-full pl-10 pr-10 h-11 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-emerald-400 transition-all"
+              />
+              {search && (
+                <button
+                  onClick={() => handleSearch('')}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* Table */}
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
             {loading ? (
               <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 text-emerald-600 animate-spin" /></div>
             ) : error ? (
               <div className="flex items-center justify-center h-64 text-red-500 text-sm">{error}</div>
+            ) : harvests.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-64 text-slate-400 gap-2">
+                <FileText size={32} className="opacity-40" />
+                <p className="text-xs font-bold uppercase tracking-wider">Nenhuma safra encontrada</p>
+              </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full">

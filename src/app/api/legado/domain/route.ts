@@ -7,7 +7,15 @@ const CSV_DIR = path.resolve(process.cwd(), 'docs/banco_legado_csvs_completo');
 
 function fixEncoding(str: string): string {
   if (!str) return '';
-  try { return Buffer.from(str, 'latin1').toString('utf8'); } catch { return str; }
+  try {
+    const decoded = Buffer.from(str, 'latin1').toString('utf8');
+    if (decoded.includes('\uFFFD') && !str.includes('\uFFFD')) {
+      return str;
+    }
+    return decoded;
+  } catch {
+    return str;
+  }
 }
 
 function fixRow(row: Record<string, string>): Record<string, string> {
@@ -296,9 +304,10 @@ async function handleHarvests(searchParams: URLSearchParams) {
   const year = searchParams.get('year') || '';
   const page = parseInt(searchParams.get('page') || '1');
   const pageSize = parseInt(searchParams.get('pageSize') || '50');
+  const search = searchParams.get('search')?.toLowerCase() || '';
 
   const [harvests, areas, distributions, users, roleUsers] = await Promise.all([
-    readCSVStream('dbo_harvest.csv', year ? (row) => row.year === year : undefined),
+    readCSVStream('dbo_harvest.csv'),
     readCSVStream('dbo_area.csv'),
     readCSVStream('dbo_distribution.csv', (row) => row.type === 'PARTITION_HARVEST'),
     readCSVStream('dbo_user.csv'),
@@ -347,12 +356,13 @@ async function handleHarvests(searchParams: URLSearchParams) {
       ...a,
       name: fixEncoding(a.name),
       owner_name: ownerRoleUser?.name || '—',
+      owner_document: ownerRoleUser?.document || '—',
       association_name: association || '—',
       nucleo_name: nucleo || '—',
     };
   }
 
-  const enriched = harvests.map(h => {
+  const enriched: any[] = harvests.map(h => {
     const dist = distMap[h.id] || null;
     return {
       ...h,
@@ -361,17 +371,47 @@ async function handleHarvests(searchParams: URLSearchParams) {
     };
   });
 
-  // Stats by year
+  // Apply search query filters
+  let filtered = enriched;
+  if (search) {
+    filtered = enriched.filter(h => {
+      const areaName = h.area?.name?.toLowerCase() || '';
+      const areaCode = h.area?.code?.toLowerCase() || '';
+      const ownerName = h.area?.owner_name?.toLowerCase() || '';
+      const ownerDoc = h.area?.owner_document?.toLowerCase() || '';
+      const harvestId = String(h.id).toLowerCase();
+      const platformId = h.platform_id?.toLowerCase() || '';
+      const code = h.code?.toLowerCase() || '';
+
+      return (
+        areaName.includes(search) ||
+        areaCode.includes(search) ||
+        ownerName.includes(search) ||
+        ownerDoc.includes(search) ||
+        harvestId.includes(search) ||
+        platformId.includes(search) ||
+        code.includes(search)
+      );
+    });
+  }
+
+  // Stats by year (calculated based on search-filtered rows)
   const byYear: Record<string, { count: number; totalUcs: number }> = {};
-  for (const h of harvests) {
+  for (const h of filtered) {
     if (!byYear[h.year]) byYear[h.year] = { count: 0, totalUcs: 0 };
     byYear[h.year].count++;
     byYear[h.year].totalUcs += parseFloat(h.amount || '0');
   }
 
-  const total = enriched.length;
-  const rows = enriched.slice((page - 1) * pageSize, page * pageSize);
-  const years = [...new Set(harvests.map(h => h.year))].sort((a, b) => b.localeCompare(a));
+  // Filter by selected year for display
+  let displayRows = filtered;
+  if (year) {
+    displayRows = filtered.filter(h => h.year === year);
+  }
+
+  const total = displayRows.length;
+  const rows = displayRows.slice((page - 1) * pageSize, page * pageSize);
+  const years = [...new Set(filtered.map(h => h.year))].sort((a, b) => b.localeCompare(a));
 
   return { rows, pagination: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) }, byYear, years };
 }

@@ -11,9 +11,7 @@ import {
   Loader2, 
   ChevronLeft, 
   ChevronRight,
-  BookOpen,
   Wallet,
-  Download,
   Trash2,
   Coins,
   ShieldCheck,
@@ -164,57 +162,7 @@ function MovimentacoesContent() {
     }
   };
 
-  const handleDownloadCSV = () => {
-    if (!rows || rows.length === 0) return;
-    let csvContent = "";
-    if (activeTab === "movimentacoes") {
-      const headers = ["ID", "Distribuicao", "Data Inicio", "Data Fim", "Plat. Origem", "Usuario Origem", "Documento Origem", "Plat. Destino", "Usuario Destino", "Documento Destino", "Quantidade"];
-      csvContent += headers.join(",") + "\n";
-      for (const t of (rows as any[])) {
-        const row = [
-          t.id,
-          t.distribution_id || "",
-          t.created_on,
-          t.finished_on,
-          t.origin_platform,
-          t.issuer_name,
-          t.issuer_document || "",
-          t.recipient_platform,
-          t.recipient_name,
-          t.recipient_document || "",
-          t.amount
-        ];
-        csvContent += row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",") + "\n";
-      }
-    } else {
-      const headers = ["ID", "Data Atualizacao", "Plataforma", "Nome", "Documento", "Papel", "Disponivel", "Reservado", "Bloqueado", "Aposentado"];
-      csvContent += headers.join(",") + "\n";
-      for (const b of (rows as any[])) {
-        const row = [
-          b.id,
-          b.updated_on,
-          b.platform_alias,
-          b.user_name,
-          b.user_document,
-          b.user_role,
-          b.available_balance,
-          b.reserved_balance,
-          b.blocked_balance,
-          b.retired_balance
-        ];
-        csvContent += row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",") + "\n";
-      }
-    }
 
-    const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `${activeTab === "movimentacoes" ? "movimentacoes" : "saldos"}_legado.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
 
   return (
     <div className="flex min-h-screen bg-[#F8FAFC] text-slate-800 font-sans">
@@ -261,17 +209,7 @@ function MovimentacoesContent() {
               <Wallet size={14} />
               Saldos
             </button>
-            <button className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black rounded-lg transition-colors border border-slate-200 opacity-60 cursor-not-allowed">
-              <BookOpen size={14} />
-              Livro de Ofertas
-            </button>
-            <button 
-              onClick={handleDownloadCSV}
-              className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-lg transition-colors shadow-lg shadow-indigo-100"
-            >
-              <Download size={14} />
-              {activeTab === "movimentacoes" ? "Baixar Movimentações" : "Baixar Saldos"}
-            </button>
+
             <button 
               onClick={refresh}
               className="p-2.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-600 hover:text-slate-900 transition-colors"

@@ -75,11 +75,8 @@ export function resolveCertificateUrl(params: ResolveCertificateParams): string 
   const { code } = params;
   if (!code) return '';
   
-  const { config } = resolveCertificateProgram(params);
-  if (config.typeParam) {
-    return `${config.baseUrl}/${code}?t=${config.typeParam}`;
-  }
-  return `${config.baseUrl}/${code}`;
+  // Route to the new local dynamic page `/certificate/[code]`
+  return `/certificate/${code}`;
 }
 
 export function resolveNxtTransactionUrl(transactionId?: string): string {
