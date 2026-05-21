@@ -1,0 +1,14 @@
+
+======================================================
+🚀 IMPORTANDO: USERS (Tabela: dbo_user)
+📁 CSV: dbo_user.csv
+📦 Coleção: users
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 1804
+[K📊 [users] Progress: [====================] 99.9% | Processed: 1803/1804 (OK:1803, Err:0, Skip:0) | 5259.5 rows/s | Avg Batch: 10ms | RAM: 38.3MB | ETA: --
+
+🏁 Concluído [users]. OK: 1803, ERR: 0, SKIP: 0

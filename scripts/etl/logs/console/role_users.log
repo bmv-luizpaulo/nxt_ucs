@@ -1,0 +1,14 @@
+
+======================================================
+🚀 IMPORTANDO: ROLE_USERS (Tabela: dbo_role_user)
+📁 CSV: dbo_role_user.csv
+📦 Coleção: roleUsers
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 2373
+[K📊 [role_users] Progress: [====================] 100.0% | Processed: 2372/2373 (OK:2372, Err:0, Skip:0) | 6938.6 rows/s | Avg Batch: 10ms | RAM: 39.2MB | ETA: --
+
+🏁 Concluído [role_users]. OK: 2372, ERR: 0, SKIP: 0

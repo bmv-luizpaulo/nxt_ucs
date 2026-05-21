@@ -1,0 +1,388 @@
+{
+  "version": "v1",
+  "status": "completed",
+  "startedAt": "2026-05-21T10:54:00.234Z",
+  "completedAt": "2026-05-21T12:05:11.600Z",
+  "imports": {
+    "projects": {
+      "status": "completed",
+      "processedRows": 8,
+      "successCount": 8,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 2536,
+      "lastRunAt": "2026-05-21T11:46:02.271Z",
+      "dryRun": false
+    },
+    "platforms": {
+      "status": "completed",
+      "processedRows": 8,
+      "successCount": 8,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 3339,
+      "lastRunAt": "2026-05-21T11:43:50.499Z",
+      "dryRun": false
+    },
+    "platform_tags": {
+      "status": "completed",
+      "processedRows": 5,
+      "successCount": 5,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 2731,
+      "lastRunAt": "2026-05-21T11:44:23.241Z",
+      "dryRun": false
+    },
+    "users": {
+      "status": "completed",
+      "processedRows": 1803,
+      "successCount": 1803,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 3767,
+      "lastRunAt": "2026-05-21T11:44:57.029Z",
+      "dryRun": false
+    },
+    "distribution_configs": {
+      "status": "completed",
+      "processedRows": 13,
+      "successCount": 13,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 2498,
+      "lastRunAt": "2026-05-21T11:45:29.552Z",
+      "dryRun": false
+    },
+    "areas": {
+      "status": "completed",
+      "processedRows": 256,
+      "successCount": 256,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 2965,
+      "lastRunAt": "2026-05-21T11:46:35.249Z",
+      "dryRun": false
+    },
+    "role_users": {
+      "status": "completed",
+      "processedRows": 2372,
+      "successCount": 2372,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 3641,
+      "lastRunAt": "2026-05-21T11:47:08.904Z",
+      "dryRun": false
+    },
+    "quotes": {
+      "status": "completed",
+      "processedRows": 402,
+      "successCount": 402,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 2686,
+      "lastRunAt": "2026-05-21T11:47:41.617Z",
+      "dryRun": false
+    },
+    "harvests": {
+      "status": "completed",
+      "processedRows": 258,
+      "successCount": 258,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 2605,
+      "lastRunAt": "2026-05-21T11:48:14.247Z",
+      "dryRun": false
+    },
+    "cprs": {
+      "status": "completed",
+      "processedRows": 21,
+      "successCount": 21,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 3001,
+      "lastRunAt": "2026-05-21T11:48:47.271Z",
+      "dryRun": false
+    },
+    "ucs_batches": {
+      "status": "completed",
+      "processedRows": 0,
+      "successCount": 0,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 14,
+      "lastRunAt": "2026-05-21T11:49:17.304Z",
+      "dryRun": false
+    },
+    "ucs_batches_2010": {
+      "status": "completed",
+      "processedRows": 118507,
+      "successCount": 118507,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 30215,
+      "lastRunAt": "2026-05-21T11:50:17.566Z",
+      "dryRun": false
+    },
+    "ucs_batches_2020": {
+      "status": "completed",
+      "processedRows": 201,
+      "successCount": 201,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 3078,
+      "lastRunAt": "2026-05-21T11:50:50.654Z",
+      "dryRun": false
+    },
+    "ucs_batches_2022": {
+      "status": "completed",
+      "processedRows": 294,
+      "successCount": 294,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 2698,
+      "lastRunAt": "2026-05-21T11:51:23.367Z",
+      "dryRun": false
+    },
+    "ucs_batches_2023": {
+      "status": "completed",
+      "processedRows": 4,
+      "successCount": 4,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 3061,
+      "lastRunAt": "2026-05-21T11:51:56.447Z",
+      "dryRun": false
+    },
+    "consolidated_balances": {
+      "status": "completed",
+      "processedRows": 2083,
+      "successCount": 2083,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 3087,
+      "lastRunAt": "2026-05-21T11:53:14.971Z",
+      "dryRun": false
+    },
+    "consolidated_balances_per_year": {
+      "status": "completed",
+      "processedRows": 22942,
+      "successCount": 22942,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 8637,
+      "lastRunAt": "2026-05-21T11:53:53.626Z",
+      "dryRun": false
+    },
+    "distributions": {
+      "status": "completed",
+      "processedRows": 39355,
+      "successCount": 39355,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 15398,
+      "lastRunAt": "2026-05-21T11:52:41.872Z",
+      "dryRun": false
+    },
+    "transactions": {
+      "status": "completed",
+      "processedRows": 56279,
+      "successCount": 56279,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 22006,
+      "lastRunAt": "2026-05-21T11:54:45.763Z",
+      "dryRun": false
+    },
+    "ownership_transfers": {
+      "status": "completed",
+      "processedRows": 370,
+      "successCount": 370,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 2671,
+      "lastRunAt": "2026-05-21T11:55:18.447Z",
+      "dryRun": false
+    },
+    "financial_participants": {
+      "status": "completed",
+      "processedRows": 699,
+      "successCount": 699,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 3212,
+      "lastRunAt": "2026-05-21T11:55:51.676Z",
+      "dryRun": false
+    },
+    "financial_bills": {
+      "status": "completed",
+      "processedRows": 7571,
+      "successCount": 7571,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 5826,
+      "lastRunAt": "2026-05-21T11:56:27.791Z",
+      "dryRun": false
+    },
+    "financial_write_offs": {
+      "status": "completed",
+      "processedRows": 4594,
+      "successCount": 4594,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 3665,
+      "lastRunAt": "2026-05-21T11:57:01.493Z",
+      "dryRun": false
+    },
+    "tv_certificate_orders": {
+      "status": "completed",
+      "processedRows": 656,
+      "successCount": 656,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 2904,
+      "lastRunAt": "2026-05-21T11:57:34.412Z",
+      "dryRun": false
+    },
+    "tv_partners": {
+      "status": "completed",
+      "processedRows": 8,
+      "successCount": 8,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 2965,
+      "lastRunAt": "2026-05-21T11:58:07.427Z",
+      "dryRun": false
+    },
+    "tv_campaigns": {
+      "status": "completed",
+      "processedRows": 13,
+      "successCount": 13,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 2793,
+      "lastRunAt": "2026-05-21T11:58:40.231Z",
+      "dryRun": false
+    },
+    "tv_dare_royalties": {
+      "status": "completed",
+      "processedRows": 405,
+      "successCount": 405,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 3074,
+      "lastRunAt": "2026-05-21T11:59:13.339Z",
+      "dryRun": false
+    },
+    "tv_compensation_intents": {
+      "status": "completed",
+      "processedRows": 189,
+      "successCount": 189,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 3219,
+      "lastRunAt": "2026-05-21T11:59:46.622Z",
+      "dryRun": false
+    },
+    "akses_distributor_certificate_orders": {
+      "status": "completed",
+      "processedRows": 764,
+      "successCount": 764,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 2727,
+      "lastRunAt": "2026-05-21T12:00:19.363Z",
+      "dryRun": false
+    },
+    "akses_client_certificate_orders": {
+      "status": "completed",
+      "processedRows": 53,
+      "successCount": 53,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 2877,
+      "lastRunAt": "2026-05-21T12:00:52.258Z",
+      "dryRun": false
+    },
+    "akses_transfer_orders": {
+      "status": "completed",
+      "processedRows": 339,
+      "successCount": 339,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 4016,
+      "lastRunAt": "2026-05-21T12:01:26.411Z",
+      "dryRun": false
+    },
+    "akses_purchase_orders": {
+      "status": "completed",
+      "processedRows": 33,
+      "successCount": 33,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 3024,
+      "lastRunAt": "2026-05-21T12:01:59.461Z",
+      "dryRun": false
+    },
+    "akses_living_carbon_orders": {
+      "status": "completed",
+      "processedRows": 48,
+      "successCount": 48,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 2783,
+      "lastRunAt": "2026-05-21T12:02:32.253Z",
+      "dryRun": false
+    },
+    "akses_sale_orders": {
+      "status": "completed",
+      "processedRows": 0,
+      "successCount": 0,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 19,
+      "lastRunAt": "2026-05-21T12:03:02.578Z",
+      "dryRun": false
+    },
+    "stock_availability_cert_orders": {
+      "status": "completed",
+      "processedRows": 0,
+      "successCount": 0,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 1,
+      "lastRunAt": "2026-05-21T12:03:32.604Z",
+      "dryRun": false
+    },
+    "movement_intention_orders": {
+      "status": "completed",
+      "processedRows": 0,
+      "successCount": 0,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 2,
+      "lastRunAt": "2026-05-21T12:04:02.662Z",
+      "dryRun": false
+    },
+    "adjustments": {
+      "status": "completed",
+      "processedRows": 1587,
+      "successCount": 1587,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 4228,
+      "lastRunAt": "2026-05-21T12:04:37.263Z",
+      "dryRun": false
+    },
+    "blocked_ucs": {
+      "status": "completed",
+      "processedRows": 295,
+      "successCount": 295,
+      "errorCount": 0,
+      "skippedCount": 0,
+      "durationMs": 4047,
+      "lastRunAt": "2026-05-21T12:05:11.600Z",
+      "dryRun": false
+    }
+  }
+}

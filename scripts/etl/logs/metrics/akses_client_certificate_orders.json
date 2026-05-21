@@ -1,0 +1,13 @@
+{
+  "totalRows": 54,
+  "processed": 53,
+  "successCount": 53,
+  "errorCount": 0,
+  "skippedCount": 0,
+  "throughput": 18.769551616266945,
+  "avgBatchTimeMs": 0,
+  "memoryUsageMb": 19.9144287109375,
+  "durationMs": 2877,
+  "etaSeconds": 0,
+  "status": "completed"
+}

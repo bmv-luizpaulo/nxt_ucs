@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Database, Search, Play, CheckCircle, AlertCircle, Clock, ChevronRight, Table2, ArrowUpDown, RefreshCw, Filter, X, Loader2, Terminal, BarChart3, GitBranch, ArrowRight, Package, Users, Layers, FileText, Hash } from 'lucide-react';
+import { Database, Search, Play, CheckCircle, AlertCircle, Clock, ChevronRight, Table2, ArrowUpDown, RefreshCw, Filter, X, Loader2, Terminal, BarChart3, GitBranch, ArrowRight, Package, Users, Layers, FileText, Hash, ShieldAlert, Trash2, History, Sparkles, Ban, RotateCw, Info } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -77,6 +77,180 @@ const DOMAIN_COLORS: Record<string, string> = {
   'Outros':        'bg-gray-500/20 text-gray-300 border-gray-500/40',
 };
 
+const RUNNERS = [
+  {
+    key: 'platforms',
+    label: 'Plataformas e Tags',
+    priority: 1,
+    domain: 'Core',
+    phase: 'Phase A: Base',
+    tables: ['dbo_platform', 'dbo_platform_tags'],
+    subImporters: ['platforms', 'platform_tags']
+  },
+  {
+    key: 'users',
+    label: 'Usuários e Autenticação',
+    priority: 2,
+    domain: 'Core',
+    phase: 'Phase A: Base',
+    tables: ['dbo_user', 'dbo_authentication'],
+    subImporters: ['users']
+  },
+  {
+    key: 'distribution_configs',
+    label: 'Configurações de Distribuição',
+    priority: 3,
+    domain: 'Core',
+    phase: 'Phase A: Base',
+    tables: ['dbo_distribution_config'],
+    subImporters: ['distribution_configs']
+  },
+  {
+    key: 'projects',
+    label: 'Projetos',
+    priority: 4,
+    domain: 'Core',
+    phase: 'Phase A: Base',
+    tables: ['dbo_project'],
+    subImporters: ['projects']
+  },
+  {
+    key: 'areas',
+    label: 'Áreas e Fazendas',
+    priority: 5,
+    domain: 'Core',
+    phase: 'Phase B: Dependencies',
+    tables: ['dbo_area', 'dbo_yearly_area_info'],
+    subImporters: ['areas']
+  },
+  {
+    key: 'role_users',
+    label: 'Funções de Usuários',
+    priority: 6,
+    domain: 'Core',
+    phase: 'Phase B: Dependencies',
+    tables: ['dbo_role_user'],
+    subImporters: ['role_users']
+  },
+  {
+    key: 'quotes',
+    label: 'Cotações UCS',
+    priority: 7,
+    domain: 'Core',
+    phase: 'Phase B: Dependencies',
+    tables: ['dbo_ucs_quote'],
+    subImporters: ['quotes']
+  },
+  {
+    key: 'harvests',
+    label: 'Safras',
+    priority: 8,
+    domain: 'Core',
+    phase: 'Phase C: Intermediates',
+    tables: ['dbo_harvest'],
+    subImporters: ['harvests']
+  },
+  {
+    key: 'cprs',
+    label: 'CPRs',
+    priority: 9,
+    domain: 'Core',
+    phase: 'Phase C: Intermediates',
+    tables: ['dbo_cpr', 'dbo_rl_cpr_areas', 'dbo_rl_cpr_file'],
+    subImporters: ['cprs']
+  },
+  {
+    key: 'ucs',
+    label: 'Lotes UCS (Particionados)',
+    priority: 10,
+    domain: 'Sistema',
+    phase: 'Phase D: Operational',
+    tables: ['dbo_ucs_batch', 'dbo_ucs_batch__2010', 'dbo_ucs_batch__2020', 'dbo_ucs_batch__2022', 'dbo_ucs_batch__2023'],
+    subImporters: ['ucs_batches', 'ucs_batches_2010', 'ucs_batches_2020', 'ucs_batches_2022', 'ucs_batches_2023']
+  },
+  {
+    key: 'distributions',
+    label: 'Distribuições',
+    priority: 11,
+    domain: 'Core',
+    phase: 'Phase D: Operational',
+    tables: ['dbo_distribution'],
+    subImporters: ['distributions']
+  },
+  {
+    key: 'balances',
+    label: 'Saldos Consolidados',
+    priority: 12,
+    domain: 'Financeiro',
+    phase: 'Phase D: Operational',
+    tables: ['dbo_consolidated_balance', 'dbo_consolidated_balance_per_year'],
+    subImporters: ['consolidated_balances', 'consolidated_balances_per_year']
+  },
+  {
+    key: 'transactions',
+    label: 'Transações de Lotes',
+    priority: 13,
+    domain: 'Sistema',
+    phase: 'Phase D: Operational',
+    tables: ['dbo_transaction'],
+    subImporters: ['transactions']
+  },
+  {
+    key: 'ownership_transfers',
+    label: 'Transferências de Titularidade',
+    priority: 14,
+    domain: 'Sistema',
+    phase: 'Phase D: Operational',
+    tables: ['dbo_ownership_transfer'],
+    subImporters: ['ownership_transfers']
+  },
+  {
+    key: 'financial',
+    label: 'Financeiro (Contas a Pagar)',
+    priority: 15,
+    domain: 'Financeiro',
+    phase: 'Phase D: Operational',
+    tables: ['financial_participant', 'financial_bill_to_pay', 'financial_bill_write_off'],
+    subImporters: ['financial_participants', 'financial_bills', 'financial_write_offs']
+  },
+  {
+    key: 'tv',
+    label: 'Pedidos Tesouro Verde',
+    priority: 16,
+    domain: 'Tesouro Verde',
+    phase: 'Phase D: Operational',
+    tables: ['plat_tesouro_verde_certificate_order', 'plat_tesouro_verde_partners', 'plat_tesouro_verde_campaigns'],
+    subImporters: ['tv_certificate_orders', 'tv_partners', 'tv_campaigns', 'tv_dare_royalties', 'tv_compensation_intents']
+  },
+  {
+    key: 'akses',
+    label: 'Pedidos Akses',
+    priority: 17,
+    domain: 'Akses',
+    phase: 'Phase D: Operational',
+    tables: ['plat_akses_distributor_certificate_order', 'plat_akses_transfer_order', 'plat_akses_purchase_order'],
+    subImporters: ['akses_distributor_certificate_orders', 'akses_client_certificate_orders', 'akses_transfer_orders', 'akses_purchase_orders', 'akses_living_carbon_orders', 'akses_sale_orders', 'stock_availability_cert_orders', 'movement_intention_orders']
+  },
+  {
+    key: 'adjustments',
+    label: 'Ajustes de Lotes',
+    priority: 18,
+    domain: 'Sistema',
+    phase: 'Phase D: Operational',
+    tables: ['dbo_adjustment'],
+    subImporters: ['adjustments']
+  },
+  {
+    key: 'blocked_ucs',
+    label: 'UCS Bloqueadas',
+    priority: 19,
+    domain: 'Sistema',
+    phase: 'Phase D: Operational',
+    tables: ['dbo_blocked_ucs'],
+    subImporters: ['blocked_ucs']
+  }
+];
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function LegadoExplorer() {
@@ -105,24 +279,25 @@ export default function LegadoExplorer() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
 
   // ETL state
-  const [etlScripts, setEtlScripts] = useState<Record<string, EtlScript>>({});
-  const [etlStatus, setEtlStatus] = useState<Record<string, EtlStatus>>({});
-  const [etlOutput, setEtlOutput] = useState<Record<string, string>>({});
-  const [etlElapsed, setEtlElapsed] = useState<Record<string, string>>({});
-  const [activeLog, setActiveLog] = useState<string | null>(null);
+  const [etlStatusData, setEtlStatusData] = useState<any>(null);
+  const [activeLogKey, setActiveLogKey] = useState<string | null>(null);
+  const [customVersion, setCustomVersion] = useState<string>('v1');
+  const [rollbackVersion, setRollbackVersion] = useState<string>('v1');
+  const [dlqViewKey, setDlqViewKey] = useState<string | null>(null);
+  const [dlqRecords, setDlqRecords] = useState<any[]>([]);
+  const [dlqPagination, setDlqPagination] = useState<{ total: number; page: number; pageSize: number; totalPages: number } | null>(null);
+  const [dlqPage, setDlqPage] = useState<number>(1);
+  const [dlqLoading, setDlqLoading] = useState<boolean>(false);
+  const [isPollRunning, setIsPollRunning] = useState<boolean>(true);
+  const [runningActionKey, setRunningActionKey] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Load table list on mount
   useEffect(() => {
     fetch('/api/legado/tables')
       .then(r => r.json())
       .then(data => { setTables(data.tables || []); setLoadingTables(false); });
-  }, []);
-
-  // Load ETL scripts on mount
-  useEffect(() => {
-    fetch('/api/legado/etl')
-      .then(r => r.json())
-      .then(data => setEtlScripts(data.scripts || {}));
   }, []);
 
   const queryTable = useCallback(async (tableName: string, p = 1, s = search, sc = searchCol) => {
@@ -155,19 +330,197 @@ export default function LegadoExplorer() {
     setSortDir(dir);
   };
 
-  const handleRunEtl = async (key: string) => {
-    setEtlStatus(s => ({ ...s, [key]: 'running' }));
-    setActiveLog(key);
-    const res = await fetch('/api/legado/etl', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ script: key }),
-    });
-    const data = await res.json();
-    setEtlStatus(s => ({ ...s, [key]: data.success ? 'done' : 'error' }));
-    setEtlOutput(o => ({ ...o, [key]: data.stdout || data.error || '' }));
-    setEtlElapsed(e => ({ ...e, [key]: data.elapsedSeconds || '' }));
+  const fetchEtlStatus = useCallback(async (selectedKey?: string) => {
+    try {
+      const keyToFetch = selectedKey || activeLogKey || (etlStatusData?.activeProcess?.importerKey);
+      const url = keyToFetch 
+        ? `/api/legado/etl/status?importerKey=${keyToFetch}`
+        : '/api/legado/etl/status';
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        setEtlStatusData(data);
+      }
+    } catch (err) {
+      console.error('Error fetching ETL status:', err);
+    }
+  }, [activeLogKey, etlStatusData?.activeProcess?.importerKey]);
+
+  // Main polling effect
+  useEffect(() => {
+    if (!isPollRunning) return;
+    
+    // Check if there is an active running process
+    const isRunning = !!(etlStatusData?.activeProcess);
+    const intervalTime = isRunning ? 3000 : 10000;
+
+    // Fetch immediately
+    fetchEtlStatus();
+
+    const interval = setInterval(() => {
+      fetchEtlStatus();
+    }, intervalTime);
+
+    return () => clearInterval(interval);
+  }, [fetchEtlStatus, isPollRunning, etlStatusData?.activeProcess]);
+
+  const handleRun = async (importerKey: string, options: { dryRun?: boolean; resume?: boolean } = {}) => {
+    setRunningActionKey(`${importerKey}-${options.dryRun ? 'dry' : options.resume ? 'resume' : 'live'}`);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    try {
+      const res = await fetch('/api/legado/etl/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          importerKey,
+          dryRun: !!options.dryRun,
+          resume: !!options.resume,
+          version: customVersion
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Erro ao iniciar a importação');
+      }
+      setSuccessMessage(data.message || `Importação de "${importerKey}" iniciada com sucesso em background.`);
+      setActiveLogKey(importerKey);
+      // Fetch immediately to capture the running process PID
+      fetchEtlStatus(importerKey);
+    } catch (err: any) {
+      setErrorMessage(err.message || String(err));
+    } finally {
+      setRunningActionKey(null);
+    }
   };
+
+  const handleStop = async () => {
+    setRunningActionKey('stop');
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    try {
+      const res = await fetch('/api/legado/etl/stop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Erro ao interromper o processo');
+      }
+      setSuccessMessage(data.message || 'Processo de importação interrompido com sucesso.');
+      fetchEtlStatus();
+    } catch (err: any) {
+      setErrorMessage(err.message || String(err));
+    } finally {
+      setRunningActionKey(null);
+    }
+  };
+
+  const handleRollback = async (collectionName?: string) => {
+    setRunningActionKey(`rollback-${collectionName || 'all'}`);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    try {
+      const res = await fetch('/api/legado/etl/rollback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          version: rollbackVersion,
+          collection: collectionName
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Erro ao iniciar rollback');
+      }
+      setSuccessMessage(data.message || 'Processo de rollback em background iniciado.');
+      setActiveLogKey('rollback');
+      fetchEtlStatus('rollback');
+    } catch (err: any) {
+      setErrorMessage(err.message || String(err));
+    } finally {
+      setRunningActionKey(null);
+    }
+  };
+
+  const fetchDlqRecords = async (importerKey: string, page = 1) => {
+    setDlqLoading(true);
+    setDlqViewKey(importerKey);
+    setDlqPage(page);
+    try {
+      const res = await fetch(`/api/legado/etl/dlq?importerKey=${importerKey}&page=${page}&pageSize=10`);
+      if (res.ok) {
+        const data = await res.json();
+        setDlqRecords(data.records || []);
+        setDlqPagination(data.pagination || null);
+      } else {
+        const data = await res.json();
+        setErrorMessage(data.error || 'Erro ao carregar registros DLQ');
+      }
+    } catch (err: any) {
+      setErrorMessage(err.message || String(err));
+    } finally {
+      setDlqLoading(false);
+    }
+  };
+
+  const getRunnerState = (runner: typeof RUNNERS[0]) => {
+    const isActive = etlStatusData?.activeProcess?.importerKey === runner.key;
+    if (isActive) {
+      return {
+        status: 'running',
+        dryRun: etlStatusData?.activeProcess?.dryRun || false,
+        resume: etlStatusData?.activeProcess?.resume || false,
+      };
+    }
+
+    const imports = etlStatusData?.manifest?.imports || {};
+    const subStatusList = runner.subImporters.map(key => imports[key]?.status || 'idle');
+    const dryRunList = runner.subImporters.map(key => imports[key]?.dryRun || false);
+
+    if (subStatusList.includes('running')) {
+      return { status: 'running', dryRun: dryRunList.includes(true), resume: false };
+    }
+    if (subStatusList.includes('failed')) {
+      return { status: 'failed', dryRun: dryRunList.includes(true), resume: false };
+    }
+    if (subStatusList.every(status => status === 'completed')) {
+      return { status: 'completed', dryRun: dryRunList.every(d => d), resume: false };
+    }
+
+    return { status: 'idle', dryRun: false, resume: false };
+  };
+
+  const getRunnerProgress = (runner: typeof RUNNERS[0]) => {
+    const imports = etlStatusData?.manifest?.imports || {};
+    const metrics = etlStatusData?.metrics || {};
+    
+    let processed = 0;
+    let success = 0;
+    let error = 0;
+    let total = 0;
+    
+    runner.subImporters.forEach(key => {
+      const imp = imports[key];
+      const met = metrics[key];
+      
+      processed += met?.processed ?? imp?.processedRows ?? 0;
+      success += met?.successCount ?? imp?.successCount ?? 0;
+      error += met?.errorCount ?? imp?.errorCount ?? 0;
+      total += met?.totalRows ?? 0;
+    });
+
+    const percent = total > 0 ? Math.min(100, Math.round((processed / total) * 100)) : 0;
+    
+    return { processed, success, error, total, percent };
+  };
+
+  const PHASES = [
+    { id: 'Phase A: Base', label: 'Fase A: Cadastros Base', desc: 'Plataformas, usuários e configurações estruturais.' },
+    { id: 'Phase B: Dependencies', label: 'Fase B: Dependências Relações', desc: 'Fazendas, áreas geográficas, permissões de acessos e cotações base.' },
+    { id: 'Phase C: Intermediates', label: 'Fase C: Intermediários', desc: 'Lotes de safras associados e contratos/títulos CPR.' },
+    { id: 'Phase D: Operational', label: 'Fase D: Operacionais & Saldos', desc: 'Distribuição de lotes UCS, ordens de compras (Akses / Tesouro Verde), ajustes de créditos e transações.' },
+  ];
 
   const handleTrace = async () => {
     if (!traceInput.trim()) return;
@@ -444,101 +797,606 @@ export default function LegadoExplorer() {
       )}
 
       {/* ── ETL Control Panel Tab ─────────────────────────────────────────────── */}
-      {activeTab === 'etl' && (
-        <div className="max-w-[1200px] mx-auto px-6 py-6 flex gap-6">
+      {/* ── ETL Control Panel Tab ─────────────────────────────────────────────── */}
+      {activeTab === 'etl' && (() => {
+        const quota = etlStatusData?.quota || { totalWrites: 0, limit: 20000, percentage: 0 };
+        const activeProcess = etlStatusData?.activeProcess;
+        const dlq = etlStatusData?.dlq || { totalErrors: 0, files: [] };
 
-          {/* Script list */}
-          <div className="flex-1 space-y-3">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-semibold text-white">Scripts de Importação</h2>
-              <p className="text-xs text-slate-400">Execute um por vez para controlar o ritmo</p>
-            </div>
+        return (
+          <div className="max-w-[1600px] mx-auto px-6 py-6">
+            
+            {/* Notification Banners */}
+            {errorMessage && (
+              <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-200 text-sm flex items-center justify-between backdrop-blur-md">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="text-red-400 flex-shrink-0" size={16} />
+                  <span>{errorMessage}</span>
+                </div>
+                <button onClick={() => setErrorMessage(null)} className="text-slate-400 hover:text-white"><X size={16} /></button>
+              </div>
+            )}
+            
+            {successMessage && (
+              <div className="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-sm flex items-center justify-between backdrop-blur-md">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="text-emerald-400 flex-shrink-0" size={16} />
+                  <span>{successMessage}</span>
+                </div>
+                <button onClick={() => setSuccessMessage(null)} className="text-slate-400 hover:text-white"><X size={16} /></button>
+              </div>
+            )}
 
-            {Object.entries(etlScripts)
-              .sort(([, a], [, b]) => a.priority - b.priority)
-              .map(([key, script]) => {
-                const status = etlStatus[key] || 'idle';
-                return (
-                  <div
-                    key={key}
-                    onClick={() => setActiveLog(key)}
-                    className={`rounded-xl border p-4 cursor-pointer transition-all ${
-                      activeLog === key ? 'border-blue-500/50 bg-blue-500/5' : 'border-slate-800 bg-slate-900/40 hover:border-slate-700'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${
-                          status === 'done'    ? 'bg-emerald-500/20 text-emerald-400' :
-                          status === 'running' ? 'bg-blue-500/20 text-blue-400' :
-                          status === 'error'   ? 'bg-red-500/20 text-red-400' :
-                                                 'bg-slate-700/60 text-slate-400'
-                        }`}>
-                          {status === 'done'    ? <CheckCircle size={16} /> :
-                           status === 'running' ? <Loader2 size={16} className="animate-spin" /> :
-                           status === 'error'   ? <AlertCircle size={16} /> :
-                                                  script.priority}
-                        </div>
-                        <div>
-                          <div className="font-medium text-sm text-white">{script.label}</div>
-                          <div className="text-xs text-slate-500 mt-0.5">
-                            {script.tables.slice(0, 2).join(', ')}{script.tables.length > 2 ? ` +${script.tables.length - 2}` : ''}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        {etlElapsed[key] && (
-                          <span className="text-xs text-slate-500 flex items-center gap-1">
-                            <Clock size={11} />{etlElapsed[key]}s
-                          </span>
-                        )}
+            {/* Quota & Active process summary */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {/* Quota Card */}
+              <div className="bg-[#0d1428]/80 backdrop-blur-md border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden group hover:border-slate-700/80 transition-all">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-all"></div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400">
+                      <ShieldAlert size={16} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-white">Quota de Gravações</h3>
+                      <p className="text-[10px] text-slate-400">Firebase Spark Free Plan</p>
+                    </div>
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                    quota.percentage > 80 ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
+                    quota.percentage > 50 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+                    'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                  }`}>
+                    {quota.percentage}%
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-slate-400">Gravado Hoje:</span>
+                    <span className="font-bold text-white">{quota.totalWrites.toLocaleString('pt-BR')} / {quota.limit.toLocaleString('pt-BR')}</span>
+                  </div>
+                  <div className="w-full bg-slate-850 h-2 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full transition-all duration-500 bg-gradient-to-r ${
+                        quota.percentage > 80 ? 'from-red-500 to-rose-600 shadow-[0_0_8px_rgba(239,68,68,0.5)]' :
+                        quota.percentage > 50 ? 'from-amber-500 to-yellow-600 shadow-[0_0_8px_rgba(245,158,11,0.5)]' :
+                        'from-blue-500 to-emerald-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]'
+                      }`}
+                      style={{ width: `${Math.min(100, quota.percentage)}%` }}
+                    ></div>
+                  </div>
+                  <p className="text-[10px] text-slate-500 leading-normal">
+                    {quota.percentage > 80 ? '⚠️ Atenção: Limite diário quase esgotado. Evite novas gravações hoje.' : 
+                     quota.percentage > 50 ? 'Consumo moderado. Ative a suspensão automática se necessário.' : 
+                     'Limite seguro. Throttling de 3s e lotes de 200 ativos para segurança.'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Active Process Card */}
+              <div className="bg-[#0d1428]/80 backdrop-blur-md border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden group hover:border-slate-700/80 transition-all">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-2xl group-hover:bg-purple-500/10 transition-all"></div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${activeProcess ? 'bg-blue-500/20 text-blue-400' : 'bg-slate-800 text-slate-400'}`}>
+                      {activeProcess ? <Loader2 size={16} className="animate-spin" /> : <Ban size={16} />}
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-white">Processo Ativo</h3>
+                      <p className="text-[10px] text-slate-400">{activeProcess ? 'Executando em background' : 'Nenhum processo ativo'}</p>
+                    </div>
+                  </div>
+                  {activeProcess && (
+                    <span className="flex h-2.5 w-2.5 relative">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
+                    </span>
+                  )}
+                </div>
+                
+                {activeProcess ? (
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Script:</span>
+                      <span className="font-semibold text-blue-400 font-mono">{activeProcess.importerKey}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">PID:</span>
+                      <span className="font-mono text-slate-300">{activeProcess.pid}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Modo:</span>
+                      <span className={`font-semibold ${activeProcess.dryRun ? 'text-amber-400' : 'text-emerald-400'}`}>
+                        {activeProcess.dryRun ? 'Dry-Run (Simulação)' : 'Live (Gravação)'}
+                      </span>
+                    </div>
+                    <button
+                      onClick={handleStop}
+                      disabled={runningActionKey === 'stop'}
+                      className="w-full mt-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 hover:text-red-300 border border-red-500/30 rounded-lg py-1 text-[11px] font-medium flex items-center justify-center gap-1 transition-all disabled:opacity-50"
+                    >
+                      {runningActionKey === 'stop' ? <Loader2 size={11} className="animate-spin" /> : <Ban size={11} />}
+                      Interromper Processo
+                    </button>
+                  </div>
+                ) : (
+                  <div className="h-[90px] flex flex-col items-center justify-center text-slate-500 text-xs gap-1 border border-dashed border-slate-800 rounded-xl bg-slate-900/10">
+                    <CheckCircle size={20} className="text-slate-600" />
+                    <span>Servidor pronto para execução</span>
+                  </div>
+                )}
+              </div>
+
+              {/* DLQ & Rollback Card */}
+              <div className="bg-[#0d1428]/80 backdrop-blur-md border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden group hover:border-slate-700/80 transition-all">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl group-hover:bg-amber-500/10 transition-all"></div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
+                      <ShieldAlert size={16} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-white">Dead Letter Queue</h3>
+                      <p className="text-[10px] text-slate-400">Erros de validação Zod</p>
+                    </div>
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                    dlq.totalErrors > 0 ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-slate-800 text-slate-500 border border-slate-700/40'
+                  }`}>
+                    {dlq.totalErrors} erros
+                  </span>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <label className="block text-[10px] text-slate-400 mb-1">Versão das Migrações</label>
+                      <input
+                        className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs text-white font-mono"
+                        value={customVersion}
+                        onChange={e => setCustomVersion(e.target.value)}
+                        placeholder="v1"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-[10px] text-slate-400 mb-1">Versão p/ Rollback</label>
+                      <div className="flex gap-1">
+                        <input
+                          className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs text-white font-mono"
+                          value={rollbackVersion}
+                          onChange={e => setRollbackVersion(e.target.value)}
+                          placeholder="v1"
+                        />
                         <button
-                          onClick={(e) => { e.stopPropagation(); handleRunEtl(key); }}
-                          disabled={status === 'running'}
-                          className={`flex items-center gap-1.5 text-xs px-4 py-1.5 rounded-lg font-medium transition-all ${
-                            status === 'done'    ? 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30' :
-                            status === 'running' ? 'bg-blue-500/20 text-blue-400 cursor-not-allowed' :
-                            status === 'error'   ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' :
-                                                   'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                          }`}
+                          onClick={() => handleRollback()}
+                          disabled={!!activeProcess || runningActionKey?.startsWith('rollback')}
+                          title="Rollback total de todos os registros da versão indicada"
+                          className="bg-red-600 hover:bg-red-500 disabled:bg-slate-800 text-white p-1.5 rounded transition-colors disabled:opacity-40"
                         >
-                          {status === 'running' ? <><Loader2 size={12} className="animate-spin"/>Executando...</> :
-                           status === 'done'    ? <><CheckCircle size={12}/>Concluído</> :
-                           status === 'error'   ? <><AlertCircle size={12}/>Tentar novamente</> :
-                                                  <><Play size={12}/>Importar</>}
+                          {runningActionKey === 'rollback-all' ? <Loader2 size={13} className="animate-spin" /> : <RotateCw size={13} />}
                         </button>
                       </div>
                     </div>
                   </div>
-                );
-              })
-            }
-          </div>
-
-          {/* Log panel */}
-          <div className="w-[420px] flex-shrink-0">
-            <div className="sticky top-6 rounded-xl border border-slate-800 bg-[#0a0f1e] overflow-hidden">
-              <div className="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm font-medium text-slate-300">
-                  <Terminal size={14} />
-                  {activeLog ? `Log: ${etlScripts[activeLog]?.label || activeLog}` : 'Selecione um script'}
+                  
+                  <div className="flex gap-2 text-[10px]">
+                    <button
+                      onClick={() => handleRun('all')}
+                      disabled={!!activeProcess}
+                      className="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 py-1 rounded font-medium transition-all disabled:opacity-40"
+                    >
+                      Importar Todos
+                    </button>
+                    <button
+                      onClick={() => handleRun('validate')}
+                      disabled={!!activeProcess}
+                      className="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 py-1 rounded font-medium transition-all disabled:opacity-40"
+                    >
+                      Validar Pipeline
+                    </button>
+                  </div>
                 </div>
-                {activeLog && etlStatus[activeLog] === 'running' && (
-                  <span className="text-xs text-blue-400 flex items-center gap-1 animate-pulse"><Loader2 size={11} className="animate-spin"/>Executando</span>
-                )}
               </div>
-              <pre className="p-4 text-xs text-slate-300 font-mono overflow-auto h-[500px] whitespace-pre-wrap leading-relaxed">
-                {activeLog && etlOutput[activeLog]
-                  ? etlOutput[activeLog]
-                  : activeLog
-                    ? <span className="text-slate-600">Aguardando execução...</span>
-                    : <span className="text-slate-600">← Clique em um script para ver o log de saída aqui</span>
-                }
-              </pre>
             </div>
+
+            {/* Split layout: Phase Importer list vs Terminal Console */}
+            <div className="flex flex-col lg:flex-row gap-6">
+              
+              {/* Left Column: Grouped Phase List */}
+              <div className="flex-1 space-y-8">
+                {PHASES.map(phase => {
+                  const phaseRunners = RUNNERS.filter(r => r.phase === phase.id);
+                  return (
+                    <div key={phase.id} className="space-y-3">
+                      <div className="border-b border-slate-850 pb-2 flex items-center justify-between">
+                        <div>
+                          <h3 className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300 flex items-center gap-2">
+                            <div className="w-1.5 h-3 bg-blue-500 rounded-sm"></div>
+                            {phase.label}
+                          </h3>
+                          <p className="text-[10px] text-slate-400 mt-0.5">{phase.desc}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {phaseRunners.map(runner => {
+                          const runnerState = getRunnerState(runner);
+                          const progress = getRunnerProgress(runner);
+                          const hasCheckpoint = runner.subImporters.some(subKey => etlStatusData?.checkpoints?.[subKey]?.lastProcessedIndex > 0);
+                          const hasDlqErrors = runner.subImporters.some(subKey => etlStatusData?.dlq?.files?.includes(`${subKey}_dlq.jsonl`));
+                          const isSelected = activeLogKey === runner.key;
+
+                          return (
+                            <div 
+                              key={runner.key}
+                              onClick={() => {
+                                setActiveLogKey(runner.key);
+                                fetchEtlStatus(runner.key);
+                              }}
+                              className={`rounded-xl border p-4 cursor-pointer transition-all duration-300 relative group flex flex-col justify-between ${
+                                runnerState.status === 'running' ? 'border-blue-500 bg-blue-500/5 shadow-[0_0_15px_rgba(59,130,246,0.15)]' :
+                                runnerState.status === 'completed' ? 'border-emerald-500/30 bg-emerald-500/5' :
+                                runnerState.status === 'failed' ? 'border-red-500/30 bg-red-500/5' :
+                                isSelected ? 'border-slate-500 bg-slate-800/10' :
+                                'border-slate-800 bg-[#0d1428]/30 hover:bg-[#0d1428]/50 hover:border-slate-700'
+                              }`}
+                            >
+                              <div>
+                                {/* Header */}
+                                <div className="flex items-start justify-between mb-2">
+                                  <div className="flex items-center gap-2">
+                                    <span className="w-5 h-5 rounded bg-slate-800 border border-slate-700 text-[10px] font-bold text-slate-400 flex items-center justify-center">
+                                      {runner.priority}
+                                    </span>
+                                    <h4 className="text-xs font-bold text-white group-hover:text-blue-400 transition-colors">{runner.label}</h4>
+                                  </div>
+                                  <span className={`text-[9px] px-1.5 py-0.5 rounded border ${DOMAIN_COLORS[runner.domain] || DOMAIN_COLORS['Outros']}`}>
+                                    {runner.domain}
+                                  </span>
+                                </div>
+
+                                {/* Tables */}
+                                <p className="text-[10px] text-slate-400 line-clamp-1 mb-1">
+                                  <span className="text-slate-500">Tabelas:</span> {runner.tables.join(', ')}
+                                </p>
+                                <p className="text-[10px] text-slate-500 mb-3 truncate">
+                                  <span className="text-slate-600">Sub-importers:</span> {runner.subImporters.join(', ')}
+                                </p>
+
+                                {/* Badges */}
+                                <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                                  {runnerState.status === 'running' && (
+                                    <span className="text-[10px] font-semibold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-md flex items-center gap-1 animate-pulse">
+                                      <Loader2 size={10} className="animate-spin" /> Executando...
+                                    </span>
+                                  )}
+                                  {runnerState.status === 'completed' && (
+                                    <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                      <CheckCircle size={10} /> Concluído
+                                    </span>
+                                  )}
+                                  {runnerState.status === 'failed' && (
+                                    <span className="text-[10px] font-semibold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                      <AlertCircle size={10} /> Falhou
+                                    </span>
+                                  )}
+                                  {runnerState.status === 'idle' && (
+                                    <span className="text-[10px] text-slate-500 bg-slate-800/40 px-2 py-0.5 rounded-md">
+                                      Não Iniciado
+                                    </span>
+                                  )}
+                                  {hasCheckpoint && (
+                                    <span className="text-[9px] font-semibold text-purple-400 bg-purple-500/15 border border-purple-500/30 px-1.5 py-0.5 rounded flex items-center gap-0.5" title="Checkpoint salvo. Pode ser retomado.">
+                                      <History size={8} /> Checkpoint
+                                    </span>
+                                  )}
+                                  {hasDlqErrors && (
+                                    <span className="text-[9px] font-semibold text-red-400 bg-red-500/15 border border-red-500/30 px-1.5 py-0.5 rounded flex items-center gap-0.5" title="Erros na Dead Letter Queue">
+                                      <ShieldAlert size={8} /> DLQ
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div>
+                                {/* Progress Bar */}
+                                {runnerState.status !== 'idle' && progress.total > 0 && (
+                                  <div className="space-y-1 mb-3">
+                                    <div className="w-full bg-slate-850 h-1.5 rounded-full overflow-hidden">
+                                      <div 
+                                        className={`h-full rounded-full transition-all duration-300 ${
+                                          runnerState.status === 'failed' ? 'bg-red-500' :
+                                          runnerState.status === 'completed' ? 'bg-emerald-500' :
+                                          'bg-blue-500'
+                                        }`}
+                                        style={{ width: `${progress.percent}%` }}
+                                      ></div>
+                                    </div>
+                                    <div className="flex justify-between text-[9px] text-slate-400">
+                                      <span>{progress.percent}% ({progress.processed.toLocaleString('pt-BR')} / {progress.total.toLocaleString('pt-BR')})</span>
+                                      {progress.error > 0 && <span className="text-red-400 font-semibold">{progress.error} erros</span>}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Card Actions */}
+                                <div className="flex items-center gap-1.5 pt-2 border-t border-slate-800/40" onClick={e => e.stopPropagation()}>
+                                  {runnerState.status === 'running' ? (
+                                    <button
+                                      onClick={handleStop}
+                                      disabled={runningActionKey === 'stop'}
+                                      className="flex-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 text-[10px] py-1 rounded font-medium border border-red-500/20 flex items-center justify-center gap-1 transition-all"
+                                    >
+                                      {runningActionKey === 'stop' ? <Loader2 size={10} className="animate-spin" /> : <Ban size={10} />}
+                                      Interromper
+                                    </button>
+                                  ) : (
+                                    <>
+                                      <button
+                                        onClick={() => handleRun(runner.key, { dryRun: false })}
+                                        disabled={!!activeProcess || runningActionKey !== null}
+                                        className="flex-1 bg-blue-600/90 hover:bg-blue-600 disabled:opacity-40 text-white text-[10px] py-1 rounded font-medium flex items-center justify-center gap-0.5 transition-all"
+                                        title="Importar dados de forma definitiva"
+                                      >
+                                        {runningActionKey === `${runner.key}-live` ? <Loader2 size={10} className="animate-spin" /> : <Play size={10} />}
+                                        Live
+                                      </button>
+                                      
+                                      <button
+                                        onClick={() => handleRun(runner.key, { dryRun: true })}
+                                        disabled={!!activeProcess || runningActionKey !== null}
+                                        className="flex-1 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-300 text-[10px] py-1 rounded font-medium border border-slate-700 flex items-center justify-center gap-0.5 transition-all"
+                                        title="Simular importação validando esquemas"
+                                      >
+                                        {runningActionKey === `${runner.key}-dry` ? <Loader2 size={10} className="animate-spin" /> : <Info size={10} />}
+                                        Dry
+                                      </button>
+
+                                      {hasCheckpoint && (
+                                        <button
+                                          onClick={() => handleRun(runner.key, { resume: true })}
+                                          disabled={!!activeProcess || runningActionKey !== null}
+                                          className="bg-purple-600/90 hover:bg-purple-600 disabled:opacity-40 text-white text-[10px] px-1.5 py-1 rounded font-medium flex items-center justify-center gap-0.5 transition-all"
+                                          title="Retomar importação a partir do último checkpoint"
+                                        >
+                                          {runningActionKey === `${runner.key}-resume` ? <Loader2 size={10} className="animate-spin" /> : <History size={10} />}
+                                          Retomar
+                                        </button>
+                                      )}
+
+                                      {hasDlqErrors && (
+                                        <button
+                                          onClick={() => {
+                                            const activeDlqSubKey = runner.subImporters.find(sub => etlStatusData?.dlq?.files?.includes(`${sub}_dlq.jsonl`)) || runner.subImporters[0];
+                                            fetchDlqRecords(activeDlqSubKey, 1);
+                                          }}
+                                          className="bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 text-[10px] px-1.5 py-1 rounded font-medium flex items-center justify-center gap-0.5 transition-all"
+                                          title="Visualizar erros de validação"
+                                        >
+                                          <ShieldAlert size={10} />
+                                          DLQ
+                                        </button>
+                                      )}
+                                      
+                                      <button
+                                        onClick={() => handleRollback(runner.subImporters[0])}
+                                        disabled={!!activeProcess || runningActionKey !== null}
+                                        className="text-slate-500 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 p-1 rounded transition-all"
+                                        title="Rollback da coleção associada"
+                                      >
+                                        {runningActionKey === `rollback-${runner.subImporters[0]}` ? <Loader2 size={10} className="animate-spin" /> : <RotateCw size={10} />}
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Right Column: Console Log Monitor */}
+              <div className="w-full lg:w-[480px] flex-shrink-0 space-y-6">
+                <div className="rounded-2xl border border-slate-800 bg-[#0d1428]/60 backdrop-blur-md overflow-hidden sticky top-6 shadow-xl">
+                  
+                  {/* Console Header */}
+                  <div className="px-4 py-3 border-b border-slate-800 flex items-center justify-between bg-[#0d1428]/90">
+                    <div className="flex items-center gap-2 text-sm font-medium text-slate-300">
+                      <Terminal size={14} className="text-blue-400" />
+                      <span>Console Live Output</span>
+                      {activeLogKey && (
+                        <span className="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded font-mono">
+                          {activeLogKey}
+                        </span>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      {activeProcess?.importerKey === activeLogKey && (
+                        <span className="text-[10px] text-blue-400 flex items-center gap-1 animate-pulse font-medium bg-blue-500/10 px-2 py-0.5 rounded-full">
+                          <Loader2 size={10} className="animate-spin"/> LIVE
+                        </span>
+                      )}
+                      <button
+                        onClick={() => fetchEtlStatus(activeLogKey || undefined)}
+                        className="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800 transition-all"
+                        title="Atualizar Logs"
+                      >
+                        <RefreshCw size={12} />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Console Telemetry (Throughput, RAM, Latency) */}
+                  {activeLogKey && etlStatusData?.metrics?.[activeLogKey] && (
+                    <div className="bg-[#0b0f19] px-4 py-2.5 border-b border-slate-800 flex flex-wrap gap-x-4 gap-y-1.5 text-[10px] text-slate-400 border-dashed">
+                      <div className="flex items-center gap-1">
+                        <span className="text-slate-500">Velocidade:</span>
+                        <span className="text-emerald-400 font-semibold font-mono">
+                          {Number(etlStatusData.metrics[activeLogKey].throughput).toFixed(1)} rows/s
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-slate-500">RAM:</span>
+                        <span className="text-blue-400 font-semibold font-mono">
+                          {Number(etlStatusData.metrics[activeLogKey].memoryUsageMb).toFixed(1)} MB
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-slate-500 font-mono">Latência Batch:</span>
+                        <span className="text-amber-400 font-semibold font-mono">
+                          {Math.round(etlStatusData.metrics[activeLogKey].avgBatchTimeMs)} ms
+                        </span>
+                      </div>
+                      {etlStatusData.metrics[activeLogKey].etaSeconds > 0 && (
+                        <div className="flex items-center gap-1">
+                          <span className="text-slate-500">ETA:</span>
+                          <span className="text-purple-400 font-semibold font-mono">
+                            {Math.round(etlStatusData.metrics[activeLogKey].etaSeconds)}s
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Console logs tail */}
+                  <pre className="p-4 text-[11px] text-slate-300 font-mono overflow-auto h-[550px] whitespace-pre-wrap leading-relaxed bg-[#060a13] selection:bg-blue-500/30">
+                    {etlStatusData?.consoleTail ? (
+                      etlStatusData.consoleTail
+                    ) : activeLogKey ? (
+                      <span className="text-slate-600 italic">Aguardando saída de log para "{activeLogKey}"...</span>
+                    ) : (
+                      <span className="text-slate-600 italic">
+                        ← Selecione um script ou execute uma ação para visualizar a telemetria do terminal.
+                      </span>
+                    )}
+                  </pre>
+                </div>
+              </div>
+
+            </div>
+
+            {/* DLQ Inspector Modal Overlay */}
+            {dlqViewKey && (
+              <div className="fixed inset-0 bg-black/65 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-250">
+                <div 
+                  className="bg-[#0d1428] border border-slate-800 rounded-2xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200"
+                  onClick={e => e.stopPropagation()}
+                >
+                  
+                  {/* Modal Header */}
+                  <div className="px-6 py-4 border-b border-slate-800 bg-[#0d1428]/95 flex items-center justify-between">
+                    <div>
+                      <h3 className="text-base font-bold text-white flex items-center gap-2">
+                        <ShieldAlert className="text-red-400 animate-pulse" size={18} />
+                        Zod DLQ Inspector: <span className="font-mono text-blue-400">{dlqViewKey}</span>
+                      </h3>
+                      <p className="text-xs text-slate-400 mt-0.5">Erros de validação de esquema identificados durantes a leitura dos arquivos CSV</p>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        setDlqViewKey(null);
+                        setDlqRecords([]);
+                        setDlqPagination(null);
+                      }} 
+                      className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+                  
+                  {/* Modal Body */}
+                  <div className="flex-1 overflow-y-auto p-6 space-y-4 min-h-[300px] bg-slate-900/40">
+                    {dlqLoading ? (
+                      <div className="flex items-center justify-center h-48 text-slate-500 text-sm">
+                        <Loader2 size={24} className="animate-spin mr-2" /> Carregando registros...
+                      </div>
+                    ) : dlqRecords.length > 0 ? (
+                      <div className="space-y-4">
+                        {dlqRecords.map((rec, i) => {
+                          const errors = Array.isArray(rec.errors) ? rec.errors : [];
+                          return (
+                            <div key={i} className="rounded-xl border border-red-500/15 bg-red-500/5 overflow-hidden">
+                              <div className="px-4 py-2 border-b border-red-500/10 bg-red-500/10 flex justify-between items-center text-xs">
+                                <span className="font-mono font-semibold text-red-300">Registro #{rec.index ?? 'Desconhecido'}</span>
+                                <span className="text-[10px] text-slate-400">{rec.timestamp ? new Date(rec.timestamp).toLocaleString('pt-BR') : ''}</span>
+                              </div>
+                              
+                              <div className="p-4 space-y-3">
+                                {/* Error Stack */}
+                                <div>
+                                  <h4 className="text-[10px] font-bold text-red-400/90 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                    <AlertCircle size={12} /> Zod Schema Error(s):
+                                  </h4>
+                                  <ul className="text-xs space-y-1.5 bg-red-950/20 p-3 rounded-lg border border-red-950/40 font-mono">
+                                    {errors.map((err: any, idx: number) => (
+                                      <li key={idx} className="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-3 leading-relaxed">
+                                        <span className="font-bold text-red-300 bg-red-950/50 px-1.5 py-0.5 rounded border border-red-900/40 self-start text-[10px]">
+                                          path: {err.path?.join('.') || 'root'}
+                                        </span>
+                                        <span className="text-slate-300">{err.message}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                                
+                                {/* Raw CSV Data */}
+                                <div>
+                                  <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                    <FileText size={12} /> Dados Originais (Linha CSV):
+                                  </h4>
+                                  <pre className="p-3 bg-slate-950/90 border border-slate-800 rounded-lg text-[10px] text-slate-300 overflow-x-auto max-h-[140px] font-mono leading-relaxed">
+                                    {JSON.stringify(rec.row || rec.rawRow || rec, null, 2)}
+                                  </pre>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center h-48 text-slate-500 gap-2">
+                        <CheckCircle size={32} className="text-emerald-500" />
+                        <span className="text-sm font-medium">Nenhum registro encontrado na DLQ.</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Modal Footer / Pagination */}
+                  {dlqPagination && dlqPagination.totalPages > 1 && (
+                    <div className="px-6 py-4 border-t border-slate-800 bg-[#0d1428]/95 flex justify-between items-center text-xs text-slate-400">
+                      <span>Total de {dlqPagination.total.toLocaleString('pt-BR')} registros com erro</span>
+                      
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => fetchDlqRecords(dlqViewKey, dlqPage - 1)}
+                          disabled={dlqPage <= 1}
+                          className="px-3 py-1.5 rounded bg-slate-800 border border-slate-700 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                        >
+                          ← Anterior
+                        </button>
+                        <span className="text-white font-medium">Página {dlqPage} de {dlqPagination.totalPages}</span>
+                        <button
+                          onClick={() => fetchDlqRecords(dlqViewKey, dlqPage + 1)}
+                          disabled={dlqPage >= dlqPagination.totalPages}
+                          className="px-3 py-1.5 rounded bg-slate-800 border border-slate-700 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                        >
+                          Próxima →
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* ── Rastreio Tab ──────────────────────────────────────────────────────── */}
       {activeTab === 'rastreio' && (

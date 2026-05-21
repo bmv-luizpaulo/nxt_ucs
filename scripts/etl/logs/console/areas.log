@@ -1,0 +1,14 @@
+
+======================================================
+🚀 IMPORTANDO: AREAS (Tabela: dbo_area)
+📁 CSV: dbo_area.csv
+📦 Coleção: areas
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 257
+[K📊 [areas] Progress: [====================] 99.6% | Processed: 256/257 (OK:256, Err:0, Skip:0) | 4759.3 rows/s | Avg Batch: 10ms | RAM: 29.4MB | ETA: --
+
+🏁 Concluído [areas]. OK: 256, ERR: 0, SKIP: 0

@@ -1,0 +1,14 @@
+
+======================================================
+🚀 IMPORTANDO: PROJECTS (Tabela: dbo_project)
+📁 CSV: dbo_project.csv
+📦 Coleção: projects
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 9
+[K📊 [projects] Progress: [==================  ] 88.9% | Processed: 8/9 (OK:8, Err:0, Skip:0) | 272.7 rows/s | Avg Batch: 0ms | RAM: 26.5MB | ETA: --
+
+🏁 Concluído [projects]. OK: 8, ERR: 0, SKIP: 0

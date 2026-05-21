@@ -1,0 +1,28 @@
+
+======================================================
+🚀 IMPORTANDO: PLATFORMS (Tabela: dbo_platform)
+📁 CSV: dbo_platform.csv
+📦 Coleção: platforms
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 9
+[K📊 [platforms] Progress: [==================  ] 88.9% | Processed: 8/9 (OK:8, Err:0, Skip:0) | 310.3 rows/s | Avg Batch: 0ms | RAM: 26.8MB | ETA: --
+
+🏁 Concluído [platforms]. OK: 8, ERR: 0, SKIP: 0
+
+======================================================
+🚀 IMPORTANDO: PLATFORM_TAGS (Tabela: dbo_platform_tags)
+📁 CSV: dbo_platform_tags.csv
+📦 Coleção: platformTags
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 6
+[K📊 [platform_tags] Progress: [=================   ] 83.3% | Processed: 5/6 (OK:5, Err:0, Skip:0) | 240.0 rows/s | Avg Batch: 0ms | RAM: 27.0MB | ETA: --
+
+🏁 Concluído [platform_tags]. OK: 5, ERR: 0, SKIP: 0

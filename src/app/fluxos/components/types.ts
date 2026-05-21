@@ -1,13 +1,12 @@
-import { LucideIcon } from 'lucide-react';
-
 export type NodeStatus = 'pending' | 'in_progress' | 'completed';
+export type NodePriority = 'low' | 'medium' | 'high' | 'critical';
 
 export interface Subtask {
   id: string;
   title: string;
   completed: boolean;
-  type?: 'boolean' | 'text' | 'check'; // Tipo de resposta
-  value?: string; // Valor da resposta
+  type?: 'check' | 'text' | 'boolean';
+  value?: string;
 }
 
 export interface NodeAttachment {
@@ -24,35 +23,50 @@ export interface NodeLog {
   timestamp: string; // ISO string
 }
 
+export interface Comment {
+  id: string;
+  author: string;
+  text: string;
+  timestamp: string;
+}
+
+export interface StructuredTable {
+  title: string;
+  headers: string[];
+  rows: string[][];
+}
+
 export interface FlowNode {
   id: string;
+  type: 'lead' | 'task' | 'decision' | 'approval' | 'waiting' | 'document' | 'meeting' | 'notification' | 'done';
   name: string;
   description: string;
-  type: string;
   assignedTo: string;
   deadline?: string;
+  priority?: NodePriority;
   status: NodeStatus;
+  position?: { x: number; y: number };
   subtasks?: Subtask[];
   attachments?: NodeAttachment[];
-  comments?: string;
-  parentId?: string;
-  automationRules?: {
-    condition: string;
-    action: string;
-  }[];
-  requiredFiles?: string[];
-  structuredData?: {
-    title: string;
-    headers: string[];
-    rows: string[][];
-  }[];
+  commentsList?: Comment[];
+  comments?: string; // Kept for backward compatibility
+  parentId?: string; // Kept for backward compatibility
   logs?: NodeLog[];
+  structuredData?: StructuredTable[];
 }
 
 export interface FlowLink {
   id: string;
   title: string;
   url: string;
+}
+
+export interface FlowEdge {
+  id: string;
+  source: string;
+  target: string;
+  label?: string;
+  animated?: boolean;
 }
 
 export interface Flow {
@@ -62,5 +76,6 @@ export interface Flow {
   deadline?: string;
   participants: string[];
   nodes: FlowNode[];
+  edges?: FlowEdge[];
   links?: FlowLink[];
 }

@@ -1,0 +1,14 @@
+
+======================================================
+🚀 IMPORTANDO: OWNERSHIP_TRANSFERS (Tabela: dbo_ownership_transfer_order)
+📁 CSV: dbo_ownership_transfer_order.csv
+📦 Coleção: ownershipTransfers
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 371
+[K📊 [ownership_transfers] Progress: [====================] 99.7% | Processed: 370/371 (OK:370, Err:0, Skip:0) | 4264.4 rows/s | Avg Batch: 10ms | RAM: 26.8MB | ETA: --
+
+🏁 Concluído [ownership_transfers]. OK: 370, ERR: 0, SKIP: 0

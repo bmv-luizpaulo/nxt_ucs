@@ -1,0 +1,16 @@
+
+======================================================
+🚀 IMPORTANDO: TRANSACTIONS (Tabela: dbo_transaction)
+📁 CSV: dbo_transaction.csv
+📦 Coleção: transactions
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Carregando dados auxiliares para desnormalização...
+✅ Dados auxiliares carregados.
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 56280
+[K📊 [transactions] Progress: [===                 ] 15.2% | Processed: 8573/56280 (OK:8573, Err:0, Skip:0) | 8564.4 rows/s | Avg Batch: 10ms | RAM: 42.6MB | ETA: 6s[K📊 [transactions] Progress: [======              ] 31.0% | Processed: 17451/56280 (OK:17451, Err:0, Skip:0) | 8712.4 rows/s | Avg Batch: 10ms | RAM: 38.0MB | ETA: 4s[K📊 [transactions] Progress: [=========           ] 47.3% | Processed: 26600/56280 (OK:26600, Err:0, Skip:0) | 8825.5 rows/s | Avg Batch: 10ms | RAM: 36.5MB | ETA: 3s[K📊 [transactions] Progress: [=============       ] 64.3% | Processed: 36200/56280 (OK:36200, Err:0, Skip:0) | 9016.2 rows/s | Avg Batch: 10ms | RAM: 37.2MB | ETA: 2s[K📊 [transactions] Progress: [================    ] 82.1% | Processed: 46200/56280 (OK:46200, Err:0, Skip:0) | 9192.2 rows/s | Avg Batch: 10ms | RAM: 41.0MB | ETA: 1s[K📊 [transactions] Progress: [====================] 100.0% | Processed: 56279/56280 (OK:56279, Err:0, Skip:0) | 9345.7 rows/s | Avg Batch: 10ms | RAM: 44.8MB | ETA: --
+
+🏁 Concluído [transactions]. OK: 56279, ERR: 0, SKIP: 0

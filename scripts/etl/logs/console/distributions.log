@@ -1,0 +1,14 @@
+
+======================================================
+🚀 IMPORTANDO: DISTRIBUTIONS (Tabela: dbo_distribution)
+📁 CSV: dbo_distribution.csv
+📦 Coleção: distributions
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 39356
+[K📊 [distributions] Progress: [====                ] 21.9% | Processed: 8600/39356 (OK:8600, Err:0, Skip:0) | 8565.7 rows/s | Avg Batch: 10ms | RAM: 34.8MB | ETA: 4s[K📊 [distributions] Progress: [==========          ] 49.3% | Processed: 19400/39356 (OK:19400, Err:0, Skip:0) | 9642.1 rows/s | Avg Batch: 10ms | RAM: 33.0MB | ETA: 2s[K📊 [distributions] Progress: [================    ] 77.8% | Processed: 30600/39356 (OK:30600, Err:0, Skip:0) | 10092.3 rows/s | Avg Batch: 10ms | RAM: 29.5MB | ETA: 1s[K📊 [distributions] Progress: [====================] 100.0% | Processed: 39355/39356 (OK:39355, Err:0, Skip:0) | 10117.2 rows/s | Avg Batch: 10ms | RAM: 29.4MB | ETA: --
+
+🏁 Concluído [distributions]. OK: 39355, ERR: 0, SKIP: 0

@@ -1,0 +1,14 @@
+
+======================================================
+🚀 IMPORTANDO: ADJUSTMENTS (Tabela: dbo_account_adjustments_order)
+📁 CSV: dbo_account_adjustments_order.csv
+📦 Coleção: accountAdjustments
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 1588
+[K📊 [adjustments] Progress: [====================] 99.9% | Processed: 1587/1588 (OK:1587, Err:0, Skip:0) | 4537.1 rows/s | Avg Batch: 10ms | RAM: 27.0MB | ETA: --
+
+🏁 Concluído [adjustments]. OK: 1587, ERR: 0, SKIP: 0

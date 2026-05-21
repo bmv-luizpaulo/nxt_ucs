@@ -1,117 +1,13 @@
-import { initializeApp } from 'firebase/app';
-import { getFirestore, doc, writeBatch, serverTimestamp, Timestamp } from 'firebase/firestore';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import * as fs from 'fs';
-import csv from 'csv-parser';
-import * as path from 'path';
+import { runImportForConfig } from './core/importEngine';
+import { configs } from './mappings/blocked_ucs.mapping';
 
-import { firebaseConfig } from '../../src/firebase/config';
-
-// ============================================================================
-const USER_EMAIL = 'luizpaulo.jesus@bmv.global';
-const USER_PASSWORD = 'l1u2i3z4';
-// ============================================================================
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-
-const BATCH_SIZE = 450;
-const SLEEP_MS = 2500;
-
-function fixEncoding(str: string | undefined): string | null {
-  if (!str) return null;
-  try { return Buffer.from(str, 'latin1').toString('utf8'); } catch { return str; }
-}
-
-async function sleep(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function processFile(filePath: string, collection: string, label: string): Promise<number> {
-  if (!fs.existsSync(filePath)) {
-    console.log(`⏭️  Arquivo não encontrado, pulando: ${filePath}`);
-    return 0;
+async function main() {
+  for (const config of configs) {
+    await runImportForConfig(config);
   }
-
-  console.log(`\n📂 Processando: ${label}...`);
-
-  return new Promise((resolve, reject) => {
-    let batch = writeBatch(db);
-    let count = 0;
-    let totalImported = 0;
-
-    const parser = fs.createReadStream(filePath, { encoding: 'latin1' }).pipe(csv());
-
-    parser.on('data', async (row) => {
-      if (!row.id) return;
-      parser.pause();
-
-      const docRef = doc(db, collection, row.id.toString());
-
-      const data: Record<string, unknown> = {
-        id: row.id.toString(),
-        roleUserId: row.role_user_id ? row.role_user_id.toString() : null,
-        userId: row.user_id ? row.user_id.toString() : null,
-        status: row.status || null,
-        processingMessage: fixEncoding(row.processing_message),
-        reason: row.reason || null,
-        description: fixEncoding(row.description),
-        active: row.active === 't' || row.active === 'true',
-        block: row.block === 't' || row.block === 'true',
-        areaId: row.area_id ? row.area_id.toString() : null,
-        amount: row.amount ? parseFloat(row.amount) : null,
-        createdBy: row.created_by ? row.created_by.toString() : null,
-        originalCreatedAt: row.created_date ? Timestamp.fromDate(new Date(row.created_date)) : null,
-        lastModifiedBy: row.last_modified_by ? row.last_modified_by.toString() : null,
-        originalUpdatedAt: row.last_modified_date ? Timestamp.fromDate(new Date(row.last_modified_date)) : null,
-        migratedAt: serverTimestamp(),
-      };
-
-      batch.set(docRef, data, { merge: true });
-      count++;
-      totalImported++;
-
-      if (count === BATCH_SIZE) {
-        console.log(`⏳ Gravando lote... (${totalImported} processados)`);
-        try {
-          await batch.commit();
-          batch = writeBatch(db);
-          count = 0;
-          await sleep(SLEEP_MS);
-          parser.resume();
-        } catch (err) {
-          reject(err);
-        }
-      } else {
-        parser.resume();
-      }
-    });
-
-    parser.on('end', async () => {
-      if (count > 0) {
-        await batch.commit();
-      }
-      console.log(`✅ ${label}: ${totalImported} registros migrados`);
-      resolve(totalImported);
-    });
-
-    parser.on('error', (err) => {
-      reject(err);
-    });
-  });
 }
 
-async function run() {
-  console.log('🔑 Autenticando no Firebase...');
-  await signInWithEmailAndPassword(auth, USER_EMAIL, USER_PASSWORD);
-  console.log('✅ Autenticado com sucesso!');
-
-  const csvPath = path.join(__dirname, '../../docs/banco_legado_csvs_completo/dbo_blocked_ucs.csv');
-  const total = await processFile(csvPath, 'blockedUcs', 'UCS Bloqueadas (blockedUcs)');
-
-  console.log(`\n✅ Sucesso! Total blockedUcs migrado: ${total} registros`);
-  process.exit(0);
-}
-
-run().catch(console.error);
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

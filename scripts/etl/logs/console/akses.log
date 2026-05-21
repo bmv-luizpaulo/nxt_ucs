@@ -1,0 +1,112 @@
+
+======================================================
+🚀 IMPORTANDO: AKSES_DISTRIBUTOR_CERTIFICATE_ORDERS (Tabela: plat_akses_distributor_certificate_order)
+📁 CSV: plat_akses_distributor_certificate_order.csv
+📦 Coleção: aksesDistributorCertOrders
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 765
+[K📊 [akses_distributor_certificate_orders] Progress: [====================] 99.9% | Processed: 764/765 (OK:764, Err:0, Skip:0) | 3370.0 rows/s | Avg Batch: 10ms | RAM: 35.6MB | ETA: --
+
+🏁 Concluído [akses_distributor_certificate_orders]. OK: 764, ERR: 0, SKIP: 0
+
+======================================================
+🚀 IMPORTANDO: AKSES_CLIENT_CERTIFICATE_ORDERS (Tabela: plat_akses_client_certificate_order)
+📁 CSV: plat_akses_client_certificate_order.csv
+📦 Coleção: aksesClientCertOrders
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 54
+[K📊 [akses_client_certificate_orders] Progress: [====================] 98.1% | Processed: 53/54 (OK:53, Err:0, Skip:0) | 1800.0 rows/s | Avg Batch: 0ms | RAM: 36.4MB | ETA: --
+
+🏁 Concluído [akses_client_certificate_orders]. OK: 53, ERR: 0, SKIP: 0
+
+======================================================
+🚀 IMPORTANDO: AKSES_TRANSFER_ORDERS (Tabela: plat_akses_transfer_order)
+📁 CSV: plat_akses_transfer_order.csv
+📦 Coleção: aksesTransferOrders
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 340
+[K📊 [akses_transfer_orders] Progress: [====================] 99.7% | Processed: 339/340 (OK:339, Err:0, Skip:0) | 5862.1 rows/s | Avg Batch: 10ms | RAM: 27.2MB | ETA: --
+
+🏁 Concluído [akses_transfer_orders]. OK: 339, ERR: 0, SKIP: 0
+
+======================================================
+🚀 IMPORTANDO: AKSES_PURCHASE_ORDERS (Tabela: plat_akses_purchase_order)
+📁 CSV: plat_akses_purchase_order.csv
+📦 Coleção: aksesPurchaseOrders
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 34
+[K📊 [akses_purchase_orders] Progress: [=================== ] 97.1% | Processed: 33/34 (OK:33, Err:0, Skip:0) | 1789.5 rows/s | Avg Batch: 0ms | RAM: 27.7MB | ETA: --
+
+🏁 Concluído [akses_purchase_orders]. OK: 33, ERR: 0, SKIP: 0
+
+======================================================
+🚀 IMPORTANDO: AKSES_LIVING_CARBON_ORDERS (Tabela: plat_akses_living_carbon_certificate_order)
+📁 CSV: plat_akses_living_carbon_certificate_order.csv
+📦 Coleção: aksesLivingCarbonOrders
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 49
+[K📊 [akses_living_carbon_orders] Progress: [====================] 98.0% | Processed: 48/49 (OK:48, Err:0, Skip:0) | 2041.7 rows/s | Avg Batch: 0ms | RAM: 28.4MB | ETA: --
+
+🏁 Concluído [akses_living_carbon_orders]. OK: 48, ERR: 0, SKIP: 0
+
+======================================================
+🚀 IMPORTANDO: AKSES_SALE_ORDERS (Tabela: plat_akses_sale_order)
+📁 CSV: plat_akses_sale_order.csv
+📦 Coleção: aksesSaleOrders
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 1
+[K📊 [akses_sale_orders] Progress: [                    ] 0.0% | Processed: 0/1 (OK:0, Err:0, Skip:0) | Infinity rows/s | Avg Batch: 0ms | RAM: 28.5MB | ETA: --
+
+🏁 Concluído [akses_sale_orders]. OK: 0, ERR: 0, SKIP: 0
+
+======================================================
+🚀 IMPORTANDO: STOCK_AVAILABILITY_CERT_ORDERS (Tabela: dbo_stock_availability_certificate_order)
+📁 CSV: dbo_stock_availability_certificate_order.csv
+📦 Coleção: stockAvailabilityCertOrders
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 1
+[K📊 [stock_availability_cert_orders] Progress: [                    ] 0.0% | Processed: 0/1 (OK:0, Err:0, Skip:0) | Infinity rows/s | Avg Batch: 0ms | RAM: 28.7MB | ETA: --
+
+🏁 Concluído [stock_availability_cert_orders]. OK: 0, ERR: 0, SKIP: 0
+
+======================================================
+🚀 IMPORTANDO: MOVEMENT_INTENTION_ORDERS (Tabela: dbo_movement_intention_order)
+📁 CSV: dbo_movement_intention_order.csv
+📦 Coleção: movementIntentionOrders
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 1
+[K📊 [movement_intention_orders] Progress: [                    ] 0.0% | Processed: 0/1 (OK:0, Err:0, Skip:0) | 1000.0 rows/s | Avg Batch: 0ms | RAM: 28.8MB | ETA: --
+
+🏁 Concluído [movement_intention_orders]. OK: 0, ERR: 0, SKIP: 0

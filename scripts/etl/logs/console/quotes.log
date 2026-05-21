@@ -1,0 +1,14 @@
+
+======================================================
+🚀 IMPORTANDO: QUOTES (Tabela: dbo_ucs_quote)
+📁 CSV: dbo_ucs_quote.csv
+📦 Coleção: ucsQuotes
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 403
+[K📊 [quotes] Progress: [====================] 99.8% | Processed: 402/403 (OK:402, Err:0, Skip:0) | 4914.6 rows/s | Avg Batch: 10ms | RAM: 30.0MB | ETA: --
+
+🏁 Concluído [quotes]. OK: 402, ERR: 0, SKIP: 0

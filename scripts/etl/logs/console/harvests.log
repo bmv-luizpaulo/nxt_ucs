@@ -1,0 +1,14 @@
+
+======================================================
+🚀 IMPORTANDO: HARVESTS (Tabela: dbo_harvest)
+📁 CSV: dbo_harvest.csv
+📦 Coleção: harvests
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 259
+[K📊 [harvests] Progress: [====================] 99.6% | Processed: 258/259 (OK:258, Err:0, Skip:0) | 5886.4 rows/s | Avg Batch: 10ms | RAM: 29.3MB | ETA: --
+
+🏁 Concluído [harvests]. OK: 258, ERR: 0, SKIP: 0

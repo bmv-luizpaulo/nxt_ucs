@@ -1,0 +1,764 @@
+🎬 INICIANDO ORQUESTRADOR GLOBAL DE MIGRAÇÃO
+📦 Total de sub-importadores: 38
+
+──────────────────────────────────────────────────────
+📁 [1/38] Orquestrador -> Executando: platforms
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: PLATFORMS (Tabela: dbo_platform)
+📁 CSV: dbo_platform.csv
+📦 Coleção/Tabela: dbo_platform
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 9
+[K📊 [platforms] Progress: [==================  ] 88.9% | Processed: 8/9 (OK:8, Err:0, Skip:0) | 2.7 rows/s | Avg Batch: 0ms | RAM: 17.0MB | ETA: --
+
+🏁 Concluído [platforms]. OK: 8, ERR: 0, SKIP: 0
+✅ Concluído platforms. Registros importados: 8
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [2/38] Orquestrador -> Executando: platform_tags
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: PLATFORM_TAGS (Tabela: dbo_platform_tags)
+📁 CSV: dbo_platform_tags.csv
+📦 Coleção/Tabela: dbo_platform_tags
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 6
+[K📊 [platform_tags] Progress: [=================   ] 83.3% | Processed: 5/6 (OK:5, Err:0, Skip:0) | 2.2 rows/s | Avg Batch: 0ms | RAM: 16.5MB | ETA: --
+
+🏁 Concluído [platform_tags]. OK: 5, ERR: 0, SKIP: 0
+✅ Concluído platform_tags. Registros importados: 5
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [3/38] Orquestrador -> Executando: users
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: USERS (Tabela: dbo_user)
+📁 CSV: dbo_user.csv
+📦 Coleção/Tabela: dbo_user
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 1804
+[K📊 [users] Progress: [===========         ] 55.4% | Processed: 1000/1804 (OK:1000, Err:0, Skip:0) | 323.6 rows/s | Avg Batch: 2948ms | RAM: 19.5MB | ETA: 2s[K📊 [users] Progress: [====================] 99.9% | Processed: 1803/1804 (OK:1803, Err:0, Skip:0) | 478.9 rows/s | Avg Batch: 2948ms | RAM: 17.6MB | ETA: --
+
+🏁 Concluído [users]. OK: 1803, ERR: 0, SKIP: 0
+✅ Concluído users. Registros importados: 1803
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [4/38] Orquestrador -> Executando: distribution_configs
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: DISTRIBUTION_CONFIGS (Tabela: dbo_distribution_configuration)
+📁 CSV: dbo_distribution_configuration.csv
+📦 Coleção/Tabela: dbo_distribution_configuration
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 14
+[K📊 [distribution_configs] Progress: [=================== ] 92.9% | Processed: 13/14 (OK:13, Err:0, Skip:0) | 5.6 rows/s | Avg Batch: 0ms | RAM: 18.2MB | ETA: --
+
+🏁 Concluído [distribution_configs]. OK: 13, ERR: 0, SKIP: 0
+✅ Concluído distribution_configs. Registros importados: 13
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [5/38] Orquestrador -> Executando: projects
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: PROJECTS (Tabela: dbo_project)
+📁 CSV: dbo_project.csv
+📦 Coleção/Tabela: dbo_project
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 9
+[K📊 [projects] Progress: [==================  ] 88.9% | Processed: 8/9 (OK:8, Err:0, Skip:0) | 3.5 rows/s | Avg Batch: 0ms | RAM: 18.7MB | ETA: --
+
+🏁 Concluído [projects]. OK: 8, ERR: 0, SKIP: 0
+✅ Concluído projects. Registros importados: 8
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [6/38] Orquestrador -> Executando: areas
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: AREAS (Tabela: dbo_area)
+📁 CSV: dbo_area.csv
+📦 Coleção/Tabela: dbo_area
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 257
+[K📊 [areas] Progress: [====================] 99.6% | Processed: 256/257 (OK:256, Err:0, Skip:0) | 86.7 rows/s | Avg Batch: 0ms | RAM: 18.3MB | ETA: --
+
+🏁 Concluído [areas]. OK: 256, ERR: 0, SKIP: 0
+✅ Concluído areas. Registros importados: 256
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [7/38] Orquestrador -> Executando: role_users
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: ROLE_USERS (Tabela: dbo_role_user)
+📁 CSV: dbo_role_user.csv
+📦 Coleção/Tabela: dbo_role_user
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 2373
+[K📊 [role_users] Progress: [========            ] 42.1% | Processed: 1000/2373 (OK:1000, Err:0, Skip:0) | 329.4 rows/s | Avg Batch: 2887ms | RAM: 20.2MB | ETA: 4s[K📊 [role_users] Progress: [====================] 100.0% | Processed: 2372/2373 (OK:2372, Err:0, Skip:0) | 651.7 rows/s | Avg Batch: 1510ms | RAM: 19.7MB | ETA: --
+
+🏁 Concluído [role_users]. OK: 2372, ERR: 0, SKIP: 0
+✅ Concluído role_users. Registros importados: 2372
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [8/38] Orquestrador -> Executando: quotes
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: QUOTES (Tabela: dbo_ucs_quote)
+📁 CSV: dbo_ucs_quote.csv
+📦 Coleção/Tabela: dbo_ucs_quote
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 403
+[K📊 [quotes] Progress: [====================] 99.8% | Processed: 402/403 (OK:402, Err:0, Skip:0) | 150.0 rows/s | Avg Batch: 0ms | RAM: 19.3MB | ETA: --
+
+🏁 Concluído [quotes]. OK: 402, ERR: 0, SKIP: 0
+✅ Concluído quotes. Registros importados: 402
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [9/38] Orquestrador -> Executando: harvests
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: HARVESTS (Tabela: dbo_harvest)
+📁 CSV: dbo_harvest.csv
+📦 Coleção/Tabela: dbo_harvest
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 259
+[K📊 [harvests] Progress: [====================] 99.6% | Processed: 258/259 (OK:258, Err:0, Skip:0) | 99.4 rows/s | Avg Batch: 0ms | RAM: 19.6MB | ETA: --
+
+🏁 Concluído [harvests]. OK: 258, ERR: 0, SKIP: 0
+✅ Concluído harvests. Registros importados: 258
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [10/38] Orquestrador -> Executando: cprs
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: CPRS (Tabela: dbo_cpr)
+📁 CSV: dbo_cpr.csv
+📦 Coleção/Tabela: dbo_cpr
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 22
+[K📊 [cprs] Progress: [=================== ] 95.5% | Processed: 21/22 (OK:21, Err:0, Skip:0) | 7.3 rows/s | Avg Batch: 0ms | RAM: 19.8MB | ETA: --
+
+🏁 Concluído [cprs]. OK: 21, ERR: 0, SKIP: 0
+✅ Concluído cprs. Registros importados: 21
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [11/38] Orquestrador -> Executando: ucs_batches
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: UCS_BATCHES (Tabela: dbo_ucs_batch)
+📁 CSV: dbo_ucs_batch.csv
+📦 Coleção/Tabela: dbo_ucs_batch
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 1
+[K📊 [ucs_batches] Progress: [                    ] 0.0% | Processed: 0/1 (OK:0, Err:0, Skip:0) | 71.4 rows/s | Avg Batch: 0ms | RAM: 19.4MB | ETA: --
+
+🏁 Concluído [ucs_batches]. OK: 0, ERR: 0, SKIP: 0
+✅ Concluído ucs_batches. Registros importados: 0
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [12/38] Orquestrador -> Executando: ucs_batches_2010
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: UCS_BATCHES_2010 (Tabela: dbo_ucs_batch)
+📁 CSV: dbo_ucs_batch__2010.csv
+📦 Coleção/Tabela: dbo_ucs_batch
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 118508
+[K📊 [ucs_batches_2010] Progress: [                    ] 0.8% | Processed: 1000/118508 (OK:1000, Err:0, Skip:0) | 308.2 rows/s | Avg Batch: 3098ms | RAM: 20.2MB | ETA: 381s[K📊 [ucs_batches_2010] Progress: [=                   ] 3.4% | Processed: 4000/118508 (OK:4000, Err:0, Skip:0) | 930.9 rows/s | Avg Batch: 878ms | RAM: 27.2MB | ETA: 123s[K📊 [ucs_batches_2010] Progress: [=                   ] 6.8% | Processed: 8000/118508 (OK:8000, Err:0, Skip:0) | 1472.5 rows/s | Avg Batch: 127ms | RAM: 30.9MB | ETA: 75s[K📊 [ucs_batches_2010] Progress: [==                  ] 11.0% | Processed: 13000/118508 (OK:13000, Err:0, Skip:0) | 1994.8 rows/s | Avg Batch: 115ms | RAM: 31.2MB | ETA: 53s[K📊 [ucs_batches_2010] Progress: [===                 ] 15.2% | Processed: 18000/118508 (OK:18000, Err:0, Skip:0) | 2366.6 rows/s | Avg Batch: 122ms | RAM: 35.3MB | ETA: 42s[K📊 [ucs_batches_2010] Progress: [====                ] 19.4% | Processed: 23000/118508 (OK:23000, Err:0, Skip:0) | 2659.3 rows/s | Avg Batch: 115ms | RAM: 34.8MB | ETA: 36s[K📊 [ucs_batches_2010] Progress: [=====               ] 23.6% | Processed: 28000/118508 (OK:28000, Err:0, Skip:0) | 2885.4 rows/s | Avg Batch: 112ms | RAM: 30.4MB | ETA: 31s[K📊 [ucs_batches_2010] Progress: [======              ] 27.8% | Processed: 33000/118508 (OK:33000, Err:0, Skip:0) | 3057.8 rows/s | Avg Batch: 117ms | RAM: 36.2MB | ETA: 28s[K📊 [ucs_batches_2010] Progress: [======              ] 32.1% | Processed: 38000/118508 (OK:38000, Err:0, Skip:0) | 3181.5 rows/s | Avg Batch: 120ms | RAM: 35.0MB | ETA: 25s[K📊 [ucs_batches_2010] Progress: [=======             ] 36.3% | Processed: 43000/118508 (OK:43000, Err:0, Skip:0) | 3289.0 rows/s | Avg Batch: 122ms | RAM: 31.3MB | ETA: 23s[K📊 [ucs_batches_2010] Progress: [========            ] 39.7% | Processed: 47000/118508 (OK:47000, Err:0, Skip:0) | 3319.7 rows/s | Avg Batch: 140ms | RAM: 27.4MB | ETA: 22s[K📊 [ucs_batches_2010] Progress: [=========           ] 43.9% | Processed: 52000/118508 (OK:52000, Err:0, Skip:0) | 3390.5 rows/s | Avg Batch: 130ms | RAM: 30.5MB | ETA: 20s[K📊 [ucs_batches_2010] Progress: [==========          ] 48.1% | Processed: 57000/118508 (OK:57000, Err:0, Skip:0) | 3480.7 rows/s | Avg Batch: 112ms | RAM: 31.0MB | ETA: 18s[K📊 [ucs_batches_2010] Progress: [==========          ] 52.3% | Processed: 62000/118508 (OK:62000, Err:0, Skip:0) | 3561.8 rows/s | Avg Batch: 114ms | RAM: 34.6MB | ETA: 16s[K📊 [ucs_batches_2010] Progress: [===========         ] 56.5% | Processed: 67000/118508 (OK:67000, Err:0, Skip:0) | 3625.7 rows/s | Avg Batch: 112ms | RAM: 31.0MB | ETA: 14s[K📊 [ucs_batches_2010] Progress: [============        ] 59.9% | Processed: 71000/118508 (OK:71000, Err:0, Skip:0) | 3616.0 rows/s | Avg Batch: 174ms | RAM: 39.7MB | ETA: 13s[K📊 [ucs_batches_2010] Progress: [=============       ] 64.1% | Processed: 76000/118508 (OK:76000, Err:0, Skip:0) | 3670.6 rows/s | Avg Batch: 109ms | RAM: 27.6MB | ETA: 12s[K📊 [ucs_batches_2010] Progress: [==============      ] 68.3% | Processed: 81000/118508 (OK:81000, Err:0, Skip:0) | 3716.6 rows/s | Avg Batch: 123ms | RAM: 31.1MB | ETA: 10s[K📊 [ucs_batches_2010] Progress: [===============     ] 72.6% | Processed: 86000/118508 (OK:86000, Err:0, Skip:0) | 3757.9 rows/s | Avg Batch: 124ms | RAM: 31.6MB | ETA: 9s[K📊 [ucs_batches_2010] Progress: [===============     ] 76.8% | Processed: 91000/118508 (OK:91000, Err:0, Skip:0) | 3803.1 rows/s | Avg Batch: 115ms | RAM: 35.7MB | ETA: 7s[K📊 [ucs_batches_2010] Progress: [================    ] 81.0% | Processed: 96000/118508 (OK:96000, Err:0, Skip:0) | 3812.1 rows/s | Avg Batch: 159ms | RAM: 30.4MB | ETA: 6s[K📊 [ucs_batches_2010] Progress: [=================   ] 85.2% | Processed: 101000/118508 (OK:101000, Err:0, Skip:0) | 3836.7 rows/s | Avg Batch: 123ms | RAM: 30.8MB | ETA: 5s[K📊 [ucs_batches_2010] Progress: [==================  ] 89.4% | Processed: 106000/118508 (OK:106000, Err:0, Skip:0) | 3866.5 rows/s | Avg Batch: 117ms | RAM: 36.3MB | ETA: 3s[K📊 [ucs_batches_2010] Progress: [=================== ] 93.7% | Processed: 111000/118508 (OK:111000, Err:0, Skip:0) | 3890.9 rows/s | Avg Batch: 120ms | RAM: 30.8MB | ETA: 2s[K📊 [ucs_batches_2010] Progress: [====================] 97.9% | Processed: 116000/118508 (OK:116000, Err:0, Skip:0) | 3912.7 rows/s | Avg Batch: 121ms | RAM: 30.8MB | ETA: 1s[K📊 [ucs_batches_2010] Progress: [====================] 100.0% | Processed: 118507/118508 (OK:118507, Err:0, Skip:0) | 3922.2 rows/s | Avg Batch: 120ms | RAM: 28.0MB | ETA: --
+
+🏁 Concluído [ucs_batches_2010]. OK: 118507, ERR: 0, SKIP: 0
+✅ Concluído ucs_batches_2010. Registros importados: 118507
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [13/38] Orquestrador -> Executando: ucs_batches_2020
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: UCS_BATCHES_2020 (Tabela: dbo_ucs_batch)
+📁 CSV: dbo_ucs_batch__2020.csv
+📦 Coleção/Tabela: dbo_ucs_batch
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 202
+[K📊 [ucs_batches_2020] Progress: [====================] 99.5% | Processed: 201/202 (OK:201, Err:0, Skip:0) | 65.6 rows/s | Avg Batch: 0ms | RAM: 18.1MB | ETA: --
+
+🏁 Concluído [ucs_batches_2020]. OK: 201, ERR: 0, SKIP: 0
+✅ Concluído ucs_batches_2020. Registros importados: 201
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [14/38] Orquestrador -> Executando: ucs_batches_2022
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: UCS_BATCHES_2022 (Tabela: dbo_ucs_batch)
+📁 CSV: dbo_ucs_batch__2022.csv
+📦 Coleção/Tabela: dbo_ucs_batch
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 295
+[K📊 [ucs_batches_2022] Progress: [====================] 99.7% | Processed: 294/295 (OK:294, Err:0, Skip:0) | 109.3 rows/s | Avg Batch: 0ms | RAM: 18.9MB | ETA: --
+
+🏁 Concluído [ucs_batches_2022]. OK: 294, ERR: 0, SKIP: 0
+✅ Concluído ucs_batches_2022. Registros importados: 294
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [15/38] Orquestrador -> Executando: ucs_batches_2023
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: UCS_BATCHES_2023 (Tabela: dbo_ucs_batch)
+📁 CSV: dbo_ucs_batch__2023.csv
+📦 Coleção/Tabela: dbo_ucs_batch
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 5
+[K📊 [ucs_batches_2023] Progress: [================    ] 80.0% | Processed: 4/5 (OK:4, Err:0, Skip:0) | 1.6 rows/s | Avg Batch: 0ms | RAM: 19.2MB | ETA: --
+
+🏁 Concluído [ucs_batches_2023]. OK: 4, ERR: 0, SKIP: 0
+✅ Concluído ucs_batches_2023. Registros importados: 4
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [16/38] Orquestrador -> Executando: distributions
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: DISTRIBUTIONS (Tabela: dbo_distribution)
+📁 CSV: dbo_distribution.csv
+📦 Coleção/Tabela: dbo_distribution
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 39356
+[K📊 [distributions] Progress: [=                   ] 2.5% | Processed: 1000/39356 (OK:1000, Err:0, Skip:0) | 304.7 rows/s | Avg Batch: 3042ms | RAM: 25.0MB | ETA: 126s[K📊 [distributions] Progress: [=                   ] 5.1% | Processed: 2000/39356 (OK:2000, Err:0, Skip:0) | 440.6 rows/s | Avg Batch: 1748ms | RAM: 18.3MB | ETA: 85s[K📊 [distributions] Progress: [==                  ] 10.2% | Processed: 4000/39356 (OK:4000, Err:0, Skip:0) | 663.5 rows/s | Avg Batch: 1027ms | RAM: 18.2MB | ETA: 53s[K📊 [distributions] Progress: [====                ] 17.8% | Processed: 7000/39356 (OK:7000, Err:0, Skip:0) | 972.1 rows/s | Avg Batch: 230ms | RAM: 25.7MB | ETA: 33s[K📊 [distributions] Progress: [======              ] 29.1% | Processed: 11435/39356 (OK:11435, Err:0, Skip:0) | 1394.2 rows/s | Avg Batch: 143ms | RAM: 30.6MB | ETA: 20s[K📊 [distributions] Progress: [========            ] 38.5% | Processed: 15162/39356 (OK:15162, Err:0, Skip:0) | 1647.5 rows/s | Avg Batch: 139ms | RAM: 24.2MB | ETA: 15s[K📊 [distributions] Progress: [==========          ] 48.3% | Processed: 19000/39356 (OK:19000, Err:0, Skip:0) | 1860.2 rows/s | Avg Batch: 145ms | RAM: 22.9MB | ETA: 11s[K📊 [distributions] Progress: [============        ] 61.0% | Processed: 24000/39356 (OK:24000, Err:0, Skip:0) | 2101.6 rows/s | Avg Batch: 132ms | RAM: 22.8MB | ETA: 7s[K📊 [distributions] Progress: [==============      ] 71.1% | Processed: 28000/39356 (OK:28000, Err:0, Skip:0) | 2250.1 rows/s | Avg Batch: 141ms | RAM: 17.7MB | ETA: 5s[K📊 [distributions] Progress: [================    ] 81.3% | Processed: 32000/39356 (OK:32000, Err:0, Skip:0) | 2371.4 rows/s | Avg Batch: 132ms | RAM: 26.6MB | ETA: 3s[K📊 [distributions] Progress: [=================== ] 93.3% | Processed: 36712/39356 (OK:36712, Err:0, Skip:0) | 2532.7 rows/s | Avg Batch: 134ms | RAM: 36.8MB | ETA: 1s[K📊 [distributions] Progress: [====================] 100.0% | Processed: 39355/39356 (OK:39355, Err:0, Skip:0) | 2555.9 rows/s | Avg Batch: 145ms | RAM: 22.2MB | ETA: --
+
+🏁 Concluído [distributions]. OK: 39355, ERR: 0, SKIP: 0
+✅ Concluído distributions. Registros importados: 39355
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [17/38] Orquestrador -> Executando: consolidated_balances
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: CONSOLIDATED_BALANCES (Tabela: dbo_consolidated_balance)
+📁 CSV: dbo_consolidated_balance.csv
+📦 Coleção/Tabela: dbo_consolidated_balance
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 2084
+[K📊 [consolidated_balances] Progress: [==========          ] 48.0% | Processed: 1000/2084 (OK:1000, Err:0, Skip:0) | 386.5 rows/s | Avg Batch: 2499ms | RAM: 23.2MB | ETA: 3s[K📊 [consolidated_balances] Progress: [====================] 100.0% | Processed: 2083/2084 (OK:2083, Err:0, Skip:0) | 675.1 rows/s | Avg Batch: 1312ms | RAM: 25.8MB | ETA: --
+
+🏁 Concluído [consolidated_balances]. OK: 2083, ERR: 0, SKIP: 0
+✅ Concluído consolidated_balances. Registros importados: 2083
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [18/38] Orquestrador -> Executando: consolidated_balances_per_year
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: CONSOLIDATED_BALANCES_PER_YEAR (Tabela: dbo_consolidated_balance_per_year)
+📁 CSV: dbo_consolidated_balance_per_year.csv
+📦 Coleção/Tabela: dbo_consolidated_balance_per_year
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 22943
+[K📊 [consolidated_balances_per_year] Progress: [=                   ] 4.4% | Processed: 1000/22943 (OK:1000, Err:0, Skip:0) | 298.8 rows/s | Avg Batch: 3192ms | RAM: 19.6MB | ETA: 73s[K📊 [consolidated_balances_per_year] Progress: [===                 ] 17.4% | Processed: 4000/22943 (OK:4000, Err:0, Skip:0) | 900.9 rows/s | Avg Batch: 903ms | RAM: 20.9MB | ETA: 21s[K📊 [consolidated_balances_per_year] Progress: [=======             ] 34.9% | Processed: 8000/22943 (OK:8000, Err:0, Skip:0) | 1454.8 rows/s | Avg Batch: 116ms | RAM: 25.5MB | ETA: 10s[K📊 [consolidated_balances_per_year] Progress: [===========         ] 56.7% | Processed: 13000/22943 (OK:13000, Err:0, Skip:0) | 1982.9 rows/s | Avg Batch: 111ms | RAM: 24.9MB | ETA: 5s[K📊 [consolidated_balances_per_year] Progress: [================    ] 78.5% | Processed: 18000/22943 (OK:18000, Err:0, Skip:0) | 2380.3 rows/s | Avg Batch: 110ms | RAM: 32.9MB | ETA: 2s[K📊 [consolidated_balances_per_year] Progress: [====================] 100.0% | Processed: 22942/22943 (OK:22942, Err:0, Skip:0) | 2656.4 rows/s | Avg Batch: 115ms | RAM: 23.8MB | ETA: --
+
+🏁 Concluído [consolidated_balances_per_year]. OK: 22942, ERR: 0, SKIP: 0
+✅ Concluído consolidated_balances_per_year. Registros importados: 22942
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [19/38] Orquestrador -> Executando: transactions
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: TRANSACTIONS (Tabela: dbo_transaction)
+📁 CSV: dbo_transaction.csv
+📦 Coleção/Tabela: dbo_transaction
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Carregando dados auxiliares para desnormalização...
+✅ Dados auxiliares carregados.
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 56280
+[K📊 [transactions] Progress: [                    ] 1.8% | Processed: 1000/56280 (OK:1000, Err:0, Skip:0) | 374.7 rows/s | Avg Batch: 2521ms | RAM: 30.6MB | ETA: 148s[K📊 [transactions] Progress: [=                   ] 5.3% | Processed: 3000/56280 (OK:3000, Err:0, Skip:0) | 794.5 rows/s | Avg Batch: 1051ms | RAM: 26.5MB | ETA: 67s[K📊 [transactions] Progress: [==                  ] 10.7% | Processed: 6000/56280 (OK:6000, Err:0, Skip:0) | 1191.7 rows/s | Avg Batch: 260ms | RAM: 27.3MB | ETA: 42s[K📊 [transactions] Progress: [===                 ] 16.8% | Processed: 9427/56280 (OK:9427, Err:0, Skip:0) | 1561.8 rows/s | Avg Batch: 214ms | RAM: 38.8MB | ETA: 30s[K📊 [transactions] Progress: [=====               ] 23.1% | Processed: 13000/56280 (OK:13000, Err:0, Skip:0) | 1803.6 rows/s | Avg Batch: 185ms | RAM: 32.3MB | ETA: 24s[K📊 [transactions] Progress: [======              ] 28.4% | Processed: 16000/56280 (OK:16000, Err:0, Skip:0) | 1948.8 rows/s | Avg Batch: 200ms | RAM: 43.8MB | ETA: 21s[K📊 [transactions] Progress: [=======             ] 34.2% | Processed: 19234/56280 (OK:19234, Err:0, Skip:0) | 2088.2 rows/s | Avg Batch: 207ms | RAM: 34.1MB | ETA: 18s[K📊 [transactions] Progress: [========            ] 39.1% | Processed: 22000/56280 (OK:22000, Err:0, Skip:0) | 2056.1 rows/s | Avg Batch: 253ms | RAM: 39.9MB | ETA: 17s[K📊 [transactions] Progress: [=========           ] 44.4% | Processed: 25000/56280 (OK:25000, Err:0, Skip:0) | 2115.1 rows/s | Avg Batch: 243ms | RAM: 51.5MB | ETA: 15s[K📊 [transactions] Progress: [==========          ] 51.5% | Processed: 29000/56280 (OK:29000, Err:0, Skip:0) | 2221.7 rows/s | Avg Batch: 191ms | RAM: 65.6MB | ETA: 12s[K📊 [transactions] Progress: [===========         ] 56.9% | Processed: 32000/56280 (OK:32000, Err:0, Skip:0) | 2273.2 rows/s | Avg Batch: 202ms | RAM: 20.9MB | ETA: 11s[K📊 [transactions] Progress: [============        ] 62.2% | Processed: 35000/56280 (OK:35000, Err:0, Skip:0) | 2309.8 rows/s | Avg Batch: 224ms | RAM: 33.4MB | ETA: 9s[K📊 [transactions] Progress: [==============      ] 67.5% | Processed: 38000/56280 (OK:38000, Err:0, Skip:0) | 2312.4 rows/s | Avg Batch: 262ms | RAM: 43.9MB | ETA: 8s[K📊 [transactions] Progress: [===============     ] 74.6% | Processed: 42000/56280 (OK:42000, Err:0, Skip:0) | 2381.4 rows/s | Avg Batch: 223ms | RAM: 59.3MB | ETA: 6s[K📊 [transactions] Progress: [================    ] 80.0% | Processed: 45000/56280 (OK:45000, Err:0, Skip:0) | 2408.6 rows/s | Avg Batch: 192ms | RAM: 69.9MB | ETA: 5s[K📊 [transactions] Progress: [=================   ] 87.1% | Processed: 49000/56280 (OK:49000, Err:0, Skip:0) | 2470.4 rows/s | Avg Batch: 179ms | RAM: 32.8MB | ETA: 3s[K📊 [transactions] Progress: [=================== ] 94.2% | Processed: 53000/56280 (OK:53000, Err:0, Skip:0) | 2521.9 rows/s | Avg Batch: 185ms | RAM: 48.1MB | ETA: 1s[K📊 [transactions] Progress: [====================] 100.0% | Processed: 56279/56280 (OK:56279, Err:0, Skip:0) | 2557.5 rows/s | Avg Batch: 176ms | RAM: 57.6MB | ETA: --
+
+🏁 Concluído [transactions]. OK: 56279, ERR: 0, SKIP: 0
+✅ Concluído transactions. Registros importados: 56279
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [20/38] Orquestrador -> Executando: ownership_transfers
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: OWNERSHIP_TRANSFERS (Tabela: dbo_ownership_transfer_order)
+📁 CSV: dbo_ownership_transfer_order.csv
+📦 Coleção/Tabela: dbo_ownership_transfer_order
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 371
+[K📊 [ownership_transfers] Progress: [====================] 99.7% | Processed: 370/371 (OK:370, Err:0, Skip:0) | 138.9 rows/s | Avg Batch: 0ms | RAM: 18.4MB | ETA: --
+
+🏁 Concluído [ownership_transfers]. OK: 370, ERR: 0, SKIP: 0
+✅ Concluído ownership_transfers. Registros importados: 370
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [21/38] Orquestrador -> Executando: financial_participants
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: FINANCIAL_PARTICIPANTS (Tabela: financial_participant)
+📁 CSV: financial_participant.csv
+📦 Coleção/Tabela: financial_participant
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 700
+[K📊 [financial_participants] Progress: [====================] 99.9% | Processed: 699/700 (OK:699, Err:0, Skip:0) | 217.9 rows/s | Avg Batch: 0ms | RAM: 18.1MB | ETA: --
+
+🏁 Concluído [financial_participants]. OK: 699, ERR: 0, SKIP: 0
+✅ Concluído financial_participants. Registros importados: 699
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [22/38] Orquestrador -> Executando: financial_bills
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: FINANCIAL_BILLS (Tabela: financial_bill_to_pay)
+📁 CSV: financial_bill_to_pay.csv
+📦 Coleção/Tabela: financial_bill_to_pay
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 7572
+[K📊 [financial_bills] Progress: [===                 ] 13.2% | Processed: 1000/7572 (OK:1000, Err:0, Skip:0) | 296.7 rows/s | Avg Batch: 3158ms | RAM: 18.8MB | ETA: 22s[K📊 [financial_bills] Progress: [===========         ] 52.8% | Processed: 4000/7572 (OK:4000, Err:0, Skip:0) | 880.7 rows/s | Avg Batch: 897ms | RAM: 19.0MB | ETA: 4s[K📊 [financial_bills] Progress: [==================  ] 92.4% | Processed: 7000/7572 (OK:7000, Err:0, Skip:0) | 1248.4 rows/s | Avg Batch: 143ms | RAM: 31.6MB | ETA: 0s[K📊 [financial_bills] Progress: [====================] 100.0% | Processed: 7571/7572 (OK:7571, Err:0, Skip:0) | 1299.7 rows/s | Avg Batch: 143ms | RAM: 17.1MB | ETA: --
+
+🏁 Concluído [financial_bills]. OK: 7571, ERR: 0, SKIP: 0
+✅ Concluído financial_bills. Registros importados: 7571
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [23/38] Orquestrador -> Executando: financial_write_offs
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: FINANCIAL_WRITE_OFFS (Tabela: financial_bill_write_off)
+📁 CSV: financial_bill_write_off.csv
+📦 Coleção/Tabela: financial_bill_write_off
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 4595
+[K📊 [financial_write_offs] Progress: [====                ] 21.8% | Processed: 1000/4595 (OK:1000, Err:0, Skip:0) | 401.9 rows/s | Avg Batch: 2324ms | RAM: 19.3MB | ETA: 9s[K📊 [financial_write_offs] Progress: [====================] 100.0% | Processed: 4594/4595 (OK:4594, Err:0, Skip:0) | 1253.8 rows/s | Avg Batch: 666ms | RAM: 26.0MB | ETA: --
+
+🏁 Concluído [financial_write_offs]. OK: 4594, ERR: 0, SKIP: 0
+✅ Concluído financial_write_offs. Registros importados: 4594
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [24/38] Orquestrador -> Executando: tv_certificate_orders
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: TV_CERTIFICATE_ORDERS (Tabela: plat_tesouro_verde_certificate_order)
+📁 CSV: plat_tesouro_verde_certificate_order.csv
+📦 Coleção/Tabela: plat_tesouro_verde_certificate_order
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 657
+[K📊 [tv_certificate_orders] Progress: [====================] 99.8% | Processed: 656/657 (OK:656, Err:0, Skip:0) | 226.2 rows/s | Avg Batch: 0ms | RAM: 28.9MB | ETA: --
+
+🏁 Concluído [tv_certificate_orders]. OK: 656, ERR: 0, SKIP: 0
+✅ Concluído tv_certificate_orders. Registros importados: 656
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [25/38] Orquestrador -> Executando: tv_partners
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: TV_PARTNERS (Tabela: plat_tesouro_verde_partners)
+📁 CSV: plat_tesouro_verde_partners.csv
+📦 Coleção/Tabela: plat_tesouro_verde_partners
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 9
+[K📊 [tv_partners] Progress: [==================  ] 88.9% | Processed: 8/9 (OK:8, Err:0, Skip:0) | 3.0 rows/s | Avg Batch: 0ms | RAM: 16.6MB | ETA: --
+
+🏁 Concluído [tv_partners]. OK: 8, ERR: 0, SKIP: 0
+✅ Concluído tv_partners. Registros importados: 8
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [26/38] Orquestrador -> Executando: tv_campaigns
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: TV_CAMPAIGNS (Tabela: plat_tesouro_verde_campaigns)
+📁 CSV: plat_tesouro_verde_campaigns.csv
+📦 Coleção/Tabela: plat_tesouro_verde_campaigns
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 14
+[K📊 [tv_campaigns] Progress: [=================== ] 92.9% | Processed: 13/14 (OK:13, Err:0, Skip:0) | 5.0 rows/s | Avg Batch: 0ms | RAM: 17.0MB | ETA: --
+
+🏁 Concluído [tv_campaigns]. OK: 13, ERR: 0, SKIP: 0
+✅ Concluído tv_campaigns. Registros importados: 13
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [27/38] Orquestrador -> Executando: tv_dare_royalties
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: TV_DARE_ROYALTIES (Tabela: plat_tesouro_verde_dare_royalties)
+📁 CSV: plat_tesouro_verde_dare_royalties.csv
+📦 Coleção/Tabela: plat_tesouro_verde_dare_royalties
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 406
+[K📊 [tv_dare_royalties] Progress: [====================] 99.8% | Processed: 405/406 (OK:405, Err:0, Skip:0) | 132.1 rows/s | Avg Batch: 0ms | RAM: 17.1MB | ETA: --
+
+🏁 Concluído [tv_dare_royalties]. OK: 405, ERR: 0, SKIP: 0
+✅ Concluído tv_dare_royalties. Registros importados: 405
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [28/38] Orquestrador -> Executando: tv_compensation_intents
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: TV_COMPENSATION_INTENTS (Tabela: plat_tesouro_verde_compensation_intent)
+📁 CSV: plat_tesouro_verde_compensation_intent.csv
+📦 Coleção/Tabela: plat_tesouro_verde_compensation_intent
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 190
+[K📊 [tv_compensation_intents] Progress: [====================] 99.5% | Processed: 189/190 (OK:189, Err:0, Skip:0) | 59.0 rows/s | Avg Batch: 0ms | RAM: 17.8MB | ETA: --
+
+🏁 Concluído [tv_compensation_intents]. OK: 189, ERR: 0, SKIP: 0
+✅ Concluído tv_compensation_intents. Registros importados: 189
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [29/38] Orquestrador -> Executando: akses_distributor_certificate_orders
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: AKSES_DISTRIBUTOR_CERTIFICATE_ORDERS (Tabela: plat_akses_distributor_certificate_order)
+📁 CSV: plat_akses_distributor_certificate_order.csv
+📦 Coleção/Tabela: plat_akses_distributor_certificate_order
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 765
+[K📊 [akses_distributor_certificate_orders] Progress: [====================] 99.9% | Processed: 764/765 (OK:764, Err:0, Skip:0) | 280.5 rows/s | Avg Batch: 0ms | RAM: 18.6MB | ETA: --
+
+🏁 Concluído [akses_distributor_certificate_orders]. OK: 764, ERR: 0, SKIP: 0
+✅ Concluído akses_distributor_certificate_orders. Registros importados: 764
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [30/38] Orquestrador -> Executando: akses_client_certificate_orders
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: AKSES_CLIENT_CERTIFICATE_ORDERS (Tabela: plat_akses_client_certificate_order)
+📁 CSV: plat_akses_client_certificate_order.csv
+📦 Coleção/Tabela: plat_akses_client_certificate_order
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 54
+[K📊 [akses_client_certificate_orders] Progress: [====================] 98.1% | Processed: 53/54 (OK:53, Err:0, Skip:0) | 18.8 rows/s | Avg Batch: 0ms | RAM: 19.9MB | ETA: --
+
+🏁 Concluído [akses_client_certificate_orders]. OK: 53, ERR: 0, SKIP: 0
+✅ Concluído akses_client_certificate_orders. Registros importados: 53
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [31/38] Orquestrador -> Executando: akses_transfer_orders
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: AKSES_TRANSFER_ORDERS (Tabela: plat_akses_transfer_order)
+📁 CSV: plat_akses_transfer_order.csv
+📦 Coleção/Tabela: plat_akses_transfer_order
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 340
+[K📊 [akses_transfer_orders] Progress: [====================] 99.7% | Processed: 339/340 (OK:339, Err:0, Skip:0) | 84.7 rows/s | Avg Batch: 0ms | RAM: 19.5MB | ETA: --
+
+🏁 Concluído [akses_transfer_orders]. OK: 339, ERR: 0, SKIP: 0
+✅ Concluído akses_transfer_orders. Registros importados: 339
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [32/38] Orquestrador -> Executando: akses_purchase_orders
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: AKSES_PURCHASE_ORDERS (Tabela: plat_akses_purchase_order)
+📁 CSV: plat_akses_purchase_order.csv
+📦 Coleção/Tabela: plat_akses_purchase_order
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 34
+[K📊 [akses_purchase_orders] Progress: [=================== ] 97.1% | Processed: 33/34 (OK:33, Err:0, Skip:0) | 11.2 rows/s | Avg Batch: 0ms | RAM: 19.6MB | ETA: --
+
+🏁 Concluído [akses_purchase_orders]. OK: 33, ERR: 0, SKIP: 0
+✅ Concluído akses_purchase_orders. Registros importados: 33
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [33/38] Orquestrador -> Executando: akses_living_carbon_orders
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: AKSES_LIVING_CARBON_ORDERS (Tabela: plat_akses_living_carbon_certificate_order)
+📁 CSV: plat_akses_living_carbon_certificate_order.csv
+📦 Coleção/Tabela: plat_akses_living_carbon_certificate_order
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 49
+[K📊 [akses_living_carbon_orders] Progress: [====================] 98.0% | Processed: 48/49 (OK:48, Err:0, Skip:0) | 17.6 rows/s | Avg Batch: 0ms | RAM: 19.9MB | ETA: --
+
+🏁 Concluído [akses_living_carbon_orders]. OK: 48, ERR: 0, SKIP: 0
+✅ Concluído akses_living_carbon_orders. Registros importados: 48
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [34/38] Orquestrador -> Executando: akses_sale_orders
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: AKSES_SALE_ORDERS (Tabela: plat_akses_sale_order)
+📁 CSV: plat_akses_sale_order.csv
+📦 Coleção/Tabela: plat_akses_sale_order
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 1
+[K📊 [akses_sale_orders] Progress: [                    ] 0.0% | Processed: 0/1 (OK:0, Err:0, Skip:0) | 52.6 rows/s | Avg Batch: 0ms | RAM: 20.1MB | ETA: --
+
+🏁 Concluído [akses_sale_orders]. OK: 0, ERR: 0, SKIP: 0
+✅ Concluído akses_sale_orders. Registros importados: 0
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [35/38] Orquestrador -> Executando: stock_availability_cert_orders
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: STOCK_AVAILABILITY_CERT_ORDERS (Tabela: dbo_stock_availability_certificate_order)
+📁 CSV: dbo_stock_availability_certificate_order.csv
+📦 Coleção/Tabela: dbo_stock_availability_certificate_order
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 1
+[K📊 [stock_availability_cert_orders] Progress: [                    ] 0.0% | Processed: 0/1 (OK:0, Err:0, Skip:0) | 1000.0 rows/s | Avg Batch: 0ms | RAM: 20.2MB | ETA: --
+
+🏁 Concluído [stock_availability_cert_orders]. OK: 0, ERR: 0, SKIP: 0
+✅ Concluído stock_availability_cert_orders. Registros importados: 0
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [36/38] Orquestrador -> Executando: movement_intention_orders
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: MOVEMENT_INTENTION_ORDERS (Tabela: dbo_movement_intention_order)
+📁 CSV: dbo_movement_intention_order.csv
+📦 Coleção/Tabela: dbo_movement_intention_order
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 1
+[K📊 [movement_intention_orders] Progress: [                    ] 0.0% | Processed: 0/1 (OK:0, Err:0, Skip:0) | 500.0 rows/s | Avg Batch: 0ms | RAM: 19.6MB | ETA: --
+
+🏁 Concluído [movement_intention_orders]. OK: 0, ERR: 0, SKIP: 0
+✅ Concluído movement_intention_orders. Registros importados: 0
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [37/38] Orquestrador -> Executando: adjustments
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: ADJUSTMENTS (Tabela: dbo_account_adjustments_order)
+📁 CSV: dbo_account_adjustments_order.csv
+📦 Coleção/Tabela: dbo_account_adjustments_order
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 1588
+[K📊 [adjustments] Progress: [=============       ] 63.0% | Processed: 1000/1588 (OK:1000, Err:0, Skip:0) | 260.3 rows/s | Avg Batch: 3557ms | RAM: 20.8MB | ETA: 2s[K📊 [adjustments] Progress: [====================] 99.9% | Processed: 1587/1588 (OK:1587, Err:0, Skip:0) | 375.6 rows/s | Avg Batch: 3557ms | RAM: 28.9MB | ETA: --
+
+🏁 Concluído [adjustments]. OK: 1587, ERR: 0, SKIP: 0
+✅ Concluído adjustments. Registros importados: 1587
+
+⏳ Cooldown: Aguardando 30s para proteção de cotas Firestore...
+
+──────────────────────────────────────────────────────
+📁 [38/38] Orquestrador -> Executando: blocked_ucs
+
+======================================================
+🚀 IMPORTANDO PARA SUPABASE: BLOCKED_UCS (Tabela: dbo_blocked_ucs)
+📁 CSV: dbo_blocked_ucs.csv
+📦 Coleção/Tabela: dbo_blocked_ucs
+🏷️  Versão da Migração: v1
+⚙️  Modo: LIVE (Escrita)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 296
+[K📊 [blocked_ucs] Progress: [====================] 99.7% | Processed: 295/296 (OK:295, Err:0, Skip:0) | 73.1 rows/s | Avg Batch: 0ms | RAM: 17.4MB | ETA: --
+
+🏁 Concluído [blocked_ucs]. OK: 295, ERR: 0, SKIP: 0
+✅ Concluído blocked_ucs. Registros importados: 295
+
+🎉 ORQUESTRAÇÃO GLOBAL DE MIGRAÇÃO CONCLUÍDA COM SUCESSO!

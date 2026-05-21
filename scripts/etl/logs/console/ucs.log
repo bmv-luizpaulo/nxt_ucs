@@ -1,0 +1,70 @@
+
+======================================================
+🚀 IMPORTANDO: UCS_BATCHES (Tabela: dbo_ucs_batch)
+📁 CSV: dbo_ucs_batch.csv
+📦 Coleção: ucs_batches
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 1
+[K📊 [ucs_batches] Progress: [                    ] 0.0% | Processed: 0/1 (OK:0, Err:0, Skip:0) | 200.0 rows/s | Avg Batch: 0ms | RAM: 26.8MB | ETA: --
+
+🏁 Concluído [ucs_batches]. OK: 0, ERR: 0, SKIP: 0
+
+======================================================
+🚀 IMPORTANDO: UCS_BATCHES_2010 (Tabela: dbo_ucs_batch)
+📁 CSV: dbo_ucs_batch__2010.csv
+📦 Coleção: ucs_batches
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 118508
+[K📊 [ucs_batches_2010] Progress: [==                  ] 8.3% | Processed: 9800/118508 (OK:9800, Err:0, Skip:0) | 9664.7 rows/s | Avg Batch: 10ms | RAM: 36.3MB | ETA: 11s[K📊 [ucs_batches_2010] Progress: [===                 ] 16.0% | Processed: 19000/118508 (OK:19000, Err:0, Skip:0) | 9392.0 rows/s | Avg Batch: 10ms | RAM: 29.1MB | ETA: 11s[K📊 [ucs_batches_2010] Progress: [=====               ] 25.1% | Processed: 29800/118508 (OK:29800, Err:0, Skip:0) | 9841.5 rows/s | Avg Batch: 10ms | RAM: 30.4MB | ETA: 9s[K📊 [ucs_batches_2010] Progress: [=======             ] 34.0% | Processed: 40253/118508 (OK:40253, Err:0, Skip:0) | 9988.3 rows/s | Avg Batch: 10ms | RAM: 42.2MB | ETA: 8s[K📊 [ucs_batches_2010] Progress: [=========           ] 43.2% | Processed: 51226/118508 (OK:51226, Err:0, Skip:0) | 10182.1 rows/s | Avg Batch: 10ms | RAM: 32.0MB | ETA: 7s[K📊 [ucs_batches_2010] Progress: [===========         ] 52.5% | Processed: 62200/118508 (OK:62200, Err:0, Skip:0) | 10306.5 rows/s | Avg Batch: 10ms | RAM: 35.6MB | ETA: 5s[K📊 [ucs_batches_2010] Progress: [============        ] 61.1% | Processed: 72400/118508 (OK:72400, Err:0, Skip:0) | 10275.3 rows/s | Avg Batch: 10ms | RAM: 43.5MB | ETA: 4s[K📊 [ucs_batches_2010] Progress: [==============      ] 69.7% | Processed: 82600/118508 (OK:82600, Err:0, Skip:0) | 10260.9 rows/s | Avg Batch: 10ms | RAM: 42.2MB | ETA: 3s[K📊 [ucs_batches_2010] Progress: [================    ] 78.8% | Processed: 93400/118508 (OK:93400, Err:0, Skip:0) | 10318.2 rows/s | Avg Batch: 10ms | RAM: 44.3MB | ETA: 2s[K📊 [ucs_batches_2010] Progress: [==================  ] 88.3% | Processed: 104600/118508 (OK:104600, Err:0, Skip:0) | 10395.5 rows/s | Avg Batch: 10ms | RAM: 29.0MB | ETA: 1s[K📊 [ucs_batches_2010] Progress: [====================] 97.7% | Processed: 115800/118508 (OK:115800, Err:0, Skip:0) | 10466.4 rows/s | Avg Batch: 10ms | RAM: 30.8MB | ETA: 0s[K📊 [ucs_batches_2010] Progress: [====================] 100.0% | Processed: 118507/118508 (OK:118507, Err:0, Skip:0) | 10469.8 rows/s | Avg Batch: 10ms | RAM: 33.5MB | ETA: --
+
+🏁 Concluído [ucs_batches_2010]. OK: 118507, ERR: 0, SKIP: 0
+
+======================================================
+🚀 IMPORTANDO: UCS_BATCHES_2020 (Tabela: dbo_ucs_batch)
+📁 CSV: dbo_ucs_batch__2020.csv
+📦 Coleção: ucs_batches
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 202
+[K📊 [ucs_batches_2020] Progress: [====================] 99.5% | Processed: 201/202 (OK:201, Err:0, Skip:0) | 5459.5 rows/s | Avg Batch: 10ms | RAM: 35.2MB | ETA: --
+
+🏁 Concluído [ucs_batches_2020]. OK: 201, ERR: 0, SKIP: 0
+
+======================================================
+🚀 IMPORTANDO: UCS_BATCHES_2022 (Tabela: dbo_ucs_batch)
+📁 CSV: dbo_ucs_batch__2022.csv
+📦 Coleção: ucs_batches
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 295
+[K📊 [ucs_batches_2022] Progress: [====================] 99.7% | Processed: 294/295 (OK:294, Err:0, Skip:0) | 7195.1 rows/s | Avg Batch: 10ms | RAM: 23.7MB | ETA: --
+
+🏁 Concluído [ucs_batches_2022]. OK: 294, ERR: 0, SKIP: 0
+
+======================================================
+🚀 IMPORTANDO: UCS_BATCHES_2023 (Tabela: dbo_ucs_batch)
+📁 CSV: dbo_ucs_batch__2023.csv
+📦 Coleção: ucs_batches
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 5
+[K📊 [ucs_batches_2023] Progress: [================    ] 80.0% | Processed: 4/5 (OK:4, Err:0, Skip:0) | 416.7 rows/s | Avg Batch: 0ms | RAM: 23.9MB | ETA: --
+
+🏁 Concluído [ucs_batches_2023]. OK: 4, ERR: 0, SKIP: 0

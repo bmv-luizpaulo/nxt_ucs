@@ -1,0 +1,42 @@
+
+======================================================
+🚀 IMPORTANDO: FINANCIAL_PARTICIPANTS (Tabela: financial_participant)
+📁 CSV: financial_participant.csv
+📦 Coleção: financialParticipants
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 700
+[K📊 [financial_participants] Progress: [====================] 99.9% | Processed: 699/700 (OK:699, Err:0, Skip:0) | 4430.4 rows/s | Avg Batch: 10ms | RAM: 29.5MB | ETA: --
+
+🏁 Concluído [financial_participants]. OK: 699, ERR: 0, SKIP: 0
+
+======================================================
+🚀 IMPORTANDO: FINANCIAL_BILLS (Tabela: financial_bill_to_pay)
+📁 CSV: financial_bill_to_pay.csv
+📦 Coleção: financialBills
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 7572
+[K📊 [financial_bills] Progress: [=================   ] 87.0% | Processed: 6591/7572 (OK:6591, Err:0, Skip:0) | 6584.4 rows/s | Avg Batch: 10ms | RAM: 42.5MB | ETA: 0s[K📊 [financial_bills] Progress: [====================] 100.0% | Processed: 7571/7572 (OK:7571, Err:0, Skip:0) | 6815.5 rows/s | Avg Batch: 10ms | RAM: 36.5MB | ETA: --
+
+🏁 Concluído [financial_bills]. OK: 7571, ERR: 0, SKIP: 0
+
+======================================================
+🚀 IMPORTANDO: FINANCIAL_WRITE_OFFS (Tabela: financial_bill_write_off)
+📁 CSV: financial_bill_write_off.csv
+📦 Coleção: financialWriteOffs
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 4595
+[K📊 [financial_write_offs] Progress: [====================] 100.0% | Processed: 4594/4595 (OK:4594, Err:0, Skip:0) | 10966.6 rows/s | Avg Batch: 10ms | RAM: 35.2MB | ETA: --
+
+🏁 Concluído [financial_write_offs]. OK: 4594, ERR: 0, SKIP: 0

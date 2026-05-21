@@ -1,0 +1,14 @@
+
+======================================================
+🚀 IMPORTANDO: CPRS (Tabela: dbo_cpr)
+📁 CSV: dbo_cpr.csv
+📦 Coleção: cprs
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 22
+[K📊 [cprs] Progress: [=================== ] 95.5% | Processed: 21/22 (OK:21, Err:0, Skip:0) | 594.6 rows/s | Avg Batch: 0ms | RAM: 27.5MB | ETA: --
+
+🏁 Concluído [cprs]. OK: 21, ERR: 0, SKIP: 0

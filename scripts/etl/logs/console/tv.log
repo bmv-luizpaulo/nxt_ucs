@@ -1,0 +1,70 @@
+
+======================================================
+🚀 IMPORTANDO: TV_CERTIFICATE_ORDERS (Tabela: plat_tesouro_verde_certificate_order)
+📁 CSV: plat_tesouro_verde_certificate_order.csv
+📦 Coleção: tvCertificateOrders
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 657
+[K📊 [tv_certificate_orders] Progress: [====================] 99.8% | Processed: 656/657 (OK:656, Err:0, Skip:0) | 3189.3 rows/s | Avg Batch: 10ms | RAM: 37.5MB | ETA: --
+
+🏁 Concluído [tv_certificate_orders]. OK: 656, ERR: 0, SKIP: 0
+
+======================================================
+🚀 IMPORTANDO: TV_PARTNERS (Tabela: plat_tesouro_verde_partners)
+📁 CSV: plat_tesouro_verde_partners.csv
+📦 Coleção: tvPartners
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 9
+[K📊 [tv_partners] Progress: [==================  ] 88.9% | Processed: 8/9 (OK:8, Err:0, Skip:0) | 360.0 rows/s | Avg Batch: 0ms | RAM: 37.8MB | ETA: --
+
+🏁 Concluído [tv_partners]. OK: 8, ERR: 0, SKIP: 0
+
+======================================================
+🚀 IMPORTANDO: TV_CAMPAIGNS (Tabela: plat_tesouro_verde_campaigns)
+📁 CSV: plat_tesouro_verde_campaigns.csv
+📦 Coleção: tvCampaigns
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 14
+[K📊 [tv_campaigns] Progress: [=================== ] 92.9% | Processed: 13/14 (OK:13, Err:0, Skip:0) | 538.5 rows/s | Avg Batch: 0ms | RAM: 38.0MB | ETA: --
+
+🏁 Concluído [tv_campaigns]. OK: 13, ERR: 0, SKIP: 0
+
+======================================================
+🚀 IMPORTANDO: TV_DARE_ROYALTIES (Tabela: plat_tesouro_verde_dare_royalties)
+📁 CSV: plat_tesouro_verde_dare_royalties.csv
+📦 Coleção: tvDareRoyalties
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 406
+[K📊 [tv_dare_royalties] Progress: [====================] 99.8% | Processed: 405/406 (OK:405, Err:0, Skip:0) | 5638.9 rows/s | Avg Batch: 10ms | RAM: 27.3MB | ETA: --
+
+🏁 Concluído [tv_dare_royalties]. OK: 405, ERR: 0, SKIP: 0
+
+======================================================
+🚀 IMPORTANDO: TV_COMPENSATION_INTENTS (Tabela: plat_tesouro_verde_compensation_intent)
+📁 CSV: plat_tesouro_verde_compensation_intent.csv
+📦 Coleção: tvCompensationIntents
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 190
+[K📊 [tv_compensation_intents] Progress: [====================] 99.5% | Processed: 189/190 (OK:189, Err:0, Skip:0) | 6333.3 rows/s | Avg Batch: 0ms | RAM: 28.6MB | ETA: --
+
+🏁 Concluído [tv_compensation_intents]. OK: 189, ERR: 0, SKIP: 0

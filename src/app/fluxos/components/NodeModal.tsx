@@ -101,14 +101,14 @@ export const NodeModal: React.FC<NodeModalProps> = ({
             <Button
               onClick={() => {
                 if (!editingNode.id) return;
-                const childNode = {
+                const childNode: FlowNode = {
                   id: generateId(),
                   parentId: editingNode.id,
                   name: `Ramificação: ${editingNode.name || 'Nova'}`,
                   description: `Auditoria derivada de: ${editingNode.name}`,
                   assignedTo: editingNode.assignedTo || 'Eu',
-                  type: editingNode.type || 'manual',
-                  status: 'pending' as NodeStatus,
+                  type: (editingNode.type || 'task'),
+                  status: 'pending',
                   subtasks: []
                 };
                 setFlows(prev => prev.map(f => {

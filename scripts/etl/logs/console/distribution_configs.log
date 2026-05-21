@@ -1,0 +1,14 @@
+
+======================================================
+🚀 IMPORTANDO: DISTRIBUTION_CONFIGS (Tabela: dbo_distribution_configuration)
+📁 CSV: dbo_distribution_configuration.csv
+📦 Coleção: distributionConfigs
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 14
+[K📊 [distribution_configs] Progress: [=================== ] 92.9% | Processed: 13/14 (OK:13, Err:0, Skip:0) | 177.2 rows/s | Avg Batch: 0ms | RAM: 26.8MB | ETA: --
+
+🏁 Concluído [distribution_configs]. OK: 13, ERR: 0, SKIP: 0

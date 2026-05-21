@@ -1,0 +1,28 @@
+
+======================================================
+🚀 IMPORTANDO: CONSOLIDATED_BALANCES (Tabela: dbo_consolidated_balance)
+📁 CSV: dbo_consolidated_balance.csv
+📦 Coleção: consolidatedBalances
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 2084
+[K📊 [consolidated_balances] Progress: [====================] 100.0% | Processed: 2083/2084 (OK:2083, Err:0, Skip:0) | 6946.7 rows/s | Avg Batch: 10ms | RAM: 37.2MB | ETA: --
+
+🏁 Concluído [consolidated_balances]. OK: 2083, ERR: 0, SKIP: 0
+
+======================================================
+🚀 IMPORTANDO: CONSOLIDATED_BALANCES_PER_YEAR (Tabela: dbo_consolidated_balance_per_year)
+📁 CSV: dbo_consolidated_balance_per_year.csv
+📦 Coleção: consolidatedBalancesPerYear
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 22943
+[K📊 [consolidated_balances_per_year] Progress: [========            ] 41.0% | Processed: 9400/22943 (OK:9400, Err:0, Skip:0) | 9179.7 rows/s | Avg Batch: 10ms | RAM: 32.5MB | ETA: 1s[K📊 [consolidated_balances_per_year] Progress: [=================   ] 87.3% | Processed: 20038/22943 (OK:20038, Err:0, Skip:0) | 9895.3 rows/s | Avg Batch: 10ms | RAM: 38.8MB | ETA: 0s[K📊 [consolidated_balances_per_year] Progress: [====================] 100.0% | Processed: 22942/22943 (OK:22942, Err:0, Skip:0) | 9988.2 rows/s | Avg Batch: 10ms | RAM: 40.6MB | ETA: --
+
+🏁 Concluído [consolidated_balances_per_year]. OK: 22942, ERR: 0, SKIP: 0

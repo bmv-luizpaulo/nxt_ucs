@@ -1,0 +1,14 @@
+
+======================================================
+🚀 IMPORTANDO: BLOCKED_UCS (Tabela: dbo_blocked_ucs)
+📁 CSV: dbo_blocked_ucs.csv
+📦 Coleção: blockedUcs
+🏷️  Versão da Migração: v1
+⚙️  Modo: DRY-RUN (Sem Gravar)
+⚙️  Continuar de Checkpoint: NÃO (Reiniciar)
+======================================================
+⏳ Calculando total de linhas...
+✅ Total de linhas no CSV: 296
+[K📊 [blocked_ucs] Progress: [====================] 99.7% | Processed: 295/296 (OK:295, Err:0, Skip:0) | 3083.3 rows/s | Avg Batch: 10ms | RAM: 26.8MB | ETA: --
+
+🏁 Concluído [blocked_ucs]. OK: 295, ERR: 0, SKIP: 0
