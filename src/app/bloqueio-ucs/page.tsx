@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { useLegacyData } from "@/hooks/useLegacyData";
+import * as XLSX from "xlsx";
 import { 
   Search, 
   RefreshCw, 
@@ -18,7 +19,8 @@ import {
   Eye,
   Info,
   Ban,
-  X
+  X,
+  Download
 } from "lucide-react";
 
 export default function BloqueioUcsPage() {
@@ -56,12 +58,95 @@ export default function BloqueioUcsPage() {
 
   const records = rows as any[];
   const visibleRecords = records.filter(r => !deletedIds.includes(r.id));
+  const [exporting, setExporting] = useState(false);
 
   const triggerToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => {
       setToastMessage(null);
     }, 3000);
+  };
+
+  const handleExportExcel = async () => {
+    setExporting(true);
+    try {
+      const qs = new URLSearchParams({
+        domain: "bloqueio-ucs",
+        page: "1",
+        pageSize: "100000",
+        blockId,
+        userQuery,
+        perfil,
+        status,
+        areaQuery,
+      });
+      const res = await fetch(`/api/legado/domain?${qs}`);
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Erro ao buscar dados para exportação');
+      
+      const allRecords = (json.rows || []) as any[];
+      const exportRecords = allRecords.filter(r => !deletedIds.includes(r.id));
+      
+      if (exportRecords.length === 0) {
+        triggerToast("Nenhum registro para exportar");
+        setExporting(false);
+        return;
+      }
+
+      const excelRows = exportRecords.map(r => {
+        const statusLabel = r.status === "FINISHED" ? "Finalizado" : "Pendente";
+        
+        const translatedReasons: Record<string, string> = {
+          'OTHERS': 'Outros',
+          'BREACH_OF_CONTRACT': 'Quebra de Contrato',
+          'CONTRACT_CANCELLATION': 'Cancelamento de Contrato',
+          'REGISTRATION_PENDING': 'Pendência Cadastral',
+          'COURT_BLOCK': 'Bloqueio Judicial',
+        };
+        const reasonLabel = translatedReasons[r.reason] || r.reason || "Outros";
+        
+        const start = formatDateTime(r.created_date);
+        const end = r.active === 't' ? 'Ativo' : formatDateTime(r.last_modified_date);
+        const periodoLabel = `${start} - ${end}`;
+        
+        return {
+          "ID do Bloqueio": `#${r.id}`,
+          "Nome do Usuário": r.user_name || "—",
+          "Perfil do Usuário": r.user_role || "—",
+          "Data de Criação": start,
+          "Última Modificação": r.last_modified_date ? formatDateTime(r.last_modified_date) : "—",
+          "Área": r.area_name || "—",
+          "Código da Área": r.area_code || "—",
+          "Status": statusLabel,
+          "Motivo do Bloqueio": reasonLabel,
+          "Descrição do Motivo": r.description && r.description !== "—" ? r.description : "—",
+          "Período": periodoLabel
+        };
+      });
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(excelRows);
+      
+      // Auto-fit column widths
+      const maxLens = Object.keys(excelRows[0]).map(key => {
+        let maxLen = key.length;
+        for (const row of excelRows) {
+          const val = (row as any)[key] || "";
+          maxLen = Math.max(maxLen, String(val).length);
+        }
+        return { wch: maxLen + 2 };
+      });
+      ws['!cols'] = maxLens;
+
+      XLSX.utils.book_append_sheet(wb, ws, "Bloqueios de UCs");
+      XLSX.writeFile(wb, `bloqueio-ucs-${new Date().toISOString().slice(0,10)}.xlsx`);
+      triggerToast("Planilha Excel baixada com sucesso!");
+    } catch (err: any) {
+      console.error(err);
+      triggerToast("Erro ao exportar dados: " + err.message);
+    } finally {
+      setExporting(false);
+    }
   };
 
   const handleClearFilters = () => {
@@ -108,6 +193,18 @@ export default function BloqueioUcsPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <button 
+              onClick={handleExportExcel}
+              disabled={loading || exporting || visibleRecords.length === 0}
+              className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-black rounded-lg transition-colors shadow-sm disabled:opacity-50"
+            >
+              {exporting ? (
+                <Loader2 size={14} className="animate-spin text-slate-400" />
+              ) : (
+                <Download size={14} className="text-slate-500" />
+              )}
+              {exporting ? "Exportando..." : "Exportar Excel"}
+            </button>
             <button className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black rounded-lg transition-colors shadow-lg shadow-indigo-100">
               <Plus size={14} />
               Novo

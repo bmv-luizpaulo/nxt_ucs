@@ -1435,6 +1435,8 @@ async function handleBloqueioUcs(searchParams: URLSearchParams) {
       reason: fixEncoding(t.reason) || '—',
       description: fixEncoding(t.description) || '—',
       amount: t.amount,
+      active: t.active,
+      last_modified_date: t.last_modified_date,
     };
   });
 
