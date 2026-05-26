@@ -1,9 +1,5 @@
 import { NextResponse } from 'next/server';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as readline from 'readline';
-
-const CSV_DIR = path.resolve(process.cwd(), 'docs/banco_legado_csvs_completo');
+import { supabaseAdmin } from '@/lib/db/supabase';
 
 // Domain classification by filename prefix
 function getDomain(name: string): string {
@@ -16,64 +12,38 @@ function getDomain(name: string): string {
   return 'Outros';
 }
 
-// Counts lines in a file efficiently (no full load)
-async function countLines(filePath: string): Promise<number> {
-  return new Promise((resolve) => {
-    let count = 0;
-    const rl = readline.createInterface({
-      input: fs.createReadStream(filePath),
-      crlfDelay: Infinity,
-    });
-    rl.on('line', () => count++);
-    rl.on('close', () => resolve(Math.max(0, count - 1))); // subtract header
-    rl.on('error', () => resolve(-1));
-  });
-}
-
-// Reads only the first line to extract column names
-function getColumns(filePath: string): Promise<string[]> {
-  return new Promise((resolve) => {
-    const rl = readline.createInterface({
-      input: fs.createReadStream(filePath, { encoding: 'latin1' }),
-      crlfDelay: Infinity,
-    });
-    rl.once('line', (line) => {
-      rl.close();
-      resolve(line.split(',').map(c => c.trim().replace(/^"|"$/g, '')));
-    });
-    rl.on('error', () => resolve([]));
-  });
-}
-
 export async function GET() {
-  if (!fs.existsSync(CSV_DIR)) {
-    return NextResponse.json({ error: 'CSV directory not found', path: CSV_DIR }, { status: 404 });
-  }
+  try {
+    const { data: dbTables, error: rpcError } = await supabaseAdmin.rpc('get_tables_metadata');
 
-  const files = fs.readdirSync(CSV_DIR).filter(f => f.endsWith('.csv'));
+    if (rpcError || !dbTables) {
+      console.warn("RPC 'get_tables_metadata' failed or missing, returning empty table list:", rpcError?.message);
+      return NextResponse.json({ tables: [], total: 0 });
+    }
 
-  const tables = await Promise.all(
-    files.map(async (file) => {
-      const filePath = path.join(CSV_DIR, file);
-      const stats = fs.statSync(filePath);
-      const name = file.replace('.csv', '');
-      const [rows, columns] = await Promise.all([countLines(filePath), getColumns(filePath)]);
+    const tables = dbTables.map((t: any) => {
+      const name = t.table_name;
+      // Filter out metadata columns to keep user view clean
+      const metadataCols = ['migrated_at', 'migration_version', 'source', 'original_table', 'original_id', 'source_hash', 'document_hash'];
+      const columns = (t.columns || []).filter((c: string) => !metadataCols.includes(c));
 
       return {
         name,
-        file,
+        file: `${name}.csv`,
         domain: getDomain(name),
-        sizeBytes: stats.size,
-        sizeKB: Math.round(stats.size / 1024),
-        rows,
+        sizeBytes: 0,
+        sizeKB: 0,
+        rows: Number(t.row_count || 0),
         columns,
         columnCount: columns.length,
       };
-    })
-  );
+    });
 
-  // Sort: by domain then by name
-  tables.sort((a, b) => a.domain.localeCompare(b.domain) || a.name.localeCompare(b.name));
+    // Sort: by domain then by name
+    tables.sort((a: any, b: any) => a.domain.localeCompare(b.domain) || a.name.localeCompare(b.name));
 
-  return NextResponse.json({ tables, total: tables.length, csvDir: CSV_DIR });
+    return NextResponse.json({ tables, total: tables.length });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message || String(err) }, { status: 500 });
+  }
 }

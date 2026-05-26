@@ -13,6 +13,30 @@ export interface User {
 
 export type AppUser = User;
 
+export type AuditAction =
+  | 'LOGIN'
+  | 'LOGOUT'
+  | 'CADASTRO_AUDITOR'
+  | 'EDICAO_AUDITOR'
+  | 'REMOCAO_AUDITOR'
+  | 'AJUSTE_IMEI'
+  | 'EXPORTACAO_PDF'
+  | 'EXPORTACAO_CSV'
+  | 'RESET_SENHA'
+  | 'ATUALIZACAO_PERFIL'
+  | 'SINCRONIZACAO';
+
+export interface AuditLog {
+  id: string;
+  timestamp: string;
+  userEmail: string;
+  userName: string;
+  action: AuditAction;
+  target: string;
+  targetId?: string;
+  metadata?: Record<string, any>;
+}
+
 export type OrderStatus = 'ok' | 'pendente' | 'cancelado' | 'erro';
 export type ReportType = 'executive' | 'juridico';
 
@@ -137,7 +161,35 @@ export interface Pedido {
   uf?: string;
   do?: boolean;
   createdAt: string;
+
+  // ── KPIs de Impacto Ambiental ──────────────────────────
+  nucleo?: string;                  // Nome do núcleo/localidade
+  validade?: string;                // Data de validade do certificado
+
+  // Relatório de Impacto Direto
+  kpiPessoas?: number;              // Número de pessoas
+  kpiEnergiaKwh?: number;           // Consumo Anual de Energia Elétrica (kWh)
+  kpiAguaM3?: number;               // Consumo Anual de Água (m³)
+  kpiEtanolL?: number;              // Consumo Anual de Etanol (litros)
+  kpiGasolinaL?: number;            // Consumo Anual de Gasolina (litros)
+  kpiDieselL?: number;              // Consumo Anual de Diesel (litros)
+  kpiGnvM3?: number;                // Consumo Anual de GNV (m³)
+  kpiJetfuelL?: number;             // Consumo Anual de Jetfuel (litros)
+  kpiLixoT?: number;                // Consumo Anual de Lixo (toneladas)
+  kpiAreaM2?: number;               // Área Ocupada (m²)
+  kpiLenhaT?: number;               // Consumo de Lenha (toneladas)
+
+  // KPIs – Impacto Positivo
+  kpiFlorestaNativaM2?: number;     // Preservação vegetação nativa (m²)
+  kpiCarbonoTCO2e?: number;         // Carbono estocado (tCO2e)
+  kpiFaunaHa?: number;              // Espécies de fauna (Unidade/ha)
+  kpiFloraHa?: number;              // Espécies de flora (Unidade/ha)
+  kpiMadeiraM3?: number;            // Preservação de madeira (m³)
+  kpiProducaoApoiadaM2?: number;    // Área de produção apoiada (m²)
+  kpiHidrologicoLAno?: number;      // Regulação do ciclo hidrológico (l/ano)
+  kpiRecuperacaoAreaM2?: number;    // Apoio a recuperação de área (m²)
 }
+
 
 export interface Movimento {
   id: string;

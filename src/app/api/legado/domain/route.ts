@@ -1,50 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import * as fs from 'fs';
-import * as path from 'path';
-import csv from 'csv-parser';
-
-const CSV_DIR = path.resolve(process.cwd(), 'docs/banco_legado_csvs_completo');
+import { readCSVStream } from '@/lib/csvReader';
 
 function fixEncoding(str: string): string {
-  if (!str) return '';
-  try {
-    const decoded = Buffer.from(str, 'latin1').toString('utf8');
-    if (decoded.includes('\uFFFD') && !str.includes('\uFFFD')) {
-      return str;
-    }
-    return decoded;
-  } catch {
-    return str;
-  }
-}
-
-function fixRow(row: Record<string, string>): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const [k, v] of Object.entries(row)) out[k] = fixEncoding(v);
-  return out;
-}
-
-function readCSVStream(
-  file: string,
-  filter?: (row: Record<string, string>) => boolean,
-  limit = 200000
-): Promise<Record<string, string>[]> {
-  return new Promise((resolve) => {
-    const filePath = path.join(CSV_DIR, file);
-    if (!fs.existsSync(filePath)) return resolve([]);
-    const results: Record<string, string>[] = [];
-    const parser = fs.createReadStream(filePath, { encoding: 'latin1' }).pipe(csv());
-    parser.on('data', (row: Record<string, string>) => {
-      const fixed = fixRow(row);
-      if (!filter || filter(fixed)) {
-        results.push(fixed);
-        if (results.length >= limit) parser.destroy();
-      }
-    });
-    parser.on('close', () => resolve(results));
-    parser.on('end', () => resolve(results));
-    parser.on('error', () => resolve(results));
-  });
+  return str || '';
 }
 
 // ─── Domain handlers ──────────────────────────────────────────────────────────
@@ -1674,6 +1632,20 @@ async function handleCertificate(searchParams: URLSearchParams) {
   };
 }
 
+async function handleCertificateByCode(searchParams: URLSearchParams) {
+  const code = searchParams.get('code') || '';
+  if (!code) {
+    throw new Error('Parâmetro code é obrigatório.');
+  }
+
+  const { getCertificateByCode } = await import('@/lib/csvReader');
+  const certData = await getCertificateByCode(code);
+  if (!certData) {
+    return null;
+  }
+  return certData;
+}
+
 async function handleEstoqueDashboard() {
   const [batches, blocked, transactions, transfers, adjustments] = await Promise.all([
     readCSVStream('dbo_ucs_batch.csv'),
@@ -1836,6 +1808,7 @@ export async function GET(req: NextRequest) {
       case 'bloqueio-ucs': return NextResponse.json(await handleBloqueioUcs(searchParams));
       case 'cpr-verde': return NextResponse.json(await handleCprVerde(searchParams));
       case 'certificate': return NextResponse.json(await handleCertificate(searchParams));
+      case 'certificate-by-code': return NextResponse.json(await handleCertificateByCode(searchParams));
       case 'estoque-dashboard': return NextResponse.json(await handleEstoqueDashboard());
       default:
         return NextResponse.json({ error: `Domain desconhecido: ${domain}` }, { status: 400 });

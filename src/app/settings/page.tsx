@@ -1,25 +1,30 @@
 
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { 
   Settings, 
   User, 
   Users, 
   Shield, 
-  Key, 
   Loader2, 
   Trash2,
   UserPlus,
   ShieldCheck,
   RefreshCw,
   Copy,
-  Share2,
   MessageCircle,
   Mail,
   CheckCircle2,
-  KeyRound
+  KeyRound,
+  Search,
+  Filter,
+  X,
+  Download,
+  Activity,
+  Clock,
+  UserCheck
 } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Button } from "@/components/ui/button";
@@ -32,11 +37,12 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useUser, useFirestore, useCollection, useMemoFirebase, useAuth } from "@/firebase";
-import { collection, doc, deleteDoc, writeBatch, setDoc } from "firebase/firestore";
+import { collection, doc, deleteDoc, writeBatch, setDoc, query, orderBy, limit } from "firebase/firestore";
 import { sendPasswordResetEmail } from "firebase/auth";
-import { AppUser } from "@/lib/types";
+import { AppUser, AuditLog, AuditAction } from "@/lib/types";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { writeAuditLog } from "@/lib/audit";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -46,12 +52,17 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("perfil");
   const [isAddingUser, setIsAddingUser] = useState(false);
   const [showInviteResult, setShowInviteResult] = useState(false);
-  const [newUserData, setNewUserData] = useState({ nome: "", email: "", role: "auditor", cargo: "", cpf: "" });
+  const [newUserData, setNewUserData] = useState({ nome: "", email: "", role: "auditor", cargo: "", cpf: "", telefone: "" });
   const [editingUser, setEditingUser] = useState<AppUser | null>(null);
   const [generatedLink, setGeneratedLink] = useState("");
   const [profileForm, setProfileForm] = useState({ nome: "", cargo: "", cpf: "" });
-  const [auditLogs, setAuditLogs] = useState<any[]>([]);
-  const [isLogsLoading, setIsLogsLoading] = useState(true);
+
+  // Filtros da aba de logs
+  const [logSearch, setLogSearch] = useState("");
+  const [logUserFilter, setLogUserFilter] = useState("all");
+  const [logActionFilter, setLogActionFilter] = useState("all");
+  const [logDateFrom, setLogDateFrom] = useState("");
+  const [logDateTo, setLogDateTo] = useState("");
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -69,6 +80,14 @@ export default function SettingsPage() {
   }, [firestore, user]);
 
   const { data: appUsers, isLoading: isUsersLoading } = useCollection<AppUser>(usersQuery);
+
+  // Logs reais do Firestore — últimos 500, ordenados por timestamp desc
+  const logsQuery = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return query(collection(firestore, "auditLogs"), orderBy("timestamp", "desc"), limit(500));
+  }, [firestore, user]);
+
+  const { data: rawLogs, isLoading: isLogsLoading } = useCollection<AuditLog>(logsQuery);
 
   const staffUsers = appUsers ? appUsers.filter(u => !!u.email && !!u.role) : [];
 
@@ -94,17 +113,20 @@ export default function SettingsPage() {
       cargo: profileForm.cargo.toUpperCase(),
       ultimoAcesso: new Date().toISOString()
     }, { merge: true });
+    await writeAuditLog(firestore, user, "ATUALIZACAO_PERFIL", `Perfil atualizado: ${profileForm.nome}`);
     toast({ title: "Perfil atualizado", description: "Suas informações foram salvas com sucesso." });
   };
 
   const handleDeleteUser = async (id: string) => {
-    if (!firestore) return;
+    if (!firestore || !user) return;
+    const target = staffUsers.find(u => u.id === id);
     await deleteDoc(doc(firestore, "users", id));
+    await writeAuditLog(firestore, user, "REMOCAO_AUDITOR", target?.nome ?? id, { targetId: id });
     toast({ variant: "destructive", title: "Usuário removido" });
   };
 
   const handleAddAuditor = async () => {
-    if (!firestore || !newUserData.nome || !newUserData.email) return;
+    if (!firestore || !newUserData.nome || !newUserData.email || !user) return;
     
     const newId = `U-${Date.now()}`;
     const userRef = doc(firestore, "users", newId);
@@ -121,6 +143,11 @@ export default function SettingsPage() {
       createdAt: new Date().toISOString()
     });
 
+    await writeAuditLog(firestore, user, "CADASTRO_AUDITOR", newUserData.nome.toUpperCase(), {
+      targetId: newId,
+      metadata: { email: newUserData.email, role: newUserData.role }
+    });
+
     const baseUrl = window.location.origin;
     setGeneratedLink(baseUrl);
     
@@ -130,7 +157,7 @@ export default function SettingsPage() {
   };
 
   const handleUpdateUser = async () => {
-    if (!firestore || !editingUser) return;
+    if (!firestore || !editingUser || !user) return;
     
     const userRef = doc(firestore, "users", editingUser.id);
     await setDoc(userRef, {
@@ -139,6 +166,7 @@ export default function SettingsPage() {
       cargo: editingUser.cargo?.toUpperCase() || "",
     }, { merge: true });
 
+    await writeAuditLog(firestore, user, "EDICAO_AUDITOR", editingUser.nome.toUpperCase(), { targetId: editingUser.id });
     setEditingUser(null);
     toast({ title: "Auditor Atualizado", description: "As informações foram salvas com sucesso." });
   };
@@ -146,6 +174,7 @@ export default function SettingsPage() {
   const handleSendResetLink = async (email: string) => {
     try {
       await sendPasswordResetEmail(auth, email);
+      if (firestore && user) await writeAuditLog(firestore, user, "RESET_SENHA", email);
       toast({ title: "Link Enviado", description: "O auditor recebeu as instruções por e-mail." });
     } catch (e) {
       toast({ variant: "destructive", title: "Erro ao enviar link", description: "O usuário pode ainda não ter uma conta no Auth." });
@@ -154,7 +183,11 @@ export default function SettingsPage() {
 
   const handleShareWhatsApp = () => {
     const message = `Olá ${newUserData.nome}! Você foi convidado para o ecossistema LedgerTrust Auditoria. \n\nPara acessar, utilize seu e-mail corporativo: ${newUserData.email} \n\nDefina sua senha no portal bmv acessando: ${generatedLink} e clicando em 'Esqueci minha senha'.`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+    const phone = newUserData.telefone.replace(/\D/g, "");
+    const url = phone
+      ? `https://wa.me/55${phone}?text=${encodeURIComponent(message)}`
+      : `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
   };
 
   const handleCopyLink = () => {
@@ -176,19 +209,59 @@ export default function SettingsPage() {
     toast({ title: "Usuários de teste sincronizados" });
   };
 
-  useEffect(() => {
-    // Simulando carregamento de logs técnicos
-    setTimeout(() => {
-      const mockLogs = [
-        { id: "L-001", date: new Date().toISOString(), user: "LUIZPAULO.JESUS", action: "AJUSTE IMEI", target: "ADAIR JOAO GUTT", status: "ok", ip: "187.32.11.4" },
-        { id: "L-002", date: new Date(Date.now() - 3600000).toISOString(), user: "LUIZPAULO.JESUS", action: "EXPORTAÇÃO PDF", target: "DOSSIÊ TÉCNICO", status: "ok", ip: "187.32.11.4" },
-        { id: "L-003", date: new Date(Date.now() - 86400000).toISOString(), user: "ADMINISTRADOR BMV", action: "LOGIN SISTEMA", target: "PORTAL AUDITORIA", status: "ok", ip: "45.12.8.99" },
-        { id: "L-004", date: new Date(Date.now() - 172800000).toISOString(), user: "LUIZPAULO.JESUS", action: "CADASTRO AUDITOR", target: "CARLOS EDUARDO", status: "ok", ip: "187.32.11.4" },
-      ];
-      setAuditLogs(mockLogs);
-      setIsLogsLoading(false);
-    }, 1500);
-  }, []);
+  // Logs filtrados (client-side após busca do Firestore)
+  const filteredLogs = useMemo(() => {
+    if (!rawLogs) return [];
+    return rawLogs.filter(log => {
+      const searchLower = logSearch.toLowerCase();
+      const matchesSearch = !logSearch ||
+        log.target.toLowerCase().includes(searchLower) ||
+        log.userName.toLowerCase().includes(searchLower) ||
+        log.userEmail.toLowerCase().includes(searchLower);
+      const matchesUser = logUserFilter === "all" || log.userEmail === logUserFilter;
+      const matchesAction = logActionFilter === "all" || log.action === logActionFilter;
+      const logDate = new Date(log.timestamp);
+      const matchesFrom = !logDateFrom || logDate >= new Date(logDateFrom);
+      const matchesTo = !logDateTo || logDate <= new Date(logDateTo + "T23:59:59");
+      return matchesSearch && matchesUser && matchesAction && matchesFrom && matchesTo;
+    });
+  }, [rawLogs, logSearch, logUserFilter, logActionFilter, logDateFrom, logDateTo]);
+
+  const last24hCount = useMemo(() => {
+    if (!rawLogs) return 0;
+    const cutoff = Date.now() - 86400000;
+    return rawLogs.filter(l => new Date(l.timestamp).getTime() > cutoff).length;
+  }, [rawLogs]);
+
+  const uniqueUsersCount = useMemo(() => {
+    if (!rawLogs) return 0;
+    return new Set(rawLogs.map(l => l.userEmail)).size;
+  }, [rawLogs]);
+
+  const handleExportCsv = () => {
+    if (!filteredLogs.length) return;
+    const headers = ["Data", "Hora", "Usuário", "E-mail", "Ação", "Entidade"];
+    const rows = filteredLogs.map(l => {
+      const d = new Date(l.timestamp);
+      return [
+        d.toLocaleDateString("pt-BR"),
+        d.toLocaleTimeString("pt-BR"),
+        l.userName,
+        l.userEmail,
+        l.action,
+        l.target
+      ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(",");
+    });
+    const csv = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `audit-log-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    if (firestore && user) writeAuditLog(firestore, user, "EXPORTACAO_CSV", `${filteredLogs.length} registros exportados`);
+  };
 
   if (isUserLoading || !user) {
     return (
@@ -354,7 +427,7 @@ export default function SettingsPage() {
                             <UserPlus className="w-5 h-5" /> Novo Staff
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-md bg-white rounded-3xl p-8 border-none">
+                        <DialogContent className="max-w-md bg-white rounded-3xl p-8 border-none max-h-[90vh] overflow-y-auto">
                           <DialogHeader>
                             <DialogTitle className="text-xl font-black uppercase text-slate-900">Novo Membro do Staff</DialogTitle>
                             <DialogDescription className="text-slate-400 font-medium">Cadastre um novo membro para o staff do sistema.</DialogDescription>
@@ -398,6 +471,16 @@ export default function SettingsPage() {
                                   className="h-14 rounded-xl border-slate-100 bg-slate-50 font-bold"
                                 />
                               </div>
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase text-slate-400">Telefone (WhatsApp)</Label>
+                              <Input 
+                                type="tel"
+                                placeholder="(00) 00000-0000" 
+                                value={newUserData.telefone} 
+                                onChange={e => setNewUserData({...newUserData, telefone: e.target.value})}
+                                className="h-14 rounded-xl border-slate-100 bg-slate-50 font-bold"
+                              />
                             </div>
                             <div className="space-y-2">
                               <Label className="text-[10px] font-black uppercase text-slate-400">Nível de Acesso</Label>
@@ -613,74 +696,202 @@ export default function SettingsPage() {
                 </TabsContent>
 
                 <TabsContent value="seguranca" className="mt-0">
-                  <div className="space-y-10">
-                    <div className="flex justify-between items-end">
+                  <div className="space-y-8">
+                    {/* Header */}
+                    <div className="flex flex-wrap justify-between items-end gap-4">
                       <div>
                         <h2 className="text-[32px] font-black uppercase text-slate-900 leading-none mb-2">Segurança & Logs</h2>
                         <p className="text-[14px] font-medium text-slate-400 italic">Rastreabilidade completa de todas as operações do staff no Ledger.</p>
                       </div>
                       <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-full">
-                         <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                         <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Sincronização em Tempo Real Ativa</span>
+                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                        <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Tempo Real Ativo</span>
                       </div>
                     </div>
 
-                    <Card className="rounded-[3rem] border-none shadow-sm overflow-hidden bg-white">
+                    {/* KPI Cards */}
+                    <div className="grid grid-cols-3 gap-5">
+                      <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex items-center gap-4">
+                        <div className="w-12 h-12 bg-[#734DCC]/10 rounded-2xl flex items-center justify-center shrink-0">
+                          <Activity className="w-6 h-6 text-[#734DCC]" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Total de Eventos</p>
+                          <p className="text-3xl font-black text-slate-900">{isLogsLoading ? "—" : filteredLogs.length}</p>
+                        </div>
+                      </div>
+                      <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex items-center gap-4">
+                        <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center shrink-0">
+                          <Clock className="w-6 h-6 text-emerald-500" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Últimas 24h</p>
+                          <p className="text-3xl font-black text-slate-900">{isLogsLoading ? "—" : last24hCount}</p>
+                        </div>
+                      </div>
+                      <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex items-center gap-4">
+                        <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center shrink-0">
+                          <UserCheck className="w-6 h-6 text-blue-500" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Usuários Únicos</p>
+                          <p className="text-3xl font-black text-slate-900">{isLogsLoading ? "—" : uniqueUsersCount}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Filtros */}
+                    <Card className="rounded-3xl border-none shadow-sm bg-white p-6">
+                      <div className="flex flex-wrap gap-3 items-end">
+                        <div className="flex-1 min-w-[180px] space-y-1.5">
+                          <Label className="text-[10px] font-black uppercase text-slate-400">Busca Livre</Label>
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <Input
+                              placeholder="Usuário, entidade..."
+                              value={logSearch}
+                              onChange={e => setLogSearch(e.target.value)}
+                              className="h-11 pl-9 rounded-xl border-slate-100 bg-slate-50 text-sm font-medium"
+                            />
+                          </div>
+                        </div>
+                        <div className="min-w-[180px] space-y-1.5">
+                          <Label className="text-[10px] font-black uppercase text-slate-400">Usuário</Label>
+                          <Select value={logUserFilter} onValueChange={setLogUserFilter}>
+                            <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-slate-100 text-sm font-medium">
+                              <SelectValue placeholder="Todos" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">Todos os usuários</SelectItem>
+                              {staffUsers.map(u => (
+                                <SelectItem key={u.id} value={u.email}>{u.nome}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="min-w-[180px] space-y-1.5">
+                          <Label className="text-[10px] font-black uppercase text-slate-400">Tipo de Ação</Label>
+                          <Select value={logActionFilter} onValueChange={setLogActionFilter}>
+                            <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-slate-100 text-sm font-medium">
+                              <SelectValue placeholder="Todas" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">Todas as ações</SelectItem>
+                              {(["LOGIN","LOGOUT","CADASTRO_AUDITOR","EDICAO_AUDITOR","REMOCAO_AUDITOR","AJUSTE_IMEI","EXPORTACAO_PDF","EXPORTACAO_CSV","RESET_SENHA","ATUALIZACAO_PERFIL","SINCRONIZACAO"] as AuditAction[]).map(a => (
+                                <SelectItem key={a} value={a}>{a.replace(/_/g, " ")}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="min-w-[140px] space-y-1.5">
+                          <Label className="text-[10px] font-black uppercase text-slate-400">De</Label>
+                          <Input type="date" value={logDateFrom} onChange={e => setLogDateFrom(e.target.value)} className="h-11 rounded-xl bg-slate-50 border-slate-100 text-sm" />
+                        </div>
+                        <div className="min-w-[140px] space-y-1.5">
+                          <Label className="text-[10px] font-black uppercase text-slate-400">Até</Label>
+                          <Input type="date" value={logDateTo} onChange={e => setLogDateTo(e.target.value)} className="h-11 rounded-xl bg-slate-50 border-slate-100 text-sm" />
+                        </div>
+                        {(logSearch || logUserFilter !== "all" || logActionFilter !== "all" || logDateFrom || logDateTo) && (
+                          <Button
+                            variant="ghost"
+                            onClick={() => { setLogSearch(""); setLogUserFilter("all"); setLogActionFilter("all"); setLogDateFrom(""); setLogDateTo(""); }}
+                            className="h-11 px-4 rounded-xl text-slate-400 hover:text-rose-500 flex gap-2 text-[11px] font-black uppercase"
+                          >
+                            <X className="w-4 h-4" /> Limpar
+                          </Button>
+                        )}
+                      </div>
+                    </Card>
+
+                    {/* Tabela de Logs */}
+                    <Card className="rounded-3xl border-none shadow-sm overflow-hidden bg-white">
                       <Table>
                         <TableHeader className="bg-slate-50/50">
-                          <TableRow className="border-b border-slate-100 h-16">
-                            <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 pl-12">Horário / Registro</TableHead>
+                          <TableRow className="border-b border-slate-100 h-14">
+                            <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 pl-8">Data / Hora</TableHead>
                             <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Usuário</TableHead>
-                            <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Ação Realizada</TableHead>
+                            <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Ação</TableHead>
                             <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Entidade Alvo</TableHead>
-                            <TableHead className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 text-right pr-12">Endereço IP</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {isLogsLoading ? (
-                             <TableRow>
-                                <TableCell colSpan={5} className="h-64 text-center">
-                                   <Loader2 className="w-8 h-8 text-indigo-500 animate-spin mx-auto mb-4" />
-                                   <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Acessando Ledger de Segurança...</p>
-                                </TableCell>
-                             </TableRow>
-                          ) : auditLogs.map((log) => (
-                             <TableRow key={log.id} className="h-20 border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                                <TableCell className="pl-12">
-                                   <div className="flex flex-col">
-                                      <span className="text-[12px] font-bold text-slate-900">{new Date(log.date).toLocaleDateString()}</span>
-                                      <span className="text-[10px] text-slate-400 font-mono">{new Date(log.date).toLocaleTimeString()}</span>
-                                   </div>
+                            <TableRow>
+                              <TableCell colSpan={4} className="h-64 text-center">
+                                <Loader2 className="w-8 h-8 text-[#734DCC] animate-spin mx-auto mb-4" />
+                                <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Conectando ao Ledger de Segurança...</p>
+                              </TableCell>
+                            </TableRow>
+                          ) : filteredLogs.length === 0 ? (
+                            <TableRow>
+                              <TableCell colSpan={4} className="h-64 text-center">
+                                <div className="flex flex-col items-center gap-3 opacity-40">
+                                  <Filter className="w-12 h-12 text-slate-300" />
+                                  <p className="text-[12px] font-black uppercase text-slate-400">Nenhum registro encontrado</p>
+                                  <p className="text-[11px] text-slate-400">Ajuste os filtros ou aguarde novos eventos</p>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ) : filteredLogs.map((log) => {
+                            const actionColors: Record<string, string> = {
+                              LOGIN: "bg-emerald-50 text-emerald-700 border-emerald-200",
+                              LOGOUT: "bg-slate-100 text-slate-600 border-slate-200",
+                              CADASTRO_AUDITOR: "bg-blue-50 text-blue-700 border-blue-200",
+                              EDICAO_AUDITOR: "bg-amber-50 text-amber-700 border-amber-200",
+                              REMOCAO_AUDITOR: "bg-rose-50 text-rose-700 border-rose-200",
+                              RESET_SENHA: "bg-purple-50 text-purple-700 border-purple-200",
+                              EXPORTACAO_CSV: "bg-indigo-50 text-indigo-700 border-indigo-200",
+                              EXPORTACAO_PDF: "bg-indigo-50 text-indigo-700 border-indigo-200",
+                              ATUALIZACAO_PERFIL: "bg-teal-50 text-teal-700 border-teal-200",
+                              AJUSTE_IMEI: "bg-orange-50 text-orange-700 border-orange-200",
+                            };
+                            const colorClass = actionColors[log.action] ?? "bg-slate-100 text-slate-600 border-slate-200";
+                            const d = new Date(log.timestamp);
+                            return (
+                              <TableRow key={log.id} className="h-16 border-b border-slate-50 hover:bg-slate-50/60 transition-colors">
+                                <TableCell className="pl-8">
+                                  <div className="flex flex-col">
+                                    <span className="text-[12px] font-bold text-slate-900">{d.toLocaleDateString("pt-BR")}</span>
+                                    <span className="text-[10px] text-slate-400 font-mono">{d.toLocaleTimeString("pt-BR")}</span>
+                                  </div>
                                 </TableCell>
                                 <TableCell>
-                                   <span className="text-[11px] font-black text-slate-700 uppercase">{log.user}</span>
+                                  <div className="flex flex-col">
+                                    <span className="text-[12px] font-black text-slate-800 uppercase">{log.userName}</span>
+                                    <span className="text-[10px] text-slate-400">{log.userEmail}</span>
+                                  </div>
                                 </TableCell>
                                 <TableCell>
-                                   <Badge variant="outline" className="text-[10px] font-black uppercase border-slate-200">
-                                      {log.action}
-                                   </Badge>
+                                  <Badge className={cn("text-[10px] font-black uppercase border px-2.5 py-1", colorClass)}>
+                                    {log.action.replace(/_/g, " ")}
+                                  </Badge>
                                 </TableCell>
                                 <TableCell>
-                                   <span className="text-[11px] font-bold text-slate-500 uppercase">{log.target}</span>
+                                  <span className="text-[12px] font-bold text-slate-600">{log.target}</span>
                                 </TableCell>
-                                <TableCell className="text-right pr-12">
-                                   <span className="text-[10px] font-mono text-slate-400">{log.ip}</span>
-                                </TableCell>
-                             </TableRow>
-                          ))}
+                              </TableRow>
+                            );
+                          })}
                         </TableBody>
                       </Table>
                     </Card>
 
+                    {/* Export Banner */}
                     <div className="bg-[#734DCC] rounded-[2.5rem] p-10 flex items-center justify-between shadow-2xl shadow-indigo-200 relative overflow-hidden">
-                       <div className="relative z-10">
-                          <h4 className="text-white text-xl font-black uppercase mb-1">Exportar Log de Operações</h4>
-                          <p className="text-indigo-100/70 text-sm font-medium">Gere um documento assinado com todos os logs de integridade deste mês.</p>
-                       </div>
-                       <Button className="bg-white text-[#734DCC] hover:bg-indigo-50 h-14 px-10 rounded-2xl font-black uppercase text-[11px] tracking-widest relative z-10 transition-transform active:scale-95">
-                          Emitir Relatório Final (CSV)
-                       </Button>
-                       <ShieldCheck className="absolute -right-5 -bottom-5 w-48 h-48 text-white/5" />
+                      <div className="relative z-10">
+                        <h4 className="text-white text-xl font-black uppercase mb-1">Exportar Log de Operações</h4>
+                        <p className="text-indigo-100/70 text-sm font-medium">
+                          {filteredLogs.length} registro{filteredLogs.length !== 1 ? "s" : ""} prontos para exportar com os filtros atuais.
+                        </p>
+                      </div>
+                      <Button
+                        onClick={handleExportCsv}
+                        disabled={filteredLogs.length === 0}
+                        className="bg-white text-[#734DCC] hover:bg-indigo-50 h-14 px-10 rounded-2xl font-black uppercase text-[11px] tracking-widest relative z-10 transition-transform active:scale-95 flex gap-2 disabled:opacity-40"
+                      >
+                        <Download className="w-4 h-4" /> Exportar CSV
+                      </Button>
+                      <ShieldCheck className="absolute -right-5 -bottom-5 w-48 h-48 text-white/5" />
                     </div>
                   </div>
                 </TabsContent>

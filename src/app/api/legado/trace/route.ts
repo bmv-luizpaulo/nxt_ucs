@@ -1,63 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import * as fs from 'fs';
-import * as path from 'path';
-import csv from 'csv-parser';
-
-const CSV_DIR = path.resolve(process.cwd(), 'docs/banco_legado_csvs_completo');
-
-function fixEncoding(str: string): string {
-  if (!str) return '';
-  try { return Buffer.from(str, 'latin1').toString('utf8'); } catch { return str; }
-}
-
-function fixRow(row: Record<string, string>): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const [k, v] of Object.entries(row)) out[k] = fixEncoding(v);
-  return out;
-}
+import { readCSVStream } from '@/lib/csvReader';
 
 // Stream a CSV and collect rows where column === value (stops early if limit reached)
-function queryCSV(
+async function queryCSV(
   file: string,
   column: string,
   value: string,
   limit = 500
 ): Promise<Record<string, string>[]> {
-  return new Promise((resolve) => {
-    const filePath = path.join(CSV_DIR, file);
-    if (!fs.existsSync(filePath)) return resolve([]);
-    const results: Record<string, string>[] = [];
-    const parser = fs.createReadStream(filePath, { encoding: 'latin1' }).pipe(csv());
-    parser.on('data', (row: Record<string, string>) => {
-      if (row[column] === value) {
-        results.push(fixRow(row));
-        if (results.length >= limit) parser.destroy();
-      }
-    });
-    parser.on('close', () => resolve(results));
-    parser.on('end', () => resolve(results));
-    parser.on('error', () => resolve(results));
-  });
+  return readCSVStream(file, (row) => row[column] === value, limit);
 }
 
 // Fetch a single row by id
-function getById(file: string, id: string): Promise<Record<string, string> | null> {
-  return new Promise((resolve) => {
-    const filePath = path.join(CSV_DIR, file);
-    if (!fs.existsSync(filePath)) return resolve(null);
-    const parser = fs.createReadStream(filePath, { encoding: 'latin1' }).pipe(csv());
-    let found = false;
-    parser.on('data', (row: Record<string, string>) => {
-      if (!found && row.id === id) {
-        found = true;
-        resolve(fixRow(row));
-        parser.destroy();
-      }
-    });
-    parser.on('close', () => { if (!found) resolve(null); });
-    parser.on('end', () => { if (!found) resolve(null); });
-    parser.on('error', () => resolve(null));
-  });
+async function getById(file: string, id: string): Promise<Record<string, string> | null> {
+  const results = await readCSVStream(file, (row) => row.id === id, 1);
+  return results[0] || null;
 }
 
 // Build a user lookup map from dbo_user for a set of IDs

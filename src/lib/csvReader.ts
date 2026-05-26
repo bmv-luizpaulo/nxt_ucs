@@ -1,49 +1,88 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import csv from 'csv-parser';
+import { supabaseAdmin } from './db/supabase';
 
-const CSV_DIR = path.resolve(process.cwd(), 'docs/banco_legado_csvs_completo');
-
-function fixEncoding(str: string): string {
-  if (!str) return '';
-  try {
-    const decoded = Buffer.from(str, 'latin1').toString('utf8');
-    if (decoded.includes('\uFFFD') && !str.includes('\uFFFD')) {
-      return str;
-    }
-    return decoded;
-  } catch {
-    return str;
-  }
-}
-
-function fixRow(row: Record<string, string>): Record<string, string> {
+// Maps database row keys back to the original CSV headers for full compatibility
+function dbToCsvRow(tableName: string, dbRow: any): Record<string, string> {
   const out: Record<string, string> = {};
-  for (const [k, v] of Object.entries(row)) out[k] = fixEncoding(v);
+
+  for (const [key, val] of Object.entries(dbRow)) {
+    let csvKey = key;
+    let csvVal: any = val;
+
+    if (val === null || val === undefined) {
+      csvVal = '';
+    } else if (typeof val === 'boolean') {
+      csvVal = val ? 't' : 'f';
+    } else if (val instanceof Date) {
+      csvVal = val.toISOString();
+    } else {
+      csvVal = String(val);
+    }
+
+    // Mapping rules
+    if (tableName === 'dbo_area' && key === 'is_private') {
+      csvKey = 'private';
+    } else if (tableName === 'dbo_platform' && key === 'is_final_platform') {
+      csvKey = 'final_platform';
+    } else if (tableName === 'dbo_platform' && key === 'is_public_only') {
+      csvKey = 'public_only';
+    } else if (key === 'original_created_at') {
+      if (tableName === 'dbo_role_user' || tableName === 'dbo_blocked_ucs' || tableName === 'plat_tesouro_verde_certificate_order') {
+        csvKey = 'created_date';
+      } else if (tableName === 'dbo_user') {
+        csvKey = 'created_on';
+      } else {
+        csvKey = 'created_date';
+      }
+    } else if (key === 'original_updated_at') {
+      if (tableName === 'dbo_account_adjustments_order') {
+        csvKey = 'last_modified_date';
+      } else if (tableName === 'dbo_role_user' || tableName === 'dbo_blocked_ucs' || tableName === 'plat_tesouro_verde_certificate_order') {
+        csvKey = 'updated_date';
+      } else {
+        csvKey = 'last_modified_date';
+      }
+    } else if (key === 'original_created_on') {
+      csvKey = 'created_on';
+    } else if (key === 'original_finished_on') {
+      csvKey = 'finished_on';
+    } else if (key === 'original_updated_on') {
+      csvKey = 'updated_on';
+    } else if (tableName === 'dbo_ucs_quote' && key === 'legacy_id') {
+      csvKey = 'id';
+    }
+
+    out[csvKey] = csvVal;
+  }
+
   return out;
 }
 
-export function readCSVStream(
+export async function readCSVStream(
   file: string,
   filter?: (row: Record<string, string>) => boolean,
   limit = 200000
 ): Promise<Record<string, string>[]> {
-  return new Promise((resolve) => {
-    const filePath = path.join(CSV_DIR, file);
-    if (!fs.existsSync(filePath)) return resolve([]);
-    const results: Record<string, string>[] = [];
-    const parser = fs.createReadStream(filePath, { encoding: 'latin1' }).pipe(csv());
-    parser.on('data', (row: Record<string, string>) => {
-      const fixed = fixRow(row);
-      if (!filter || filter(fixed)) {
-        results.push(fixed);
-        if (results.length >= limit) parser.destroy();
-      }
-    });
-    parser.on('close', () => resolve(results));
-    parser.on('end', () => resolve(results));
-    parser.on('error', () => resolve(results));
-  });
+  const tableName = file.replace('.csv', '');
+  
+  const { data, error } = await supabaseAdmin
+    .from(tableName)
+    .select('*')
+    .limit(limit);
+
+  if (error) {
+    console.error(`[csvReader:readCSVStream] Error fetching table ${tableName} from Supabase:`, error.message);
+    return [];
+  }
+
+  if (!data) return [];
+
+  const mappedData = data.map((dbRow: any) => dbToCsvRow(tableName, dbRow));
+
+  if (filter) {
+    return mappedData.filter(filter);
+  }
+
+  return mappedData;
 }
 
 export interface ResolvedCertificateData {
